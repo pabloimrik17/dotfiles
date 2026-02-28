@@ -2,7 +2,7 @@
 
 ### Requirement: Zsh external plugin sources use OS-conditional paths
 
-Source paths for zsh-autosuggestions and zsh-syntax-highlighting SHALL use template conditionals for platform differences (e.g., `/usr/local/share/` on Intel macOS vs `/opt/homebrew/share/` on Apple Silicon vs `/usr/share/` on Linux). fzf binary PATH SHALL also use OS/arch-conditional template paths (`/opt/homebrew/opt/fzf/bin` on ARM macOS, `/usr/local/opt/fzf/bin` on Intel macOS). fzf initialization SHALL be inline via `source <(fzf --zsh)` instead of sourcing an external `~/.fzf.zsh` file.
+Source paths for zsh-autosuggestions and zsh-syntax-highlighting SHALL use template conditionals for platform differences (e.g., `/usr/local/share/` on Intel macOS vs `/opt/homebrew/share/` on Apple Silicon vs `/usr/share/` on Linux). On macOS, fzf binary PATH SHALL use OS/arch-conditional template paths (`/opt/homebrew/opt/fzf/bin` on ARM, `/usr/local/opt/fzf/bin` on Intel). fzf initialization SHALL be inline via `source <(fzf --zsh)` instead of sourcing an external `~/.fzf.zsh` file.
 
 #### Scenario: Correct fzf PATH on Apple Silicon macOS
 
