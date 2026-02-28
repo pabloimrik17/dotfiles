@@ -2,6 +2,7 @@
 # run_once_install-packages.sh — chezmoi runs this once on first apply
 # Installs tool dependencies with interactive confirmation per group.
 
+# Note: set -e intentionally omitted — script continues on individual package failures
 set -o pipefail
 
 ERRORS=0

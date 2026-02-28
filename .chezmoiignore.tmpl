@@ -5,9 +5,20 @@ openspec/
 .claude/
 .codex/
 .gitignore
+.husky/
+.idea/
+.worktrees/
+.oxfmtrc.json
+.oxfmtignore
+bun.lock
+commitlint.config.ts
+lint-staged.config.ts
+opencode.json
+package.json
+renovate.json
 
 {{- if ne .chezmoi.os "darwin" }}
 # macOS-only files — exclude on non-darwin
-dot_config/ghostty/config
-dot_config/ghostty/themes/**
+.config/ghostty/config
+.config/ghostty/themes/**
 {{- end }}

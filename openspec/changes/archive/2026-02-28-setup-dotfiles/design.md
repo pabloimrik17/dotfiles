@@ -3,6 +3,7 @@
 3 machines (2 macOS, 1 future Windows) with Ghostty, Zsh, and Claude Code configured independently. No current dotfiles management — configs are edited locally and drift between machines. The `dotfiles` repo is a new standalone GitHub repo; chezmoi is the management tool.
 
 Current config locations:
+
 - `~/.config/ghostty/config` + `themes/` (4 catppuccin variants)
 - `~/.zshrc` (oh-my-zsh, starship, aliases, tool integrations) + `~/.config/starship.toml`
 - `~/.claude/settings.json` (global) + `settings.local.json` (machine-local, excluded)
@@ -12,6 +13,7 @@ Key challenge: `.zshrc` and `settings.json` contain hardcoded paths (`/Users/eth
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Single source of truth for all 3 tool configs
 - 2-command bootstrap on a new macOS machine (`brew install chezmoi && chezmoi init --apply`)
 - Machine-specific path resolution via templates
@@ -19,6 +21,7 @@ Key challenge: `.zshrc` and `settings.json` contain hardcoded paths (`/Users/eth
 - Future-ready for Windows (ignore rules, OS conditionals)
 
 **Non-Goals:**
+
 - Windows support now (deferred — only macOS targets at launch)
 - Managing oh-my-zsh plugin source code (installed via git clone, not vendored)
 - Managing runtime data (`~/.claude/cache/`, `~/.claude/history.jsonl`, etc.)
@@ -32,6 +35,7 @@ Key challenge: `.zshrc` and `settings.json` contain hardcoded paths (`/Users/eth
 **Choice**: chezmoi
 
 **Alternatives considered**:
+
 - **GNU Stow**: Symlink-only, no templating, no OS detection. Would require separate scripts for path differences and dependency installation.
 - **yadm**: Git-based, supports templates, but less mature and smaller community than chezmoi.
 - **Nix home-manager**: Fully declarative and reproducible, but steep learning curve and heavyweight for this scope.
@@ -44,6 +48,7 @@ Key challenge: `.zshrc` and `settings.json` contain hardcoded paths (`/Users/eth
 **Choice**: Dedicated `dotfiles` repo on GitHub
 
 **Alternatives considered**:
+
 - **Subdirectory of monolab with `.chezmoiroot`**: Works technically but couples dotfiles distribution to the full monorepo clone. Adds weight and creates a chicken-and-egg problem (need Node/pnpm to use Nx, but dotfiles install Node).
 
 **Rationale**: Dotfiles have zero code dependency on monolab. Decoupled repo keeps bootstrap instant and follows the universal `<user>/dotfiles` convention.
@@ -61,10 +66,12 @@ Key challenge: `.zshrc` and `settings.json` contain hardcoded paths (`/Users/eth
 **Rationale**: Fewer templates = easier to edit and diff. Ghostty config has no paths or OS-specific values. Starship config is symbol definitions — universal. Only `.zshrc` (home paths, brew paths) and `settings.json` (home paths in statusLine) need templating.
 
 Files as templates:
+
 - `dot_zshrc.tmpl` — `{{ .chezmoi.homeDir }}`, brew prefix conditionals
 - `dot_claude/settings.json.tmpl` — `{{ .chezmoi.homeDir }}` in statusLine paths
 
 Files as static:
+
 - `dot_config/ghostty/config`
 - `dot_config/ghostty/themes/*`
 - `dot_config/starship.toml`
@@ -90,6 +97,7 @@ Files as static:
 **Choice**: Single `run_once_install-packages.sh.tmpl` with `read -p` prompts per group.
 
 Groups:
+
 1. Brew packages (starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit)
 2. Fonts (font-hack-nerd-font via brew cask)
 3. Oh-my-zsh + custom plugins (you-should-use via git clone; zsh-autosuggestions and zsh-syntax-highlighting via brew)
