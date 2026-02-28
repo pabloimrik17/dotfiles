@@ -1,0 +1,49 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended",
+        ":dependencyDashboard",
+        ":semanticCommits",
+        ":enableVulnerabilityAlertsWithLabel(security)"
+    ],
+    "timezone": "Europe/Madrid",
+    "reviewers": ["pabloimrik17"],
+    "labels": ["dependencies"],
+    "baseBranchPatterns": ["main"],
+    "dependencyDashboardTitle": "📦 Dependency Dashboard",
+    "prConcurrentLimit": 10,
+    "prHourlyLimit": 2,
+    "configMigration": true,
+    "minimumReleaseAge": "7 days",
+    "rangeStrategy": "pin",
+    "packageRules": [
+        {
+            "matchUpdateTypes": ["patch"],
+            "schedule": ["on the first day of the month"]
+        },
+        {
+            "matchUpdateTypes": ["minor"],
+            "schedule": ["on the first day of the month every 2 months"]
+        },
+        {
+            "matchUpdateTypes": ["major"],
+            "schedule": ["on the first day of the month every 3 months"]
+        }
+    ],
+    "customManagers": [
+        {
+            "customType": "regex",
+            "description": "Update pinned MCP server versions in opencode.json",
+            "fileMatch": ["^opencode\\.json$"],
+            "matchStrings": ["\"(?<depName>@?[^\"@]+)@(?<currentValue>[^\"]+)\""],
+            "datasourceTemplate": "npm"
+        },
+        {
+            "customType": "regex",
+            "description": "Update pinned MCP server versions in .mcp.json",
+            "fileMatch": ["^\\.mcp\\.json$"],
+            "matchStrings": ["\"(?<depName>@?[^\"@]+)@(?<currentValue>[^\"]+)\""],
+            "datasourceTemplate": "npm"
+        }
+    ]
+}
