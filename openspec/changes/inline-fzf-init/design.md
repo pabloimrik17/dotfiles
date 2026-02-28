@@ -45,6 +45,6 @@ source <(fzf --zsh)
 
 ## Risks / Trade-offs
 
-- **[fzf < 0.48]** → `source <(fzf --zsh)` requires fzf 0.48+. Mitigation: brew installs 0.58+ currently, and the install script already uses brew. This is a non-issue for this repo.
+- **[fzf < 0.48]** → `source <(fzf --zsh)` requires fzf >= 0.48. Mitigation: Homebrew satisfies this requirement, and the install script (`run_once_install-packages.sh.tmpl`) already uses brew. Verify with `fzf --version`.
 - **[Dead file]** → Existing `~/.fzf.zsh` files on machines remain but are no longer sourced. Mitigation: Harmless — the file sits unused. No cleanup needed.
 - **[Linux]** → The PATH shim is macOS-only (brew paths). On Linux, fzf installed via package manager is already in PATH. The `source <(fzf --zsh)` line works on both. Mitigation: The template conditional only wraps the PATH block, not the `source` line.
