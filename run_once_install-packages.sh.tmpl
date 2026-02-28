@@ -44,13 +44,19 @@ fi
 # Group 1: Brew packages
 # ------------------------------------------------------------------
 BREW_PACKAGES=(starship eza bat zoxide atuin fzf ripgrep lazygit)
-# Map package names to binary names where they differ
-declare -A PKG_BINS=([ripgrep]=rg)
+
+# Resolve the binary name for a given package (bash 3 compatible)
+pkg_bin() {
+    case "$1" in
+        ripgrep) echo "rg" ;;
+        *)       echo "$1" ;;
+    esac
+}
 
 if confirm "Install brew packages (${BREW_PACKAGES[*]})?"; then
     info "Installing brew packages..."
     for pkg in "${BREW_PACKAGES[@]}"; do
-        bin="${PKG_BINS[$pkg]:-$pkg}"
+        bin="$(pkg_bin "$pkg")"
         if command -v "$bin" &>/dev/null; then
             info "  $pkg — already installed, skipping"
         else
@@ -70,7 +76,9 @@ fi
 if confirm "Install Hack Nerd Font?"; then
     info "Installing Hack Nerd Font..."
     if brew list --cask font-hack-nerd-font &>/dev/null; then
-        info "  font-hack-nerd-font — already installed, skipping"
+        info "  font-hack-nerd-font — already installed (via brew), skipping"
+    elif ls ~/Library/Fonts/HackNerdFont*.ttf &>/dev/null 2>&1; then
+        info "  font-hack-nerd-font — already installed (manual), skipping"
     else
         if ! brew install --cask font-hack-nerd-font; then
             error "Failed to install font-hack-nerd-font"
