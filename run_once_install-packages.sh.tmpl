@@ -43,11 +43,14 @@ fi
 # Group 1: Brew packages
 # ------------------------------------------------------------------
 BREW_PACKAGES=(starship eza bat zoxide atuin fzf ripgrep lazygit)
+# Map package names to binary names where they differ
+declare -A PKG_BINS=([ripgrep]=rg)
 
 if confirm "Install brew packages (${BREW_PACKAGES[*]})?"; then
     info "Installing brew packages..."
     for pkg in "${BREW_PACKAGES[@]}"; do
-        if command -v "$pkg" &>/dev/null; then
+        bin="${PKG_BINS[$pkg]:-$pkg}"
+        if command -v "$bin" &>/dev/null; then
             info "  $pkg — already installed, skipping"
         else
             info "  Installing $pkg..."
