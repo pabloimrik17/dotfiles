@@ -6,7 +6,7 @@ The repo SHALL enforce the conventional commits standard on all commit messages 
 
 #### Scenario: Valid conventional commit accepted
 
-- **WHEN** a commit message follows the format `type(scope): description` (e.g., `feat: add oxfmt formatting`)
+- **WHEN** a commit message follows the format `type(scope?): description` (e.g., `feat: add oxfmt formatting`, `fix(hooks): correct husky init`)
 - **THEN** commitlint passes and the commit succeeds
 
 #### Scenario: Invalid commit message rejected

@@ -12,7 +12,7 @@
 
 ## 3. Husky and Git Hooks
 
-- [ ] 3.1 Run `bunx husky` to initialize the `.husky/` directory
+- [ ] 3.1 Run `bunx husky init` to initialize the `.husky/` directory
 - [ ] 3.2 Create `.husky/pre-commit` hook: `bunx lint-staged --config lint-staged.config.ts`
 - [ ] 3.3 Create `.husky/commit-msg` hook: `bunx commitlint --edit $1`
 
