@@ -1,4 +1,10 @@
-## ADDED Requirements
+# Capability: bun-init
+
+## Purpose
+
+Bun-based project initialization — package.json structure, lockfile management, prepare scripts, formatting scripts, and devDependencies.
+
+## Requirements
 
 ### Requirement: Bun-initialized project
 
@@ -44,9 +50,9 @@ The `package.json` SHALL include `"lint:oxfmt"` and `"lint:oxfmt:fix"` scripts.
 
 ### Requirement: DevDependencies
 
-The `package.json` SHALL declare all tooling as `devDependencies`: `oxfmt`, `husky`, `lint-staged`, `@commitlint/cli`, `@commitlint/config-conventional`, `@commitlint/types`.
+The `package.json` SHALL declare all tooling as `devDependencies`: `oxfmt`, `husky`, `lint-staged`, `@commitlint/cli`, `@commitlint/config-conventional`, `@commitlint/types`, and `@types/bun`.
 
 #### Scenario: All tools are dev dependencies
 
 - **WHEN** `package.json` is inspected
-- **THEN** the `devDependencies` object contains `oxfmt`, `husky`, `lint-staged`, `@commitlint/cli`, `@commitlint/config-conventional`, and `@commitlint/types`
+- **THEN** the `devDependencies` object contains `oxfmt`, `husky`, `lint-staged`, `@commitlint/cli`, `@commitlint/config-conventional`, `@commitlint/types`, and `@types/bun`
