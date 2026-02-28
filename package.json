@@ -1,0 +1,19 @@
+{
+    "name": "dotfiles",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "prepare": "husky",
+        "lint:oxfmt": "oxfmt --check --ignore-path .oxfmtignore",
+        "lint:oxfmt:fix": "oxfmt --ignore-path .oxfmtignore"
+    },
+    "devDependencies": {
+        "@commitlint/cli": "^20.4.2",
+        "@commitlint/config-conventional": "^20.4.2",
+        "@commitlint/types": "^20.4.0",
+        "@types/bun": "latest",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.3.0",
+        "oxfmt": "^0.35.0"
+    }
+}
