@@ -1,0 +1,147 @@
+#!/bin/bash
+# run_once_install-packages.sh — chezmoi runs this once on first apply
+# Installs tool dependencies with interactive confirmation per group.
+
+set -o pipefail
+
+ERRORS=0
+
+info() {
+    echo "[dotfiles] $*"
+}
+
+warn() {
+    echo "[dotfiles] WARNING: $*" >&2
+}
+
+error() {
+    echo "[dotfiles] ERROR: $*" >&2
+    ERRORS=$((ERRORS + 1))
+}
+
+confirm() {
+    local prompt="$1"
+    local reply
+    read -r -p "[dotfiles] $prompt [Y/n] " reply </dev/tty
+    case "$reply" in
+        [nN]*) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
+{{ if eq .chezmoi.os "darwin" -}}
+# ====================================================================
+# macOS — install via Homebrew
+# ====================================================================
+
+if ! command -v brew &>/dev/null; then
+    error "Homebrew is not installed. Please install it first: https://brew.sh"
+    exit 1
+fi
+
+# ------------------------------------------------------------------
+# Group 1: Brew packages
+# ------------------------------------------------------------------
+BREW_PACKAGES=(starship eza bat zoxide atuin fzf ripgrep lazygit)
+# Map package names to binary names where they differ
+declare -A PKG_BINS=([ripgrep]=rg)
+
+if confirm "Install brew packages (${BREW_PACKAGES[*]})?"; then
+    info "Installing brew packages..."
+    for pkg in "${BREW_PACKAGES[@]}"; do
+        bin="${PKG_BINS[$pkg]:-$pkg}"
+        if command -v "$bin" &>/dev/null; then
+            info "  $pkg — already installed, skipping"
+        else
+            info "  Installing $pkg..."
+            if ! brew install "$pkg"; then
+                error "Failed to install $pkg"
+            fi
+        fi
+    done
+else
+    info "Skipping brew packages."
+fi
+
+# ------------------------------------------------------------------
+# Group 2: Fonts
+# ------------------------------------------------------------------
+if confirm "Install Hack Nerd Font?"; then
+    info "Installing Hack Nerd Font..."
+    if brew list --cask font-hack-nerd-font &>/dev/null; then
+        info "  font-hack-nerd-font — already installed, skipping"
+    else
+        if ! brew install --cask font-hack-nerd-font; then
+            error "Failed to install font-hack-nerd-font"
+        fi
+    fi
+else
+    info "Skipping font installation."
+fi
+
+# ------------------------------------------------------------------
+# Group 3: Oh-my-zsh + plugins
+# ------------------------------------------------------------------
+if confirm "Install oh-my-zsh and zsh plugins?"; then
+    # oh-my-zsh
+    if [ -d "$HOME/.oh-my-zsh" ]; then
+        info "  oh-my-zsh — already installed, skipping"
+    else
+        info "  Installing oh-my-zsh..."
+        if ! sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended; then
+            error "Failed to install oh-my-zsh"
+        fi
+    fi
+
+    # you-should-use plugin (git clone)
+    YSU_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/you-should-use"
+    if [ -d "$YSU_DIR" ]; then
+        info "  you-should-use plugin — already installed, skipping"
+    else
+        info "  Cloning you-should-use plugin..."
+        if ! git clone https://github.com/MichaelAquilina/you-should-use.git "$YSU_DIR"; then
+            error "Failed to clone you-should-use plugin"
+        fi
+    fi
+
+    # zsh-autosuggestions and zsh-syntax-highlighting via brew
+    for pkg in zsh-autosuggestions zsh-syntax-highlighting; do
+        if brew list "$pkg" &>/dev/null; then
+            info "  $pkg — already installed, skipping"
+        else
+            info "  Installing $pkg..."
+            if ! brew install "$pkg"; then
+                error "Failed to install $pkg"
+            fi
+        fi
+    done
+else
+    info "Skipping oh-my-zsh and zsh plugins."
+fi
+
+{{ else -}}
+# ====================================================================
+# Non-macOS — print manual instructions
+# ====================================================================
+
+info "This system is not macOS. Automatic installation is not supported."
+info ""
+info "Please install the following packages manually:"
+info ""
+info "  CLI tools: starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit"
+info "  Font: Hack Nerd Font (https://www.nerdfonts.com/)"
+info "  Shell: oh-my-zsh (https://ohmyz.sh/)"
+info "  Zsh plugins:"
+info "    - you-should-use: git clone https://github.com/MichaelAquilina/you-should-use.git \${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/you-should-use"
+info "    - zsh-autosuggestions (via package manager or git clone)"
+info "    - zsh-syntax-highlighting (via package manager or git clone)"
+info ""
+
+{{ end -}}
+
+if [ "$ERRORS" -gt 0 ]; then
+    warn "$ERRORS error(s) occurred during installation. Some packages may not be available."
+    exit 1
+fi
+
+info "Installation complete!"

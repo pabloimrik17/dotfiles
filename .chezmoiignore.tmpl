@@ -1,0 +1,13 @@
+README.md
+LICENSE
+openspec/
+.opencode/
+.claude/
+.codex/
+.gitignore
+
+{{- if ne .chezmoi.os "darwin" }}
+# macOS-only files — exclude on non-darwin
+dot_config/ghostty/config
+dot_config/ghostty/themes/**
+{{- end }}

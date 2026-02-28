@@ -1,0 +1,26 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash -c '\"{{ .chezmoi.homeDir }}/.bun/bin/bun\" \"$(ls -td ~/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts\"'"
+  },
+  "enabledPlugins": {
+    "claude-hud@claude-hud": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "expo-app-design@expo-plugins": true,
+    "upgrading-expo@expo-plugins": true,
+    "expo-deployment@expo-plugins": true,
+    "claude-code-wakatime@wakatime": true,
+    "expo-developer@monolab": true,
+    "double-shot-latte@superpowers-marketplace": true,
+    "elements-of-style@superpowers-marketplace": true,
+    "episodic-memory@superpowers-marketplace": true,
+    "superpowers@superpowers-marketplace": true,
+    "superpowers-chrome@superpowers-marketplace": true,
+    "superpowers-developing-for-claude-code@superpowers-marketplace": true,
+    "superpowers-lab@superpowers-marketplace": true,
+    "experiments@monolab": true
+  }
+}

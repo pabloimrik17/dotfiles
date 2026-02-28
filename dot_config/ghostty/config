@@ -1,0 +1,45 @@
+# ====================================================================
+# GHOSTTY CONFIGURATION
+# ====================================================================
+
+# Theme
+theme = catppuccin-mocha
+
+# Font
+font-family = "Hack Nerd Font"
+font-size = 14
+
+# Window
+window-padding-x = 10
+window-padding-y = 10
+window-decoration = true
+macos-titlebar-style = tabs
+
+# Cursor
+cursor-style = block
+cursor-style-blink = false
+
+# Shell integration
+shell-integration = zsh
+shell-integration-features = cursor,sudo,title
+
+# Copy/paste
+copy-on-select = clipboard
+clipboard-paste-protection = true
+
+# Mouse
+mouse-hide-while-typing = true
+
+# Keybindings (macOS friendly)
+keybind = super+t=new_tab
+keybind = super+w=close_surface
+keybind = super+shift+left=previous_tab
+keybind = super+shift+right=next_tab
+keybind = super+1=goto_tab:1
+keybind = super+2=goto_tab:2
+keybind = super+3=goto_tab:3
+keybind = super+4=goto_tab:4
+keybind = super+5=goto_tab:5
+
+# Quick reload config
+keybind = super+shift+comma=reload_config
