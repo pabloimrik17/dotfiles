@@ -1,0 +1,5 @@
+openspec/
+.claude/
+.codex/
+.opencode/
+.husky/_/

@@ -1,0 +1,35 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "mcp": {
+        "eslint": {
+            "type": "local",
+            "command": ["npx", "-y", "@eslint/mcp@0.3.0"],
+            "enabled": true
+        },
+        "context7": {
+            "type": "local",
+            "command": ["npx", "-y", "@upstash/context7-mcp@2.1.2"],
+            "enabled": true
+        },
+        "knip": {
+            "type": "local",
+            "command": ["npx", "-y", "@knip/mcp@0.0.19"],
+            "enabled": true
+        },
+        "memory": {
+            "type": "local",
+            "command": ["npx", "-y", "@modelcontextprotocol/server-memory@2026.1.26"],
+            "enabled": true
+        },
+        "playwright": {
+            "type": "local",
+            "command": ["npx", "-y", "@playwright/mcp@0.0.68"],
+            "enabled": true
+        },
+        "chrome-devtools": {
+            "type": "local",
+            "command": ["npx", "-y", "chrome-devtools-mcp@0.18.1"],
+            "enabled": true
+        }
+    }
+}
