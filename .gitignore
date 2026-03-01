@@ -1,3 +1,4 @@
 .idea/
 .worktrees/
 node_modules/
+.claude/settings.local.json
