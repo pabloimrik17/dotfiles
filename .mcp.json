@@ -1,0 +1,38 @@
+{
+    "mcpServers": {
+        "eslint": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "@eslint/mcp@0.3.0"]
+        },
+        "context7": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "@upstash/context7-mcp@2.1.2"]
+        },
+        "knip": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "@knip/mcp@0.0.19"]
+        },
+        "memory": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-memory@2026.1.26"]
+        },
+        "playwright": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "@playwright/mcp@0.0.68"]
+        },
+        "chrome-devtools": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "chrome-devtools-mcp@0.18.1"]
+        },
+        "gh_grep": {
+            "type": "url",
+            "url": "https://mcp.grep.app"
+        }
+    }
+}
