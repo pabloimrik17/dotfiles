@@ -14,7 +14,7 @@ _None — this is a configuration addition to an existing dotfile, not a new man
 
 ### Modified Capabilities
 
-_None — no existing specs are affected. The Claude Code settings file is not covered by a spec yet._
+_None — no existing specs are modified; this change introduces a new spec for Claude Code plugin defaults._
 
 ## Impact
 
