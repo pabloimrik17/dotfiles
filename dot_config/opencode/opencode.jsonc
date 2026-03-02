@@ -1,0 +1,68 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "model": "anthropic/claude-opus-4-6",
+    "tui": {
+        "scroll_acceleration": {
+            "enabled": true,
+        },
+    },
+    // websearch-cited must be LAST to avoid impacting other plugins' auth
+    "plugin": [
+        "@tarquinen/opencode-dcp@latest",
+        "@plannotator/opencode@latest",
+        "opencode-wakatime",
+        "opencode-websearch-cited@1.2.0",
+    ],
+    "formatter": {
+        "oxfmt": {
+            "command": ["oxfmt", "$FILE"],
+        },
+    },
+    "permissions": {
+        // File modifications — default is allow, we want confirmation
+        "edit": "ask",
+
+        // External access — default is allow, we want confirmation
+        "webfetch": "ask",
+
+        // Shell commands — default is allow, granular override
+        "bash": {
+            "*": "ask",
+
+            // Filesystem read-only
+            "ls": "allow",
+            "ls *": "allow",
+            "cat *": "allow",
+            "head *": "allow",
+            "tail *": "allow",
+            "wc *": "allow",
+            "pwd": "allow",
+            "echo *": "allow",
+            "which *": "allow",
+            "file *": "allow",
+            "find *": "allow",
+            "rg *": "allow",
+
+            // Git read-only
+            "git status": "allow",
+            "git status *": "allow",
+            "git diff": "allow",
+            "git diff *": "allow",
+            "git log": "allow",
+            "git log *": "allow",
+            "git show *": "allow",
+            "git branch": "allow",
+            "git branch -a": "allow",
+            "git branch --show-current": "allow",
+            "git remote -v": "allow",
+
+            // Runtime info
+            "node --version": "allow",
+            "bun --version": "allow",
+            "npm --version": "allow",
+        },
+
+        // Prevent infinite tool loops — default is ask, we want hard deny
+        "doom_loop": "deny",
+    },
+}

@@ -24,6 +24,13 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
+export EDITOR="code --wait"
+export VISUAL="code --wait"
+export OPENCODE_EXPERIMENTAL_LSP_TOOL=true
+export OPENCODE_ENABLE_EXA=true
+export OPENCODE_EXPERIMENTAL_OXFMT=true
+export OPENCODE_EXPERIMENTAL_FILEWATCHER=true
+export OPENCODE_EXPERIMENTAL_MARKDOWN=true
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 

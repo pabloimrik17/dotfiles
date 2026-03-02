@@ -23,3 +23,7 @@ _None — no existing specs are affected._
 - **New files**: `dot_config/opencode/opencode.jsonc`, `dot_config/opencode/tui.json` in chezmoi source
 - **Target**: `~/.config/opencode/opencode.jsonc`, `~/.config/opencode/tui.json` on managed machines
 - **Coexistence**: OpenCode's config merge means project-level `opencode.json` files continue to override global settings as needed
+
+## Open Questions
+
+- **Formatter `extensions` field**: The oxfmt formatter is configured without `extensions`. It's unclear whether OpenCode requires explicit extensions for custom formatters or if it delegates to the formatter itself to decide which files it supports. Needs manual testing in an OpenCode session.
