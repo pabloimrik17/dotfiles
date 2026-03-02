@@ -158,7 +158,6 @@ if confirm "Install OpenCode plugin dependencies (plannotator, superpowers)?"; t
 else
     info "Skipping OpenCode plugin dependencies."
 fi
-
 {{ else -}}
 # ====================================================================
 # Non-macOS — print manual instructions
@@ -175,6 +174,8 @@ info "  Zsh plugins:"
 info "    - you-should-use: git clone https://github.com/MichaelAquilina/you-should-use.git \${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/you-should-use"
 info "    - zsh-autosuggestions (via package manager or git clone)"
 info "    - zsh-syntax-highlighting (via package manager or git clone)"
+info "  Claude Code plugins:"
+info "    - plannotator: curl -fsSL https://plannotator.ai/install.sh | bash"
 info ""
 
 {{ end -}}
