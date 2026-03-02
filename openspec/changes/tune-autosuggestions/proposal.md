@@ -21,6 +21,6 @@ _(none — no existing spec-level requirements change; this is configuration tun
 
 ## Impact
 
-- **File**: `dot_zshrc.tmpl` — 5 new lines inserted between the Zsh plugins block (line ~90) and the ALIASES section (line ~92)
+- **File**: `dot_zshrc.tmpl` — 6 new lines inserted between the Zsh plugins block (line ~90) and the ALIASES section (line ~92): 1 comment header, 2 commented alternative styles, 1 active highlight style, 1 buffer size, 1 async flag
 - **Dependencies**: None — `zsh-autosuggestions` is already installed and sourced
 - **Risk**: Minimal. All three variables are optional overrides; if removed, the plugin falls back to defaults silently
