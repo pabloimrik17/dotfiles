@@ -41,4 +41,4 @@ The FPATH configuration SHALL use the same `{{ .chezmoi.os }}` and `{{ .chezmoi.
 
 #### Scenario: Template renders correctly per platform
 - **WHEN** `chezmoi apply` renders `dot_zshrc.tmpl`
-- **THEN** the resulting `.zshrc` SHALL contain exactly one FPATH line with the platform-appropriate path
+- **THEN** the resulting `.zshrc` SHALL contain exactly one zsh-completions FPATH configuration line with the platform-appropriate path

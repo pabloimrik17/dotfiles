@@ -44,4 +44,4 @@ Add `zsh-completions` to the existing `for pkg in zsh-autosuggestions zsh-syntax
 ## Risks / Trade-offs
 
 - **[Stale zcompdump cache]** OMZ caches compiled completions in `~/.zcompdump`. After first install, new completions may not appear until the cache is rebuilt. **Mitigation**: OMZ runs `compinit` on every shell start; the cache auto-regenerates. If needed, `rm -f ~/.zcompdump*` forces a rebuild.
-- **[FPATH order sensitivity]** If `zsh-completions` defines a completion that conflicts with an OMZ built-in, the one earlier in FPATH wins. **Mitigation**: Append (not prepend) `zsh-completions` to FPATH so OMZ built-ins take priority. Use `FPATH=$FPATH:/path/to/zsh-completions` instead of `FPATH=/path/to/zsh-completions:$FPATH`.
+- **[FPATH order sensitivity]** If `zsh-completions` defines a completion that conflicts with an OMZ built-in, the one earlier in FPATH wins. **Mitigation**: Append (not prepend) `zsh-completions` to FPATH so OMZ built-ins take priority. In zsh, prefer `fpath+=(/path/to/zsh-completions)` or quote the variable: `FPATH="$FPATH:/path/to/zsh-completions"` to handle paths with spaces.
