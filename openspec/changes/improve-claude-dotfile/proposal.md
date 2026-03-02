@@ -5,6 +5,7 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) manages plugi
 ## What Changes
 
 - Add `plannotator@plannotator` to `enabledPlugins` in `dot_claude/settings.json.tmpl`
+- Add Plannotator CLI installation to `run_once_install-packages.sh.tmpl` as a new group (Group 4)
 
 ## Capabilities
 
@@ -18,7 +19,7 @@ _None — no existing specs are modified; this change introduces a new spec for 
 
 ## Impact
 
-- **Modified file**: `dot_claude/settings.json.tmpl` — one new entry in `enabledPlugins`
-- **Target**: `~/.claude/settings.json` on managed machines (via chezmoi)
-- **Dependency**: Plannotator CLI must be installed separately (`curl -fsSL https://plannotator.ai/install.sh | bash`) and the plugin added via `/plugin marketplace add backnotprop/plannotator` + `/plugin install plannotator@plannotator` before the setting takes effect
-- **Risk**: Minimal — adding a plugin entry for an uninstalled plugin is harmless; Claude Code ignores unknown plugin references gracefully
+- **Modified files**: `dot_claude/settings.json.tmpl` (new plugin entry), `run_once_install-packages.sh.tmpl` (new install group)
+- **Target**: `~/.claude/settings.json` on managed machines (via chezmoi); Plannotator CLI installed on first `chezmoi apply`
+- **Prerequisite**: User must still run `/plugin marketplace add backnotprop/plannotator` + `/plugin install plannotator@plannotator` in Claude Code once
+- **Risk**: Minimal — the install script prompts for confirmation; the plugin entry is inert if the marketplace plugin hasn't been added

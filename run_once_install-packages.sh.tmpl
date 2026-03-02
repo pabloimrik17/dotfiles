@@ -128,6 +128,22 @@ else
     info "Skipping oh-my-zsh and zsh plugins."
 fi
 
+# ------------------------------------------------------------------
+# Group 4: Claude Code plugin dependencies
+# ------------------------------------------------------------------
+if confirm "Install Claude Code plugin dependencies (plannotator)?"; then
+    if command -v plannotator &>/dev/null; then
+        info "  plannotator — already installed, skipping"
+    else
+        info "  Installing plannotator CLI..."
+        if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
+            error "Failed to install plannotator"
+        fi
+    fi
+else
+    info "Skipping Claude Code plugin dependencies."
+fi
+
 {{ else -}}
 # ====================================================================
 # Non-macOS — print manual instructions
@@ -144,6 +160,8 @@ info "  Zsh plugins:"
 info "    - you-should-use: git clone https://github.com/MichaelAquilina/you-should-use.git \${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/you-should-use"
 info "    - zsh-autosuggestions (via package manager or git clone)"
 info "    - zsh-syntax-highlighting (via package manager or git clone)"
+info "  Claude Code plugins:"
+info "    - plannotator: curl -fsSL https://plannotator.ai/install.sh | bash"
 info ""
 
 {{ end -}}
