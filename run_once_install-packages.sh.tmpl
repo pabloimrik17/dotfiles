@@ -128,6 +128,37 @@ else
     info "Skipping oh-my-zsh and zsh plugins."
 fi
 
+# ------------------------------------------------------------------
+# Group 4: OpenCode plugins
+# ------------------------------------------------------------------
+if confirm "Install OpenCode plugin dependencies (plannotator, superpowers)?"; then
+    if command -v opencode &>/dev/null; then
+        info "  Installing plannotator..."
+        if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
+            error "Failed to install plannotator"
+        fi
+
+        info "  Installing superpowers..."
+        SUPERPOWERS_DIR="$HOME/.config/opencode/superpowers"
+        if [ -d "$SUPERPOWERS_DIR" ]; then
+            info "  superpowers — already installed, skipping"
+        else
+            if git clone https://github.com/obra/superpowers.git "$SUPERPOWERS_DIR"; then
+                mkdir -p "$HOME/.config/opencode/plugins"
+                ln -sf "$SUPERPOWERS_DIR/.opencode/plugins/superpowers.js" "$HOME/.config/opencode/plugins/superpowers.js"
+                mkdir -p "$HOME/.config/opencode/skills"
+                ln -sf "$SUPERPOWERS_DIR/skills" "$HOME/.config/opencode/skills/superpowers"
+            else
+                error "Failed to clone superpowers"
+            fi
+        fi
+    else
+        warn "OpenCode is not installed — skipping plugin setup"
+    fi
+else
+    info "Skipping OpenCode plugin dependencies."
+fi
+
 {{ else -}}
 # ====================================================================
 # Non-macOS — print manual instructions
