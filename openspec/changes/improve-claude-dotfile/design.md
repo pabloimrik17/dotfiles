@@ -24,6 +24,8 @@ Plannotator is a visual plan review tool for AI coding agents. It provides a bro
 
 **New install group in run_once script**: Add a Group 5 ("Claude Code plugin dependencies") to `run_once_install-packages.sh.tmpl`. The group uses `curl | bash` from `https://plannotator.ai/install.sh`, matching the official install instructions. It checks `command -v plannotator` to skip if already installed, and is gated behind a `confirm` prompt like all other groups.
 
+**Plannotator appears in two groups**: Group 4 (OpenCode plugins) and Group 5 (Claude Code plugin dependencies) both install plannotator because it serves both tools. Group 4 is gated behind `command -v opencode`, so on machines without OpenCode, only Group 5 installs it. Both groups have idempotency checks (`command -v plannotator`) to prevent double-install.
+
 ## Risks / Trade-offs
 
 **Plugin not installed** → If the user declines the install prompt or Plannotator CLI isn't installed, the `enabledPlugins` entry is inert. Claude Code ignores plugin references that aren't installed. No error, no impact.
