@@ -4,7 +4,7 @@
 
 ## 2. Add CLI installation to install script
 
-- [x] 2.1 Add Group 4 ("Claude Code plugin dependencies") to `run_once_install-packages.sh.tmpl`
+- [x] 2.1 Add Group 5 ("Claude Code plugin dependencies") to `run_once_install-packages.sh.tmpl`
 - [x] 2.2 Add idempotency check (`command -v plannotator`) to skip if already installed
 - [x] 2.3 Add plannotator to non-macOS manual instructions
 
