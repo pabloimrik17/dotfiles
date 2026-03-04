@@ -5,7 +5,7 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) manages plugi
 ## What Changes
 
 - Add `plannotator@plannotator` to `enabledPlugins` in `dot_claude/settings.json.tmpl`
-- Add Plannotator CLI installation to `run_once_install-packages.sh.tmpl` as a new group (Group 4)
+- Add Plannotator CLI installation to `run_once_install-packages.sh.tmpl` as a new group (Group 5)
 
 ## Capabilities
 
