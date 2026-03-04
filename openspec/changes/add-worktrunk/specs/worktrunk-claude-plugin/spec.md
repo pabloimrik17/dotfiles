@@ -7,6 +7,6 @@ The Claude Code settings template SHALL include `worktrunk@worktrunk` in the `en
 - **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
 - **THEN** the resulting `~/.claude/settings.json` SHALL contain `"worktrunk@worktrunk": true` in `enabledPlugins`
 
-#### Scenario: Plugin functional after apply
-- **WHEN** Claude Code starts in a git repository with worktrunk installed
-- **THEN** the worktrunk plugin SHALL provide configuration skills and activity tracking capabilities
+#### Scenario: Plugin loads without errors
+- **WHEN** Claude Code starts with worktrunk installed
+- **THEN** the worktrunk plugin SHALL load without startup errors

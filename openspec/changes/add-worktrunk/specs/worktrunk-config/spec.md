@@ -22,6 +22,10 @@ The user config SHALL define a `post-create` hook that detects the project's pac
 - **WHEN** a new worktree is created in a directory containing `package-lock.json`
 - **THEN** the post-create hook SHALL run `npm install`
 
+#### Scenario: Multiple lockfiles (precedence bun > pnpm > npm)
+- **WHEN** a new worktree is created in a directory containing both `bun.lock` and `pnpm-lock.yaml`
+- **THEN** the post-create hook SHALL run `bun install` and SHALL NOT run `pnpm install` or `npm install`
+
 #### Scenario: No JS project
 - **WHEN** a new worktree is created in a directory with no recognized lockfile
 - **THEN** the post-create hook SHALL exit silently without error

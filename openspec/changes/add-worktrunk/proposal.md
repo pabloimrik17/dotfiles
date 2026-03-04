@@ -1,6 +1,6 @@
 ## Why
 
-Managing parallel AI agent workflows requires isolated git worktrees, but native git worktree commands are verbose and error-prone. Worktrunk simplifies this to single commands (`wt switch`, `wt merge`, `wt remove`) and integrates directly with Claude Code. Adding it to dotfiles ensures consistent setup across machines with shell integration, default hooks, and the Claude Code plugin pre-configured.
+Managing parallel AI agent workflows requires isolating git worktrees, but native git worktree commands are verbose and error-prone. Worktrunk simplifies this to single commands (`wt switch`, `wt merge`, `wt remove`) and integrates directly with Claude Code. Adding it to dotfiles ensures consistent setup across machines with shell integration, default hooks, and the Claude Code plugin pre-configured.
 
 ## What Changes
 
@@ -14,7 +14,7 @@ Managing parallel AI agent workflows requires isolated git worktrees, but native
 
 ### New Capabilities
 - `worktrunk-install`: Brew installation of worktrunk with idempotent checks and shell integration baked into the zshrc template
-- `worktrunk-config`: Chezmoi-managed user config with path templates and a universal post-create hook that detects bun/pnpm/npm by lockfile presence
+- `worktrunk-config`: Chezmoi-managed static user config with a universal post-create hook that detects bun/pnpm/npm by lockfile presence
 - `worktrunk-claude-plugin`: Enable the worktrunk Claude Code plugin for configuration skills and worktree activity tracking
 
 ### Modified Capabilities
