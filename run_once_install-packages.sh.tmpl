@@ -133,9 +133,13 @@ fi
 # ------------------------------------------------------------------
 if confirm "Install OpenCode plugin dependencies (plannotator, superpowers)?"; then
     if command -v opencode &>/dev/null; then
-        info "  Installing plannotator..."
-        if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
-            error "Failed to install plannotator"
+        if command -v plannotator &>/dev/null; then
+            info "  plannotator — already installed, skipping"
+        else
+            info "  Installing plannotator..."
+            if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
+                error "Failed to install plannotator"
+            fi
         fi
 
         info "  Installing superpowers..."
