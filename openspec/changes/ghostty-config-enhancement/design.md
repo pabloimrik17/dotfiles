@@ -42,7 +42,7 @@ Ghostty 1.2.0 introduced several features (quick terminal, background image, lin
 - `ctrl+grave` -- the grave accent (`` ` ``) is awkward on Spanish keyboards
 - `ctrl+space` may conflict with Spotlight or input source switching
 
-`super+shift+t` is: memorable (T for Terminal), ergonomic (left hand), and collision-free with both macOS system shortcuts and existing Ghostty keybinds. Note that `super+t` (without shift) is already bound to `new_tab`.
+`super+shift+t` is: memorable (T for Terminal), ergonomic (left hand), and collision-free with both macOS shortcuts and existing Ghostty keybinds. Note that `super+t` (without shift) is already bound to `new_tab`.
 
 **Alternative considered**: A function key like `F12`. Rejected as less memorable and harder to reach.
 

@@ -49,7 +49,7 @@ _(No existing specs in `openspec/specs/` for ghostty-config; the original spec l
 ## Impact
 
 - **File modified**: `dot_config/ghostty/config` (adding ~20 new configuration lines)
-- **No new files**: All changes are additions to the existing config file
+- **No new files under `dot_config/ghostty/`**: All changes are additions to the existing config file
 - **No template conversion**: Config remains a plain static file (not `.tmpl`)
 - **macOS permissions**: Quick terminal's global keybind requires Accessibility permissions in System Settings > Privacy & Security > Accessibility
 - **Runtime behavior**: `window-save-state = always` changes Ghostty's exit behavior (saves state on every quit, not just force-quit)
