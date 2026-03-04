@@ -37,3 +37,8 @@ The install script (`run_once_install-packages.sh.tmpl`) SHALL include a dedicat
 
 - **WHEN** the user declines the confirmation prompt for Claude Code plugin dependencies
 - **THEN** the Plannotator CLI is not installed and the script continues to the next group
+
+#### Scenario: Non-macOS platform
+
+- **WHEN** the install script runs on a non-macOS platform
+- **THEN** manual installation instructions for plannotator are displayed, including the `curl -fsSL https://plannotator.ai/install.sh | bash` command
