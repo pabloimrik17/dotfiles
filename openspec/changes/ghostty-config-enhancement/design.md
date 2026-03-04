@@ -66,7 +66,7 @@ Ghostty 1.2.0 introduced several features (quick terminal, background image, lin
 
 ## Risks / Trade-offs
 
-**[Quick terminal requires Accessibility permissions]** The `global:` keybind prefix requires granting Ghostty Accessibility permissions in System Preferences > Privacy & Security > Accessibility. Without this, the quick terminal keybind silently won't work. Ghostty will prompt for permissions on first use.
+**[Quick terminal requires Accessibility permissions]** The `global:` keybind prefix requires granting Ghostty Accessibility permissions in System Settings > Privacy & Security > Accessibility. Without this, the quick terminal keybind silently won't work. Ghostty will prompt for permissions on first use.
 
 **[`window-save-state = always` may restore unwanted sessions]** If you quit Ghostty with many temporary tabs open, they'll all reopen next time. Mitigation: this is the expected behavior and can be changed to `never` or `default` if it becomes annoying.
 

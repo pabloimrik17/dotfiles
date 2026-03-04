@@ -15,6 +15,7 @@
 - [ ] 2.6 Add `quick-terminal-space-behavior = move`
 - [ ] 2.7 Add `quick-terminal-autohide = true`
 - [ ] 2.8 Add `keybind = global:super+shift+t=toggle_quick_terminal` to the Keybindings section
+- [ ] 2.9 Verify macOS Accessibility permission is granted for Ghostty (System Settings > Privacy & Security > Accessibility) to enable `global:` keybinds
 
 ## 3. UX Enhancements
 

@@ -71,4 +71,4 @@ The Ghostty config SHALL include `keybind = global:super+shift+t=toggle_quick_te
 #### Scenario: Accessibility permissions required
 
 - **WHEN** the `global:` keybind is configured but Ghostty does not have Accessibility permissions
-- **THEN** Ghostty prompts the user to grant permissions in System Preferences > Privacy & Security > Accessibility
+- **THEN** Ghostty prompts the user to grant permissions in System Settings > Privacy & Security > Accessibility
