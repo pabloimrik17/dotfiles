@@ -29,7 +29,7 @@ These are separate files with separate schemas (`config.json` and `tui.json` res
 
 **JSONC for main config**: Use `opencode.jsonc` (not `.json`) to allow comments, matching the convention shown in OpenCode's documentation. The `$schema` reference provides IDE validation.
 
-**Minimal config**: Only declare settings where we want an explicit default. OpenCode provides sensible defaults for everything else. This avoids config drift when OpenCode adds new options.
+**Intentional config**: Declare settings where we want an explicit default or a security/UX opinion. This includes model selection, plugin set, formatter registration, permission boundaries, and TUI scroll behavior. Avoid declaring settings where OpenCode's default is sufficient (e.g., `autoupdate`).
 
 ## Risks / Trade-offs
 

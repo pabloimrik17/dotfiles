@@ -1,4 +1,10 @@
-## ADDED Requirements
+# Capability: opencode-user-config
+
+## Purpose
+
+User-level OpenCode configuration managed by chezmoi -- global editor settings, TUI theming, and plugin curation deployed to `~/.config/opencode/`.
+
+## Requirements
 
 ### Requirement: chezmoi manages OpenCode main config
 
@@ -8,8 +14,12 @@ The file SHALL contain:
 
 - A `$schema` reference to `https://opencode.ai/config.json`
 - `model` set to `anthropic/claude-opus-4-6`
+- `tui.scroll_acceleration.enabled` set to `true`
+- A `plugin` array with curated OpenCode plugins (DCP, Plannotator, WakaTime, websearch-cited)
+- A `formatter` section registering `oxfmt` as a custom formatter
+- A `permissions` section with granular bash allowlists for read-only filesystem/git commands, `ask` for edits and web fetches, and `deny` for doom loops
 
-The file SHALL NOT contain MCP server configuration or settings where OpenCode's default is sufficient (e.g., `autoupdate`).
+The file SHALL NOT contain MCP server configuration (these stay per-project) or settings where OpenCode's default is sufficient (e.g., `autoupdate`).
 
 #### Scenario: Fresh machine setup
 
