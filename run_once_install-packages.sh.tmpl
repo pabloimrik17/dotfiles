@@ -173,7 +173,7 @@ if confirm "Install Claude Code plugin dependencies (plannotator)?"; then
     if command -v plannotator &>/dev/null; then
         info "  plannotator — already installed, skipping"
     else
-        info "  Installing plannotator CLI..."
+        info "  Installing plannotator..."
         if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
             error "Failed to install plannotator"
         fi
