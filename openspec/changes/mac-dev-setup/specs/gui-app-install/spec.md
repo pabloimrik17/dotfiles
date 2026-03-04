@@ -72,6 +72,8 @@ The script SHALL provide a `cask_to_app()` function that maps cask names to thei
 | `iina` | `IINA` |
 | `vlc` | `VLC` |
 | `vnc-viewer` | `VNC Viewer` |
+| `appcleaner` | `AppCleaner` |
+| `whatsapp` | `WhatsApp` |
 
 For unmapped casks, the function MAY derive the name by capitalizing each word of the cask name (replacing hyphens with spaces) as a last-resort fallback.
 

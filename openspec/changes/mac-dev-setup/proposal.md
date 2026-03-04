@@ -4,7 +4,7 @@ Setting up a new Mac requires dozens of manual steps: configuring system prefere
 
 ## What Changes
 
-- **New script** `run_once_configure-macos-defaults.sh.tmpl` that configures Finder, Dock, trackpad, keyboard, and other macOS system preferences idempotently via `defaults write`
+- **New script** `run_once_configure-macos-defaults.sh.tmpl` that configures Finder, Dock, trackpad, keyboard, and other macOS system settings idempotently via `defaults write`
 - **Expand `BREW_PACKAGES`** in existing install script to include 9 missing CLI tools already in use (`fd`, `gh`, `git-delta`, `git`, `tmux`, `uv`, `mas`, `wget`, `opencode`) that would be lost on a fresh Mac
 - **New install group** for 19 core + 11 optional GUI apps via `brew install --cask`, with per-app `/Applications/*.app` existence checks to avoid conflicts with manual installs
 - **New install group** for Mac App Store apps (`Perplexity`, `Mela`) via `mas` CLI
@@ -15,7 +15,7 @@ Setting up a new Mac requires dozens of manual steps: configuring system prefere
 
 ### New Capabilities
 
-- `macos-defaults`: Chezmoi `run_once` script (`run_once_configure-macos-defaults.sh.tmpl`) that applies macOS system preferences (Finder, Dock, trackpad, keyboard, hot corners, Siri) idempotently. macOS-only via chezmoi template guard.
+- `macos-defaults`: Chezmoi `run_once` script (`run_once_configure-macos-defaults.sh.tmpl`) that applies macOS system settings (Finder, Dock, trackpad, keyboard, hot corners, Siri) idempotently. macOS-only via chezmoi template guard.
 - `gui-app-install`: Brew cask installation group with core apps (single confirmation) and optional apps (individual confirmation). Includes cask-to-app-name mapping and `/Applications/*.app` existence check to skip already-installed apps.
 - `cli-tool-expansion`: Addition of 9 brew formulae (`fd`, `gh`, `git-delta`, `git`, `tmux`, `uv`, `mas`, `wget`, `opencode`) to the existing `BREW_PACKAGES` array, with updated `pkg_bin()` mappings. Special handling for `git` (always install brew version even if system git exists).
 - `node-env-bootstrap`: NVM installation via official curl script (not brew), Node LTS install, default alias, and `corepack enable` for pnpm/yarn support. Idempotent (skips if already present).

@@ -8,7 +8,7 @@ Several CLI tools in active use (`fd`, `gh`, `git-delta`, etc.) are missing from
 
 **Goals:**
 
-- Automate macOS system preferences so a fresh Mac gets the same Finder/Dock/keyboard/trackpad settings with no manual work
+- Automate macOS system settings so a fresh Mac gets the same Finder/Dock/keyboard/trackpad settings with no manual work
 - Ensure all actively used brew formulae are in the install script (no silent dependencies on manually installed tools)
 - Automate GUI app installation via brew cask, with conflict-safe checks against existing manual installs
 - Automate Node.js environment setup (nvm + LTS + corepack) as a single group
@@ -31,7 +31,7 @@ Several CLI tools in active use (`fd`, `gh`, `git-delta`, etc.) are missing from
 
 **Decision**: Create a new `run_once_configure-macos-defaults.sh.tmpl` as a separate file.
 
-**Rationale**: macOS defaults are conceptually different from package installation. They configure the OS, not install tools. Separating them means:
+**Rationale**: macOS system settings are conceptually different from package installation. They configure the OS, not install tools. Separating them means:
 - The defaults script can run independently and be re-triggered separately (chezmoi `run_once_` keyed by content hash)
 - Failure in defaults doesn't affect package installation
 - Easier to review and modify the settings list
