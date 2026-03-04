@@ -31,7 +31,7 @@
             "args": ["-y", "chrome-devtools-mcp@0.18.1"]
         },
         "gh_grep": {
-            "type": "url",
+            "type": "http",
             "url": "https://mcp.grep.app"
         }
     }
