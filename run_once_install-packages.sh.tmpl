@@ -140,6 +140,9 @@ if confirm "Install OpenCode plugin dependencies (plannotator, superpowers)?"; t
             if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
                 error "Failed to install plannotator"
             fi
+            if ! command -v plannotator &>/dev/null; then
+                error "plannotator installed but not found in PATH"
+            fi
         fi
 
         info "  Installing superpowers..."
@@ -173,6 +176,9 @@ if confirm "Install Claude Code plugin dependencies (plannotator)?"; then
         info "  Installing plannotator CLI..."
         if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
             error "Failed to install plannotator"
+        fi
+        if ! command -v plannotator &>/dev/null; then
+            error "plannotator installed but not found in PATH"
         fi
     fi
 else
