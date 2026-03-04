@@ -22,7 +22,7 @@ Plannotator is a visual plan review tool for AI coding agents. It provides a bro
 
 **No chezmoi template changes needed for settings**: The new entry is a static string with no machine-specific values. The file remains a `.tmpl` only because of the existing `{{ .chezmoi.homeDir }}` reference in `statusLine`.
 
-**New install group in run_once script**: Add a Group 4 ("Claude Code plugin dependencies") to `run_once_install-packages.sh.tmpl`. The group uses `curl | bash` from `https://plannotator.ai/install.sh`, matching the official install instructions. It checks `command -v plannotator` to skip if already installed, and is gated behind a `confirm` prompt like all other groups.
+**New install group in run_once script**: Add a Group 5 ("Claude Code plugin dependencies") to `run_once_install-packages.sh.tmpl`. The group uses `curl | bash` from `https://plannotator.ai/install.sh`, matching the official install instructions. It checks `command -v plannotator` to skip if already installed, and is gated behind a `confirm` prompt like all other groups.
 
 ## Risks / Trade-offs
 
