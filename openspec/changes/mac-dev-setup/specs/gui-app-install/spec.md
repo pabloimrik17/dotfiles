@@ -53,7 +53,7 @@ Before each `brew install --cask`, the script SHALL check if the corresponding `
 
 ### Requirement: Cask-to-app-name mapping handles non-trivial names
 
-The script SHALL provide a `cask_to_app()` function that maps cask names to their actual `/Applications/*.app` directory names. The following mappings SHALL be hardcoded:
+The script SHALL provide a `cask_to_app()` function that maps cask names to their actual `/Applications/*.app` directory names. All casks in `CASK_PACKAGES` and `OPTIONAL_CASK_PACKAGES` with non-trivial branding or casing SHALL be explicitly mapped. The following mappings SHALL be hardcoded:
 
 | Cask | App Name |
 |------|----------|
@@ -66,8 +66,14 @@ The script SHALL provide a `cask_to_app()` function that maps cask names to thei
 | `1password` | `1Password` |
 | `philips-hue-sync` | `Hue Sync` |
 | `transmission-remote-gui` | `Transmission Remote GUI` |
+| `chatgpt` | `ChatGPT` |
+| `ticktick` | `TickTick` |
+| `superwhisper` | `superwhisper` |
+| `iina` | `IINA` |
+| `vlc` | `VLC` |
+| `vnc-viewer` | `VNC Viewer` |
 
-For unmapped casks, the function SHALL derive the name by capitalizing each word of the cask name (replacing hyphens with spaces).
+For unmapped casks, the function MAY derive the name by capitalizing each word of the cask name (replacing hyphens with spaces) as a last-resort fallback.
 
 #### Scenario: Known mapping resolves correctly
 - **WHEN** `cask_to_app "visual-studio-code"` is called

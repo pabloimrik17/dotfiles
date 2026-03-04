@@ -2,7 +2,7 @@
 
 ### Requirement: macOS defaults script exists as separate chezmoi run_once file
 
-The system SHALL provide a `run_once_macos-defaults.sh.tmpl` file that chezmoi executes once on first apply. The script SHALL only run on macOS (guarded by chezmoi `{{ if eq .chezmoi.os "darwin" }}` template). The filename SHALL sort alphabetically before `run_once_install-packages.sh.tmpl`.
+The system SHALL provide a `run_once_configure-macos-defaults.sh.tmpl` file that chezmoi executes once on first apply. The script SHALL only run on macOS (guarded by chezmoi `{{ if eq .chezmoi.os "darwin" }}` template). The filename SHALL sort alphabetically before `run_once_install-packages.sh.tmpl` (`configure` < `install`).
 
 #### Scenario: Script runs on macOS
 - **WHEN** `chezmoi apply` is executed on a macOS machine for the first time

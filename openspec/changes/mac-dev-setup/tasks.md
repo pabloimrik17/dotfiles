@@ -1,6 +1,6 @@
 ## 1. macOS Defaults Script
 
-- [ ] 1.1 Create `run_once_macos-defaults.sh.tmpl` with chezmoi macOS template guard
+- [ ] 1.1 Create `run_once_configure-macos-defaults.sh.tmpl` with chezmoi macOS template guard
 - [ ] 1.2 Add shared helper functions (info, warn, error) or source from common location
 - [ ] 1.3 Implement Finder defaults (AppleShowAllFiles, ShowPathbar, ShowStatusBar, FXRemoveOldTrashItems, _FXSortFoldersFirst, FXEnableExtensionChangeWarning, NewWindowTarget/Path, AppleShowAllExtensions, chflags nohidden ~/Library)
 - [ ] 1.4 Implement Dock defaults (autohide, show-recents, tilesize 62)

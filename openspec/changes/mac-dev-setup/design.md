@@ -29,7 +29,7 @@ Several CLI tools in active use (`fd`, `gh`, `git-delta`, etc.) are missing from
 
 ### D1: Separate script for macOS defaults vs embedding in install script
 
-**Decision**: Create a new `run_once_macos-defaults.sh.tmpl` as a separate file.
+**Decision**: Create a new `run_once_configure-macos-defaults.sh.tmpl` as a separate file.
 
 **Rationale**: macOS defaults are conceptually different from package installation. They configure the OS, not install tools. Separating them means:
 - The defaults script can run independently and be re-triggered separately (chezmoi `run_once_` keyed by content hash)
@@ -85,9 +85,9 @@ Several CLI tools in active use (`fd`, `gh`, `git-delta`, etc.) are missing from
 
 ### D8: chezmoi `run_once_` file naming for execution order
 
-**Decision**: Name the defaults script `run_once_macos-defaults.sh.tmpl` (alphabetically before `run_once_install-packages.sh.tmpl`).
+**Decision**: Name the defaults script `run_once_configure-macos-defaults.sh.tmpl` (alphabetically before `run_once_install-packages.sh.tmpl`).
 
-**Rationale**: chezmoi executes `run_once_` scripts in alphabetical order. `macos-defaults` sorts before `install-packages`, so system preferences are configured before any package installation begins. This is the natural order (configure the OS, then install tools). Both scripts are independent and safe to run in either order, but this sequence is more logical.
+**Rationale**: chezmoi executes `run_once_` scripts in alphabetical order. `configure-macos-defaults` sorts before `install-packages` (`c` < `i`), so system preferences are configured before any package installation begins. This is the natural order (configure the OS, then install tools). Both scripts are independent and safe to run in either order, but this sequence is more logical.
 
 ### D9: Group ordering within install script
 

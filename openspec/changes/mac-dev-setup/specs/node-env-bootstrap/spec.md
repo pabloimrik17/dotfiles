@@ -21,8 +21,9 @@ After NVM is installed, the script SHALL source `$NVM_DIR/nvm.sh` to make `nvm` 
 - **THEN** the latest LTS Node version is installed and set as the default
 
 #### Scenario: Node already installed
-- **WHEN** `command -v node` succeeds (Node is already available)
+- **WHEN** `command -v node` succeeds (Node is already available via nvm or other method)
 - **THEN** Node installation is skipped with informational message showing the current version
+- **AND** `nvm alias default lts/*` is still executed if nvm is available (to ensure default is set)
 
 ### Requirement: Corepack is enabled for pnpm and yarn
 
