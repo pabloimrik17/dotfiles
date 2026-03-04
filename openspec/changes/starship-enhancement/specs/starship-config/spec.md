@@ -27,7 +27,7 @@ Only `directory`, `git_branch`, and `git_status` modules SHALL have their `style
 - **THEN** it uses Starship's built-in default style (resolved through Ghostty's ANSI mapping)
 
 ### Requirement: Directory truncation with repo awareness
-The `[directory]` section SHALL set `truncate_to_repo = true` and `truncation_symbol = "…/"`. The `truncation_length` SHALL remain at the default of 3. The preset's `read_only = " 󰌾"` SHALL be preserved.
+The `[directory]` section SHALL set `truncate_to_repo = true`, `truncation_symbol = "…/"`, and `truncation_length = 3` explicitly. The preset's `read_only` symbol SHALL be preserved.
 
 #### Scenario: Inside a git repo
 - **WHEN** the current directory is inside a git repository
@@ -39,7 +39,7 @@ The `[directory]` section SHALL set `truncate_to_repo = true` and `truncation_sy
 
 #### Scenario: Preset symbol preserved
 - **WHEN** the directory is read-only
-- **THEN** the ` 󰌾` symbol from the Nerd Font preset is shown
+- **THEN** the Nerd Font preset read-only symbol (` 󰌾`) is shown
 
 ### Requirement: Git status with count-aware ahead/behind and stash indicator
 The `[git_status]` section SHALL display commit counts for ahead (`⇡${count}`) and behind (`⇣${count}`), full divergence info (`⇕⇡${ahead_count}⇣${behind_count}`), and a stash indicator (`≡`). Modified files SHALL use `●`, deleted SHALL use `✘`, renamed SHALL use `»`.

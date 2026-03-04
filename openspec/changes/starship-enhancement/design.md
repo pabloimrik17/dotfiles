@@ -48,5 +48,5 @@ Each tool uses its native color mechanism. Starship has palettes → use named c
 ## Risks / Trade-offs
 
 - **Palette coupling** → Mitigated: switching themes requires changing `palette = 'catppuccin_mocha'` and adding a new `[palettes.x]` block. Only 3 module styles reference palette names.
-- **Starship version dependency** → `palette` feature requires Starship 1.11+. Homebrew install in `run_once_install-packages.sh.tmpl` provides latest. No risk on managed machines.
-- **BAT_THEME value must match exactly** → `"Catppuccin Mocha"` is the built-in bat theme name (case-sensitive, space-separated). Verified in bat's bundled themes.
+- **Starship version dependency** → `palette` feature requires Starship 1.11+. Assuming Homebrew install in `run_once_install-packages.sh.tmpl` provides 1.11+, the palette will work as expected. Guardrail: verify `starship --version` >= 1.11 and validate TOML syntax with `starship config` at deploy time.
+- **BAT_THEME value must match exactly** → `"Catppuccin Mocha"` is the built-in bat theme name (case-sensitive, space-separated). Guardrail: verify theme availability with `bat --list-themes | grep "Catppuccin Mocha"` at deploy time.

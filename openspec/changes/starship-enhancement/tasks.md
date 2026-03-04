@@ -23,4 +23,6 @@
 ## 5. Verification
 
 - [ ] 5.1 Verify all Nerd Font preset symbol entries are preserved (no existing `symbol` lines removed or altered)
-- [ ] 5.2 Run `chezmoi diff` to confirm only expected files are modified
+- [ ] 5.2 Verify Starship v1.11+ is installed (`starship --version`) — required for `palette` and `[palettes.*]` support
+- [ ] 5.3 Verify `Catppuccin Mocha` theme is available in bat (`bat --list-themes | grep "Catppuccin Mocha"`)
+- [ ] 5.4 Run `chezmoi diff` to confirm only expected files are modified
