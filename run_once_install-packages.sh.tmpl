@@ -185,40 +185,40 @@ if confirm "Install Claude Code plugin dependencies (plannotator, worktrunk plug
         fi
 
         info "  Registering Claude Code plugin marketplaces..."
-        claude plugin marketplace add anthropics/claude-plugins-official 2>/dev/null || true
-        claude plugin marketplace add jarrodwatts/claude-hud 2>/dev/null || true
-        claude plugin marketplace add expo/skills 2>/dev/null || true
-        claude plugin marketplace add pabloimrik17/monolab 2>/dev/null || true
-        claude plugin marketplace add obra/superpowers-marketplace 2>/dev/null || true
-        claude plugin marketplace add https://github.com/wakatime/claude-code-wakatime.git 2>/dev/null || true
-        claude plugin marketplace add nrwl/nx-ai-agents-config 2>/dev/null || true
-        claude plugin marketplace add backnotprop/plannotator 2>/dev/null || true
-        claude plugin marketplace add max-sixty/worktrunk 2>/dev/null || true
+        claude plugin marketplace add anthropics/claude-plugins-official || info "    (skipped - not available)"
+        claude plugin marketplace add jarrodwatts/claude-hud || info "    (skipped - not available)"
+        claude plugin marketplace add expo/skills || info "    (skipped - not available)"
+        claude plugin marketplace add pabloimrik17/monolab || info "    (skipped - not available)"
+        claude plugin marketplace add obra/superpowers-marketplace || info "    (skipped - not available)"
+        claude plugin marketplace add https://github.com/wakatime/claude-code-wakatime.git || info "    (skipped - not available)"
+        claude plugin marketplace add nrwl/nx-ai-agents-config || info "    (skipped - not available)"
+        claude plugin marketplace add backnotprop/plannotator || info "    (skipped - not available)"
+        claude plugin marketplace add max-sixty/worktrunk || info "    (skipped - not available)"
 
         info "  Installing Claude Code plugins..."
-        claude plugin install typescript-lsp@claude-plugins-official 2>/dev/null || true
-        claude plugin install frontend-design@claude-plugins-official 2>/dev/null || true
-        claude plugin install code-review@claude-plugins-official 2>/dev/null || true
-        claude plugin install commit-commands@claude-plugins-official 2>/dev/null || true
-        claude plugin install claude-md-management@claude-plugins-official 2>/dev/null || true
-        claude plugin install plugin-dev@claude-plugins-official 2>/dev/null || true
-        claude plugin install skill-creator@claude-plugins-official 2>/dev/null || true
-        claude plugin install claude-hud@claude-hud 2>/dev/null || true
-        claude plugin install expo-app-design@expo-plugins 2>/dev/null || true
-        claude plugin install upgrading-expo@expo-plugins 2>/dev/null || true
-        claude plugin install expo-deployment@expo-plugins 2>/dev/null || true
-        claude plugin install expo-developer@monolab 2>/dev/null || true
-        claude plugin install experiments@monolab 2>/dev/null || true
-        claude plugin install double-shot-latte@superpowers-marketplace 2>/dev/null || true
-        claude plugin install elements-of-style@superpowers-marketplace 2>/dev/null || true
-        claude plugin install episodic-memory@superpowers-marketplace 2>/dev/null || true
-        claude plugin install superpowers@superpowers-marketplace 2>/dev/null || true
-        claude plugin install superpowers-chrome@superpowers-marketplace 2>/dev/null || true
-        claude plugin install superpowers-developing-for-claude-code@superpowers-marketplace 2>/dev/null || true
-        claude plugin install superpowers-lab@superpowers-marketplace 2>/dev/null || true
-        claude plugin install claude-code-wakatime@wakatime 2>/dev/null || true
-        claude plugin install plannotator@plannotator 2>/dev/null || true
-        claude plugin install worktrunk@worktrunk 2>/dev/null || true
+        claude plugin install typescript-lsp@claude-plugins-official || info "    (skipped - not available)"
+        claude plugin install frontend-design@claude-plugins-official || info "    (skipped - not available)"
+        claude plugin install code-review@claude-plugins-official || info "    (skipped - not available)"
+        claude plugin install commit-commands@claude-plugins-official || info "    (skipped - not available)"
+        claude plugin install claude-md-management@claude-plugins-official || info "    (skipped - not available)"
+        claude plugin install plugin-dev@claude-plugins-official || info "    (skipped - not available)"
+        claude plugin install skill-creator@claude-plugins-official || info "    (skipped - not available)"
+        claude plugin install claude-hud@claude-hud || info "    (skipped - not available)"
+        claude plugin install expo-app-design@expo-plugins || info "    (skipped - not available)"
+        claude plugin install upgrading-expo@expo-plugins || info "    (skipped - not available)"
+        claude plugin install expo-deployment@expo-plugins || info "    (skipped - not available)"
+        claude plugin install expo-developer@monolab || info "    (skipped - not available)"
+        claude plugin install experiments@monolab || info "    (skipped - not available)"
+        claude plugin install double-shot-latte@superpowers-marketplace || info "    (skipped - not available)"
+        claude plugin install elements-of-style@superpowers-marketplace || info "    (skipped - not available)"
+        claude plugin install episodic-memory@superpowers-marketplace || info "    (skipped - not available)"
+        claude plugin install superpowers@superpowers-marketplace || info "    (skipped - not available)"
+        claude plugin install superpowers-chrome@superpowers-marketplace || info "    (skipped - not available)"
+        claude plugin install superpowers-developing-for-claude-code@superpowers-marketplace || info "    (skipped - not available)"
+        claude plugin install superpowers-lab@superpowers-marketplace || info "    (skipped - not available)"
+        claude plugin install claude-code-wakatime@wakatime || info "    (skipped - not available)"
+        claude plugin install plannotator@plannotator || info "    (skipped - not available)"
+        claude plugin install worktrunk@worktrunk || info "    (skipped - not available)"
     else
         warn "Claude Code is not installed — skipping plugin setup"
     fi
