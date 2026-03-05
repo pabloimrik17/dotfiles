@@ -4,10 +4,22 @@
 [post-create]
 deps = """
 if [ -f bun.lock ]; then
-  bun install
+  if command -v bun >/dev/null 2>&1; then
+    bun install
+  else
+    echo "[worktrunk] bun.lock detected but bun is not installed; skipping deps install" >&2
+  fi
 elif [ -f pnpm-lock.yaml ]; then
-  pnpm install
+  if command -v pnpm >/dev/null 2>&1; then
+    pnpm install
+  else
+    echo "[worktrunk] pnpm-lock.yaml detected but pnpm is not installed; skipping deps install" >&2
+  fi
 elif [ -f package-lock.json ]; then
-  npm install
+  if command -v npm >/dev/null 2>&1; then
+    npm install
+  else
+    echo "[worktrunk] package-lock.json detected but npm is not installed; skipping deps install" >&2
+  fi
 fi
 """
