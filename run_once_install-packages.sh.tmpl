@@ -20,6 +20,15 @@ error() {
     ERRORS=$((ERRORS + 1))
 }
 
+run_claude_step() {
+    local label="$1"
+    shift
+    if ! "$@" 2>&1; then
+        error "Claude step failed: $label ($*)"
+        return 0  # continue script
+    fi
+}
+
 confirm() {
     local prompt="$1"
     local reply
@@ -43,13 +52,14 @@ fi
 # ------------------------------------------------------------------
 # Group 1: Brew packages
 # ------------------------------------------------------------------
-BREW_PACKAGES=(starship eza bat zoxide atuin fzf ripgrep lazygit)
+BREW_PACKAGES=(starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk)
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
     case "$1" in
-        ripgrep) echo "rg" ;;
-        *)       echo "$1" ;;
+        ripgrep)   echo "rg" ;;
+        worktrunk) echo "wt" ;;
+        *)         echo "$1" ;;
     esac
 }
 
@@ -169,17 +179,57 @@ fi
 # ------------------------------------------------------------------
 # Group 5: Claude Code plugin dependencies
 # ------------------------------------------------------------------
-if confirm "Install Claude Code plugin dependencies (plannotator)?"; then
-    if command -v plannotator &>/dev/null; then
-        info "  plannotator — already installed, skipping"
+if confirm "Install Claude Code plugin dependencies (plannotator, worktrunk plugin)?"; then
+    if command -v claude &>/dev/null; then
+        if command -v plannotator &>/dev/null; then
+            info "  plannotator — already installed, skipping"
+        else
+            info "  Installing plannotator..."
+            if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
+                error "Failed to install plannotator"
+            fi
+            if ! command -v plannotator &>/dev/null; then
+                error "plannotator installed but not found in PATH"
+            fi
+        fi
+
+        info "  Registering Claude Code plugin marketplaces..."
+        run_claude_step "marketplace anthropics/claude-plugins-official" claude plugin marketplace add anthropics/claude-plugins-official
+        run_claude_step "marketplace jarrodwatts/claude-hud" claude plugin marketplace add jarrodwatts/claude-hud
+        run_claude_step "marketplace expo/skills" claude plugin marketplace add expo/skills
+        run_claude_step "marketplace pabloimrik17/monolab" claude plugin marketplace add pabloimrik17/monolab
+        run_claude_step "marketplace obra/superpowers-marketplace" claude plugin marketplace add obra/superpowers-marketplace
+        run_claude_step "marketplace wakatime" claude plugin marketplace add https://github.com/wakatime/claude-code-wakatime.git
+        run_claude_step "marketplace nrwl/nx-ai-agents-config" claude plugin marketplace add nrwl/nx-ai-agents-config
+        run_claude_step "marketplace backnotprop/plannotator" claude plugin marketplace add backnotprop/plannotator
+        run_claude_step "marketplace max-sixty/worktrunk" claude plugin marketplace add max-sixty/worktrunk
+
+        info "  Installing Claude Code plugins..."
+        run_claude_step "plugin typescript-lsp" claude plugin install typescript-lsp@claude-plugins-official
+        run_claude_step "plugin frontend-design" claude plugin install frontend-design@claude-plugins-official
+        run_claude_step "plugin code-review" claude plugin install code-review@claude-plugins-official
+        run_claude_step "plugin commit-commands" claude plugin install commit-commands@claude-plugins-official
+        run_claude_step "plugin claude-md-management" claude plugin install claude-md-management@claude-plugins-official
+        run_claude_step "plugin plugin-dev" claude plugin install plugin-dev@claude-plugins-official
+        run_claude_step "plugin skill-creator" claude plugin install skill-creator@claude-plugins-official
+        run_claude_step "plugin claude-hud" claude plugin install claude-hud@claude-hud
+        run_claude_step "plugin expo-app-design" claude plugin install expo-app-design@expo-plugins
+        run_claude_step "plugin upgrading-expo" claude plugin install upgrading-expo@expo-plugins
+        run_claude_step "plugin expo-deployment" claude plugin install expo-deployment@expo-plugins
+        run_claude_step "plugin expo-developer" claude plugin install expo-developer@monolab
+        run_claude_step "plugin experiments" claude plugin install experiments@monolab
+        run_claude_step "plugin double-shot-latte" claude plugin install double-shot-latte@superpowers-marketplace
+        run_claude_step "plugin elements-of-style" claude plugin install elements-of-style@superpowers-marketplace
+        run_claude_step "plugin episodic-memory" claude plugin install episodic-memory@superpowers-marketplace
+        run_claude_step "plugin superpowers" claude plugin install superpowers@superpowers-marketplace
+        run_claude_step "plugin superpowers-chrome" claude plugin install superpowers-chrome@superpowers-marketplace
+        run_claude_step "plugin superpowers-developing-for-claude-code" claude plugin install superpowers-developing-for-claude-code@superpowers-marketplace
+        run_claude_step "plugin superpowers-lab" claude plugin install superpowers-lab@superpowers-marketplace
+        run_claude_step "plugin claude-code-wakatime" claude plugin install claude-code-wakatime@wakatime
+        run_claude_step "plugin plannotator" claude plugin install plannotator@plannotator
+        run_claude_step "plugin worktrunk" claude plugin install worktrunk@worktrunk
     else
-        info "  Installing plannotator..."
-        if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
-            error "Failed to install plannotator"
-        fi
-        if ! command -v plannotator &>/dev/null; then
-            error "plannotator installed but not found in PATH"
-        fi
+        warn "Claude Code is not installed — skipping plugin setup"
     fi
 else
     info "Skipping Claude Code plugin dependencies."
@@ -193,7 +243,8 @@ info "This system is not macOS. Automatic installation is not supported."
 info ""
 info "Please install the following packages manually:"
 info ""
-info "  CLI tools: starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit"
+info "  CLI tools: starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk"
+info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
 info "  Font: Hack Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: oh-my-zsh (https://ohmyz.sh/)"
 info "  Zsh plugins:"
@@ -202,6 +253,8 @@ info "    - zsh-autosuggestions (via package manager or git clone)"
 info "    - zsh-syntax-highlighting (via package manager or git clone)"
 info "  Claude Code plugins:"
 info "    - plannotator: curl -fsSL https://plannotator.ai/install.sh | bash"
+info "    - claude plugin marketplace add backnotprop/plannotator && claude plugin install plannotator@plannotator"
+info "    - claude plugin marketplace add max-sixty/worktrunk && claude plugin install worktrunk@worktrunk"
 info ""
 
 {{ end -}}

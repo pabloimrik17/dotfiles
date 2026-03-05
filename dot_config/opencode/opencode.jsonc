@@ -18,7 +18,7 @@
             "command": ["oxfmt", "$FILE"],
         },
     },
-    "permissions": {
+    "permission": {
         // File modifications — default is allow, we want confirmation
         "edit": "ask",
 
