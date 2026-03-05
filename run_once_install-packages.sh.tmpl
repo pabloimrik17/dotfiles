@@ -20,6 +20,15 @@ error() {
     ERRORS=$((ERRORS + 1))
 }
 
+run_claude_step() {
+    local label="$1"
+    shift
+    if ! "$@" 2>&1; then
+        error "Claude step failed: $label ($*)"
+        return 0  # continue script
+    fi
+}
+
 confirm() {
     local prompt="$1"
     local reply
@@ -185,40 +194,40 @@ if confirm "Install Claude Code plugin dependencies (plannotator, worktrunk plug
         fi
 
         info "  Registering Claude Code plugin marketplaces..."
-        claude plugin marketplace add anthropics/claude-plugins-official || info "    (skipped - not available)"
-        claude plugin marketplace add jarrodwatts/claude-hud || info "    (skipped - not available)"
-        claude plugin marketplace add expo/skills || info "    (skipped - not available)"
-        claude plugin marketplace add pabloimrik17/monolab || info "    (skipped - not available)"
-        claude plugin marketplace add obra/superpowers-marketplace || info "    (skipped - not available)"
-        claude plugin marketplace add https://github.com/wakatime/claude-code-wakatime.git || info "    (skipped - not available)"
-        claude plugin marketplace add nrwl/nx-ai-agents-config || info "    (skipped - not available)"
-        claude plugin marketplace add backnotprop/plannotator || info "    (skipped - not available)"
-        claude plugin marketplace add max-sixty/worktrunk || info "    (skipped - not available)"
+        run_claude_step "marketplace anthropics/claude-plugins-official" claude plugin marketplace add anthropics/claude-plugins-official
+        run_claude_step "marketplace jarrodwatts/claude-hud" claude plugin marketplace add jarrodwatts/claude-hud
+        run_claude_step "marketplace expo/skills" claude plugin marketplace add expo/skills
+        run_claude_step "marketplace pabloimrik17/monolab" claude plugin marketplace add pabloimrik17/monolab
+        run_claude_step "marketplace obra/superpowers-marketplace" claude plugin marketplace add obra/superpowers-marketplace
+        run_claude_step "marketplace wakatime" claude plugin marketplace add https://github.com/wakatime/claude-code-wakatime.git
+        run_claude_step "marketplace nrwl/nx-ai-agents-config" claude plugin marketplace add nrwl/nx-ai-agents-config
+        run_claude_step "marketplace backnotprop/plannotator" claude plugin marketplace add backnotprop/plannotator
+        run_claude_step "marketplace max-sixty/worktrunk" claude plugin marketplace add max-sixty/worktrunk
 
         info "  Installing Claude Code plugins..."
-        claude plugin install typescript-lsp@claude-plugins-official || info "    (skipped - not available)"
-        claude plugin install frontend-design@claude-plugins-official || info "    (skipped - not available)"
-        claude plugin install code-review@claude-plugins-official || info "    (skipped - not available)"
-        claude plugin install commit-commands@claude-plugins-official || info "    (skipped - not available)"
-        claude plugin install claude-md-management@claude-plugins-official || info "    (skipped - not available)"
-        claude plugin install plugin-dev@claude-plugins-official || info "    (skipped - not available)"
-        claude plugin install skill-creator@claude-plugins-official || info "    (skipped - not available)"
-        claude plugin install claude-hud@claude-hud || info "    (skipped - not available)"
-        claude plugin install expo-app-design@expo-plugins || info "    (skipped - not available)"
-        claude plugin install upgrading-expo@expo-plugins || info "    (skipped - not available)"
-        claude plugin install expo-deployment@expo-plugins || info "    (skipped - not available)"
-        claude plugin install expo-developer@monolab || info "    (skipped - not available)"
-        claude plugin install experiments@monolab || info "    (skipped - not available)"
-        claude plugin install double-shot-latte@superpowers-marketplace || info "    (skipped - not available)"
-        claude plugin install elements-of-style@superpowers-marketplace || info "    (skipped - not available)"
-        claude plugin install episodic-memory@superpowers-marketplace || info "    (skipped - not available)"
-        claude plugin install superpowers@superpowers-marketplace || info "    (skipped - not available)"
-        claude plugin install superpowers-chrome@superpowers-marketplace || info "    (skipped - not available)"
-        claude plugin install superpowers-developing-for-claude-code@superpowers-marketplace || info "    (skipped - not available)"
-        claude plugin install superpowers-lab@superpowers-marketplace || info "    (skipped - not available)"
-        claude plugin install claude-code-wakatime@wakatime || info "    (skipped - not available)"
-        claude plugin install plannotator@plannotator || info "    (skipped - not available)"
-        claude plugin install worktrunk@worktrunk || info "    (skipped - not available)"
+        run_claude_step "plugin typescript-lsp" claude plugin install typescript-lsp@claude-plugins-official
+        run_claude_step "plugin frontend-design" claude plugin install frontend-design@claude-plugins-official
+        run_claude_step "plugin code-review" claude plugin install code-review@claude-plugins-official
+        run_claude_step "plugin commit-commands" claude plugin install commit-commands@claude-plugins-official
+        run_claude_step "plugin claude-md-management" claude plugin install claude-md-management@claude-plugins-official
+        run_claude_step "plugin plugin-dev" claude plugin install plugin-dev@claude-plugins-official
+        run_claude_step "plugin skill-creator" claude plugin install skill-creator@claude-plugins-official
+        run_claude_step "plugin claude-hud" claude plugin install claude-hud@claude-hud
+        run_claude_step "plugin expo-app-design" claude plugin install expo-app-design@expo-plugins
+        run_claude_step "plugin upgrading-expo" claude plugin install upgrading-expo@expo-plugins
+        run_claude_step "plugin expo-deployment" claude plugin install expo-deployment@expo-plugins
+        run_claude_step "plugin expo-developer" claude plugin install expo-developer@monolab
+        run_claude_step "plugin experiments" claude plugin install experiments@monolab
+        run_claude_step "plugin double-shot-latte" claude plugin install double-shot-latte@superpowers-marketplace
+        run_claude_step "plugin elements-of-style" claude plugin install elements-of-style@superpowers-marketplace
+        run_claude_step "plugin episodic-memory" claude plugin install episodic-memory@superpowers-marketplace
+        run_claude_step "plugin superpowers" claude plugin install superpowers@superpowers-marketplace
+        run_claude_step "plugin superpowers-chrome" claude plugin install superpowers-chrome@superpowers-marketplace
+        run_claude_step "plugin superpowers-developing-for-claude-code" claude plugin install superpowers-developing-for-claude-code@superpowers-marketplace
+        run_claude_step "plugin superpowers-lab" claude plugin install superpowers-lab@superpowers-marketplace
+        run_claude_step "plugin claude-code-wakatime" claude plugin install claude-code-wakatime@wakatime
+        run_claude_step "plugin plannotator" claude plugin install plannotator@plannotator
+        run_claude_step "plugin worktrunk" claude plugin install worktrunk@worktrunk
     else
         warn "Claude Code is not installed — skipping plugin setup"
     fi
