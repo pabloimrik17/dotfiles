@@ -1,0 +1,13 @@
+# Worktrunk user configuration
+# Managed by chezmoi — edit the source, not ~/.config/worktrunk/config.toml
+
+[post-create]
+deps = """
+if [ -f bun.lock ]; then
+  bun install
+elif [ -f pnpm-lock.yaml ]; then
+  pnpm install
+elif [ -f package-lock.json ]; then
+  npm install
+fi
+"""

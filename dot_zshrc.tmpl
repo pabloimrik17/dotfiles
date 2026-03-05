@@ -82,6 +82,9 @@ eval "$(atuin init zsh --disable-up-arrow)"
 # GitHub CLI completions
 eval "$(gh completion -s zsh)"
 
+# Worktrunk - Git worktree management (cd integration + completions)
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
+
 # Zsh plugins
 {{- if eq .chezmoi.os "darwin" }}
 {{-   if eq .chezmoi.arch "arm64" }}
