@@ -13,6 +13,7 @@ Managing parallel AI agent workflows requires isolating git worktrees, but nativ
 ## Capabilities
 
 ### New Capabilities
+
 - `worktrunk-install`: Brew installation of worktrunk with idempotent checks and shell integration baked into the zshrc template
 - `worktrunk-config`: Chezmoi-managed static user config with a universal post-create hook that detects bun/pnpm/npm by lockfile presence
 - `worktrunk-claude-plugin`: Enable the worktrunk Claude Code plugin for configuration skills and worktree activity tracking
