@@ -60,7 +60,18 @@ eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
 
 # fzf - Fuzzy finder for command history and files
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+{{- if eq .chezmoi.os "darwin" }}
+{{-   if eq .chezmoi.arch "arm64" }}
+if [[ ! "$PATH" == */opt/homebrew/opt/fzf/bin* ]]; then
+  PATH="${PATH:+${PATH}:}/opt/homebrew/opt/fzf/bin"
+fi
+{{-   else }}
+if [[ ! "$PATH" == */usr/local/opt/fzf/bin* ]]; then
+  PATH="${PATH:+${PATH}:}/usr/local/opt/fzf/bin"
+fi
+{{-   end }}
+{{- end }}
+source <(fzf --zsh)
 
 # fd as fzf backend - much faster than default find
 export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
