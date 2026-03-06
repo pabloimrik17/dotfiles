@@ -82,6 +82,26 @@ else
 fi
 
 # ------------------------------------------------------------------
+# Bat theme: Catppuccin Mocha
+# ------------------------------------------------------------------
+if command -v bat &>/dev/null; then
+    BAT_THEMES_DIR="$(bat --config-dir)/themes"
+    if [ -f "$BAT_THEMES_DIR/Catppuccin Mocha.tmTheme" ]; then
+        info "  bat Catppuccin Mocha theme — already installed, skipping"
+    else
+        info "  Installing bat Catppuccin Mocha theme..."
+        mkdir -p "$BAT_THEMES_DIR"
+        if curl -fsSLo "$BAT_THEMES_DIR/Catppuccin Mocha.tmTheme" \
+            "https://raw.githubusercontent.com/catppuccin/bat/main/themes/Catppuccin%20Mocha.tmTheme"; then
+            bat cache --build
+            info "  bat Catppuccin Mocha theme installed successfully"
+        else
+            error "Failed to download bat Catppuccin Mocha theme"
+        fi
+    fi
+fi
+
+# ------------------------------------------------------------------
 # Group 2: Fonts
 # ------------------------------------------------------------------
 if confirm "Install Hack Nerd Font?"; then
@@ -252,6 +272,10 @@ info "  Zsh plugins:"
 info "    - you-should-use: git clone https://github.com/MichaelAquilina/you-should-use.git \${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/you-should-use"
 info "    - zsh-autosuggestions (via package manager or git clone)"
 info "    - zsh-syntax-highlighting (via package manager or git clone)"
+info "  Bat theme: Catppuccin Mocha"
+info "    mkdir -p \"\$(bat --config-dir)/themes\""
+info "    curl -fsSLo \"\$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme\" https://raw.githubusercontent.com/catppuccin/bat/main/themes/Catppuccin%20Mocha.tmTheme"
+info "    bat cache --build"
 info "  Claude Code plugins:"
 info "    - plannotator: curl -fsSL https://plannotator.ai/install.sh | bash"
 info "    - claude plugin marketplace add backnotprop/plannotator && claude plugin install plannotator@plannotator"
