@@ -9,9 +9,10 @@
 # IDE — JetBrains
 .idea/
 
-# IDE — VS Code (selective: ignore user prefs, keep project configs)
-.vscode/settings.json
-.vscode/extensions.json
+# IDE — VS Code (selective: keep shareable project configs)
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 
 # IDE — Vim / Neovim
 *.swp
