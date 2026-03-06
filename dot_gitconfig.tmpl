@@ -26,9 +26,11 @@
 [rerere]
 	enabled = true
 
-{{- if eq .chezmoi.os "darwin" }}
 [credential]
+{{- if eq .chezmoi.os "darwin" }}
 	helper = osxkeychain
+{{- else }}
+	helper = cache
 {{- end }}
 
 [diff]

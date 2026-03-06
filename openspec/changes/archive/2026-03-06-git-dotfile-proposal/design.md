@@ -5,12 +5,14 @@ The dotfiles repo manages shell configuration via chezmoi but git configuration 
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Manage `~/.gitconfig` and `~/.gitignore_global` via chezmoi so they travel across machines
 - Remove legacy cruft and add modern git defaults
 - Ensure brew-installed git (2.47+) is available so all modern config options work
 - Curate git aliases that complement (not duplicate) OMZ shell aliases
 
 **Non-Goals:**
+
 - Delta Catppuccin theming — delta 0.18.2 can't use bat's built-in themes; deferred to zshrc `BAT_THEME`
 - Per-project git config overrides — out of scope, handled by `.git/config` in each repo
 - GPG signing setup — separate concern, can be layered later
@@ -54,9 +56,9 @@ The dotfiles repo manages shell configuration via chezmoi but git configuration 
 
 ### D6: Explicit credential helper
 
-**Decision:** Include `[credential] helper = osxkeychain` in the gitconfig.
+**Decision:** Include `[credential]` with OS-conditional helper — `osxkeychain` on macOS, `cache` on Linux.
 
-**Rationale:** This is already the macOS default, but making it explicit means the config is self-documenting. On a future Linux machine, this section can be templated to use `store` or `cache`.
+**Rationale:** Making the credential helper explicit means the config is self-documenting and portable. The chezmoi template conditionally selects the right helper per OS.
 
 ## Risks / Trade-offs
 
