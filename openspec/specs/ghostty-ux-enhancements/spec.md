@@ -1,4 +1,19 @@
-## ADDED Requirements
+# Capability: ghostty-ux-enhancements
+
+## Purpose
+
+Configure Ghostty's user experience options — keybinds, cursor behavior, window state persistence, clipboard handling, update checking, secure input, directory inheritance, and close confirmation — to streamline daily terminal workflows on macOS.
+
+## Requirements
+
+### Requirement: Quick config reload keybind
+
+The Ghostty config SHALL include `keybind = super+shift+comma=reload_config` to enable quickly reloading the configuration without restarting Ghostty.
+
+#### Scenario: Reload config after editing
+
+- **WHEN** the user presses Cmd+Shift+Comma after modifying the Ghostty config file
+- **THEN** Ghostty reloads the configuration and applies changes immediately without restarting
 
 ### Requirement: Cursor can be moved by clicking at prompts
 
@@ -87,12 +102,3 @@ The Ghostty config SHALL include `confirm-close-surface = true` to confirm befor
 
 - **WHEN** the user closes a terminal surface sitting at an idle shell prompt (with shell integration detecting no running process)
 - **THEN** the surface closes without confirmation
-
-### Requirement: URL link previews are enabled
-
-The Ghostty config SHALL include `link-previews = true` to show a preview tooltip when hovering over a detected URL with Cmd held.
-
-#### Scenario: URL preview on hover
-
-- **WHEN** the user hovers over a URL in terminal output while holding Cmd
-- **THEN** a link preview is displayed showing the URL destination

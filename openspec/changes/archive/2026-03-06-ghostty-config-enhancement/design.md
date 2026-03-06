@@ -9,6 +9,7 @@ Ghostty 1.2.0 introduced several features (quick terminal, background image, lin
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Add visual refinements that improve terminal aesthetics on macOS Retina without changing the theme or font
 - Enable quick terminal for fast access from any application
 - Improve daily UX: cursor navigation, clipboard hygiene, window state persistence
@@ -16,6 +17,7 @@ Ghostty 1.2.0 introduced several features (quick terminal, background image, lin
 - Maintain the existing config structure and organization style (commented sections)
 
 **Non-Goals:**
+
 - Light/dark theme switching (user is dark-mode only)
 - Changing `macos-option-as-alt` (Spanish keyboard requires Option for `@`, `#`, `[`, `]`, `{`, `}`, `|`, `\`, `~`)
 - SSH shell integration features (no current SSH usage)
@@ -38,6 +40,7 @@ Ghostty 1.2.0 introduced several features (quick terminal, background image, lin
 **Choice**: `global:super+shift+t=toggle_quick_terminal`
 
 **Rationale**: On a Spanish macOS keyboard layout, many common "Quake console" keybinds are problematic:
+
 - `super+grave` conflicts with macOS "switch windows of same app"
 - `ctrl+grave` -- the grave accent (`` ` ``) is awkward on Spanish keyboards
 - `ctrl+space` may conflict with Spotlight or input source switching
@@ -50,7 +53,7 @@ Ghostty 1.2.0 introduced several features (quick terminal, background image, lin
 
 **Choice**: Add new configuration lines following the existing commented-section pattern (`# Section Name`), grouped logically.
 
-**Rationale**: The current config uses `# Theme`, `# Font`, `# Window`, `# Cursor`, etc. as section headers. New options will follow this convention with sections like `# Visual polish`, `# Quick terminal`, `# UX`, `# Operational`. This keeps the file scannable and self-documenting.
+**Rationale**: The current config uses `# Theme`, `# Font`, `# Window`, `# Cursor`, etc. as section headers. New options are integrated into existing logical sections where they belong (e.g., `font-thicken` under `# Font`, `window-save-state` under `# Window`, `clipboard-trim-trailing-spaces` under `# Copy/paste`). Dedicated sections are added only for genuinely new feature groups: `# Quick terminal`, `# Quick reload config`, and `# Operational`. This keeps related settings together and the file scannable.
 
 ### Decision: `minimum-contrast` set to 1.1 (not higher)
 

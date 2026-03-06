@@ -26,6 +26,8 @@
 - [x] 3.5 Add `confirm-close-surface = true` to a new UX or Window section
 - [ ] ~~3.6 Add `link-previews = true` alongside URL/link settings~~ — **cancelled**: option does not exist in Ghostty 1.2.3
 
+- [x] 3.7 Add `keybind = super+shift+comma=reload_config` to the Keybindings section for quick config reloading
+
 ## 4. Operational
 
 - [x] 4.1 Add `auto-update = check` to a new Operational section

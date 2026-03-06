@@ -5,22 +5,26 @@ The current Ghostty configuration covers basic setup (theme, font, window, curso
 ## What Changes
 
 **Visual polish:**
+
 - Add `window-padding-balance = true` to distribute leftover pixel padding evenly across edges
 - Add `window-padding-color = extend` to extend cell background color into padding (eliminates visible seams)
 - Add `font-thicken = true` for improved font rendering on macOS Retina displays
 
 **UX improvements:**
+
 - Add `cursor-click-to-move = true` to enable Option+click cursor positioning at shell prompts
 - Add `window-save-state = always` to restore windows, tabs, splits, and working directories on restart
 - Add `clipboard-trim-trailing-spaces = true` to strip trailing whitespace when copying
 - Add `minimum-contrast = 1.1` as a safety net against invisible text (same fg/bg color)
 
 **Quick terminal (drop-down Quake-style terminal):**
+
 - Add `quick-terminal-position = top` with 40% screen height
 - Add global keybind (`super+shift+t`) to toggle quick terminal from any application
 - Configure animation, screen selection, and auto-hide behavior
 
 **Operational:**
+
 - Add `auto-update = check` to get notified of Ghostty updates
 - Add `macos-auto-secure-input = true` for automatic secure keyboard on password prompts
 - Add `window-inherit-working-directory = true` so new tabs/splits inherit the current directory
@@ -28,6 +32,7 @@ The current Ghostty configuration covers basic setup (theme, font, window, curso
 - Add `link-previews = true` for URL preview on hover
 
 **Explicitly NOT changing:**
+
 - Theme stays `catppuccin-mocha` (dark only, no light/dark auto-switching)
 - Font stays `Hack Nerd Font` at size 14
 - `macos-option-as-alt` is NOT set (Spanish keyboard layout uses Option for `@`, `#`, `[`, `]`, `{`, `}`, `|`, `\`, `~`)
