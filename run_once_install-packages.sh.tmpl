@@ -145,7 +145,7 @@ if confirm "Install oh-my-zsh and zsh plugins?"; then
     fi
 
     # zsh-autosuggestions and zsh-syntax-highlighting via brew
-    for pkg in zsh-autosuggestions zsh-syntax-highlighting; do
+    for pkg in zsh-autosuggestions zsh-syntax-highlighting zsh-completions; do
         if brew list "$pkg" &>/dev/null; then
             info "  $pkg — already installed, skipping"
         else
@@ -272,6 +272,7 @@ info "  Zsh plugins:"
 info "    - you-should-use: git clone https://github.com/MichaelAquilina/you-should-use.git \${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/you-should-use"
 info "    - zsh-autosuggestions (via package manager or git clone)"
 info "    - zsh-syntax-highlighting (via package manager or git clone)"
+info "    - zsh-completions (via package manager or git clone)"
 info "  Bat theme: Catppuccin Mocha"
 info "    mkdir -p \"\$(bat --config-dir)/themes\""
 info "    curl -fsSLo \"\$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme\" https://raw.githubusercontent.com/catppuccin/bat/main/themes/Catppuccin%20Mocha.tmTheme"
