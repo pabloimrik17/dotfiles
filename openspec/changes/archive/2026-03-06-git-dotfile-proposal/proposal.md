@@ -5,13 +5,13 @@ The `~/.gitconfig` and `~/.gitignore_global` are not managed by chezmoi. They do
 ## What Changes
 
 - Add `dot_gitconfig.tmpl` as a chezmoi-managed template with:
-  - Templated `[user]` section using existing `.name`/`.email` chezmoi data (no new prompts)
-  - Removal of all Sourcetree/legacy entries
-  - Modern defaults: `[init] defaultBranch = main`, `[push] autoSetupRemote = true`, `[fetch] prune = true`, `[rerere] enabled = true`
-  - Delta pager configuration (carried over + enhanced with `line-numbers`)
-  - Curated git aliases (`lg`, `last`, `unstage`, `undo`, `amend`, `branches`, `remotes`) that complement — not duplicate — OMZ shell aliases
-  - Explicit `[credential] helper = osxkeychain`
-  - `[diff] algorithm = histogram` and `[merge] conflictstyle = zdiff3` for better diffs/conflicts
+    - Templated `[user]` section using existing `.name`/`.email` chezmoi data (no new prompts)
+    - Removal of all Sourcetree/legacy entries
+    - Modern defaults: `[init] defaultBranch = main`, `[push] autoSetupRemote = true`, `[fetch] prune = true`, `[rerere] enabled = true`
+    - Delta pager configuration (carried over + enhanced with `line-numbers`)
+    - Curated git aliases (`lg`, `last`, `unstage`, `undo`, `amend`, `branches`, `remotes`) that complement — not duplicate — OMZ shell aliases
+    - Explicit `[credential] helper = osxkeychain`
+    - `[diff] algorithm = histogram` and `[merge] conflictstyle = zdiff3` for better diffs/conflicts
 - Add `dot_gitignore_global` as a static chezmoi-managed file with comprehensive safety-net patterns (macOS, IDE, env/secrets, node_modules, build outputs)
 - Add `git` to `BREW_PACKAGES` in `run_once_install-packages.sh.tmpl` to get modern git (2.47+) instead of Apple's bundled 2.33.0 — unlocks `autoSetupRemote`, `zdiff3`, `histogram`
 - **Drop** `delta.syntax-theme = "Catppuccin Mocha"` from the proposal — delta 0.18.2 doesn't inherit bat's built-in themes; handle via `BAT_THEME` env var in zshrc instead
@@ -19,9 +19,11 @@ The `~/.gitconfig` and `~/.gitignore_global` are not managed by chezmoi. They do
 ## Capabilities
 
 ### New Capabilities
+
 - `git-config`: Chezmoi-managed git configuration (gitconfig template + gitignore_global) with modern defaults, curated aliases, and delta integration
 
 ### Modified Capabilities
+
 <!-- None — no existing specs are affected by this change -->
 
 ## Impact

@@ -50,7 +50,8 @@ The `[directory]` section SHALL set `truncate_to_repo = true`, `truncation_symbo
 #### Scenario: Preset symbol preserved
 
 - **WHEN** the directory is read-only
-- **THEN** the Nerd Font preset read-only symbol (a leading space followed by `󰌾`) is shown
+<<<<<<< HEAD
+- **THEN** the Nerd Font preset read-only symbol (` 󰌾`) is shown
 
 ### Requirement: Git status with count-aware ahead/behind and stash indicator
 
