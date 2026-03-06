@@ -23,3 +23,50 @@ elif [ -f package-lock.json ]; then
   fi
 fi
 """
+
+[commit.generation]
+command = "MAX_THINKING_TOKENS=0 claude -p --model=haiku --tools='' --disable-slash-commands --setting-sources='' --system-prompt=''"
+
+template = """
+Write a commit message in Conventional Commits (commitizen) format.
+
+RULES:
+- First line: type(optional-scope): description (max 72 chars total)
+- Valid types: feat, fix, docs, style, refactor, perf, test, build, chore, ci, revert
+- Leave one blank line after the subject
+- Body lines must NOT exceed 100 characters — hard wrap at 100
+- Body should explain WHAT changed and WHY, not HOW
+- Do NOT use markdown, bullet points, or lists in the body
+- Output ONLY the commit message, nothing else
+
+DIFF STAT:
+{{ git_diff_stat }}
+
+DIFF:
+{{ git_diff }}
+"""
+
+squash-template = """
+Write a single squash commit message in Conventional Commits (commitizen) format.
+
+RULES:
+- First line: type(optional-scope): description (max 72 chars total)
+- Valid types: feat, fix, docs, style, refactor, perf, test, build, chore, ci, revert
+- Leave one blank line after the subject
+- Body lines must NOT exceed 100 characters — hard wrap at 100
+- Body should summarize ALL the squashed commits into a coherent message
+- Explain WHAT changed and WHY, not HOW
+- Do NOT use markdown, bullet points, or lists in the body
+- Output ONLY the commit message, nothing else
+
+BRANCH: {{ branch }}
+TARGET: {{ target_branch }}
+
+SQUASHED COMMITS:
+{{ commits }}
+
+DIFF STAT:
+{{ git_diff_stat }}
+"""
+
+[projects]
