@@ -7,12 +7,14 @@ The `dot_zshrc.tmpl` has no BAT_THEME set. The `tune-autosuggestions` change (in
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Intentional catppuccin-mocha color integration via Starship's native palette system
 - Repo-aware directory paths and count-aware git status
 - Consistent catppuccin theming across bat and delta via BAT_THEME
 - Reduce prompt noise by disabling modules for VCS systems not in use
 
 **Non-Goals:**
+
 - Multi-line prompt format or custom `format` string
 - Full catppuccin style overrides on every module (selective overrides only)
 - Managing delta/gitconfig (BAT_THEME inheritance handles this)

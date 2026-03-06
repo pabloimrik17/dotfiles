@@ -102,6 +102,13 @@ if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)
 [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 {{- end }}
 
+# Autosuggestions tuning (catppuccin-mocha palette)
+# Alternative: ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#9399b2"          # Overlay 2 — subtle grey, no background
+# Alternative: ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#4d7d96"          # Sapphire dimmed 50% — oceanic tone, no background
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#cba6f7,bg=#585b70"
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+ZSH_AUTOSUGGEST_USE_ASYNC=true
+
 # ====================================================================
 # ALIASES - Modern replacements for classic commands
 # ====================================================================
