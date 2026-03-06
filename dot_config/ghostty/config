@@ -4,20 +4,28 @@
 
 # Theme
 theme = catppuccin-mocha
+minimum-contrast = 1.1
 
 # Font
 font-family = "Hack Nerd Font"
 font-size = 14
+font-thicken = true
 
 # Window
 window-padding-x = 10
 window-padding-y = 10
+window-padding-balance = true
+window-padding-color = extend
 window-decoration = true
 macos-titlebar-style = tabs
+window-save-state = always
+window-inherit-working-directory = true
+confirm-close-surface = true
 
 # Cursor
 cursor-style = block
 cursor-style-blink = false
+cursor-click-to-move = true
 
 # Shell integration
 shell-integration = zsh
@@ -26,9 +34,18 @@ shell-integration-features = cursor,sudo,title
 # Copy/paste
 copy-on-select = clipboard
 clipboard-paste-protection = true
+clipboard-trim-trailing-spaces = true
 
 # Mouse
 mouse-hide-while-typing = true
+
+# Quick terminal
+quick-terminal-position = top
+quick-terminal-size = 40%
+quick-terminal-screen = main
+quick-terminal-animation-duration = 0.2
+quick-terminal-space-behavior = move
+quick-terminal-autohide = true
 
 # Keybindings (macOS friendly)
 keybind = super+t=new_tab
@@ -41,5 +58,11 @@ keybind = super+3=goto_tab:3
 keybind = super+4=goto_tab:4
 keybind = super+5=goto_tab:5
 
+keybind = global:super+shift+t=toggle_quick_terminal
+
 # Quick reload config
 keybind = super+shift+comma=reload_config
+
+# Operational
+auto-update = check
+macos-auto-secure-input = true
