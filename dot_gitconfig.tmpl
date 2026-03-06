@@ -26,8 +26,10 @@
 [rerere]
 	enabled = true
 
+{{- if eq .chezmoi.os "darwin" }}
 [credential]
 	helper = osxkeychain
+{{- end }}
 
 [diff]
 	colorMoved = default
