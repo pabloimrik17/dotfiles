@@ -1,0 +1,55 @@
+# ~/.gitconfig — managed by chezmoi
+
+[user]
+	name = {{ .name }}
+	email = {{ .email }}
+
+[core]
+	editor = code --wait
+	autocrlf = input
+	excludesfile = ~/.gitignore_global
+	pager = delta
+
+[init]
+	defaultBranch = main
+
+[push]
+	default = current
+	autoSetupRemote = true
+
+[pull]
+	rebase = false
+
+[fetch]
+	prune = true
+
+[rerere]
+	enabled = true
+
+[credential]
+	helper = osxkeychain
+
+[diff]
+	colorMoved = default
+	algorithm = histogram
+
+[merge]
+	conflictstyle = zdiff3
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	light = false
+	side-by-side = true
+	line-numbers = true
+
+[alias]
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	last = log -1 HEAD --stat
+	unstage = reset HEAD --
+	undo = reset --soft HEAD~1
+	amend = commit --amend --no-edit
+	branches = branch -a
+	remotes = remote -v
