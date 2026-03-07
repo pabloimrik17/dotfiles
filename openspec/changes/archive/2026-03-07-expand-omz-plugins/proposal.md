@@ -5,9 +5,9 @@ The current zsh config only uses 5 oh-my-zsh plugins while manually initializing
 ## What Changes
 
 - Add 21 new oh-my-zsh plugins across three categories:
-  - **Tool completions/aliases**: `brew`, `docker-compose`, `macos`
-  - **Productivity utilities**: `sudo`, `extract`, `encode64`, `jsontools`, `copypath`, `copyfile`, `copybuffer`, `colored-man-pages`, `safe-paste`, `fancy-ctrl-z`, `bgnotify`, `aliases`, `web-search`, `urltools`, `history`, `gitignore`
-  - **Runtime completions**: `nvm`, `gh`, `bun`
+    - **Tool completions/aliases**: `brew`, `docker-compose`, `macos`
+    - **Productivity utilities**: `sudo`, `extract`, `encode64`, `jsontools`, `copypath`, `copyfile`, `copybuffer`, `colored-man-pages`, `safe-paste`, `fancy-ctrl-z`, `bgnotify`, `aliases`, `web-search`, `urltools`, `history`, `gitignore`
+    - **Runtime completions**: `nvm`, `gh`, `bun`
 - Migrate nvm initialization from manual `source nvm.sh` to the `nvm` plugin with lazy loading (`zstyle ':omz:plugins:nvm' lazy yes`), eliminating ~300-700ms startup penalty
 - Migrate gh completions from synchronous `eval "$(gh completion -s zsh)"` to the `gh` plugin (async background caching)
 - Migrate bun completions from manual `source ~/.bun/_bun` to the `bun` plugin (async background caching)
@@ -18,9 +18,11 @@ The current zsh config only uses 5 oh-my-zsh plugins while manually initializing
 ## Capabilities
 
 ### New Capabilities
+
 - `omz-plugins`: Defines which oh-my-zsh plugins are enabled, their configuration (zstyle settings), and the rationale for each plugin's inclusion or exclusion
 
 ### Modified Capabilities
+
 _(none -- no existing spec-level behavior changes)_
 
 ## Impact
