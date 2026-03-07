@@ -37,7 +37,8 @@ RULES:
 - Body lines must NOT exceed 100 characters — hard wrap at 100
 - Body should explain WHAT changed and WHY, not HOW
 - Do NOT use markdown, bullet points, or lists in the body
-- Output ONLY the commit message, nothing else
+- Output ONLY the raw commit message, nothing else
+- Do NOT wrap the output in backticks, code fences, or any formatting
 
 DIFF STAT:
 {{ git_diff_stat }}
@@ -57,7 +58,8 @@ RULES:
 - Body should summarize ALL the squashed commits into a coherent message
 - Explain WHAT changed and WHY, not HOW
 - Do NOT use markdown, bullet points, or lists in the body
-- Output ONLY the commit message, nothing else
+- Output ONLY the raw commit message, nothing else
+- Do NOT wrap the output in backticks, code fences, or any formatting
 
 BRANCH: {{ branch }}
 TARGET: {{ target_branch }}
