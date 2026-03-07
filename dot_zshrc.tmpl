@@ -262,10 +262,11 @@ fglog() {
 
 fgco() {
   local branch
-  branch=$(git branch -a --color=always | grep -v HEAD |
-    fzf --ansi --preview 'git log --oneline --color=always {1} | head -20' |
-    sed 's/^[* ]*//' | sed 's#remotes/[^/]*/##')
-  [ -n "$branch" ] && git checkout "$branch"
+  branch=$(git branch -a --color=never | grep -v HEAD |
+    sed 's/^[* ]*//' |
+    fzf --preview 'git log --oneline --color=always {} | head -20' \
+        --preview-window=right:60%)
+  [ -n "$branch" ] && git checkout "$(echo "$branch" | sed 's#remotes/[^/]*/##')"
 }
 
 # Tool environment
