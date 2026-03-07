@@ -101,9 +101,6 @@ export BAT_THEME="Catppuccin Mocha"
 # Starship prompt - Fast, customizable prompt for any shell
 eval "$(starship init zsh)"
 
-# Zoxide - Smarter cd command that learns your habits
-eval "$(zoxide init zsh)"
-
 # fzf - Fuzzy finder for command history and files
 {{- if eq .chezmoi.os "darwin" }}
 {{-   if eq .chezmoi.arch "arm64" }}
@@ -273,6 +270,9 @@ fgco() {
 
 # Tool environment
 command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
+
+# Zoxide - Smarter cd command (must be last to avoid chpwd hook conflicts)
+eval "$(zoxide init zsh)"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
