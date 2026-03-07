@@ -101,9 +101,6 @@ export BAT_THEME="Catppuccin Mocha"
 # Starship prompt - Fast, customizable prompt for any shell
 eval "$(starship init zsh)"
 
-# Zoxide - Smarter cd command that learns your habits
-eval "$(zoxide init zsh)"
-
 # fzf - Fuzzy finder for command history and files
 {{- if eq .chezmoi.os "darwin" }}
 {{-   if eq .chezmoi.arch "arm64" }}
@@ -204,6 +201,79 @@ alias rgl="rg --files-with-matches"  # Only show matching files
 # Other useful
 alias reload="source ~/.zshrc"
 alias zshconfig="code ~/.zshrc"
+
+# Navigation
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+
+# eza developer views
+alias lla="eza --icons --group-directories-first -la --git"
+alias ldev="eza --icons --group-directories-first -l --git --git-ignore"
+alias lcode="eza --icons --group-directories-first --tree --level=2 --git-ignore -I 'node_modules|.git|dist|build'"
+alias lsize="eza --icons --group-directories-first -l --sort=size --reverse"
+
+# pnpm shortcuts
+alias pi="pnpm install"
+alias pd="pnpm dev"
+alias pb="pnpm build"
+alias pt="pnpm test"
+alias pa="pnpm add"
+alias pr="pnpm run"
+alias px="pnpm exec"
+
+# bun shortcuts
+alias bi="bun install"
+alias bd="bun dev"
+alias bb="bun build"
+alias bt="bun test"
+alias ba="bun add"
+alias br="bun run"
+alias bx="bunx"
+
+# jq helpers
+alias jqless="jq -C . | less -R"
+alias pretty-json="jq ."
+alias check-json="jq empty"
+
+# fzf power functions
+fkill() {
+  local sig="${1:-9}"
+  local pids
+  pids=$(ps -ef | sed 1d | fzf -m --header='Select process(es) to kill' | awk '{print $2}')
+  [ -n "$pids" ] && echo "$pids" | xargs kill -"$sig"
+}
+
+frg() {
+  local result
+  result=$(rg --color=always --line-number --no-heading "$@" |
+    fzf --ansi --delimiter=: \
+      --preview 'bat --color=always --highlight-line {2} {1}' \
+      --preview-window=right:60%)
+  [ -n "$result" ] && ${EDITOR:-code} "$(echo "$result" | cut -d: -f1)" +"$(echo "$result" | cut -d: -f2)"
+}
+
+# Git + fzf integration
+fglog() {
+  git log --oneline --color=always |
+    fzf --ansi --no-sort --preview 'git show --color=always {1}' \
+      --preview-window=right:60%
+}
+
+fgco() {
+  local branch
+  branch=$(git branch -a --color=never | grep -v HEAD |
+    sed 's/^[* ]*//' |
+    fzf --preview 'git log --oneline --color=always {} | head -20' \
+        --preview-window=right:60%)
+  [ -n "$branch" ] && git checkout "$(echo "$branch" | sed 's#remotes/[^/]*/##')"
+}
+
+# Tool environment
+command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
+
+# Zoxide - Smarter cd command (must be last to avoid chpwd hook conflicts)
+eval "$(zoxide init zsh)"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
