@@ -52,7 +52,7 @@ fi
 # ------------------------------------------------------------------
 # Group 1: Brew packages
 # ------------------------------------------------------------------
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier)
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv)
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -264,7 +264,7 @@ info "This system is not macOS. Automatic installation is not supported."
 info ""
 info "Please install the following packages manually:"
 info ""
-info "  CLI tools: git, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk"
+info "  CLI tools: git, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
 info "  Font: Hack Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: oh-my-zsh (https://ohmyz.sh/)"
