@@ -14,15 +14,50 @@ export ZSH="{{ .chezmoi.homeDir }}/.oh-my-zsh"
 # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 plugins=(
+  # Version control
   git
-  you-should-use
+  gitignore
+
+  # Tool completions & aliases
+  brew
   docker
+  docker-compose
   npm
+  macos
+  gh
+
+  # Productivity utilities
+  aliases
+  colored-man-pages
   command-not-found
+  copybuffer
+  copyfile
+  copypath
+  encode64
+  extract
+  fancy-ctrl-z
+  history
+  jsontools
+  safe-paste
+  sudo
+  bgnotify
+  urltools
+  web-search
+  you-should-use
+
+  # Runtime managers
+  nvm
+  bun
 )
 
 # Skip compaudit check — Homebrew directories are group-writable by design
 ZSH_DISABLE_COMPFIX=true
+
+# nvm plugin configuration (must be before oh-my-zsh source)
+export NVM_DIR="$HOME/.nvm"
+zstyle ':omz:plugins:nvm' lazy yes
+zstyle ':omz:plugins:nvm' autoload yes
+zstyle ':omz:plugins:nvm' silent-autoload yes
 
 # zsh-completions — additional completion definitions (loaded before compinit)
 {{- if eq .chezmoi.os "darwin" }}
@@ -47,10 +82,6 @@ export OPENCODE_EXPERIMENTAL_FILEWATCHER=true
 export OPENCODE_EXPERIMENTAL_MARKDOWN=true
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # pnpm
 export PNPM_HOME="{{ .chezmoi.homeDir }}/Library/pnpm"
@@ -107,9 +138,6 @@ export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
 
 # atuin - Modern shell history (replaces fzf's Ctrl+R)
 eval "$(atuin init zsh --disable-up-arrow)"
-
-# GitHub CLI completions
-eval "$(gh completion -s zsh)"
 
 # Worktrunk - Git worktree management (cd integration + completions)
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
@@ -176,9 +204,6 @@ alias rgl="rg --files-with-matches"  # Only show matching files
 # Other useful
 alias reload="source ~/.zshrc"
 alias zshconfig="code ~/.zshrc"
-
-# bun completions
-[ -s "{{ .chezmoi.homeDir }}/.bun/_bun" ] && source "{{ .chezmoi.homeDir }}/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"

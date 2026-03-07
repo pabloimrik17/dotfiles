@@ -5,13 +5,15 @@ The shell config (`dot_zshrc.tmpl`) has two initialization paths: oh-my-zsh plug
 ## Goals / Non-Goals
 
 **Goals:**
-- Expand the oh-my-zsh plugin array from 5 to 26 plugins
+
+- Expand the oh-my-zsh plugin array from 5 to 27 plugins
 - Migrate nvm, gh, and bun initialization from manual code to their oh-my-zsh plugin equivalents
 - Enable nvm lazy loading to eliminate the startup bottleneck
 - Remove manual init lines that become redundant after plugin migration
 - Maintain identical runtime behavior (same completions, same tools available)
 
 **Non-Goals:**
+
 - Changing custom aliases (eza, bat, zoxide, ripgrep, git, gh shortcuts) -- these stay manual because they use customized flags the plugins don't offer
 - Modifying fzf configuration (covered by the `inline-fzf-init` change)
 - Modifying zsh-autosuggestions/syntax-highlighting sourcing (covered by `tune-autosuggestions` change)
@@ -29,6 +31,7 @@ The shell config (`dot_zshrc.tmpl`) has two initialization paths: oh-my-zsh plug
 **Alternative considered**: `zstyle ':omz:plugins:nvm' lazy no` (eager load, same as current behavior) -- rejected because it preserves the startup penalty with no benefit.
 
 **Configuration** (placed before `source $ZSH/oh-my-zsh.sh`):
+
 ```zsh
 export NVM_DIR="$HOME/.nvm"
 zstyle ':omz:plugins:nvm' lazy yes
