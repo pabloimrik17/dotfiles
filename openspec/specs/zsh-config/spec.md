@@ -29,3 +29,37 @@ The `zsh-autosuggestions` plugin SHALL be configured with a highlight style, buf
 
 - **WHEN** a user opens `dot_zshrc.tmpl`
 - **THEN** commented lines above the active `ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE` show at least two alternative color values with labels
+
+### Requirement: Zsh external plugin sources use OS-conditional paths
+
+Source paths for zsh-autosuggestions and zsh-syntax-highlighting SHALL use template conditionals for platform differences (e.g., `/usr/local/share/` on Intel macOS vs `/opt/homebrew/share/` on Apple Silicon vs `/usr/share/` on Linux). On macOS, fzf binary PATH SHALL use OS/arch-conditional template paths (`/opt/homebrew/opt/fzf/bin` on ARM, `/usr/local/opt/fzf/bin` on Intel). fzf initialization SHALL be inline via `source <(fzf --zsh)` instead of sourcing an external `~/.fzf.zsh` file.
+
+#### Scenario: Correct fzf PATH on Apple Silicon macOS
+
+- **WHEN** chezmoi apply runs on an Apple Silicon Mac
+- **THEN** `.zshrc` adds `/opt/homebrew/opt/fzf/bin` to PATH if not already present
+
+#### Scenario: Correct fzf PATH on Intel macOS
+
+- **WHEN** chezmoi apply runs on an Intel Mac
+- **THEN** `.zshrc` adds `/usr/local/opt/fzf/bin` to PATH if not already present
+
+#### Scenario: fzf keybindings and completions loaded inline
+
+- **WHEN** chezmoi apply completes and user opens a new shell
+- **THEN** fzf keybindings (Ctrl+T, Ctrl+R, Alt+C) and completions are available without any external file dependency
+
+#### Scenario: No reference to external fzf file
+
+- **WHEN** chezmoi apply completes
+- **THEN** `.zshrc` does NOT contain `source ~/.fzf.zsh` or any reference to the `~/.fzf.zsh` file
+
+#### Scenario: Correct plugin path on Apple Silicon macOS
+
+- **WHEN** chezmoi apply runs on an Apple Silicon Mac
+- **THEN** `.zshrc` sources plugins from `/opt/homebrew/share/`
+
+#### Scenario: Correct plugin path on Intel macOS
+
+- **WHEN** chezmoi apply runs on an Intel Mac
+- **THEN** `.zshrc` sources plugins from `/usr/local/share/`

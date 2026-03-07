@@ -33,6 +33,7 @@ The dotfiles ZSH setup uses Oh-My-Zsh as plugin manager with Homebrew-installed 
 Use the identical `{{ if eq .chezmoi.os "darwin" }}` / `{{ if eq .chezmoi.arch "arm64" }}` conditional structure already established for `zsh-autosuggestions` and `zsh-syntax-highlighting`. This keeps the config consistent and portable.
 
 Paths:
+
 - macOS arm64: `/opt/homebrew/share/zsh-completions`
 - macOS x86_64: `/usr/local/share/zsh-completions`
 - Linux: `/usr/share/zsh-completions`
