@@ -85,7 +85,7 @@ if [[ ! "$PATH" == */usr/local/opt/fzf/bin* ]]; then
 fi
 {{-   end }}
 {{- end }}
-{{- /* Linux: fzf installed via package manager is already in PATH */ }}
+{{/* Linux: fzf installed via package manager, already in PATH */}}
 source <(fzf --zsh)
 
 # fd as fzf backend - much faster than default find
