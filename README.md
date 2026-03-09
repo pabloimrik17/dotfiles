@@ -34,7 +34,7 @@ Chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **Git**        | [GitHub CLI](https://cli.github.com/)                                           | GitHub from the terminal                                       |
 | **Git**        | [Worktrunk](https://github.com/pabloimrik17/worktrunk)                          | Git worktree manager with AI commit messages                   |
 | **AI Tooling** | [Claude Code](https://code.claude.com/)                                         | AI coding assistant CLI with plugins                           |
-| **AI Tooling** | [OpenCode](https://github.com/opencode-ai/opencode)                             | AI code editor                                                 |
+| **AI Tooling** | [OpenCode](https://github.com/anomalyco/opencode)                               | AI code editor                                                 |
 
 ## Setup
 
