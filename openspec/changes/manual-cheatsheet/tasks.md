@@ -38,3 +38,9 @@
 - [ ] 5.4 Force all `<details>` open via CSS
 - [ ] 5.5 Add `break-inside: avoid` on tables/sections, `break-after: avoid` on headers
 - [ ] 5.6 Test print preview — verify 2-4 A4 pages, adjust font/columns as needed
+
+## 6. Source validation
+
+- [ ] 6.1 Cross-check every documented alias, keybinding, and function against actual dotfiles configs (dot_zshrc.tmpl, dot_gitconfig.tmpl, ghostty/config)
+- [ ] 6.2 Cross-check OMZ plugin shortcuts against upstream plugin source files
+- [ ] 6.3 Remove or flag any entry that cannot be verified from a source file

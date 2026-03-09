@@ -61,9 +61,9 @@ Print CSS SHALL use `break-inside: avoid` on tables and section blocks to preven
 
 ### Requirement: A4 target of 2-4 pages
 
-The print output SHALL target 2-4 A4 pages at a readable font size. Font size and column count MAY be tuned to achieve this.
+The print output SHOULD be optimized to fit within roughly 2-4 A4 pages under a reference print setup (Chrome, 100% scale, default margins, no headers/footers). Font size and column count MAY be tuned to achieve this.
 
 #### Scenario: Print page count
 
-- **WHEN** all 12 sections are printed with current content
-- **THEN** the output fits in 2-4 A4 pages
+- **WHEN** all 12 sections are printed with current content using reference setup (Chrome, 100% scale, default margins, no headers/footers)
+- **THEN** the output fits in approximately 2-4 A4 pages
