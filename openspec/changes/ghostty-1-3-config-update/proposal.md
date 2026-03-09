@@ -4,7 +4,7 @@ Ghostty 1.3.0 introduces new config options for notifications, scrollbar control
 
 ## What Changes
 
-- Add `notify-on-command-finish = unfocused` and `notify-on-command-finish-after = 10s` for long-running command notifications
+- Add `notify-on-command-finish = unfocused`, `notify-on-command-finish-action = notify`, and `notify-on-command-finish-after = 10s` for long-running command macOS notifications
 - Add `scrollbar = system` to use native macOS overlay scrollbars
 - **BREAKING**: Replace `window-inherit-working-directory = true` with 3 granular options: `tab-inherit-working-directory`, `split-inherit-working-directory`, `window-inherit-working-directory` (all true, same behavior but explicit for 1.3.0 API)
 
@@ -21,4 +21,5 @@ Ghostty 1.3.0 introduces new config options for notifications, scrollbar control
 ## Impact
 
 - `dot_config/ghostty/config` — only file affected
-- No theme changes, no keybinding changes, no shell integration changes
+- No theme changes, no keybinding changes
+- Prerequisite: command-finish notifications require shell integration with OSC 133 (already configured via `shell-integration = zsh`)

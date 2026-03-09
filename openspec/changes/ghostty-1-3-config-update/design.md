@@ -28,10 +28,11 @@ Config:
 
 ```
 notify-on-command-finish = unfocused
+notify-on-command-finish-action = notify
 notify-on-command-finish-after = 10s
 ```
 
-`unfocused` over `always`: no need to notify when terminal is focused and visible. 10s threshold avoids noise from quick commands.
+`unfocused` over `always`: no need to notify when terminal is focused and visible. `notify` action enables macOS desktop notifications (default is `bell` only). 10s threshold avoids noise from quick commands. Requires shell integration with OSC 133 for command boundary detection (already configured via `shell-integration = zsh`).
 
 ### Add scrollbar in Window section
 

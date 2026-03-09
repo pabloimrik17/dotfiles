@@ -5,4 +5,4 @@
 
 ## 2. Notifications section
 
-- [ ] 2.1 Add new "Notifications" section after "Mouse" section with `notify-on-command-finish = unfocused` and `notify-on-command-finish-after = 10s`
+- [ ] 2.1 Add new "Notifications" section after "Mouse" section with `notify-on-command-finish = unfocused`, `notify-on-command-finish-action = notify`, and `notify-on-command-finish-after = 10s`

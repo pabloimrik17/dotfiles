@@ -19,6 +19,15 @@ The Ghostty config SHALL include `notify-on-command-finish = unfocused` to send 
 - **WHEN** a long-running command finishes and the Ghostty window is focused
 - **THEN** no notification is sent (the user can already see the output)
 
+### Requirement: Notification action is macOS desktop notification
+
+The Ghostty config SHALL include `notify-on-command-finish-action = notify` to use macOS desktop notifications instead of the default bell-only action.
+
+#### Scenario: Desktop notification appears
+
+- **WHEN** a command-finish notification is triggered
+- **THEN** a macOS desktop notification is displayed (not just a terminal bell)
+
 ### Requirement: Notification threshold is 10 seconds
 
 The Ghostty config SHALL include `notify-on-command-finish-after = 10s` to only notify for commands that run longer than 10 seconds.
