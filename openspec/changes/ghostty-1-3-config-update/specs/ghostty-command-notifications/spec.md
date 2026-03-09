@@ -11,7 +11,7 @@ The Ghostty config SHALL include `notify-on-command-finish = unfocused` to send 
 
 #### Scenario: Quick command does not trigger notification
 
-- **WHEN** a command completes in under 10 seconds
+- **WHEN** a command completes in less than 10 seconds (< 10s)
 - **THEN** no notification is sent regardless of focus state
 
 #### Scenario: Focused terminal does not notify
@@ -30,9 +30,9 @@ The Ghostty config SHALL include `notify-on-command-finish-action = notify` to u
 
 ### Requirement: Notification threshold is 10 seconds
 
-The Ghostty config SHALL include `notify-on-command-finish-after = 10s` to only notify for commands that run longer than 10 seconds.
+The Ghostty config SHALL include `notify-on-command-finish-after = 10s` to only notify for commands that run for 10 seconds or longer (>= 10s).
 
 #### Scenario: Command at threshold boundary
 
-- **WHEN** a command runs for exactly 10 seconds or longer
+- **WHEN** a command runs for 10 seconds or longer (>= 10s)
 - **THEN** the notification threshold is met and notification behavior applies

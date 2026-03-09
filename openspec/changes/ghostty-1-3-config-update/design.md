@@ -60,5 +60,5 @@ window-inherit-working-directory = true
 
 ## Risks / Trade-offs
 
-- [Ghostty version < 1.3.0] → granular WD options unknown to older versions; chezmoi only deploys to macOS where user controls Ghostty version
+- [Ghostty version < 1.3.0] → unknown keys are ignored with non-fatal config warnings (not breaking). Users should upgrade to Ghostty >= 1.3.0 before applying this config update to avoid warning noise
 - [Notification noise] → 10s threshold mitigates; `unfocused` only fires when not looking at terminal
