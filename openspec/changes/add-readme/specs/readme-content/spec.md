@@ -21,7 +21,7 @@ README SHALL include a centered screenshot image reference below the badges poin
 #### Scenario: Screenshot missing
 
 - **WHEN** `assets/terminal-overview.png` does not exist
-- **THEN** GitHub shows a broken image placeholder (acceptable during initial setup)
+- **THEN** the README SHALL omit the hero image block entirely (no broken image rendered)
 
 ### Requirement: Introduction section
 

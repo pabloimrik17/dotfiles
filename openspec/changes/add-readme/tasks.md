@@ -16,8 +16,8 @@
 
 ## 4. Daily Workflows
 
-- [ ] 4.1 Write "Pulling Latest Changes" section: quick (`chezmoi update`) + preview-first (`git pull` → `diff` → `apply`)
-- [ ] 4.2 Write "Making & Pushing Changes" section: `chezmoi edit` / `chezmoi re-add` (non-templates) / `chezmoi add` (templates) → `chezmoi git add/commit/push`
+- [ ] 4.1 Write "Pulling Latest Changes" section: quick (`chezmoi update`) + preview-first (`chezmoi git pull -- --autostash --rebase` → `chezmoi diff` → `chezmoi apply`)
+- [ ] 4.2 Write "Making & Pushing Changes" section: `chezmoi edit` / `chezmoi re-add` (non-templates) / `chezmoi add` (templates) → `chezmoi git add .` → `chezmoi git -- commit -m "msg"` → `chezmoi git push`
 
 ## 5. Screenshots (MANUAL)
 

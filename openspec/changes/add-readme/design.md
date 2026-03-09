@@ -25,7 +25,7 @@ Repo manages dotfiles via chezmoi for macOS (primary) and Linux (fallback). Incl
 
 **Badge style**: `for-the-badge` — larger, more visual impact for shield wall. Alternatives: flat (too small for hero area), flat-square (decent but less striking).
 
-**Badge selection**: chezmoi (blue), macOS (apple logo), Linux (tux logo), zsh, Catppuccin Mocha (official purple #cba6f7), Starship, Ghostty. Kept to tools that define the repo identity, not every installed package.
+**Badge selection**: chezmoi (blue), macOS (Apple logo), Linux (tux logo), zsh, Catppuccin Mocha (official purple #cba6f7), Starship, Ghostty. Kept to tools that define the repo identity, not every installed package.
 
 **Screenshot placement**: `assets/` directory at repo root, ignored by chezmoi. Alternative: `.github/` (convention for GitHub-specific assets) — chose `assets/` for simplicity and broader hosting compatibility.
 

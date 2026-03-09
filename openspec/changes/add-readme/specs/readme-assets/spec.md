@@ -2,12 +2,12 @@
 
 ### Requirement: Assets directory structure
 
-Repo SHALL have an `assets/` directory at root for storing README images.
+Repo SHALL have an `assets/` directory at root for storing README images. The directory SHALL contain a `.gitkeep` file to ensure Git tracks it before any screenshots are added.
 
 #### Scenario: Directory exists
 
 - **WHEN** implementation is complete
-- **THEN** `assets/` directory exists at repo root
+- **THEN** `assets/` directory exists at repo root with a `.gitkeep` placeholder
 
 ### Requirement: Chezmoi ignores assets
 
