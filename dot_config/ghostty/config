@@ -16,9 +16,12 @@ window-padding-x = 10
 window-padding-y = 10
 window-padding-balance = true
 window-padding-color = extend
+scrollbar = system
 window-decoration = true
 macos-titlebar-style = tabs
 window-save-state = always
+tab-inherit-working-directory = true
+split-inherit-working-directory = true
 window-inherit-working-directory = true
 confirm-close-surface = true
 
@@ -38,6 +41,11 @@ clipboard-trim-trailing-spaces = true
 
 # Mouse
 mouse-hide-while-typing = true
+
+# Notifications
+notify-on-command-finish = unfocused
+notify-on-command-finish-action = notify
+notify-on-command-finish-after = 10s
 
 # Quick terminal
 quick-terminal-position = top
