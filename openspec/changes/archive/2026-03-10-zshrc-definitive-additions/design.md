@@ -7,12 +7,14 @@ The install script (`run_once_install-packages.sh.tmpl`) manages brew packages i
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Add productivity aliases and functions that compound across daily terminal use
 - Maintain symmetric naming conventions (`p*` for pnpm, `b*` for bun, `l*` for eza, `f*` for fzf)
 - Keep all additions safe-by-default: no destructive commands, guarded hooks for optional tools
 - Make `fd` an explicit dependency (currently implicit via fzf config)
 
 **Non-Goals:**
+
 - Modifying existing aliases or tool initialization blocks
 - Adding git aliases (OMZ `git` plugin covers this — `you-should-use` plugin reminds users)
 - Theme system, LS_COLORS, or visual customization (Ghostty handles terminal colors)
@@ -44,14 +46,14 @@ New content goes into clearly delimited subsections appended after the existing 
 
 ### 2. Alias naming conventions
 
-| Prefix | Tool | Pattern | Examples |
-|--------|------|---------|----------|
-| `..` | navigation | literal | `..`, `...`, `....` |
-| `l*` | eza | `l` + descriptor | `lla`, `ldev`, `lcode`, `lsize` |
-| `p*` | pnpm | `p` + action initial | `pi`, `pd`, `pb`, `pt`, `pa`, `pr`, `px` |
-| `b*` | bun | `b` + action initial | `bi`, `bd`, `bb`, `bt`, `ba`, `br`, `bx` |
-| `jq*` | jq | `jq` + descriptor | `jqless` |
-| `f*` | fzf functions | `f` + tool/action | `fkill`, `frg`, `fglog`, `fgco` |
+| Prefix | Tool          | Pattern              | Examples                                 |
+| ------ | ------------- | -------------------- | ---------------------------------------- |
+| `..`   | navigation    | literal              | `..`, `...`, `....`                      |
+| `l*`   | eza           | `l` + descriptor     | `lla`, `ldev`, `lcode`, `lsize`          |
+| `p*`   | pnpm          | `p` + action initial | `pi`, `pd`, `pb`, `pt`, `pa`, `pr`, `px` |
+| `b*`   | bun           | `b` + action initial | `bi`, `bd`, `bb`, `bt`, `ba`, `br`, `bx` |
+| `jq*`  | jq            | `jq` + descriptor    | `jqless`                                 |
+| `f*`   | fzf functions | `f` + tool/action    | `fkill`, `frg`, `fglog`, `fgco`          |
 
 All prefixes verified collision-free on macOS via `which` and `type` checks. The `b*`/`p*` symmetry is intentional — when migrating from pnpm to bun, only the first letter changes in muscle memory.
 
