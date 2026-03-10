@@ -21,5 +21,5 @@ _(none — existing Ghostty specs cover visual, UX, and quick-terminal; scrollba
 
 - **Files modified**: `dot_config/ghostty/config` (1 line + comment in Operational section)
 - **Dependencies**: None
-- **Risk**: Near zero — memory allocated lazily, no impact until buffer fills. 50MB × 5 tabs = 250MB worst-case, trivial on modern machines.
+- **Risk**: Near zero — memory allocated lazily, growing incrementally as scrollback accumulates during sessions. 50MB × 5 tabs = 250MB worst-case, trivial on modern machines.
 - **Closes**: #35 (with corrected unit from lines to bytes)

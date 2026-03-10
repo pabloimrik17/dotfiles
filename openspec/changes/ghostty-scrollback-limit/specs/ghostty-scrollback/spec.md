@@ -16,4 +16,4 @@ The Ghostty config SHALL include an inline comment on the scrollback-limit line 
 #### Scenario: Comment prevents unit confusion
 
 - **WHEN** a contributor reads the scrollback-limit line
-- **THEN** an adjacent comment explains the value is in bytes and memory is allocated lazily
+- **THEN** a same-line inline comment on the `scrollback-limit` entry states the value is in bytes and memory is allocated lazily
