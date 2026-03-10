@@ -1,6 +1,6 @@
 ## Context
 
-Ghostty config at `dot_config/ghostty/config` has a Copy/paste section (lines 34-37) with `copy-on-select`, `clipboard-paste-protection`, and `clipboard-trim-trailing-spaces`. No `clipboard-read` is set, so Ghostty uses default `deny`.
+Ghostty config at `dot_config/ghostty/config` has a Copy/paste section with `copy-on-select`, `clipboard-paste-protection`, and `clipboard-trim-trailing-spaces`. No `clipboard-read` is set, so Ghostty uses default `deny`.
 
 The existing `ghostty-ux-enhancements` spec covers clipboard handling but doesn't address `clipboard-read`.
 
@@ -20,7 +20,7 @@ The existing `ghostty-ux-enhancements` spec covers clipboard handling but doesn'
 
 ### `ask` over `allow`
 
-`allow` enables silent clipboard reads — any terminal program could exfiltrate passwords/tokens without user awareness. `ask` shows a one-time confirmation dialog per OSC 52 read request. The dialog is rare in practice (only tmux clipboard sync, neovim over SSH, or explicit scripts trigger it).
+`allow` enables silent clipboard reads — any terminal program could exfiltrate passwords/tokens without user awareness. `ask` shows a confirmation dialog for each OSC 52 read request (user must approve each read attempt individually). The dialog is rare in practice (only tmux clipboard sync, neovim over SSH, or explicit scripts trigger it).
 
 ### Inline comment style
 

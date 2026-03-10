@@ -4,15 +4,17 @@
 
 The Ghostty config SHALL include `clipboard-read = ask` so that OSC 52 clipboard read requests trigger a confirmation dialog instead of being silently denied or allowed. This enables tools like tmux (clipboard sync), neovim over SSH, and shell scripts to read clipboard contents while preventing silent exfiltration by untrusted programs.
 
-#### Scenario: tmux requests clipboard read
+#### Scenario: User allows clipboard read
 
 - **WHEN** tmux sends an OSC 52 clipboard read request for clipboard sync
-- **THEN** Ghostty shows a confirmation dialog asking the user to allow or deny the read
+- **AND** the user clicks "Allow" in the confirmation dialog
+- **THEN** Ghostty returns the clipboard contents to tmux
 
-#### Scenario: Untrusted program attempts clipboard read
+#### Scenario: User denies clipboard read
 
 - **WHEN** an unknown terminal program sends an OSC 52 clipboard read request
-- **THEN** Ghostty shows a confirmation dialog, giving the user the choice to deny access
+- **AND** the user clicks "Deny" in the confirmation dialog
+- **THEN** Ghostty blocks the read and the program receives no clipboard data
 
 #### Scenario: Setting is documented inline
 
