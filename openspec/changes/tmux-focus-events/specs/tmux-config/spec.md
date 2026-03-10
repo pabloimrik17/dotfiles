@@ -13,7 +13,7 @@
 
 - **WHEN** a file is modified outside vim while vim is running inside tmux
 - **AND** the user switches focus back to the tmux pane
-- **THEN** vim receives the focus event and can trigger `autoread`
+- **THEN** vim receives the focus event (enabling features like `autoread` if configured)
 
 ### Requirement: Descriptive comment
 

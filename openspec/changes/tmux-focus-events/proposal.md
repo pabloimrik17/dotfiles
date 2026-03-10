@@ -7,7 +7,7 @@ Closes #29.
 ## What Changes
 
 - **Add `set -g focus-events on`** to `dot_tmux.conf` with a descriptive comment, matching the existing comment style
-- **Group related settings** logically (terminal behavior together, interaction together) now that there are 3 settings
+- **Organize settings** with comments and blank lines for logical separation (appended at end to minimize diff)
 
 ## Capabilities
 
