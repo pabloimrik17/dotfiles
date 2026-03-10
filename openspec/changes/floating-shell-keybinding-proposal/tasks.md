@@ -7,3 +7,4 @@
 - [ ] 2.1 Confirm Ghostty accepts `ctrl+backquote` syntax (no config errors on reload)
 - [ ] 2.2 Test Ctrl+º toggles quick terminal from another app
 - [ ] 2.3 Test Cmd+Shift+T still reopens closed tabs in Chrome
+- [ ] 2.4 Test Cmd+º still switches windows of the same app
