@@ -1,0 +1,3 @@
+# Copy whitelisted gitignored files (e.g. .claude/) to new worktrees
+[post-create]
+copy = "wt step copy-ignored"
