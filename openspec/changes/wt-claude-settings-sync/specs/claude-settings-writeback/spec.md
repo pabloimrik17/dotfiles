@@ -1,0 +1,45 @@
+## ADDED Requirements
+
+### Requirement: Base worktree path is saved at creation time
+
+The system SHALL save `{{ base_worktree_path }}` to `.claude/.worktree-base` in a `post-create` hook, so that `pre-remove` can identify the source worktree.
+
+#### Scenario: Base path persisted on worktree creation
+
+- **WHEN** a new worktree is created with `wt switch --create feature/A` from the `develop` worktree
+- **THEN** `.claude/.worktree-base` in the new worktree SHALL contain the absolute path to the `develop` worktree
+
+### Requirement: Settings are deep-merged back to base on removal
+
+The system SHALL define a `pre-remove` hook that deep-merges `.claude/settings.local.json` from the current worktree into the base worktree's copy using `jq -s '.[0] * .[1]'`, where the current worktree's values win on conflict.
+
+#### Scenario: New approvals merge into base settings
+
+- **WHEN** worktree `feature/A` is removed or merged
+- **AND** `feature/A` has `.claude/settings.local.json` with approved commands A, B, C, D
+- **AND** the base worktree (`develop`) has `.claude/settings.local.json` with approved commands A, B, E
+- **THEN** `develop`'s settings SHALL contain approved commands A, B, C, D, E after the merge
+
+#### Scenario: Base worktree has no settings file
+
+- **WHEN** worktree `feature/A` is removed
+- **AND** the base worktree has no `.claude/settings.local.json`
+- **THEN** the hook SHALL copy the worktree's settings file to the base worktree
+
+#### Scenario: Base worktree no longer exists
+
+- **WHEN** worktree `feature/A` is removed
+- **AND** the base worktree directory no longer exists
+- **THEN** the hook SHALL exit silently without error
+
+#### Scenario: Current worktree has no settings file
+
+- **WHEN** worktree `feature/A` is removed
+- **AND** the current worktree has no `.claude/settings.local.json`
+- **THEN** the hook SHALL exit silently without error
+
+#### Scenario: No base path file exists
+
+- **WHEN** worktree `feature/A` is removed
+- **AND** `.claude/.worktree-base` does not exist
+- **THEN** the hook SHALL exit silently without error
