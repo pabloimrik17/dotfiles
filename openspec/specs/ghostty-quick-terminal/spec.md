@@ -62,17 +62,22 @@ The Ghostty config SHALL include `quick-terminal-autohide = true` so that the qu
 
 ### Requirement: Global keybind toggles the quick terminal
 
-The Ghostty config SHALL include `keybind = global:super+shift+t=toggle_quick_terminal` to toggle the quick terminal from any application using Cmd+Shift+T.
+The Ghostty config SHALL include `keybind = global:ctrl+º=toggle_quick_terminal` to toggle the quick terminal from any application using Ctrl+º (Ctrl+Backquote on W3C physical key layout).
 
 #### Scenario: Toggle from another application
 
-- **WHEN** the user presses Cmd+Shift+T while focused on any application (e.g., a browser)
+- **WHEN** the user presses Ctrl+º (Ctrl+Backquote) while focused on any application (e.g., a browser)
 - **THEN** the quick terminal appears (or hides if already visible)
 
-#### Scenario: Keybind does not conflict with existing bindings
+#### Scenario: Keybind does not conflict with browser shortcuts
 
-- **WHEN** the existing keybind `super+t=new_tab` is configured
-- **THEN** `super+shift+t` (with Shift) is a distinct binding and does not interfere with `super+t` (without Shift)
+- **WHEN** the user presses Cmd+Shift+T in Chrome
+- **THEN** Chrome's "reopen closed tab" works normally, unaffected by Ghostty
+
+#### Scenario: Keybind does not conflict with macOS system shortcuts
+
+- **WHEN** the user presses Cmd+º (super+backquote) in any application
+- **THEN** macOS "switch windows of same app" works normally, unaffected by Ghostty
 
 #### Scenario: Accessibility permissions required
 
