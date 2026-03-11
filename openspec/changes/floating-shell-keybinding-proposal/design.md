@@ -18,9 +18,9 @@ Ghostty 1.2.0 introduced W3C-based key code naming, making physical key referenc
 
 ## Decisions
 
-### Decision: Use `ctrl+backquote` as the new keybind
+### Decision: Use `ctrl+º` as the new keybind
 
-**Choice**: `global:ctrl+backquote=toggle_quick_terminal`
+**Choice**: `global:ctrl+º=toggle_quick_terminal`
 
 **Rationale**: On Spanish ISO Mac keyboard, `backquote` is the `º` key (top-left, above Tab). This is the classic "Quake console" position.
 
@@ -32,12 +32,12 @@ Alternatives evaluated:
 | `super+backquote`         | ❌ Collides with macOS "switch windows of same app"      |
 | `alt+backquote`           | ⚠️ macOS may intercept Option+key for character input    |
 | `super+ctrl+t`            | ✅ Free, but triple modifier is awkward                  |
-| `ctrl+backquote`          | ✅ Free in macOS, Chrome, WebStorm. Classic Quake-style. |
+| `ctrl+º`                  | ✅ Free in macOS, Chrome, WebStorm. Classic Quake-style. |
 
-**Trade-off**: `ctrl+backquote` is used by VS Code for "toggle integrated terminal," but user is 95% WebStorm. In VS Code, Ghostty's global binding would take precedence anyway.
+**Trade-off**: `ctrl+º` is used by VS Code for "toggle integrated terminal," but user is 95% WebStorm. In VS Code, Ghostty's global binding would take precedence anyway.
 
 ## Risks / Trade-offs
 
 - **[Muscle memory]** → One-time relearning cost. Low friction since this is a recent addition.
 - **[VS Code conflict]** → Ghostty global keybind overrides VS Code's `ctrl+backtick`. Acceptable given minimal VS Code usage.
-- **[Ghostty W3C key naming]** → `backquote` must be verified to work on Spanish ISO layout. Requires Ghostty ≥1.2.0.
+- **[Ghostty key naming on Spanish ISO]** → W3C key name `backquote` does not map to the `º` key on Spanish ISO Mac (it maps to `IntlBackslash` in W3C). Using the Unicode character `º` directly in the keybind config works correctly — Ghostty matches layout-dependent characters.

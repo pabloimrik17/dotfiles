@@ -66,7 +66,7 @@ keybind = super+3=goto_tab:3
 keybind = super+4=goto_tab:4
 keybind = super+5=goto_tab:5
 
-keybind = global:super+shift+t=toggle_quick_terminal
+keybind = global:ctrl+º=toggle_quick_terminal
 
 # Quick reload config
 keybind = super+shift+comma=reload_config
