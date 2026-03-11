@@ -17,7 +17,7 @@ _(none)_
 
 ### Modified Capabilities
 
-- `ghostty-ux-enhancements`: Adding formal requirement for `clipboard-read = ask` to the specification (implemented by setting the option in `dot_config/ghostty/config`)
+- `ghostty-ux-enhancements`: Adding formal requirement for `clipboard-read = ask` to the specification (will be implemented by setting the option in `dot_config/ghostty/config`)
 
 ## Impact
 
