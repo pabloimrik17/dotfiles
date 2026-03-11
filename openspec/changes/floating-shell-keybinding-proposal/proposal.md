@@ -1,11 +1,11 @@
 ## Why
 
-`super+shift+t` (Cmd+Shift+T) collides with Chrome's "reopen last closed tab" — a heavily used shortcut. The quick terminal keybind needs to change to `ctrl+backquote` (Ctrl+º on Spanish keyboard), a Quake-style binding that's free in macOS, Chrome, and WebStorm.
+`super+shift+t` (Cmd+Shift+T) collides with Chrome's "reopen last closed tab" — a heavily used shortcut. The quick terminal keybind needs to change to `ctrl+º` (Ctrl+º on Spanish keyboard), a Quake-style binding that's free in macOS, Chrome, and WebStorm.
 
 ## What Changes
 
-- **BREAKING**: Quick terminal global keybind changes from `super+shift+t` to `ctrl+backquote`
-- Ghostty config line updated: `keybind = global:ctrl+backquote=toggle_quick_terminal`
+- **BREAKING**: Quick terminal global keybind changes from `super+shift+t` to `ctrl+º`
+- Ghostty config line updated: `keybind = global:ctrl+º=toggle_quick_terminal`
 
 ## Capabilities
 
@@ -15,7 +15,7 @@ None.
 
 ### Modified Capabilities
 
-- `ghostty-quick-terminal`: Global keybind requirement changes from `super+shift+t` to `ctrl+backquote`
+- `ghostty-quick-terminal`: Global keybind requirement changes from `super+shift+t` to `ctrl+º`
 
 ## Impact
 

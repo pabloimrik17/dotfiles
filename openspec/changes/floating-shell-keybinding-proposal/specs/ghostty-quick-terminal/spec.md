@@ -2,7 +2,7 @@
 
 ### Requirement: Global keybind toggles the quick terminal
 
-The Ghostty config SHALL include `keybind = global:ctrl+backquote=toggle_quick_terminal` to toggle the quick terminal from any application using Ctrl+º (Ctrl+Backquote on W3C physical key layout).
+The Ghostty config SHALL include `keybind = global:ctrl+º=toggle_quick_terminal` to toggle the quick terminal from any application using Ctrl+º (Ctrl+Backquote on W3C physical key layout).
 
 #### Scenario: Toggle from another application
 
