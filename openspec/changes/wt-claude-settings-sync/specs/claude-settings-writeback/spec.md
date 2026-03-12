@@ -2,7 +2,7 @@
 
 ### Requirement: Base worktree path is saved at creation time
 
-The system SHALL save `{{ base_worktree_path }}` to `.claude/.worktree-base` in a `post-create` hook, so that `pre-remove` can identify the source worktree.
+The system SHALL save `{{ base_worktree_path }}` to `.claude/.worktree-base` in the `post-create` hook defined in `worktree-file-sync/spec.md` (alongside `wt step copy-ignored`), so that `pre-remove` can identify the source worktree.
 
 #### Scenario: Base path persisted on worktree creation
 
@@ -38,11 +38,11 @@ The system SHALL define a `pre-remove` hook that deep-merges `.claude/settings.l
 - **AND** the current worktree has no `.claude/settings.local.json`
 - **THEN** the hook SHALL exit silently without error
 
-#### Scenario: No base path file exists
+#### Scenario: No base path file exists or contains invalid content
 
 - **WHEN** worktree `feature/A` is removed
-- **AND** `.claude/.worktree-base` does not exist
-- **THEN** the hook SHALL exit silently without error
+- **AND** `.claude/.worktree-base` does not exist, is empty, contains only whitespace, or contains a syntactically invalid path
+- **THEN** the hook SHALL treat it as missing and exit silently without error
 
 #### Scenario: Deep merge fails
 
