@@ -11,7 +11,7 @@ The system SHALL save `{{ base_worktree_path }}` to `.claude/.worktree-base` in 
 
 ### Requirement: Settings are deep-merged back to base on removal
 
-The system SHALL define a `pre-remove` hook that deep-merges `.claude/settings.local.json` from the current worktree into the base worktree's copy using `jq -s '.[0] * .[1]'`, where the current worktree's values win on conflict.
+The system SHALL define a `pre-remove` hook that deep-merges `.claude/settings.local.json` from the current worktree into the base worktree's copy using `jq -s '.[0] * .[1]' $BASE_SETTINGS $CURRENT_SETTINGS`, where `.[0]` is the base worktree's settings and `.[1]` is the current worktree's settings, with current worktree values winning on conflict.
 
 #### Scenario: New approvals merge into base settings
 
@@ -24,7 +24,7 @@ The system SHALL define a `pre-remove` hook that deep-merges `.claude/settings.l
 
 - **WHEN** worktree `feature/A` is removed
 - **AND** the base worktree has no `.claude/settings.local.json`
-- **THEN** the hook SHALL copy the worktree's settings file to the base worktree
+- **THEN** the hook SHALL copy the worktree's settings file to the base worktree using `cp` (no merge required)
 
 #### Scenario: Base worktree no longer exists
 
@@ -43,3 +43,9 @@ The system SHALL define a `pre-remove` hook that deep-merges `.claude/settings.l
 - **WHEN** worktree `feature/A` is removed
 - **AND** `.claude/.worktree-base` does not exist
 - **THEN** the hook SHALL exit silently without error
+
+#### Scenario: Deep merge fails
+
+- **WHEN** worktree `feature/A` is removed
+- **AND** `.claude/settings.local.json` contains invalid JSON or `jq` is not installed
+- **THEN** the hook SHALL log a warning and exit without modifying the base worktree's settings

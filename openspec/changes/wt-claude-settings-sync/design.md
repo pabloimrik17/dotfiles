@@ -37,5 +37,5 @@ pre-remove runs before the worktree is deleted, so files are still accessible. R
 ## Risks / Trade-offs
 
 - **[jq dependency]** → Already installed on user's system (verified). Most macOS/Linux systems have it. Hook fails silently with `|| true` if missing.
-- **[Concurrent worktrees from same base]** → Last one to merge/remove wins for conflicting keys. Acceptable since deep merge preserves non-conflicting keys.
+- **[Concurrent worktrees from same base]** → Last one to merge/remove wins for conflicting keys. Acceptable since deep merge preserves non-conflicting keys. Known limitation: if two worktrees from the same base modify the same key, the last one removed wins. Mitigation: non-overlapping approval sets are the common case; manual reconciliation is possible but not expected to be needed.
 - **[Base worktree removed before feature]** → pre-remove checks `$BASE_WT` directory exists before copying. Falls back to no-op.
