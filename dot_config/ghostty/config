@@ -78,4 +78,5 @@ keybind = super+shift+comma=reload_config
 # Operational
 auto-update = check
 macos-auto-secure-input = true
-scrollback-limit = 50000000 # bytes; memory allocated lazily as scrollback accumulates
+# ~50 MB; memory allocated lazily as scrollback accumulates
+scrollback-limit = 50000000
