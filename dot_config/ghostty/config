@@ -38,6 +38,10 @@ shell-integration-features = cursor,sudo,title
 copy-on-select = clipboard
 clipboard-paste-protection = true
 clipboard-trim-trailing-spaces = true
+# clipboard-read: `ask` over `allow` — `allow` lets any terminal program silently
+# read clipboard (password/token exfiltration risk). `ask` shows a confirmation
+# dialog per OSC 52 read request. Needed by: tmux clipboard sync, neovim over SSH.
+clipboard-read = ask
 
 # Mouse
 mouse-hide-while-typing = true
