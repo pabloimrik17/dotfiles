@@ -1,3 +1,25 @@
 # Copy whitelisted gitignored files (e.g. .claude/) to new worktrees
 [post-create]
 copy = "wt step copy-ignored"
+# Save base worktree path so pre-remove can find the source worktree.
+# {{ base_worktree_path }} is only available during post-create/post-start.
+save-base = "echo '{{ base_worktree_path }}' > .claude/.worktree-base"
+
+# Sync .claude/settings.local.json back to the base worktree on merge/remove.
+#
+# Why: Claude Code accumulates command approvals in settings.local.json during
+# a worktree session. Without this hook, those approvals are lost when the
+# worktree is removed.
+#
+# How it works:
+#   1. Read base worktree path from .claude/.worktree-base
+#   2. Guard: skip silently if base path missing, no local settings, or base dir gone
+#   3. If base already has settings → jq deep merge (object merge + array union
+#      for permissions.allow/deny, worktree wins on conflict, dedup via unique)
+#      Written atomically via .tmp + mv.
+#   4. If base has no settings → plain cp
+#   5. On any failure: warn to stderr, never block worktree removal (|| true)
+#
+# Requires: jq (logs warning if missing/fails)
+[pre-remove]
+sync-claude = "bash -c 'BASE_WT=$(cat .claude/.worktree-base 2>/dev/null || echo); [ -n \"$BASE_WT\" ] && [ -f .claude/settings.local.json ] && [ -d \"$BASE_WT\" ] && { if [ -f \"$BASE_WT/.claude/settings.local.json\" ]; then jq -s \".[0] as \\$b | .[1] as \\$w | (\\$b * \\$w) | .permissions.allow = ([(\\$b.permissions.allow // [])[], (\\$w.permissions.allow // [])[]] | unique) | .permissions.deny = ([(\\$b.permissions.deny // [])[], (\\$w.permissions.deny // [])[]] | unique) | if .permissions.deny == [] then del(.permissions.deny) else . end\" \"$BASE_WT/.claude/settings.local.json\" .claude/settings.local.json > \"$BASE_WT/.claude/settings.local.json.tmp\" && mv \"$BASE_WT/.claude/settings.local.json.tmp\" \"$BASE_WT/.claude/settings.local.json\" || echo \"warn: claude settings merge failed\" >&2; else mkdir -p \"$BASE_WT/.claude\" && cp .claude/settings.local.json \"$BASE_WT/.claude/settings.local.json\"; fi; } || true'"
