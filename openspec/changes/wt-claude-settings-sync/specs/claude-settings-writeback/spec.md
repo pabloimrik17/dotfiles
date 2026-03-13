@@ -11,7 +11,7 @@ The system SHALL save `{{ base_worktree_path }}` to `.claude/.worktree-base` in 
 
 ### Requirement: Settings are deep-merged back to base on removal
 
-The system SHALL define a `pre-remove` hook that deep-merges `.claude/settings.local.json` from the current worktree into the base worktree's copy using `jq -s '.[0] * .[1]' $BASE_SETTINGS $CURRENT_SETTINGS`, where `.[0]` is the base worktree's settings and `.[1]` is the current worktree's settings, with current worktree values winning on conflict.
+The system SHALL define a `pre-remove` hook that deep-merges `.claude/settings.local.json` from the current worktree into the base worktree's copy using jq. The merge uses `.[0] * .[1]` for object-level deep merge (worktree wins on conflict), then unions `permissions.allow` and `permissions.deny` arrays from both sides via `unique` to preserve approvals from both branches. Null arrays are handled with `// []` fallback. Empty `permissions.deny` arrays are removed from the output.
 
 #### Scenario: New approvals merge into base settings
 

@@ -1,3 +1,7 @@
 # Copy whitelisted gitignored files (e.g. .claude/) to new worktrees
 [post-create]
 copy = "wt step copy-ignored"
+save-base = "echo '{{ base_worktree_path }}' > .claude/.worktree-base"
+
+[pre-remove]
+sync-claude = "bash -c 'BASE_WT=$(cat .claude/.worktree-base 2>/dev/null || echo); [ -n \"$BASE_WT\" ] && [ -f .claude/settings.local.json ] && [ -d \"$BASE_WT\" ] && { if [ -f \"$BASE_WT/.claude/settings.local.json\" ]; then jq -s \".[0] as \\$b | .[1] as \\$w | (\\$b * \\$w) | .permissions.allow = ([(\\$b.permissions.allow // [])[], (\\$w.permissions.allow // [])[]] | unique) | .permissions.deny = ([(\\$b.permissions.deny // [])[], (\\$w.permissions.deny // [])[]] | unique) | if .permissions.deny == [] then del(.permissions.deny) else . end\" \"$BASE_WT/.claude/settings.local.json\" .claude/settings.local.json > \"$BASE_WT/.claude/settings.local.json.tmp\" && mv \"$BASE_WT/.claude/settings.local.json.tmp\" \"$BASE_WT/.claude/settings.local.json\" || echo \"warn: claude settings merge failed\" >&2; else mkdir -p \"$BASE_WT/.claude\" && cp .claude/settings.local.json \"$BASE_WT/.claude/settings.local.json\"; fi; } || true'"

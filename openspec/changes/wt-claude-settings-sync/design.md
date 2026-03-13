@@ -24,7 +24,7 @@
 
 ### Deep merge with jq instead of copy
 
-`jq -s '.[0] * .[1]'` merges base settings (.[0]) with worktree settings (.[1]). Worktree keys win on conflict (most recent approvals). Alternative: plain `cp` — rejected because it would overwrite approvals granted in the base worktree while the feature branch was active.
+jq deep merge with array union for `permissions.allow` and `permissions.deny`. Object-level merge via `.[0] * .[1]` (worktree wins on conflict), then array union via `unique` to preserve approvals from both branches. Null arrays handled with `// []` fallback; empty `permissions.deny` cleaned from output. Alternative: plain `jq -s '.[0] * .[1]'` — rejected because it replaces arrays wholesale, losing base-only approvals. Alternative: plain `cp` — rejected because it would overwrite approvals granted in the base worktree while the feature branch was active.
 
 ### Fallback to copy when base has no settings file
 
@@ -36,6 +36,6 @@ pre-remove runs before the worktree is deleted, so files are still accessible. R
 
 ## Risks / Trade-offs
 
-- **[jq dependency]** → Already installed on user's system (verified). Most macOS/Linux systems have it. Hook fails silently with `|| true` if missing.
+- **[jq dependency]** → Already installed on user's system (verified). Most macOS/Linux systems have it. Hook logs a warning to stderr if merge fails, then exits without modifying base settings (`|| true` ensures worktree removal is not blocked).
 - **[Concurrent worktrees from same base]** → Last one to merge/remove wins for conflicting keys. Acceptable since deep merge preserves non-conflicting keys. Known limitation: if two worktrees from the same base modify the same key, the last one removed wins. Mitigation: non-overlapping approval sets are the common case; manual reconciliation is possible but not expected to be needed.
 - **[Base worktree removed before feature]** → pre-remove checks `$BASE_WT` directory exists before copying. Falls back to no-op.
