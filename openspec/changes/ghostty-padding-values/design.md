@@ -1,6 +1,6 @@
 ## Context
 
-The repo config has `window-padding-x = 10, window-padding-y = 10` but the actual machine diverged to `8x4`. After hands-on A/B testing of four configurations (10x10, 10x6, 10x4,8, 8x4), `10x6` was chosen as the unified value across both machines.
+The repo config has `window-padding-x = 10, window-padding-y = 10` but the actual machine diverged to `8x4`. After hands-on A/B testing of four configurations (x=10/y=10, x=10/y=6, x=10/y=4,8, x=8/y=4), `window-padding-x = 10` and `window-padding-y = 6` was chosen as the unified value across both machines.
 
 `window-padding-balance = true` remains active, meaning configured values are minimums — actual padding = configured + leftover fractional-cell pixels distributed evenly.
 

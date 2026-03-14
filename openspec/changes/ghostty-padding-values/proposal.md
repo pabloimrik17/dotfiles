@@ -20,5 +20,5 @@ The repo currently sets `window-padding-x = 10` and `window-padding-y = 10`, but
 
 ## Impact
 
-- `dot_config/ghostty/config`: single line change (`window-padding-y`)
+- `dot_config/ghostty/config`: single-line change (`window-padding-y`)
 - `openspec/specs/ghostty-visual-polish/spec.md`: new requirement documenting padding value decision
