@@ -17,7 +17,7 @@ The Ghostty config SHALL include `keybind = super+shift+comma=reload_config` to 
 
 ### Requirement: Cursor can be moved by clicking at prompts
 
-The Ghostty config SHALL include `cursor-click-to-move = true` to enable Option+click cursor positioning at shell prompts. This requires shell integration (already configured with `shell-integration = zsh`).
+The Ghostty config SHALL include `cursor-click-to-move = true` to enable Option+click cursor positioning at shell prompts. This requires shell integration (configured with `shell-integration = detect`).
 
 #### Scenario: Option+click moves cursor
 
