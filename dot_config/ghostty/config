@@ -10,6 +10,10 @@ minimum-contrast = 1.1
 font-family = "Hack Nerd Font"
 font-size = 14
 font-thicken = true
+# Alternative: JetBrainsMono Nerd Font (uncomment below, comment above)
+# font-family = "JetBrainsMono Nerd Font"
+# font-size = 14
+# font-thicken = true
 
 # Window
 window-padding-x = 10
