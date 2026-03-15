@@ -20,7 +20,7 @@ Ghostty 1.3.0 introduced granular `*-inherit-working-directory` settings for win
 
 ### Use `home` instead of a custom path for `working-directory`
 
-`working-directory = home` uses `$HOME` (`/Users/etherless`). An alternative was a project-specific path like `~/Projects`, but `$HOME` is the most universal starting point and aligns with standard terminal behavior. Zoxide handles fast navigation from home to any recent directory.
+`working-directory = home` uses `$HOME` (e.g., `/Users/<username>`). An alternative was a project-specific path like `~/Projects`, but `$HOME` is the most universal starting point and aligns with standard terminal behavior. Zoxide handles fast navigation from home to any recent directory.
 
 ### Disable inheritance for both windows AND tabs
 
