@@ -64,6 +64,8 @@ keybind = super+t=new_tab
 keybind = super+w=close_surface
 keybind = super+shift+left=previous_tab
 keybind = super+shift+right=next_tab
+keybind = super+shift+up=jump_to_prompt:-1
+keybind = super+shift+down=jump_to_prompt:1
 keybind = super+1=goto_tab:1
 keybind = super+2=goto_tab:2
 keybind = super+3=goto_tab:3
