@@ -6,8 +6,8 @@ Ghostty supports native splits but the config has no keybindings for them. Users
 
 - Add keybindings for creating vertical (`super+d`) and horizontal (`super+shift+d`) splits
 - Add keybindings for navigating between splits (`super+alt+arrow`)
-- Add keybindings for resizing splits (`super+ctrl+arrow`)
-- Add keybindings for split zoom toggle (`super+shift+enter`) and equalize (`super+shift+=`)
+- Add keybindings for resizing splits (`super+ctrl+arrow`) using `resize_split` with 40px increments per keypress
+- Add keybindings for split zoom toggle (`super+shift+enter`) and equalize (`super+shift+equal`)
 - Group all split keybindings under a dedicated comment section in the config
 
 ## Capabilities
