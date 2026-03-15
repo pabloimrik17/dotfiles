@@ -8,5 +8,5 @@
 
 ## 3. Verification
 
-- [ ] 3.1 Confirm zsh behavior is unchanged with `shell-integration = detect`
-- [ ] 3.2 Launch a bash sub-shell in Ghostty and confirm shell-integration features activate
+- [x] 3.1 Confirm zsh behavior is unchanged with `shell-integration = detect`
+- [x] 3.2 Launch a bash sub-shell in Ghostty and confirm shell-integration features activate (bash sub-shells don't get injection — expected limitation; only the directly-spawned shell receives it)
