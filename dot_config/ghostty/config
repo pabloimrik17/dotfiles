@@ -6,6 +6,14 @@
 theme = catppuccin-mocha
 minimum-contrast = 1.1
 
+# Transparency
+background-opacity = 0.96
+background-blur = 12
+# Alternative presets:
+# background-opacity = 0.90, background-blur = 10  — ambient tint, more transparent
+# background-opacity = 0.94, background-blur = 12  — subtle, original other-machine config
+# background-opacity = 0.97, background-blur = 16  — barely perceptible, high blur
+
 # Font
 font-family = "Hack Nerd Font"
 font-size = 14
