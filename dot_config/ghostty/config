@@ -31,7 +31,7 @@ cursor-style-blink = false
 cursor-click-to-move = true
 
 # Shell integration
-shell-integration = zsh
+shell-integration = detect
 shell-integration-features = cursor,sudo,title
 
 # Copy/paste
