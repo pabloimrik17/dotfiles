@@ -89,35 +89,49 @@ The Ghostty config SHALL include `scrollbar = system` to use the native macOS ov
 - **WHEN** the user has configured scrollbar behavior in macOS System Settings
 - **THEN** Ghostty's scrollbar follows that system preference (always visible, when scrolling, etc.)
 
-### Requirement: New tabs and splits inherit working directory
+### Requirement: Explicit working directory defaults to home
 
-The Ghostty config SHALL include granular working directory inheritance options:
+The Ghostty config SHALL include `working-directory = home` to ensure that the default working directory is always `$HOME`, regardless of how Ghostty is launched (Dock, Spotlight, CLI, or launchd).
 
-- `tab-inherit-working-directory = true`
-- `split-inherit-working-directory = true`
-- `window-inherit-working-directory = true`
+#### Scenario: Ghostty launched from Dock
 
-These replace the single `window-inherit-working-directory = true` option with explicit per-surface-type control, all set to true to preserve current behavior.
+- **WHEN** the user launches Ghostty from the macOS Dock
+- **THEN** the initial terminal surface opens at `$HOME`
 
-#### Scenario: New tab inherits directory
+#### Scenario: Ghostty launched from CLI
+
+- **WHEN** the user launches Ghostty from an existing terminal session in `/some/deep/path`
+- **THEN** the initial terminal surface opens at `$HOME` (not `/some/deep/path`)
+
+### Requirement: Tabs/windows use default directory; splits inherit working directory
+
+The Ghostty config SHALL include differentiated working directory inheritance:
+
+- `tab-inherit-working-directory = false` — new tabs start at the default working directory (`$HOME`)
+- `split-inherit-working-directory = true` — new splits inherit the current surface's working directory
+- `window-inherit-working-directory = false` — new windows start at the default working directory (`$HOME`)
+
+This replaces the previous "all inherit = true" policy with a split-only inheritance model. Tabs and windows default to `$HOME` for fresh context; splits inherit for contextual side-by-side work.
+
+#### Scenario: New tab starts at home
 
 - **WHEN** the user is in `~/projects/myapp` and opens a new tab with Cmd+T
-- **THEN** the new tab starts in `~/projects/myapp`
+- **THEN** the new tab starts at `$HOME`
 
 #### Scenario: New split inherits directory
 
 - **WHEN** the user is in `~/projects/myapp` and creates a split
 - **THEN** the new split starts in `~/projects/myapp`
 
-#### Scenario: New window inherits directory
+#### Scenario: New window starts at home
 
-- **WHEN** the user is in `~/projects/myapp` and opens a new window
-- **THEN** the new window starts in `~/projects/myapp`
+- **WHEN** the user is in `~/projects/myapp` and opens a new window with Cmd+N
+- **THEN** the new window starts at `$HOME`
 
-#### Scenario: First window uses default
+#### Scenario: First window uses home
 
 - **WHEN** Ghostty launches with no previous terminal surface
-- **THEN** the working directory falls back to the default (home directory on macOS when launched from launchd)
+- **THEN** the working directory is `$HOME`
 
 ### Requirement: Close confirmation is explicitly enabled
 

@@ -7,4 +7,4 @@
 
 ## 2. Verification
 
-- [ ] 2.1 Verify config loads without errors (`super+shift+comma` reload or restart Ghostty)
+- [x] 2.1 Verify config loads without errors (`super+shift+comma` reload or restart Ghostty)
