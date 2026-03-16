@@ -31,7 +31,7 @@ font-thicken = true
 
 # Window
 window-padding-x = 10
-window-padding-y = 10
+window-padding-y = 6
 window-padding-balance = true
 window-padding-color = extend
 scrollbar = system
