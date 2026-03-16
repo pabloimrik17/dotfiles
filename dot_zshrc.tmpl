@@ -276,8 +276,5 @@ command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-# ⚠️  ZOXIDE MUST BE THE ABSOLUTE LAST LINE OF THIS FILE ⚠️
-# It hooks into chpwd and detects if anything loads after it.
-# If you add new config, put it ABOVE this block — never below.
+# Zoxide - MUST be last (chpwd hook conflicts if anything comes after)
 eval "$(zoxide init zsh)"
-# === END OF FILE — NOTHING BELOW THIS LINE ===
