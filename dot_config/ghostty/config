@@ -38,9 +38,10 @@ scrollbar = system
 window-decoration = true
 macos-titlebar-style = tabs
 window-save-state = always
-tab-inherit-working-directory = true
+working-directory = home
+tab-inherit-working-directory = false
 split-inherit-working-directory = true
-window-inherit-working-directory = true
+window-inherit-working-directory = false
 confirm-close-surface = true
 
 # Cursor

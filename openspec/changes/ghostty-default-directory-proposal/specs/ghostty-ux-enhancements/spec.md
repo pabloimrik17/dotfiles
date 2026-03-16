@@ -16,7 +16,7 @@ The Ghostty config SHALL include `working-directory = home` to ensure that the d
 
 ## MODIFIED Requirements
 
-### Requirement: New tabs and splits inherit working directory
+### Requirement: Tabs/windows use default directory; splits inherit working directory
 
 The Ghostty config SHALL include differentiated working directory inheritance:
 
