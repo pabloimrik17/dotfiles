@@ -104,8 +104,8 @@ fi
 # ------------------------------------------------------------------
 # Group 2: Fonts
 # ------------------------------------------------------------------
-if confirm "Install Hack Nerd Font?"; then
-    info "Installing Hack Nerd Font..."
+if confirm "Install terminal fonts (Hack + JetBrainsMono Nerd Font)?"; then
+    info "Installing terminal fonts..."
     if brew list --cask font-hack-nerd-font &>/dev/null; then
         info "  font-hack-nerd-font — already installed (via brew), skipping"
     elif ls ~/Library/Fonts/HackNerdFont*.ttf &>/dev/null 2>&1; then
@@ -113,6 +113,15 @@ if confirm "Install Hack Nerd Font?"; then
     else
         if ! brew install --cask font-hack-nerd-font; then
             error "Failed to install font-hack-nerd-font"
+        fi
+    fi
+    if brew list --cask font-jetbrains-mono-nerd-font &>/dev/null; then
+        info "  font-jetbrains-mono-nerd-font — already installed (via brew), skipping"
+    elif ls ~/Library/Fonts/JetBrainsMonoNerdFont*.ttf &>/dev/null 2>&1; then
+        info "  font-jetbrains-mono-nerd-font — already installed (manual), skipping"
+    else
+        if ! brew install --cask font-jetbrains-mono-nerd-font; then
+            error "Failed to install font-jetbrains-mono-nerd-font"
         fi
     fi
 else
@@ -267,7 +276,7 @@ info ""
 info "  CLI tools: git, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
-info "  Font: Hack Nerd Font (https://www.nerdfonts.com/)"
+info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: oh-my-zsh (https://ohmyz.sh/)"
 info "  Zsh plugins:"
 info "    - you-should-use: git clone https://github.com/MichaelAquilina/you-should-use.git \${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/you-should-use"
