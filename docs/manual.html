@@ -1,0 +1,2186 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <title>Dotfiles Manual &amp; Cheatsheet</title>
+        <style>
+            /* ── Catppuccin Mocha palette ──────────────────────────────── */
+            :root {
+                --ctp-rosewater: #f5e0dc;
+                --ctp-flamingo: #f2cdcd;
+                --ctp-pink: #f5c2e7;
+                --ctp-mauve: #cba6f7;
+                --ctp-red: #f38ba8;
+                --ctp-maroon: #eba0ac;
+                --ctp-peach: #fab387;
+                --ctp-yellow: #f9e2af;
+                --ctp-green: #a6e3a1;
+                --ctp-teal: #94e2d5;
+                --ctp-sky: #89dceb;
+                --ctp-sapphire: #74c7ec;
+                --ctp-blue: #89b4fa;
+                --ctp-lavender: #b4befe;
+                --ctp-text: #cdd6f4;
+                --ctp-subtext1: #bac2de;
+                --ctp-subtext0: #a6adc8;
+                --ctp-overlay2: #9399b2;
+                --ctp-overlay1: #7f849c;
+                --ctp-overlay0: #6c7086;
+                --ctp-surface2: #585b70;
+                --ctp-surface1: #45475a;
+                --ctp-surface0: #313244;
+                --ctp-base: #1e1e2e;
+                --ctp-mantle: #181825;
+                --ctp-crust: #11111b;
+            }
+
+            /* ── Reset & base ──────────────────────────────────────────── */
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+                    sans-serif;
+                font-size: 15px;
+                line-height: 1.5;
+                color: var(--ctp-text);
+                background: var(--ctp-base);
+                display: flex;
+                min-height: 100vh;
+            }
+
+            /* ── Sidebar ───────────────────────────────────────────────── */
+            .sidebar {
+                position: sticky;
+                top: 0;
+                align-self: flex-start;
+                width: 220px;
+                min-width: 220px;
+                height: 100vh;
+                overflow-y: auto;
+                background: var(--ctp-mantle);
+                border-right: 1px solid var(--ctp-surface0);
+                padding: 1rem 0;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            .sidebar-title {
+                font-size: 14px;
+                font-weight: 700;
+                color: var(--ctp-mauve);
+                padding: 0 1rem 0.5rem;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+            }
+
+            .sidebar a {
+                display: block;
+                padding: 5px 1rem;
+                color: var(--ctp-subtext0);
+                text-decoration: none;
+                font-size: 13px;
+                border-left: 3px solid transparent;
+                transition: all 0.15s;
+            }
+
+            .sidebar a:hover {
+                color: var(--ctp-text);
+                background: var(--ctp-surface0);
+                border-left-color: var(--ctp-mauve);
+            }
+
+            /* ── Search ────────────────────────────────────────────────── */
+            .search-box {
+                padding: 0.5rem 1rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .search-box input {
+                width: 100%;
+                padding: 6px 10px;
+                border: 1px solid var(--ctp-surface2);
+                border-radius: 6px;
+                background: var(--ctp-surface0);
+                color: var(--ctp-text);
+                font-size: 13px;
+                outline: none;
+                transition: border-color 0.15s;
+            }
+
+            .search-box input::placeholder {
+                color: var(--ctp-overlay0);
+            }
+            .search-box input:focus {
+                border-color: var(--ctp-mauve);
+            }
+
+            .search-hint {
+                font-size: 11px;
+                color: var(--ctp-overlay0);
+                padding: 0 1rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .search-hint kbd {
+                font-size: 10px;
+                padding: 1px 4px;
+                border-radius: 3px;
+                background: var(--ctp-surface1);
+                border: 1px solid var(--ctp-surface2);
+                color: var(--ctp-subtext0);
+            }
+
+            /* ── Main content ──────────────────────────────────────────── */
+            .content {
+                flex: 1;
+                max-width: 960px;
+                padding: 2rem 2.5rem;
+            }
+
+            .content > h1 {
+                font-size: 1.6rem;
+                color: var(--ctp-mauve);
+                margin-bottom: 0.3rem;
+            }
+
+            .content > .subtitle {
+                color: var(--ctp-subtext0);
+                font-size: 0.9rem;
+                margin-bottom: 2rem;
+            }
+
+            /* ── Sections (details/summary) ────────────────────────────── */
+            details {
+                margin-bottom: 1.5rem;
+                border: 1px solid var(--ctp-surface0);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            summary {
+                padding: 0.75rem 1rem;
+                background: var(--ctp-surface0);
+                color: var(--ctp-lavender);
+                font-weight: 700;
+                font-size: 1.1rem;
+                cursor: pointer;
+                list-style: none;
+                user-select: none;
+            }
+
+            summary::-webkit-details-marker {
+                display: none;
+            }
+
+            summary::before {
+                content: "▸ ";
+                color: var(--ctp-overlay1);
+                transition: transform 0.15s;
+                display: inline-block;
+            }
+
+            details[open] > summary::before {
+                content: "▾ ";
+            }
+
+            .section-content {
+                padding: 0.75rem 1rem 1rem;
+            }
+
+            .section-content h3 {
+                color: var(--ctp-sapphire);
+                font-size: 0.95rem;
+                margin: 1rem 0 0.4rem;
+            }
+
+            .section-content h3:first-child {
+                margin-top: 0.25rem;
+            }
+
+            /* ── Tables ────────────────────────────────────────────────── */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 0.4rem 0 0.75rem;
+                font-size: 14px;
+            }
+
+            thead th {
+                text-align: left;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--ctp-overlay2);
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                padding: 4px 8px;
+                border-bottom: 1px solid var(--ctp-surface1);
+            }
+
+            tbody tr {
+                border-bottom: 1px solid var(--ctp-surface0);
+            }
+            tbody tr:last-child {
+                border-bottom: none;
+            }
+            tbody tr:nth-child(even) {
+                background: rgba(49, 50, 68, 0.3);
+            }
+
+            td {
+                padding: 4px 8px;
+                vertical-align: top;
+            }
+
+            td:first-child {
+                white-space: nowrap;
+                color: var(--ctp-green);
+                font-family: "SF Mono", "Fira Code", "Cascadia Code", Menlo, Consolas, monospace;
+                font-size: 13px;
+            }
+
+            /* ── kbd ────────────────────────────────────────────────────── */
+            kbd {
+                display: inline-block;
+                padding: 2px 6px;
+                font-family: "SF Mono", "Fira Code", Menlo, Consolas, monospace;
+                font-size: 12px;
+                line-height: 1.4;
+                color: var(--ctp-text);
+                background: var(--ctp-surface1);
+                border: 1px solid var(--ctp-surface2);
+                border-bottom-width: 2px;
+                border-radius: 4px;
+            }
+
+            code {
+                font-family: "SF Mono", "Fira Code", Menlo, Consolas, monospace;
+                font-size: 13px;
+                color: var(--ctp-green);
+            }
+
+            /* ── Flow blocks ───────────────────────────────────────────── */
+            .flow-only {
+                margin: 0.75rem 0;
+                padding: 0.6rem 0.8rem;
+                background: var(--ctp-surface0);
+                border-left: 3px solid var(--ctp-peach);
+                border-radius: 0 6px 6px 0;
+                font-size: 13.5px;
+            }
+
+            .flow-only strong {
+                color: var(--ctp-peach);
+            }
+
+            .flow-only code {
+                color: var(--ctp-green);
+            }
+
+            /* ── Hidden helper ─────────────────────────────────────────── */
+            .hidden {
+                display: none !important;
+            }
+
+            /* ── Print stylesheet ──────────────────────────────────────── */
+            @media print {
+                :root {
+                    --ctp-text: #1e1e2e;
+                    --ctp-base: #ffffff;
+                    --ctp-surface0: #e6e6e6;
+                    --ctp-surface1: #d0d0d0;
+                    --ctp-surface2: #b0b0b0;
+                    --ctp-overlay0: #666;
+                    --ctp-overlay1: #555;
+                    --ctp-overlay2: #444;
+                    --ctp-subtext0: #333;
+                    --ctp-subtext1: #222;
+                    --ctp-mantle: #ffffff;
+                    --ctp-crust: #ffffff;
+                    --ctp-green: #1a7a1a;
+                    --ctp-mauve: #6a3dba;
+                    --ctp-lavender: #4a3d8a;
+                    --ctp-sapphire: #2a6090;
+                    --ctp-peach: #b05a20;
+                }
+
+                body {
+                    display: block;
+                    font-size: 8pt;
+                    line-height: 1.3;
+                    color: #1e1e2e;
+                    background: #fff;
+                }
+
+                .sidebar,
+                .search-box,
+                .search-hint {
+                    display: none !important;
+                }
+                .flow-only {
+                    display: none !important;
+                }
+
+                .content {
+                    max-width: 100%;
+                    padding: 0;
+                    column-count: 2;
+                    column-gap: 1.5em;
+                    column-rule: 1px solid #ccc;
+                }
+
+                .content > h1 {
+                    font-size: 14pt;
+                    column-span: all;
+                    margin-bottom: 2pt;
+                }
+                .content > .subtitle {
+                    column-span: all;
+                    font-size: 8pt;
+                    margin-bottom: 6pt;
+                }
+
+                details {
+                    break-inside: avoid;
+                    border: none;
+                    margin-bottom: 6pt;
+                    page-break-inside: avoid;
+                }
+
+                details[open] > summary ~ * {
+                    display: block !important;
+                }
+                details > summary ~ * {
+                    display: block !important;
+                }
+                details:not([open]) > summary ~ * {
+                    display: block !important;
+                }
+
+                summary {
+                    background: none;
+                    padding: 2pt 0;
+                    font-size: 9pt;
+                    color: #1e1e2e;
+                    border-bottom: 1px solid #999;
+                }
+
+                summary::before {
+                    content: "" !important;
+                }
+
+                .section-content {
+                    padding: 2pt 0;
+                }
+
+                .section-content h3 {
+                    font-size: 8pt;
+                    margin: 4pt 0 1pt;
+                    color: #333;
+                    break-after: avoid;
+                    page-break-after: avoid;
+                }
+
+                table {
+                    font-size: 7pt;
+                    margin: 1pt 0 4pt;
+                    break-inside: avoid;
+                    page-break-inside: avoid;
+                }
+
+                thead th {
+                    font-size: 6.5pt;
+                    padding: 1pt 3pt;
+                }
+
+                td {
+                    padding: 1pt 3pt;
+                    font-size: 7pt;
+                }
+
+                td:first-child {
+                    font-size: 7pt;
+                }
+
+                tbody tr:nth-child(even) {
+                    background: #f5f5f5;
+                }
+
+                kbd {
+                    font-size: 7pt;
+                    padding: 0 2pt;
+                    border: 1px solid #999;
+                    border-bottom-width: 1px;
+                    background: #eee;
+                    color: #1e1e2e;
+                }
+
+                h2,
+                h3,
+                h4 {
+                    break-after: avoid;
+                    page-break-after: avoid;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- ── Sidebar ──────────────────────────────────────────────── -->
+        <nav class="sidebar">
+            <div class="sidebar-title">Dotfiles Manual</div>
+            <div class="search-box">
+                <input
+                    type="text"
+                    id="search"
+                    placeholder="Filter shortcuts..."
+                    autocomplete="off"
+                />
+            </div>
+            <div class="search-hint">
+                <kbd>Ctrl</kbd>+<kbd>K</kbd> focus &middot; <kbd>Esc</kbd> clear
+            </div>
+            <a href="#terminal">1. Terminal (Ghostty)</a>
+            <a href="#navigation">2. Navigation &amp; Search</a>
+            <a href="#files">3. Files &amp; Viewing</a>
+            <a href="#git">4. Git</a>
+            <a href="#worktrees">5. Worktrees</a>
+            <a href="#packages">6. Package Managers</a>
+            <a href="#shell">7. Shell Productivity</a>
+            <a href="#brew">8. Brew</a>
+            <a href="#docker">9. Docker</a>
+            <a href="#macos">10. macOS Integration</a>
+            <a href="#claude">11. Claude Code</a>
+            <a href="#opencode">12. OpenCode</a>
+        </nav>
+
+        <!-- ── Main content ─────────────────────────────────────────── -->
+        <main class="content">
+            <h1>Dotfiles Manual &amp; Cheatsheet</h1>
+            <p class="subtitle">
+                All shortcuts, aliases, keybindings, and workflows in one place. Print for a dense
+                A4 cheatsheet.
+            </p>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 1: Terminal (Ghostty) -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="terminal"
+                open
+            >
+                <summary>1. Terminal (Ghostty)</summary>
+                <div class="section-content">
+                    <h3>Keybindings</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Shortcut</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><kbd>⌘</kbd>+<kbd>T</kbd></td>
+                                <td>New tab</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>⌘</kbd>+<kbd>W</kbd></td>
+                                <td>Close tab/surface</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>⌘</kbd>+<kbd>⇧</kbd>+<kbd>←</kbd>/<kbd>→</kbd></td>
+                                <td>Switch tabs (prev/next)</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>⌘</kbd>+<kbd>1</kbd>–<kbd>5</kbd></td>
+                                <td>Go to tab N</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Ctrl</kbd>+<kbd>º</kbd></td>
+                                <td>Toggle quick terminal (global, drops from top)</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>⌘</kbd>+<kbd>⇧</kbd>+<kbd>,</kbd></td>
+                                <td>Reload config</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Config highlights</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Setting</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Theme</td>
+                                <td>catppuccin-mocha</td>
+                            </tr>
+                            <tr>
+                                <td>Font</td>
+                                <td>Hack Nerd Font 14pt (thickened)</td>
+                            </tr>
+                            <tr>
+                                <td>Cursor</td>
+                                <td>Block, no blink, click-to-move</td>
+                            </tr>
+                            <tr>
+                                <td>Shell integration</td>
+                                <td>zsh (cursor, sudo, title)</td>
+                            </tr>
+                            <tr>
+                                <td>Quick terminal</td>
+                                <td>Top, 40%, auto-hide, 0.2s animation</td>
+                            </tr>
+                            <tr>
+                                <td>Copy-on-select</td>
+                                <td>clipboard, paste protection on</td>
+                            </tr>
+                            <tr>
+                                <td>Notify on finish</td>
+                                <td>After 10s when unfocused</td>
+                            </tr>
+                            <tr>
+                                <td>Scrollback</td>
+                                <td>~50 MB (lazy allocation)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Quick command without losing context</strong><br />
+                        <kbd>Ctrl</kbd>+<kbd>º</kbd> &rarr; type command &rarr; <kbd>Ctrl</kbd>+<kbd
+                            >º</kbd
+                        >
+                        to dismiss
+                    </div>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 2: Navigation & Search -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="navigation"
+                open
+            >
+                <summary>2. Navigation &amp; Search</summary>
+                <div class="section-content">
+                    <h3>zoxide (smart cd)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>cd</code></td>
+                                <td><code>z</code> &mdash; frecency-based directory jump</td>
+                            </tr>
+                            <tr>
+                                <td><code>cdi</code></td>
+                                <td><code>zi</code> &mdash; interactive fzf directory picker</td>
+                            </tr>
+                            <tr>
+                                <td><code>..</code></td>
+                                <td>Go up one directory</td>
+                            </tr>
+                            <tr>
+                                <td><code>...</code></td>
+                                <td>Go up two directories</td>
+                            </tr>
+                            <tr>
+                                <td><code>....</code></td>
+                                <td>Go up three directories</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>fzf (fuzzy finder)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Shortcut</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><kbd>Ctrl</kbd>+<kbd>T</kbd></td>
+                                <td>Insert file path (fd backend, respects .gitignore)</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Alt</kbd>+<kbd>C</kbd></td>
+                                <td>cd into directory (eza tree preview)</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Ctrl</kbd>+<kbd>/</kbd></td>
+                                <td>Toggle preview panel</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>atuin (history)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Shortcut</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><kbd>Ctrl</kbd>+<kbd>R</kbd></td>
+                                <td>Full-text history search (replaces fzf Ctrl+R)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>ripgrep</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>rgi</code></td>
+                                <td><code>rg -i</code> &mdash; case-insensitive search</td>
+                            </tr>
+                            <tr>
+                                <td><code>rgf</code></td>
+                                <td><code>rg --files | rg</code> &mdash; search filenames</td>
+                            </tr>
+                            <tr>
+                                <td><code>rgl</code></td>
+                                <td>
+                                    <code>rg --files-with-matches</code> &mdash; list matching files
+                                    only
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Custom fzf functions</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>frg &lt;pattern&gt;</code></td>
+                                <td>rg + fzf + bat preview &rarr; opens in $EDITOR at line</td>
+                            </tr>
+                            <tr>
+                                <td><code>fkill [signal]</code></td>
+                                <td>
+                                    ps + fzf multi-select &rarr; kill processes (default signal 9)
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Find text in code and open</strong><br />
+                        <code>frg pattern</code> &rarr; browse matches with bat preview &rarr;
+                        select &rarr; opens in $EDITOR at line
+                    </div>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 3: Files & Viewing -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="files"
+                open
+            >
+                <summary>3. Files &amp; Viewing</summary>
+                <div class="section-content">
+                    <h3>eza (ls replacement)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ls</code></td>
+                                <td>Icons, directories first</td>
+                            </tr>
+                            <tr>
+                                <td><code>ll</code></td>
+                                <td>Long format with icons</td>
+                            </tr>
+                            <tr>
+                                <td><code>la</code></td>
+                                <td>Long format + hidden files</td>
+                            </tr>
+                            <tr>
+                                <td><code>lt</code></td>
+                                <td>Tree view (2 levels)</td>
+                            </tr>
+                            <tr>
+                                <td><code>lta</code></td>
+                                <td>Tree view (2 levels) + hidden</td>
+                            </tr>
+                            <tr>
+                                <td><code>lla</code></td>
+                                <td>Long + hidden + git status</td>
+                            </tr>
+                            <tr>
+                                <td><code>ldev</code></td>
+                                <td>Long + git, respects .gitignore</td>
+                            </tr>
+                            <tr>
+                                <td><code>lcode</code></td>
+                                <td>Tree, ignores node_modules/dist/build/.git</td>
+                            </tr>
+                            <tr>
+                                <td><code>lsize</code></td>
+                                <td>Long, sorted by size descending</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>bat (cat replacement)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>cat</code></td>
+                                <td>bat with auto style (Catppuccin Mocha theme)</td>
+                            </tr>
+                            <tr>
+                                <td><code>catp</code></td>
+                                <td>bat plain (no line numbers/decorations)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Explore unfamiliar project</strong><br />
+                        <code>lt</code> for structure &rarr; <code>lcode</code> for source tree
+                        &rarr; <code>cat README.md</code>
+                    </div>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 4: Git -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="git"
+                open
+            >
+                <summary>4. Git</summary>
+                <div class="section-content">
+                    <h3>Custom aliases</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>gs</code></td>
+                                <td><code>git status</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>ga</code></td>
+                                <td><code>git add</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gc</code></td>
+                                <td><code>git commit</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gp</code></td>
+                                <td><code>git push</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gl</code></td>
+                                <td>
+                                    <code>git log --oneline --graph --decorate --all</code>
+                                    (overrides OMZ)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>gd</code></td>
+                                <td><code>git diff</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>lg</code></td>
+                                <td><code>lazygit</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Git config aliases</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>git last</code></td>
+                                <td>Show last commit with stats</td>
+                            </tr>
+                            <tr>
+                                <td><code>git unstage</code></td>
+                                <td>Unstage files (<code>reset HEAD --</code>)</td>
+                            </tr>
+                            <tr>
+                                <td><code>git undo</code></td>
+                                <td>Soft-undo last commit</td>
+                            </tr>
+                            <tr>
+                                <td><code>git amend</code></td>
+                                <td>Amend without editing message</td>
+                            </tr>
+                            <tr>
+                                <td><code>git branches</code></td>
+                                <td>List all branches</td>
+                            </tr>
+                            <tr>
+                                <td><code>git remotes</code></td>
+                                <td>List all remotes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>OMZ git plugin (key aliases)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>gaa</code></td>
+                                <td><code>git add --all</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gapa</code></td>
+                                <td><code>git add --patch</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gcmsg "msg"</code></td>
+                                <td><code>git commit --message</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gc!</code></td>
+                                <td><code>git commit --verbose --amend</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gcam "msg"</code></td>
+                                <td><code>git commit --all --message</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gco</code></td>
+                                <td><code>git checkout</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gcb</code></td>
+                                <td><code>git checkout -b</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gcm</code></td>
+                                <td><code>git checkout main</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gds</code></td>
+                                <td><code>git diff --staged</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gdca</code></td>
+                                <td><code>git diff --cached</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gf</code></td>
+                                <td><code>git fetch</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gfa</code></td>
+                                <td><code>git fetch --all --prune</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gup</code></td>
+                                <td><code>git pull --rebase</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gupa</code></td>
+                                <td><code>git pull --rebase --autostash</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gpf</code></td>
+                                <td><code>git push --force-with-lease</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gpsup</code></td>
+                                <td><code>git push --set-upstream origin HEAD</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gsta</code></td>
+                                <td><code>git stash push</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gstp</code></td>
+                                <td><code>git stash pop</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gstl</code></td>
+                                <td><code>git stash list</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gsts</code></td>
+                                <td><code>git stash show --patch</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>grbi</code></td>
+                                <td><code>git rebase -i</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>grbc</code></td>
+                                <td><code>git rebase --continue</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>grba</code></td>
+                                <td><code>git rebase --abort</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>glog</code></td>
+                                <td><code>git log --oneline --decorate --graph</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gloga</code></td>
+                                <td><code>git log --oneline --decorate --graph --all</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gwip</code></td>
+                                <td>Commit all as WIP (skip CI)</td>
+                            </tr>
+                            <tr>
+                                <td><code>gunwip</code></td>
+                                <td>Undo WIP commit</td>
+                            </tr>
+                            <tr>
+                                <td><code>grt</code></td>
+                                <td>cd to repo root</td>
+                            </tr>
+                            <tr>
+                                <td><code>grh</code></td>
+                                <td><code>git reset</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>grhh</code></td>
+                                <td><code>git reset --hard</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>gst</code></td>
+                                <td><code>git status</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>GitHub CLI</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ghpr</code></td>
+                                <td><code>gh pr create</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>ghpv</code></td>
+                                <td><code>gh pr view</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>ghpl</code></td>
+                                <td><code>gh pr list</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Other git tools</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>gi node,macos</code></td>
+                                <td>Generate .gitignore from templates (OMZ gitignore plugin)</td>
+                            </tr>
+                            <tr>
+                                <td><code>delta</code></td>
+                                <td>
+                                    Pager: side-by-side diffs, line numbers, navigate mode,
+                                    color-moved
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>lg</code></td>
+                                <td>lazygit &mdash; full TUI git interface</td>
+                            </tr>
+                            <tr>
+                                <td><code>fglog</code></td>
+                                <td>Browse commits with fzf + preview</td>
+                            </tr>
+                            <tr>
+                                <td><code>fgco</code></td>
+                                <td>Switch branch with fzf + log preview</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Full feature cycle</strong><br />
+                        <code>gcb feat/x</code> &rarr; code &rarr; <code>gaa</code> &rarr;
+                        <code>gcmsg "feat: x"</code> &rarr; <code>gpsup</code> &rarr;
+                        <code>ghpr</code>
+                    </div>
+                    <div class="flow-only">
+                        <strong>Flow: Interactive commit review</strong><br />
+                        <code>fglog</code> &rarr; browse commits with preview &rarr; select to
+                        inspect
+                    </div>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 5: Worktrees (Worktrunk) -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="worktrees"
+                open
+            >
+                <summary>5. Worktrees (Worktrunk)</summary>
+                <div class="section-content">
+                    <h3>Commands</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>wt create &lt;name&gt;</code></td>
+                                <td>Create worktree + auto-install deps (bun/pnpm/npm)</td>
+                            </tr>
+                            <tr>
+                                <td><code>wt remove &lt;name&gt;</code></td>
+                                <td>Remove worktree (syncs settings back first)</td>
+                            </tr>
+                            <tr>
+                                <td><code>wt list</code></td>
+                                <td>List all worktrees</td>
+                            </tr>
+                            <tr>
+                                <td><code>wt commit</code></td>
+                                <td>Commit with AI-generated message (Claude Haiku)</td>
+                            </tr>
+                            <tr>
+                                <td><code>wt cd &lt;name&gt;</code></td>
+                                <td>Switch to worktree directory</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Hooks</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Hook</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>post-create</td>
+                                <td>
+                                    Copies ignored files, saves base worktree path, installs deps
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>pre-remove</td>
+                                <td>
+                                    Syncs <code>.claude/settings.local.json</code> back to base via
+                                    jq merge
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Isolated feature work</strong><br />
+                        <code>wt create feat-x</code> &rarr; auto deps install &rarr; code &rarr;
+                        <code>wt commit</code> (AI message) &rarr; merge
+                    </div>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 6: Package Managers -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="packages"
+                open
+            >
+                <summary>6. Package Managers</summary>
+                <div class="section-content">
+                    <h3>pnpm</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>pi</code></td>
+                                <td><code>pnpm install</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>pd</code></td>
+                                <td><code>pnpm dev</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>pb</code></td>
+                                <td><code>pnpm build</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>pt</code></td>
+                                <td><code>pnpm test</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>pa</code></td>
+                                <td><code>pnpm add</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>pr</code></td>
+                                <td><code>pnpm run</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>px</code></td>
+                                <td><code>pnpm exec</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>bun</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>bi</code></td>
+                                <td><code>bun install</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>bd</code></td>
+                                <td><code>bun dev</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>bb</code></td>
+                                <td><code>bun build</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>bt</code></td>
+                                <td><code>bun test</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>ba</code></td>
+                                <td><code>bun add</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>br</code></td>
+                                <td><code>bun run</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>bx</code></td>
+                                <td><code>bunx</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>npm (OMZ plugin)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>npmg</code></td>
+                                <td><code>npm install -g</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>npmS</code></td>
+                                <td><code>npm install --save</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>npmD</code></td>
+                                <td><code>npm install --save-dev</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>npmO</code></td>
+                                <td><code>npm outdated</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>npmL0</code></td>
+                                <td><code>npm list --depth=0</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>jq helpers</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>jqless</code></td>
+                                <td><code>jq -C . | less -R</code> &mdash; pretty-print + pager</td>
+                            </tr>
+                            <tr>
+                                <td><code>pretty-json</code></td>
+                                <td><code>jq .</code> &mdash; format JSON</td>
+                            </tr>
+                            <tr>
+                                <td><code>check-json</code></td>
+                                <td><code>jq empty</code> &mdash; validate JSON</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 7: Shell Productivity -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="shell"
+                open
+            >
+                <summary>7. Shell Productivity</summary>
+                <div class="section-content">
+                    <h3>Keybindings</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Shortcut</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td>
+                                <td>
+                                    Toggle foreground/background (fancy-ctrl-z) &mdash; no need to
+                                    type <code>fg</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Esc</kbd> <kbd>Esc</kbd></td>
+                                <td>Prepend <code>sudo</code> to current/previous command</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Ctrl</kbd>+<kbd>O</kbd></td>
+                                <td>Copy current command line to clipboard (copybuffer)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Clipboard</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>copyfile &lt;file&gt;</code></td>
+                                <td>Copy file contents to clipboard</td>
+                            </tr>
+                            <tr>
+                                <td><code>copypath [path]</code></td>
+                                <td>Copy absolute path (default: cwd)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Encoding</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>e64</code> / <code>d64</code></td>
+                                <td>Base64 encode / decode</td>
+                            </tr>
+                            <tr>
+                                <td><code>urlencode</code> / <code>urldecode</code></td>
+                                <td>URL encode / decode</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Archives</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>extract &lt;file&gt;</code></td>
+                                <td>Universal unarchive (tar/zip/rar/7z/gz/bz2/xz/deb...)</td>
+                            </tr>
+                            <tr>
+                                <td><code>x &lt;file&gt;</code></td>
+                                <td>
+                                    Alias for <code>extract</code>; <code>-r</code> flag removes
+                                    archive after
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Web search</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>google "query"</code></td>
+                                <td>Open Google search in browser</td>
+                            </tr>
+                            <tr>
+                                <td><code>ddg "query"</code></td>
+                                <td>DuckDuckGo search</td>
+                            </tr>
+                            <tr>
+                                <td><code>github "query"</code></td>
+                                <td>GitHub search</td>
+                            </tr>
+                            <tr>
+                                <td><code>youtube "query"</code></td>
+                                <td>YouTube search</td>
+                            </tr>
+                            <tr>
+                                <td><code>wiki "query"</code></td>
+                                <td>Wikipedia search</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>JSON (pipe)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>| pp_json</code></td>
+                                <td>Pretty-print JSON</td>
+                            </tr>
+                            <tr>
+                                <td><code>| is_json</code></td>
+                                <td>Validate JSON (returns 0 or 1)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>History</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>h</code></td>
+                                <td>Show history</td>
+                            </tr>
+                            <tr>
+                                <td><code>hs &lt;term&gt;</code></td>
+                                <td>Grep history</td>
+                            </tr>
+                            <tr>
+                                <td><code>hsi &lt;term&gt;</code></td>
+                                <td>Grep history (case-insensitive)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Misc aliases</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>reload</code></td>
+                                <td><code>source ~/.zshrc</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>zshconfig</code></td>
+                                <td>Open <code>~/.zshrc</code> in VS Code</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Passive / transparent plugins</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Plugin</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>you-should-use</td>
+                                <td>Reminds when you type a command that has an alias</td>
+                            </tr>
+                            <tr>
+                                <td>bgnotify</td>
+                                <td>Desktop notification when long command finishes (&gt;5s)</td>
+                            </tr>
+                            <tr>
+                                <td>safe-paste</td>
+                                <td>Prevents pasted code from auto-executing</td>
+                            </tr>
+                            <tr>
+                                <td>colored-man-pages</td>
+                                <td>Colorized man pages automatically</td>
+                            </tr>
+                            <tr>
+                                <td>command-not-found</td>
+                                <td>Suggests brew package when command missing</td>
+                            </tr>
+                            <tr>
+                                <td>zsh-autosuggestions</td>
+                                <td>Fish-like inline suggestions (mauve text, async)</td>
+                            </tr>
+                            <tr>
+                                <td>zsh-syntax-highlighting</td>
+                                <td>Real-time syntax highlighting in shell</td>
+                            </tr>
+                            <tr>
+                                <td>zsh-completions</td>
+                                <td>Additional completion definitions</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 8: Brew -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="brew"
+                open
+            >
+                <summary>8. Brew</summary>
+                <div class="section-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>bubu</code></td>
+                                <td>Full update cycle: update + outdated + upgrade + cleanup</td>
+                            </tr>
+                            <tr>
+                                <td><code>bubo</code></td>
+                                <td>Check outdated packages only</td>
+                            </tr>
+                            <tr>
+                                <td><code>bubc</code></td>
+                                <td>Upgrade + cleanup</td>
+                            </tr>
+                            <tr>
+                                <td><code>brewsp</code></td>
+                                <td>List pinned packages</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 9: Docker -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="docker"
+                open
+            >
+                <summary>9. Docker</summary>
+                <div class="section-content">
+                    <h3>docker-compose (OMZ plugin)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>dcup</code></td>
+                                <td><code>docker compose up</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>dcupd</code></td>
+                                <td><code>docker compose up -d</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>dcdn</code></td>
+                                <td><code>docker compose down</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>dclf</code></td>
+                                <td><code>docker compose logs -f</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>dcps</code></td>
+                                <td><code>docker compose ps</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>dcr</code></td>
+                                <td><code>docker compose run</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>dce</code></td>
+                                <td><code>docker compose exec</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>dcrestart</code></td>
+                                <td><code>docker compose restart</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>dcb</code></td>
+                                <td><code>docker compose build</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 10: macOS Integration -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="macos"
+                open
+            >
+                <summary>10. macOS Integration</summary>
+                <div class="section-content">
+                    <h3>Finder &harr; Terminal</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ofd</code></td>
+                                <td>Open current directory in Finder</td>
+                            </tr>
+                            <tr>
+                                <td><code>cdf</code></td>
+                                <td>cd to Finder's frontmost window directory</td>
+                            </tr>
+                            <tr>
+                                <td><code>pfd</code></td>
+                                <td>Print Finder directory</td>
+                            </tr>
+                            <tr>
+                                <td><code>pfs</code></td>
+                                <td>Print Finder selection</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Visibility</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>showfiles</code></td>
+                                <td>Show hidden files in Finder</td>
+                            </tr>
+                            <tr>
+                                <td><code>hidefiles</code></td>
+                                <td>Hide hidden files in Finder</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Utilities</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>quick-look &lt;file&gt;</code></td>
+                                <td>Quick Look preview</td>
+                            </tr>
+                            <tr>
+                                <td><code>man-preview &lt;cmd&gt;</code></td>
+                                <td>Open man page in Preview.app</td>
+                            </tr>
+                            <tr>
+                                <td><code>rmdsstore</code></td>
+                                <td>Remove .DS_Store files recursively</td>
+                            </tr>
+                            <tr>
+                                <td><code>tab</code></td>
+                                <td>New terminal tab</td>
+                            </tr>
+                            <tr>
+                                <td><code>split_tab</code></td>
+                                <td>New horizontal split</td>
+                            </tr>
+                            <tr>
+                                <td><code>vsplit_tab</code></td>
+                                <td>New vertical split</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 11: Claude Code -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="claude"
+                open
+            >
+                <summary>11. Claude Code</summary>
+                <div class="section-content">
+                    <h3>Slash commands (from plugins)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/commit</code></td>
+                                <td>Create git commit</td>
+                            </tr>
+                            <tr>
+                                <td><code>/commit-push-pr</code></td>
+                                <td>Commit + push + open PR</td>
+                            </tr>
+                            <tr>
+                                <td><code>/clean_gone</code></td>
+                                <td>Clean local branches deleted on remote</td>
+                            </tr>
+                            <tr>
+                                <td><code>/revise-claude-md</code></td>
+                                <td>Update CLAUDE.md with session learnings</td>
+                            </tr>
+                            <tr>
+                                <td><code>/claude-md-improver</code></td>
+                                <td>Audit and improve CLAUDE.md quality</td>
+                            </tr>
+                            <tr>
+                                <td><code>/create-plugin</code></td>
+                                <td>Guided plugin creation workflow</td>
+                            </tr>
+                            <tr>
+                                <td><code>/code-review</code></td>
+                                <td>Review a pull request</td>
+                            </tr>
+                            <tr>
+                                <td><code>/plannotator-review</code></td>
+                                <td>Interactive code review UI</td>
+                            </tr>
+                            <tr>
+                                <td><code>/plannotator-annotate</code></td>
+                                <td>Interactive annotation UI for markdown</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Skills (auto-triggered)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Skill</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>brainstorming</td>
+                                <td>Explores requirements before implementation</td>
+                            </tr>
+                            <tr>
+                                <td>systematic-debugging</td>
+                                <td>Structured debugging before proposing fixes</td>
+                            </tr>
+                            <tr>
+                                <td>test-driven-development</td>
+                                <td>TDD workflow</td>
+                            </tr>
+                            <tr>
+                                <td>writing-plans</td>
+                                <td>Plan multi-step tasks before coding</td>
+                            </tr>
+                            <tr>
+                                <td>executing-plans</td>
+                                <td>Execute plans with review checkpoints</td>
+                            </tr>
+                            <tr>
+                                <td>dispatching-parallel-agents</td>
+                                <td>Parallel independent tasks via subagents</td>
+                            </tr>
+                            <tr>
+                                <td>verification-before-completion</td>
+                                <td>Verify before claiming done</td>
+                            </tr>
+                            <tr>
+                                <td>using-git-worktrees</td>
+                                <td>Isolated feature work via worktrees</td>
+                            </tr>
+                            <tr>
+                                <td>finishing-a-development-branch</td>
+                                <td>Merge/PR/cleanup guidance</td>
+                            </tr>
+                            <tr>
+                                <td>requesting-code-review</td>
+                                <td>Request code review workflow</td>
+                            </tr>
+                            <tr>
+                                <td>receiving-code-review</td>
+                                <td>Process review feedback</td>
+                            </tr>
+                            <tr>
+                                <td>frontend-design</td>
+                                <td>Production-grade UI generation</td>
+                            </tr>
+                            <tr>
+                                <td>browsing</td>
+                                <td>Chrome DevTools Protocol browser control</td>
+                            </tr>
+                            <tr>
+                                <td>episodic-memory</td>
+                                <td>Search past conversation history</td>
+                            </tr>
+                            <tr>
+                                <td>elements-of-style</td>
+                                <td>Strunk's writing rules for prose</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>MCP servers</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Server</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>eslint</td>
+                                <td>Lint files on demand</td>
+                            </tr>
+                            <tr>
+                                <td>context7</td>
+                                <td>Fetch up-to-date library docs</td>
+                            </tr>
+                            <tr>
+                                <td>knip</td>
+                                <td>Detect unused code/exports</td>
+                            </tr>
+                            <tr>
+                                <td>memory</td>
+                                <td>Persistent knowledge graph across sessions</td>
+                            </tr>
+                            <tr>
+                                <td>playwright</td>
+                                <td>Browser automation and testing</td>
+                            </tr>
+                            <tr>
+                                <td>chrome-devtools</td>
+                                <td>Inspect/control browser sessions</td>
+                            </tr>
+                            <tr>
+                                <td>gh_grep</td>
+                                <td>Search across GitHub repos</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>OpenSpec workflow</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/opsx:new</code></td>
+                                <td>Start a structured change</td>
+                            </tr>
+                            <tr>
+                                <td><code>/opsx:continue</code></td>
+                                <td>Create next artifact</td>
+                            </tr>
+                            <tr>
+                                <td><code>/opsx:explore</code></td>
+                                <td>Think through ideas before implementing</td>
+                            </tr>
+                            <tr>
+                                <td><code>/opsx:apply</code></td>
+                                <td>Implement tasks from a change</td>
+                            </tr>
+                            <tr>
+                                <td><code>/opsx:verify</code></td>
+                                <td>Validate implementation</td>
+                            </tr>
+                            <tr>
+                                <td><code>/opsx:ff</code></td>
+                                <td>Fast-forward all artifacts at once</td>
+                            </tr>
+                            <tr>
+                                <td><code>/opsx:archive</code></td>
+                                <td>Archive completed change</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 12: OpenCode -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="opencode"
+                open
+            >
+                <summary>12. OpenCode</summary>
+                <div class="section-content">
+                    <h3>Plugins</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Plugin</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>plannotator</td>
+                                <td>Code review and annotation UI</td>
+                            </tr>
+                            <tr>
+                                <td>wakatime</td>
+                                <td>Coding time tracking</td>
+                            </tr>
+                            <tr>
+                                <td>websearch-cited</td>
+                                <td>Web search with source citations</td>
+                            </tr>
+                            <tr>
+                                <td>dcp</td>
+                                <td>DevTools Protocol browser control</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>MCP servers (shared with Claude Code)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Server</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>eslint</td>
+                                <td>Lint files on demand</td>
+                            </tr>
+                            <tr>
+                                <td>context7</td>
+                                <td>Fetch up-to-date library docs</td>
+                            </tr>
+                            <tr>
+                                <td>knip</td>
+                                <td>Detect unused code/exports</td>
+                            </tr>
+                            <tr>
+                                <td>memory</td>
+                                <td>Persistent knowledge graph across sessions</td>
+                            </tr>
+                            <tr>
+                                <td>playwright</td>
+                                <td>Browser automation and testing</td>
+                            </tr>
+                            <tr>
+                                <td>chrome-devtools</td>
+                                <td>Inspect/control browser sessions</td>
+                            </tr>
+                            <tr>
+                                <td>gh_grep</td>
+                                <td>Search across GitHub repos</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Config</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Setting</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Model</td>
+                                <td>anthropic/claude-opus-4-6</td>
+                            </tr>
+                            <tr>
+                                <td>Formatter</td>
+                                <td>oxfmt</td>
+                            </tr>
+                            <tr>
+                                <td>Theme</td>
+                                <td>catppuccin-macchiato</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </main>
+
+        <!-- ── Search & interactivity ──────────────────────────────── -->
+        <script>
+            (function () {
+                const searchInput = document.getElementById("search");
+
+                // Ctrl+K to focus search
+                document.addEventListener("keydown", function (e) {
+                    if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+                        e.preventDefault();
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                });
+
+                // Escape to clear and blur
+                searchInput.addEventListener("keydown", function (e) {
+                    if (e.key === "Escape") {
+                        searchInput.value = "";
+                        searchInput.blur();
+                        filterContent("");
+                    }
+                });
+
+                // Live filter on keyup
+                searchInput.addEventListener("input", function () {
+                    filterContent(this.value.trim().toLowerCase());
+                });
+
+                function filterContent(query) {
+                    const sections = document.querySelectorAll(".content > details");
+
+                    if (!query) {
+                        // Show everything
+                        sections.forEach(function (section) {
+                            section.classList.remove("hidden");
+                            section.querySelectorAll("tr").forEach(function (row) {
+                                row.classList.remove("hidden");
+                            });
+                            section.querySelectorAll(".section-content > *").forEach(function (el) {
+                                el.classList.remove("hidden");
+                            });
+                        });
+                        return;
+                    }
+
+                    sections.forEach(function (section) {
+                        var sectionHasMatch = false;
+                        var summaryText = section
+                            .querySelector("summary")
+                            .textContent.toLowerCase();
+
+                        if (summaryText.includes(query)) {
+                            // Section title matches — show entire section
+                            sectionHasMatch = true;
+                            section.querySelectorAll("tr").forEach(function (row) {
+                                row.classList.remove("hidden");
+                            });
+                            section.querySelectorAll(".section-content > *").forEach(function (el) {
+                                el.classList.remove("hidden");
+                            });
+                        } else {
+                            // Check individual elements
+                            var tables = section.querySelectorAll("table");
+                            tables.forEach(function (table) {
+                                var tableParent = table.previousElementSibling; // h3 before the table
+                                var tableHasMatch = false;
+                                var rows = table.querySelectorAll("tbody tr");
+
+                                rows.forEach(function (row) {
+                                    if (row.textContent.toLowerCase().includes(query)) {
+                                        row.classList.remove("hidden");
+                                        tableHasMatch = true;
+                                        sectionHasMatch = true;
+                                    } else {
+                                        row.classList.add("hidden");
+                                    }
+                                });
+
+                                // Show/hide the h3 above matching tables
+                                if (tableParent && tableParent.tagName === "H3") {
+                                    if (tableHasMatch) {
+                                        tableParent.classList.remove("hidden");
+                                        table.classList.remove("hidden");
+                                    } else {
+                                        tableParent.classList.add("hidden");
+                                        table.classList.add("hidden");
+                                    }
+                                } else {
+                                    table.classList.toggle("hidden", !tableHasMatch);
+                                }
+                            });
+
+                            // Hide flow blocks unless they match
+                            section.querySelectorAll(".flow-only").forEach(function (flow) {
+                                if (flow.textContent.toLowerCase().includes(query)) {
+                                    flow.classList.remove("hidden");
+                                    sectionHasMatch = true;
+                                } else {
+                                    flow.classList.add("hidden");
+                                }
+                            });
+
+                            // Hide non-table h3s that don't have matching sibling content
+                            section
+                                .querySelectorAll(".section-content > h3")
+                                .forEach(function (h3) {
+                                    var next = h3.nextElementSibling;
+                                    if (next && !next.classList.contains("hidden")) {
+                                        h3.classList.remove("hidden");
+                                    }
+                                });
+                        }
+
+                        section.classList.toggle("hidden", !sectionHasMatch);
+                    });
+                }
+            })();
+        </script>
+    </body>
+</html>
