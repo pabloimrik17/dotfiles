@@ -362,13 +362,7 @@
                     page-break-inside: avoid;
                 }
 
-                details[open] > summary ~ * {
-                    display: block !important;
-                }
                 details > summary ~ * {
-                    display: block !important;
-                }
-                details:not([open]) > summary ~ * {
                     display: block !important;
                 }
 
@@ -449,6 +443,7 @@
                     id="search"
                     placeholder="Filter shortcuts..."
                     autocomplete="off"
+                    aria-label="Filter shortcuts"
                 />
             </div>
             <div class="search-hint">
@@ -2171,9 +2166,10 @@
                                 .querySelectorAll(".section-content > h3")
                                 .forEach(function (h3) {
                                     var next = h3.nextElementSibling;
-                                    if (next && !next.classList.contains("hidden")) {
-                                        h3.classList.remove("hidden");
-                                    }
+                                    h3.classList.toggle(
+                                        "hidden",
+                                        !(next && !next.classList.contains("hidden")),
+                                    );
                                 });
                         }
 
