@@ -1173,6 +1173,46 @@
             >
                 <summary>6. Package Managers</summary>
                 <div class="section-content">
+                    <h3>bun (preferred)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>bi</code></td>
+                                <td><code>bun install</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>bd</code></td>
+                                <td><code>bun dev</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>bb</code></td>
+                                <td><code>bun build</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>bt</code></td>
+                                <td><code>bun test</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>ba</code></td>
+                                <td><code>bun add</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>br</code></td>
+                                <td><code>bun run</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>bx</code></td>
+                                <td><code>bunx</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h3>pnpm</h3>
                     <table>
                         <thead>
@@ -1209,46 +1249,6 @@
                             <tr>
                                 <td><code>px</code></td>
                                 <td><code>pnpm exec</code></td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>bun</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Alias</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>bi</code></td>
-                                <td><code>bun install</code></td>
-                            </tr>
-                            <tr>
-                                <td><code>bd</code></td>
-                                <td><code>bun dev</code></td>
-                            </tr>
-                            <tr>
-                                <td><code>bb</code></td>
-                                <td><code>bun build</code></td>
-                            </tr>
-                            <tr>
-                                <td><code>bt</code></td>
-                                <td><code>bun test</code></td>
-                            </tr>
-                            <tr>
-                                <td><code>ba</code></td>
-                                <td><code>bun add</code></td>
-                            </tr>
-                            <tr>
-                                <td><code>br</code></td>
-                                <td><code>bun run</code></td>
-                            </tr>
-                            <tr>
-                                <td><code>bx</code></td>
-                                <td><code>bunx</code></td>
                             </tr>
                         </tbody>
                     </table>
@@ -2087,6 +2087,14 @@
                     filterContent(this.value.trim().toLowerCase());
                 });
 
+                // Ensure print output is the full cheatsheet
+                window.addEventListener("beforeprint", function () {
+                    if (searchInput.value) {
+                        searchInput.value = "";
+                        filterContent("");
+                    }
+                });
+
                 function filterContent(query) {
                     const sections = document.querySelectorAll(".content > details");
 
@@ -2124,11 +2132,19 @@
                             var tables = section.querySelectorAll("table");
                             tables.forEach(function (table) {
                                 var tableParent = table.previousElementSibling; // h3 before the table
-                                var tableHasMatch = false;
+                                var headingMatches =
+                                    tableParent &&
+                                    tableParent.tagName === "H3" &&
+                                    tableParent.textContent.toLowerCase().includes(query);
+                                var tableHasMatch = !!headingMatches;
+                                if (headingMatches) sectionHasMatch = true;
                                 var rows = table.querySelectorAll("tbody tr");
 
                                 rows.forEach(function (row) {
-                                    if (row.textContent.toLowerCase().includes(query)) {
+                                    if (
+                                        headingMatches ||
+                                        row.textContent.toLowerCase().includes(query)
+                                    ) {
                                         row.classList.remove("hidden");
                                         tableHasMatch = true;
                                         sectionHasMatch = true;
@@ -2166,10 +2182,10 @@
                                 .querySelectorAll(".section-content > h3")
                                 .forEach(function (h3) {
                                     var next = h3.nextElementSibling;
-                                    h3.classList.toggle(
-                                        "hidden",
-                                        !(next && !next.classList.contains("hidden")),
-                                    );
+                                    var selfMatches = h3.textContent.toLowerCase().includes(query);
+                                    var siblingVisible = next && !next.classList.contains("hidden");
+                                    h3.classList.toggle("hidden", !(selfMatches || siblingVisible));
+                                    if (selfMatches) sectionHasMatch = true;
                                 });
                         }
 
