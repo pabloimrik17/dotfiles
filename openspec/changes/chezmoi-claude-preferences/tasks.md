@@ -5,3 +5,4 @@
 ## 2. Verify
 
 - [ ] 2.1 Run `chezmoi diff` to confirm the template produces the expected output with all three new keys
+- [ ] 2.2 Validate rendered JSON contains `alwaysThinkingEnabled`, `voiceEnabled`, and `skipDangerousModePermissionPrompt` set to `true` via `chezmoi execute-template` piped to `jq`

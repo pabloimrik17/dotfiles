@@ -25,4 +25,4 @@ Group the new keys near `effortLevel` at the bottom of the JSON object. All four
 
 ## Risks / Trade-offs
 
-- [Minimal risk] `skipDangerousModePermissionPrompt` only takes effect when already using `--dangerously-skip-permissions`, so it doesn't reduce safety on its own → No mitigation needed
+- [Minimal risk] `skipDangerousModePermissionPrompt` only takes effect when already using `--dangerously-skip-permissions` → Rollback via `settings.local.json` override or template revert
