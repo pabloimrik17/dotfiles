@@ -1,6 +1,6 @@
 ## Why
 
-The `expo/skills` repo consolidated three separate plugins (`expo-app-design`, `upgrading-expo`, `expo-deployment`) into a single `expo` plugin. The chezmoi settings template still references the three old names — which are no longer in the repo — and is missing the new consolidated `expo@expo-plugins` entry. This causes 33 duplicate skill registrations (3 x 11 identical skills) and will break when the stale cache entries are cleared.
+The `expo/skills` repo consolidated three separate plugins (`expo-app-design`, `upgrading-expo`, `expo-deployment`) into a single `expo` plugin (expo/skills@3cd151c, 2026-03-13). The chezmoi settings template still references the three old names — which are no longer in the repo — and is missing the new consolidated `expo@expo-plugins` entry. This causes 33 duplicate skill registrations (3 x 11 identical skills) and will break when the stale cache entries are cleared.
 
 ## What Changes
 

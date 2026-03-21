@@ -28,4 +28,4 @@ The chezmoi-managed Claude Code settings template (`dot_claude/settings.json.tmp
 ## Risks / Trade-offs
 
 - **[Stale cache]** → If the local cache still has old plugin entries, they will be ignored since the settings file no longer references them. No action needed — cache clears naturally.
-- **[Skill name mismatch]** → If the consolidated `expo` plugin changed any skill names, existing references could break. Verified: the skill set is identical across all four plugin names. No risk.
+- **[Skill name mismatch]** → If the consolidated `expo` plugin changed any skill names, existing references could break. Verified: the 11 skill directories are identical across all four plugin names (confirmed via local cache inspection). Individual SKILL.md frontmatter (descriptions, references) may differ at the plugin level, but the actual skill identifiers and content are the same. No functional risk.

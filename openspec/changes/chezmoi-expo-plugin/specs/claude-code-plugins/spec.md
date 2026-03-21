@@ -12,7 +12,7 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 #### Scenario: Existing settings updated
 
 - **WHEN** `chezmoi apply` is run on a machine with an older version of the managed settings file
-- **THEN** the file is updated to include the `expo@expo-plugins` entry alongside all other existing plugins
+- **THEN** the file is updated to include `expo@expo-plugins` in `enabledPlugins`, and the deprecated entries `expo-app-design@expo-plugins`, `upgrading-expo@expo-plugins`, and `expo-deployment@expo-plugins` are no longer present
 
 ## REMOVED Requirements
 
