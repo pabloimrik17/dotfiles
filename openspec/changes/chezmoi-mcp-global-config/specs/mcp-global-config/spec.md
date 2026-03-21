@@ -45,4 +45,4 @@ The `mcpServers` block SHALL be plain JSON without chezmoi template conditionals
 #### Scenario: No conditional logic in mcpServers block
 
 - **WHEN** reading `dot_claude/settings.json.tmpl`
-- **THEN** the `mcpServers` section SHALL contain no `{{ if }}` or `{{ else }}` directives
+- **THEN** the `mcpServers` section SHALL contain no chezmoi template directives (`{{ ... }}` tokens of any kind)

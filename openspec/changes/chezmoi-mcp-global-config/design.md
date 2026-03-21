@@ -45,4 +45,4 @@ All 7 servers are used on every machine. No need for `{{ if }}` blocks. Plain JS
 
 - **`@latest` instability** → Mitigated by the fact that these are dev tools, not production dependencies. If a server breaks, per-project `.mcp.json` can pin a known-good version as an override.
 - **Duplicate servers** (global + project `.mcp.json`) → Claude Code merges project-level on top of global. Identical entries are harmless; project entries override global if they differ. Per-project cleanup is deferred.
-- **chezmoi apply overwrites manual `claude mcp add -s user` changes** → Expected behavior. Chezmoi is the source of truth for global settings. Manual additions should go to project scope or be added to the template.
+- **chezmoi apply overwrites manual `claude mcp add -s user` changes** → Expected behavior. chezmoi is the source of truth for global settings. Manual additions should go to project scope or be added to the template.
