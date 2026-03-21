@@ -6,6 +6,20 @@ Claude Code hook configuration managed by chezmoi — hook definitions in the se
 
 ## ADDED Requirements
 
+### Requirement: bd CLI is installed via brew
+
+The brew packages list in `run_once_install-packages.sh.tmpl` SHALL include `bd` so that the beads CLI is available on PATH for hooks to function.
+
+#### Scenario: Fresh machine setup
+
+- **WHEN** `chezmoi apply` runs the install script and the user confirms the brew packages group
+- **THEN** `bd` is installed via `brew install bd`
+
+#### Scenario: Already installed
+
+- **WHEN** the `bd` command is already available on the machine
+- **THEN** the brew packages group skips `bd` installation and reports it as already installed
+
 ### Requirement: bd prime runs on SessionStart
 
 The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include a `hooks.SessionStart` entry that runs `bd prime` with an empty matcher (global scope).
@@ -17,12 +31,12 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 
 #### Scenario: Session starts in a beads-enabled project
 
-- **WHEN** a Claude Code session starts in a directory containing `.beads/`
+- **WHEN** a Claude Code session starts in a directory containing `.beads/` and `bd` is installed
 - **THEN** the `bd prime` hook executes and initializes beads context
 
 #### Scenario: Session starts in a non-beads project
 
-- **WHEN** a Claude Code session starts in a directory without `.beads/`
+- **WHEN** a Claude Code session starts in a directory without `.beads/` and `bd` is installed
 - **THEN** the `bd prime` hook executes and exits as a no-op without errors
 
 ### Requirement: bd prime runs on PreCompact
@@ -36,10 +50,10 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 
 #### Scenario: Context compaction in a beads-enabled project
 
-- **WHEN** Claude Code triggers context compaction in a directory containing `.beads/`
+- **WHEN** Claude Code triggers context compaction in a directory containing `.beads/` and `bd` is installed
 - **THEN** the `bd prime` hook executes and re-primes beads context before compaction
 
 #### Scenario: Context compaction in a non-beads project
 
-- **WHEN** Claude Code triggers context compaction in a directory without `.beads/`
+- **WHEN** Claude Code triggers context compaction in a directory without `.beads/` and `bd` is installed
 - **THEN** the `bd prime` hook executes and exits as a no-op without errors

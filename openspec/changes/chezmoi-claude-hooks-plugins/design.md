@@ -15,14 +15,13 @@ The template is static JSON with chezmoi Go template expressions only for `statu
 
 **Non-Goals:**
 
-- Installing the `bd` CLI (handled separately; hooks no-op gracefully without it)
 - Installing beads or code-simplifier plugin code (marketplace auto-update handles this)
 - Adding conditional logic (e.g., platform-specific hooks)
 - Modifying any existing settings entries
 
 ## Decisions
 
-### 1. Single file, additive-only edits
+### 1. Single-file, additive-only edits
 
 All three issues modify `dot_claude/settings.json.tmpl`. Changes are insertions only — no existing lines are modified or removed. This minimizes merge risk and keeps the diff reviewable.
 
@@ -40,5 +39,5 @@ New entries are appended to the end of `enabledPlugins` and `extraKnownMarketpla
 
 ## Risks / Trade-offs
 
-- **`bd` not installed** → Hooks will fail silently or error on machines without the beads CLI. Mitigation: `bd prime` is a no-op when beads isn't relevant; a future change could add `bd` to the install script.
+- **`bd` not installed** → Hooks will error on machines without the beads CLI. Mitigation: `bd` is added to the brew packages list in `run_once_install-packages.sh.tmpl` so it's installed alongside other CLI tools.
 - **JSON validity** → Adding entries requires correct comma placement in the template. Mitigation: verification step confirms valid JSON output after `chezmoi apply`.

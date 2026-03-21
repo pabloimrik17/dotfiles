@@ -8,6 +8,8 @@ The chezmoi template `dot_claude/settings.json.tmpl` is out of sync with plugins
 - Add `code-simplifier@claude-plugins-official` to `enabledPlugins`
 - Add `beads-marketplace` entry (steveyegge/beads) to `extraKnownMarketplaces`
 - Add new top-level `hooks` key with `PreCompact` and `SessionStart` entries that run `bd prime`
+- Add `bd` to brew packages in `run_once_install-packages.sh.tmpl`
+- Add beads plugin/marketplace registration to Claude Code plugin dependencies group in `run_once_install-packages.sh.tmpl`
 
 ## Capabilities
 
@@ -21,6 +23,6 @@ The chezmoi template `dot_claude/settings.json.tmpl` is out of sync with plugins
 
 ## Impact
 
-- **File**: `dot_claude/settings.json.tmpl` (single file, additive changes only)
-- **Dependencies**: `bd` CLI must be available on PATH for hooks to function (no-ops gracefully if absent or if `.beads/` doesn't exist)
+- **Files**: `dot_claude/settings.json.tmpl` and `run_once_install-packages.sh.tmpl` (additive changes only)
+- **Dependencies**: `bd` CLI is installed via brew in the run_once script; required on PATH for hooks to function. `bd prime` no-ops gracefully if `.beads/` doesn't exist in the current directory.
 - **No breaking changes**: all additions are additive to existing config
