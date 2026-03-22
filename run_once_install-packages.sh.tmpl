@@ -52,7 +52,7 @@ fi
 # ------------------------------------------------------------------
 # Group 1: Brew packages
 # ------------------------------------------------------------------
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv)
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads)
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -60,6 +60,7 @@ pkg_bin() {
         git-delta) echo "delta" ;;
         ripgrep)   echo "rg" ;;
         worktrunk) echo "wt" ;;
+        beads)     echo "bd" ;;
         *)         echo "$1" ;;
     esac
 }
@@ -233,6 +234,7 @@ if confirm "Install Claude Code plugin dependencies (plannotator, worktrunk plug
         run_claude_step "marketplace nrwl/nx-ai-agents-config" claude plugin marketplace add nrwl/nx-ai-agents-config
         run_claude_step "marketplace backnotprop/plannotator" claude plugin marketplace add backnotprop/plannotator
         run_claude_step "marketplace max-sixty/worktrunk" claude plugin marketplace add max-sixty/worktrunk
+        run_claude_step "marketplace steveyegge/beads" claude plugin marketplace add steveyegge/beads
 
         info "  Installing Claude Code plugins..."
         run_claude_step "plugin typescript-lsp" claude plugin install typescript-lsp@claude-plugins-official
@@ -258,6 +260,8 @@ if confirm "Install Claude Code plugin dependencies (plannotator, worktrunk plug
         run_claude_step "plugin claude-code-wakatime" claude plugin install claude-code-wakatime@wakatime
         run_claude_step "plugin plannotator" claude plugin install plannotator@plannotator
         run_claude_step "plugin worktrunk" claude plugin install worktrunk@worktrunk
+        run_claude_step "plugin beads" claude plugin install beads@beads-marketplace
+        run_claude_step "plugin code-simplifier" claude plugin install code-simplifier@claude-plugins-official
     else
         warn "Claude Code is not installed — skipping plugin setup"
     fi

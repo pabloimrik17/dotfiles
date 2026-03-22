@@ -8,17 +8,17 @@ Claude Code hook configuration managed by chezmoi — hook definitions in the se
 
 ### Requirement: bd CLI is installed via brew
 
-The brew packages list in `run_once_install-packages.sh.tmpl` SHALL include `bd` so that the beads CLI is available on PATH for hooks to function.
+The brew packages list in `run_once_install-packages.sh.tmpl` SHALL include `beads` (the Homebrew formula that provides the `bd` CLI) so that the beads CLI is available on PATH for hooks to function. The `pkg_bin` mapping SHALL resolve `beads` to `bd` for the already-installed check.
 
 #### Scenario: Fresh machine setup
 
 - **WHEN** `chezmoi apply` runs the install script and the user confirms the brew packages group
-- **THEN** `bd` is installed via `brew install bd`
+- **THEN** `bd` is installed via `brew install beads`
 
 #### Scenario: Already installed
 
 - **WHEN** the `bd` command is already available on the machine
-- **THEN** the brew packages group skips `bd` installation and reports it as already installed
+- **THEN** the brew packages group skips `beads` installation and reports it as already installed
 
 ### Requirement: bd prime runs on SessionStart
 
