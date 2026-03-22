@@ -6,7 +6,7 @@ Relates to: https://github.com/pabloimrik17/dotfiles/issues/75
 
 ## What Changes
 
-- Add `mcpServers` key to `dot_claude/settings.json.tmpl` with 9 MCP servers (7 stdio + 2 HTTP remote)
+- Add `mcpServers` key to `dot_claude/settings.json.tmpl` with 9 MCP servers (6 stdio + 3 HTTP remote)
 - Atlassian and Figma included as local HTTP servers alongside any cloud-managed instances for independence from organization config
 - Per-project `.mcp.json` files are left untouched (cleanup is a separate future task)
 

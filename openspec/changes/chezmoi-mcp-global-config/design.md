@@ -8,7 +8,7 @@
 
 **Goals:**
 
-- Add `mcpServers` to `dot_claude/settings.json.tmpl` with 9 servers (7 stdio + 2 HTTP remote)
+- Add `mcpServers` to `dot_claude/settings.json.tmpl` with 9 servers (6 stdio + 3 HTTP remote)
 - Use `@latest` for all stdio server versions
 - Include Atlassian and Figma as local HTTP servers for independence from cloud/org config
 - Maintain the existing template structure (chezmoi `{{ .chezmoi.homeDir }}` syntax where needed)
