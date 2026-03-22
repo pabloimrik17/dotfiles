@@ -52,7 +52,7 @@ fi
 # ------------------------------------------------------------------
 # Group 1: Brew packages
 # ------------------------------------------------------------------
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv bd)
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads)
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -60,6 +60,7 @@ pkg_bin() {
         git-delta) echo "delta" ;;
         ripgrep)   echo "rg" ;;
         worktrunk) echo "wt" ;;
+        beads)     echo "bd" ;;
         *)         echo "$1" ;;
     esac
 }
