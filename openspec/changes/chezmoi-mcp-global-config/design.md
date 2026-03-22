@@ -2,19 +2,19 @@
 
 `dot_claude/settings.json.tmpl` is a chezmoi template that deploys to `~/.claude/settings.json`. It currently contains `env`, `statusLine`, `enabledPlugins`, `extraKnownMarketplaces`, and `effortLevel`. It does not have an `mcpServers` key.
 
-7 MCP servers are identically configured across all project `.mcp.json` files with pinned versions. The goal is to add them as a global `mcpServers` block in the template using `@latest`.
+9 MCP servers are to be configured globally. 7 stdio servers are currently duplicated across project `.mcp.json` files with pinned versions. 2 HTTP remote servers (Atlassian, Figma) are included locally for availability regardless of organization cloud config. The goal is to add them all as a global `mcpServers` block in the template.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- Add `mcpServers` to `dot_claude/settings.json.tmpl` with the 7 common servers
+- Add `mcpServers` to `dot_claude/settings.json.tmpl` with 9 servers (7 stdio + 2 HTTP remote)
 - Use `@latest` for all stdio server versions
+- Include Atlassian and Figma as local HTTP servers for independence from cloud/org config
 - Maintain the existing template structure (chezmoi `{{ .chezmoi.homeDir }}` syntax where needed)
 
 **Non-Goals:**
 
-- Migrating atlassian/figma from cloud-managed to local config
 - Cleaning up per-project `.mcp.json` files
 - Templating MCP config per-machine (plain JSON, no conditional blocks)
 - Changing `npx` to `bunx` for MCP server commands
@@ -39,7 +39,7 @@ The current `.mcp.json` files all use `npx`. While the project convention is `bu
 
 ### 4. No template conditionals
 
-All 7 servers are used on every machine. No need for `{{ if }}` blocks. Plain JSON with only the existing `{{ .chezmoi.homeDir }}` reference in the statusLine command.
+All 9 servers are used on every machine. No need for `{{ if }}` blocks. Plain JSON with only the existing `{{ .chezmoi.homeDir }}` reference in the statusLine command. Atlassian and Figma coexist with any cloud-managed instances — Claude Code merges both scopes.
 
 ## Risks / Trade-offs
 

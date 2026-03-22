@@ -2,7 +2,7 @@
 
 ### Requirement: Global MCP servers are defined in chezmoi settings template
 
-`dot_claude/settings.json.tmpl` SHALL contain an `mcpServers` key with the following 7 servers:
+`dot_claude/settings.json.tmpl` SHALL contain an `mcpServers` key with the following 9 servers:
 
 | Name            | Type  | Command/URL                                         |
 | --------------- | ----- | --------------------------------------------------- |
@@ -13,11 +13,13 @@
 | playwright      | stdio | `npx -y @playwright/mcp@latest`                     |
 | chrome-devtools | stdio | `npx -y chrome-devtools-mcp@latest`                 |
 | gh_grep         | http  | `https://mcp.grep.app`                              |
+| atlassian       | http  | `https://mcp.atlassian.com/v1/mcp`                  |
+| figma           | http  | `https://mcp.figma.com/mcp`                         |
 
-#### Scenario: All 7 servers present after chezmoi apply
+#### Scenario: All 9 servers present after chezmoi apply
 
 - **WHEN** `chezmoi apply` is run on a new machine
-- **THEN** `~/.claude/settings.json` SHALL contain an `mcpServers` object with exactly the 7 servers listed above
+- **THEN** `~/.claude/settings.json` SHALL contain an `mcpServers` object with exactly the 9 servers listed above
 
 #### Scenario: Stdio servers use @latest versions
 
@@ -29,18 +31,18 @@
 - **WHEN** `chezmoi apply` deploys the updated template
 - **THEN** the `env`, `statusLine`, `enabledPlugins`, `extraKnownMarketplaces`, and `effortLevel` keys SHALL remain unchanged
 
-### Requirement: Global config does not include cloud-managed servers
+### Requirement: Atlassian and Figma included as local HTTP servers
 
-The `mcpServers` key in `dot_claude/settings.json.tmpl` SHALL NOT include `atlassian` or `figma` servers. These are managed via `claude.ai` cloud configuration and their presence/absence varies by machine.
+The `mcpServers` key in `dot_claude/settings.json.tmpl` SHALL include `atlassian` and `figma` as HTTP remote servers. These are included locally for availability regardless of organization cloud configuration. They coexist with any cloud-managed instances.
 
-#### Scenario: Atlassian and Figma absent from global config
+#### Scenario: Atlassian and Figma present in global config
 
 - **WHEN** inspecting the deployed `~/.claude/settings.json`
-- **THEN** the `mcpServers` object SHALL NOT contain keys `atlassian` or `figma`
+- **THEN** the `mcpServers` object SHALL contain keys `atlassian` (url: `https://mcp.atlassian.com/v1/mcp`) and `figma` (url: `https://mcp.figma.com/mcp`)
 
 ### Requirement: Template uses no machine-specific conditionals for MCP
 
-The `mcpServers` block SHALL be plain JSON without chezmoi template conditionals (`{{ if }}`, `{{ else }}`). All 7 servers are deployed identically to every machine.
+The `mcpServers` block SHALL be plain JSON without chezmoi template conditionals (`{{ if }}`, `{{ else }}`). All 9 servers are deployed identically to every machine.
 
 #### Scenario: No conditional logic in mcpServers block
 
