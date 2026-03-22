@@ -31,7 +31,9 @@
     "plannotator@plannotator": true,
     "worktrunk@worktrunk": true,
     "claude-session-driver@superpowers-marketplace": true,
-    "claude-code-setup@claude-plugins-official": true
+    "claude-code-setup@claude-plugins-official": true,
+    "beads@beads-marketplace": true,
+    "code-simplifier@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -96,10 +98,33 @@
         "repo": "max-sixty/worktrunk"
       },
       "autoUpdate": true
+    },
+    "beads-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "steveyegge/beads"
+      },
+      "autoUpdate": true
     }
   },
   "effortLevel": "high",
   "alwaysThinkingEnabled": true,
   "voiceEnabled": true,
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "hooks": {
+    "PreCompact": [
+      {
+        "type": "command",
+        "command": "bd prime",
+        "matcher": ""
+      }
+    ],
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "bd prime",
+        "matcher": ""
+      }
+    ]
+  }
 }
