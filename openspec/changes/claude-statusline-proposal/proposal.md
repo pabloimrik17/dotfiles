@@ -21,7 +21,7 @@ None.
 
 ## Impact
 
-- `~/.claude/plugins/claude-hud/config.json` — 4 config values changed
+- `dot_claude/plugins/claude-hud/config.json` — new chezmoi-managed file with 4 config values tuned
+- Deploys to `~/.claude/plugins/claude-hud/config.json` via `chezmoi apply`
 - Statusline will show more git detail and surface usage warnings earlier
 - No code changes, no dependency changes
-- Config is plugin-managed (not chezmoi-managed), applied directly
