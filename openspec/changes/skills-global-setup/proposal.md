@@ -24,5 +24,5 @@ The dotfiles repo manages Claude Code plugin installation via `run_once_install-
 ## Impact
 
 - `run_once_install-packages.sh.tmpl`: New install group added
-- `.chezmoiignore.tmpl`: May need entries for `dot_agents/` if chezmoi picks up the `~/.agents/` directory
+- `.chezmoiignore.tmpl`: No changes needed — chezmoi only manages files with corresponding source entries in the repo (no `dot_agents/` or `dot_claude/skills/` exists in source)
 - No changes to `dot_claude/settings.json.tmpl` — verified empirically that `npx skills add` does not modify `settings.json`

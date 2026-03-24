@@ -2,7 +2,7 @@
 
 - [ ] 1.1 Add "Group 6: Agent skills (skills.sh)" section to `run_once_install-packages.sh.tmpl` after the Claude Code plugin dependencies group, with `confirm()` prompt and `npx` availability check
 - [ ] 1.2 Query installed skills via `npx -y skills list -g --json` and parse with available tooling to detect already-installed skills
-- [ ] 1.3 Add the ten `npx -y skills add <repo> --skill <name> -g -y` commands with skip-if-installed checks, using `run_claude_step` or equivalent error-handling pattern
+- [ ] 1.3 Add the ten `npx -y skills add <repo> --skill <name> -g -y` commands with skip-if-installed checks, using `run_claude_step` for error handling (it calls `error()` which increments the global `ERRORS` counter and continues execution)
 
 ## 2. Non-macOS manual instructions
 
