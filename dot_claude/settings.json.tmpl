@@ -112,16 +112,24 @@
   "hooks": {
     "PreCompact": [
       {
-        "type": "command",
-        "command": "bd prime",
-        "matcher": ""
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bd prime"
+          }
+        ]
       }
     ],
     "SessionStart": [
       {
-        "type": "command",
-        "command": "bd prime",
-        "matcher": ""
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bd prime"
+          }
+        ]
       }
     ]
   },
