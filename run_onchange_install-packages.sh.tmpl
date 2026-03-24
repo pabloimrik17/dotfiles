@@ -278,6 +278,8 @@ if confirm "Install global agent skills via skills.sh?"; then
         INSTALLED_SKILLS=""
         if SKILLS_JSON="$(npx -y skills list -g --json 2>/dev/null)"; then
             INSTALLED_SKILLS="$SKILLS_JSON"
+        else
+            warn "Could not query installed global skills; proceeding without skip checks"
         fi
 
         skill_installed() {
