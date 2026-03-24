@@ -1,0 +1,26 @@
+{
+  "lineLayout": "compact",
+  "showSeparators": true,
+  "pathLevels": 2,
+  "gitStatus": {
+    "enabled": true,
+    "showDirty": true,
+    "showAheadBehind": true,
+    "showFileStats": true
+  },
+  "display": {
+    "showModel": true,
+    "showContextBar": true,
+    "showTools": true,
+    "showAgents": true,
+    "showTodos": true,
+    "showConfigCounts": true,
+    "showTokenBreakdown": true,
+    "showUsage": true,
+    "usageBarEnabled": true,
+    "showDuration": true,
+    "usageThreshold": 60,
+    "environmentThreshold": 200,
+    "sevenDayThreshold": 70
+  }
+}

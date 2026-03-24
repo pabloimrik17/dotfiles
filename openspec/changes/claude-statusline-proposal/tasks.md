@@ -1,6 +1,6 @@
 ## 1. Update claude-hud config
 
-- [x] 1.1 Set `gitStatus.showAheadBehind` to `true` in `~/.claude/plugins/claude-hud/config.json`
+- [x] 1.1 Create `dot_claude/plugins/claude-hud/config.json` with `gitStatus.showAheadBehind` set to `true`
 - [x] 1.2 Set `gitStatus.showFileStats` to `true`
 - [x] 1.3 Set `display.usageThreshold` to `60`
 - [x] 1.4 Add `display.sevenDayThreshold` with value `70`
