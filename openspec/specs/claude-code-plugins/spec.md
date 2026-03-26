@@ -48,3 +48,17 @@ The install script (`run_once_install-packages.sh.tmpl`) SHALL include a dedicat
 
 - **WHEN** the install script runs on a non-macOS platform
 - **THEN** manual installation instructions for plannotator are displayed, including the `curl -fsSL https://plannotator.ai/install.sh | bash` command
+
+### Requirement: Expo consolidated plugin is enabled by default
+
+The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"expo@expo-plugins": true` in the `enabledPlugins` object.
+
+#### Scenario: Fresh machine setup
+
+- **WHEN** `chezmoi apply` is run on a machine without Claude Code settings
+- **THEN** `~/.claude/settings.json` is created with `expo@expo-plugins` listed in `enabledPlugins`
+
+#### Scenario: Existing settings updated
+
+- **WHEN** `chezmoi apply` is run on a machine with an older version of the managed settings file
+- **THEN** the file is updated to include `expo@expo-plugins` in `enabledPlugins`, and the deprecated entries `expo-app-design@expo-plugins`, `upgrading-expo@expo-plugins`, and `expo-deployment@expo-plugins` are no longer present
