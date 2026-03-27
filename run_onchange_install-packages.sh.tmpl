@@ -268,6 +268,55 @@ if confirm "Install Claude Code plugin dependencies (plannotator, worktrunk plug
 else
     info "Skipping Claude Code plugin dependencies."
 fi
+
+# ------------------------------------------------------------------
+# Group 6: Agent skills (skills.sh)
+# ------------------------------------------------------------------
+if confirm "Install global agent skills via skills.sh?"; then
+    if command -v npx &>/dev/null; then
+        # Query already-installed global skills
+        INSTALLED_SKILLS=""
+        if SKILLS_JSON="$(npx -y skills list -g --json 2>/dev/null)"; then
+            INSTALLED_SKILLS="$SKILLS_JSON"
+        else
+            warn "Could not query installed global skills; proceeding without skip checks"
+        fi
+
+        skill_installed() {
+            local name="$1"
+            if [ -n "$INSTALLED_SKILLS" ]; then
+                echo "$INSTALLED_SKILLS" | grep -q "\"name\": \"$name\""
+            else
+                return 1
+            fi
+        }
+
+        install_skill() {
+            local repo="$1"
+            local name="$2"
+            if skill_installed "$name"; then
+                info "  $name — already installed, skipping"
+            else
+                run_claude_step "skill $name" npx -y skills add "$repo" --skill "$name" -g -y
+            fi
+        }
+
+        install_skill "vercel-labs/skills" "find-skills"
+        install_skill "vercel-labs/agent-skills" "vercel-react-best-practices"
+        install_skill "vercel-labs/agent-skills" "web-design-guidelines"
+        install_skill "vercel-labs/agent-skills" "vercel-composition-patterns"
+        install_skill "anthropics/skills" "frontend-design"
+        install_skill "anthropics/skills" "skill-creator"
+        install_skill "anthropics/skills" "pdf"
+        install_skill "anthropics/skills" "pptx"
+        install_skill "anthropics/skills" "docx"
+        install_skill "anthropics/skills" "xlsx"
+    else
+        warn "npx is not available — skipping agent skills installation"
+    fi
+else
+    info "Skipping agent skills."
+fi
 {{ else -}}
 # ====================================================================
 # Non-macOS — print manual instructions
@@ -296,6 +345,17 @@ info "  Claude Code plugins:"
 info "    - plannotator: curl -fsSL https://plannotator.ai/install.sh | bash"
 info "    - claude plugin marketplace add backnotprop/plannotator && claude plugin install plannotator@plannotator"
 info "    - claude plugin marketplace add max-sixty/worktrunk && claude plugin install worktrunk@worktrunk"
+info "  Agent skills (requires npx/Node.js):"
+info "    npx -y skills add vercel-labs/skills --skill find-skills -g -y"
+info "    npx -y skills add vercel-labs/agent-skills --skill vercel-react-best-practices -g -y"
+info "    npx -y skills add vercel-labs/agent-skills --skill web-design-guidelines -g -y"
+info "    npx -y skills add vercel-labs/agent-skills --skill vercel-composition-patterns -g -y"
+info "    npx -y skills add anthropics/skills --skill frontend-design -g -y"
+info "    npx -y skills add anthropics/skills --skill skill-creator -g -y"
+info "    npx -y skills add anthropics/skills --skill pdf -g -y"
+info "    npx -y skills add anthropics/skills --skill pptx -g -y"
+info "    npx -y skills add anthropics/skills --skill docx -g -y"
+info "    npx -y skills add anthropics/skills --skill xlsx -g -y"
 info ""
 
 {{ end -}}
