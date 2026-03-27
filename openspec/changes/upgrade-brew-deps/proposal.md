@@ -1,6 +1,6 @@
 ## Why
 
-Multiple brew-managed packages in the dotfiles have pending upgrades (worktrunk 0.28→0.32, atuin 18.12→18.13, git-delta 0.18→0.19, lazygit 0.59→0.60, fd 10.3→10.4, chezmoi 2.69→2.70, zsh-completions 0.35→0.36). Worktrunk 0.32 introduces a **breaking hook rename** (`post-create` → `pre-start`) that directly impacts both the user config and the project config. Atuin 18.13 adds daemon-based search indexing and AI command generation worth enabling. The rest are backward-compatible but add features worth documenting in the manual.
+Multiple brew-managed packages in the dotfiles have pending upgrades (worktrunk 0.28→0.32, atuin 18.12→18.13, git-delta 0.18→0.19, lazygit 0.59→0.60, fd 10.3→10.4, chezmoi 2.69→2.70, zsh-completions 0.35→0.36). Worktrunk 0.32 introduces a **breaking hook rename** (`post-create` → `pre-start` for blocking project hooks, `post-create` → `post-start` for background user hooks) that directly impacts both the user config and the project config. Atuin 18.13 adds daemon-based search indexing and AI command generation worth enabling. The rest are backward-compatible but add features worth documenting in the manual.
 
 ## What Changes
 

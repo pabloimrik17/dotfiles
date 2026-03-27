@@ -1,6 +1,6 @@
 ## MODIFIED Requirements
 
-### Requirement: Post-create hook with package manager detection
+### Requirement: Post-start hook with package manager detection
 
 The user config SHALL define a `post-start` hook (renamed from `post-create` per worktrunk 0.32) that detects the project's package manager by lockfile presence and runs the appropriate install command. The hook runs in background and does not block worktree creation — deps failure is recoverable.
 

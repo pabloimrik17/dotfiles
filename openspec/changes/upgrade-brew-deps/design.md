@@ -62,7 +62,7 @@ Three main specs reference `post-create`: `worktrunk-config`, `worktree-file-syn
 ## Risks / Trade-offs
 
 - **[Background deps may fail silently]** → Acceptable. The user will notice when `node_modules` is missing or `bun.lock` isn't resolved. They can run `bun install` manually. Worktrunk logs background hook output.
-- **[Atuin daemon uses memory]** → Daemon memory consumption was "substantially decreased" in 18.13. The daemon has autostart/PID management. Can be disabled by removing the config line.
+- **[Atuin daemon uses memory]** → Daemon memory consumption was "substantially decreased" in 18.13. The daemon has autostart/PID management. It can be disabled by removing the config line.
 - **[Atuin AI sends data]** → Only transmits OS and shell info (confirmed in 18.13.4 release notes). No command history or file contents are sent.
 - **[pre-start FailFast on copy-ignored]** → If `wt step copy-ignored` fails, worktree creation aborts. This is the desired behavior — a copy failure likely indicates a real problem (permissions, disk space). The user sees a clear error and can fix it.
 - **[brew upgrade timing]** → Config files must be updated BEFORE running `brew upgrade worktrunk`. If upgraded first, worktrunk emits deprecation warnings but still works (deprecated names supported during transition period). Safe to upgrade first, but cleaner to migrate configs first.

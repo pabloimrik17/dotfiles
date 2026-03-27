@@ -12,11 +12,11 @@
 
 ## 3. Manual updates
 
-- [ ] 3.1 Update atuin section (L638): add `atuin ai "query"` row and daemon note
-- [ ] 3.2 Update delta entry (L1058): add external subcommand support (`delta rg`, `delta diff`)
-- [ ] 3.3 Update lazygit entry (L1065): add file view filtering and worktree branch visibility
-- [ ] 3.4 Update worktrunk hooks table (L1144): rename `post-create` to `pre-start`
-- [ ] 3.5 Update worktrunk commands table (L1102): add `wt step <alias>` and `wt merge --no-ff`
+- [ ] 3.1 Update atuin section (Navigation & Search): add `atuin ai "query"` row and daemon note
+- [ ] 3.2 Update delta entry (Git > Other git tools): add external subcommand support (`delta rg`, `delta diff`)
+- [ ] 3.3 Update lazygit entry (Git > Other git tools): add file view filtering and worktree branch visibility
+- [ ] 3.4 Update worktrunk hooks table (Worktrees > Hooks): rename `post-create` to `pre-start`
+- [ ] 3.5 Update worktrunk commands table (Worktrees > Commands): add `wt step <alias>` and `wt merge --no-ff`
 
 ## 4. Brew upgrade
 
