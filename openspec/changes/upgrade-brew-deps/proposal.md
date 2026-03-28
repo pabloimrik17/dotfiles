@@ -7,6 +7,7 @@ Multiple brew-managed packages in the dotfiles have pending upgrades (worktrunk 
 - **BREAKING** Worktrunk user config (`dot_config/worktrunk/config.toml`): rename `[post-create]` → `[post-start]` (background, non-blocking — deps failure is recoverable and should not abort worktree creation)
 - **BREAKING** Worktrunk project config (`.config/wt.toml`): rename `[post-create]` → `[pre-start]` (blocking — copy-ignored + save-base must complete before worktree is usable)
 - Add chezmoi-managed atuin config (`dot_config/atuin/config.toml`) enabling daemon mode and AI features
+- Add atuin AI shell integration (`eval "$(atuin ai init zsh)"` in `.zshrc`) enabling `?` prefix for natural language command generation
 - Update `docs/manual.html` with new features: atuin AI/daemon, delta external subcommands, lazygit file filtering + worktree visibility, worktrunk `wt step`/`wt merge --no-ff`/hook rename, fd `--ignore-contain`
 - Update all specs referencing `post-create` hook to reflect the new naming
 
@@ -33,3 +34,4 @@ Multiple brew-managed packages in the dotfiles have pending upgrades (worktrunk 
 - **Dependencies**: Requires `brew upgrade` of all outdated packages (safe after config migration)
 - **Behavioral change**: Worktrunk deps install no longer blocks worktree creation (moves from blocking pre-start to background post-start)
 - **Behavioral change**: Worktrunk pre-start now aborts on failure (previously only warned) — affects copy-ignored + save-base, which is desired behavior
+- **Behavioral change**: Typing `?` at start of shell line activates atuin AI natural language mode (generates commands from English descriptions)

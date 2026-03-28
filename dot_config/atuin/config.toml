@@ -1,0 +1,9 @@
+# Atuin configuration
+# Managed by chezmoi — edit the source, not ~/.config/atuin/config.toml
+# Only non-default values are set here.
+
+[daemon]
+enabled = true
+
+[ai]
+enabled = true

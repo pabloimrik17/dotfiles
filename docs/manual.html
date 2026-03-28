@@ -636,10 +636,13 @@
                     </table>
 
                     <h3>atuin (history)</h3>
+                    <p class="note">
+                        Daemon-backed in-memory search indexing enabled for fast results.
+                    </p>
                     <table>
                         <thead>
                             <tr>
-                                <th>Shortcut</th>
+                                <th>Shortcut / Command</th>
                                 <th>Description</th>
                             </tr>
                         </thead>
@@ -647,6 +650,13 @@
                             <tr>
                                 <td><kbd>Ctrl</kbd>+<kbd>R</kbd></td>
                                 <td>Full-text history search (replaces fzf Ctrl+R)</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>?</kbd><code>describe what you want</code></td>
+                                <td>
+                                    AI-powered command generation from natural language (type
+                                    <kbd>?</kbd> at start of line)
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -1058,12 +1068,16 @@
                                 <td><code>delta</code></td>
                                 <td>
                                     Pager: side-by-side diffs, line numbers, navigate mode,
-                                    color-moved
+                                    color-moved. Supports external subcommands (<code>delta rg</code
+                                    >, <code>delta diff</code>)
                                 </td>
                             </tr>
                             <tr>
                                 <td><code>lg</code></td>
-                                <td>lazygit &mdash; full TUI git interface</td>
+                                <td>
+                                    lazygit &mdash; full TUI git interface with file view filtering
+                                    and worktree branch visibility
+                                </td>
                             </tr>
                             <tr>
                                 <td><code>fglog</code></td>
@@ -1128,6 +1142,16 @@
                                 <td><code>wt cd &lt;name&gt;</code></td>
                                 <td>Switch to worktree directory</td>
                             </tr>
+                            <tr>
+                                <td><code>wt step &lt;alias&gt;</code></td>
+                                <td>
+                                    Run a custom step alias (e.g. <code>wt step copy-ignored</code>)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>wt merge --no-ff</code></td>
+                                <td>Merge with semi-linear history (no fast-forward)</td>
+                            </tr>
                         </tbody>
                     </table>
 
@@ -1141,9 +1165,17 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>post-create</td>
+                                <td>pre-start</td>
                                 <td>
-                                    Copies ignored files, saves base worktree path, installs deps
+                                    Copies ignored files and saves base worktree path (blocking
+                                    &mdash; aborts on failure)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>post-start</td>
+                                <td>
+                                    Installs deps via detected package manager (background &mdash;
+                                    non-blocking)
                                 </td>
                             </tr>
                             <tr>

@@ -1,7 +1,7 @@
 # Worktrunk user configuration
 # Managed by chezmoi — edit the source, not ~/.config/worktrunk/config.toml
 
-[post-create]
+[post-start]
 deps = """
 if [ -f bun.lock ]; then
   if command -v bun >/dev/null 2>&1; then
