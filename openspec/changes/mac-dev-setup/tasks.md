@@ -47,5 +47,5 @@
 
 - [x] 6.1 Renumber existing groups (OpenCode plugins -> Group 7, Claude Code plugins -> Group 8)
 - [x] 6.2 Insert new groups in correct order: Casks (Group 4), MAS (Group 5), NVM/Node (Group 6)
-- [x] 6.3 Add manual install instructions section as Group 9 (always printed, no confirm)
+- [x] 6.3 Add manual install instructions section after Group 9 (always printed, no confirm)
 - [x] 6.4 Verify the complete group sequence runs end-to-end without errors on current Mac

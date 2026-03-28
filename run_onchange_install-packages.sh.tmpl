@@ -217,7 +217,6 @@ cask_to_app() {
         ticktick)                 echo "TickTick" ;;
         superwhisper)             echo "superwhisper" ;;
         iina)                     echo "IINA" ;;
-        vlc)                      echo "VLC" ;;
         vnc-viewer)               echo "VNC Viewer" ;;
         appcleaner)               echo "AppCleaner" ;;
         whatsapp)                 echo "WhatsApp" ;;
@@ -272,15 +271,13 @@ MAS_APPS=(
 if confirm "Install Mac App Store apps (Perplexity, Mela)?"; then
     if ! command -v mas &>/dev/null; then
         warn "mas is not installed — skipping App Store apps"
-    elif ! mas account &>/dev/null; then
-        warn "Not signed into the App Store. Please sign in via App Store.app and re-run."
     else
         for entry in "${MAS_APPS[@]}"; do
             app_id="${entry%% *}"
             app_name="${entry#* }"
             info "  Installing $app_name ($app_id)..."
             if ! mas install "$app_id"; then
-                error "Failed to install $app_name from App Store"
+                error "Failed to install $app_name from App Store (are you signed in?)"
             fi
         done
     fi
@@ -300,6 +297,7 @@ if confirm "Install NVM, Node LTS, and enable corepack?"; then
         NVM_OK=true
     else
         info "  Installing NVM via official curl script..."
+        # Pinned to known-good version for stability. Update periodically.
         if PROFILE=/dev/null bash -c 'curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash'; then
             NVM_OK=true
         else
@@ -325,7 +323,7 @@ if confirm "Install NVM, Node LTS, and enable corepack?"; then
         fi
 
         # Ensure default alias is set even if Node was already present
-        if command -v nvm &>/dev/null; then
+        if type nvm &>/dev/null; then
             nvm alias default 'lts/*' 2>/dev/null || true
         fi
 
@@ -512,7 +510,7 @@ info "This system is not macOS. Automatic installation is not supported."
 info ""
 info "Please install the following packages manually:"
 info ""
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, mas, wget, opencode"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
