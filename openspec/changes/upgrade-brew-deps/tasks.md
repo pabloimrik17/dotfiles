@@ -8,7 +8,8 @@
 
 - [x] 2.1 Create `dot_config/atuin/config.toml` with `[daemon] enabled = true` and `[ai] enabled = true`
 - [x] 2.2 Add `dot_config/atuin/config.toml` to chezmoi source state (ensure chezmoi tracks it)
-- [x] 2.3 Verify `chezmoi apply` deploys to `~/.config/atuin/config.toml` and atuin daemon starts
+- [x] 2.3 Add `eval "$(atuin ai init zsh)"` to `dot_zshrc.tmpl` — shell hook required for AI `?` prefix
+- [x] 2.4 Verify `chezmoi apply` deploys config and shell template; atuin daemon starts and `?` prefix works
 
 ## 3. Manual updates
 

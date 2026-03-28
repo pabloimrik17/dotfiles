@@ -18,7 +18,7 @@ Atuin 18.13 adds daemon-based in-memory search indexing (no longer experimental)
 
 - Fix `mas account` in mac-dev-setup spec (separate change, flagged in proposal)
 - Add new worktrunk step aliases or other 0.32 features (future change if wanted)
-- Modify atuin init command in .zshrc (current `--disable-up-arrow` stays)
+- Modify existing atuin init flags in .zshrc (current `--disable-up-arrow` stays)
 - Upgrade packages not in dotfiles config (ca-certificates, libiconv — system deps)
 
 ## Decisions
@@ -45,7 +45,9 @@ Atuin reads `~/.config/atuin/config.toml`. Currently not managed by chezmoi (atu
 
 **Decision**: Create a minimal config that only sets non-default values: `daemon.enabled = true` for fast in-memory search, and the AI feature flag. Don't replicate atuin defaults — only configure what we're changing.
 
-**Alternative considered**: Modify `.zshrc` init to pass `--daemon` flag. Rejected because atuin's config file is the canonical way to configure features, and AI configuration isn't available via init flags.
+The AI feature also requires a shell integration line: `eval "$(atuin ai init zsh)"` added to `dot_zshrc.tmpl` after the existing `atuin init` line. This registers the `?` prefix handler that activates natural language command generation. Unlike daemon mode (config-only), AI mode needs both the config flag and the shell hook.
+
+**Alternative considered**: Modify `.zshrc` init to pass `--daemon` flag. Rejected because atuin's config file is the canonical way to configure features. However, `atuin ai init zsh` is required as a separate shell integration — the AI hook cannot be enabled via config alone.
 
 ### D4: Manual updates are additive only
 
@@ -71,7 +73,8 @@ Three main specs reference `post-create`: `worktrunk-config`, `worktree-file-syn
 
 1. Update config templates (`dot_config/worktrunk/config.toml`, `.config/wt.toml`)
 2. Create `dot_config/atuin/config.toml`
-3. Update `docs/manual.html`
-4. Run `chezmoi apply` to deploy configs
-5. Run `brew upgrade` for all outdated packages
-6. Verify: `wt list` works, `atuin` daemon starts, manual renders correctly
+3. Add `eval "$(atuin ai init zsh)"` to `dot_zshrc.tmpl` (shell hook for AI mode)
+4. Update `docs/manual.html`
+5. Run `chezmoi apply` to deploy configs and shell template
+6. Run `brew upgrade` for all outdated packages
+7. Verify: `wt list` works, `atuin` daemon starts, `?` prefix works, manual renders correctly
