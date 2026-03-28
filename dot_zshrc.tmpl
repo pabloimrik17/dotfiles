@@ -135,6 +135,7 @@ export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
 
 # atuin - Modern shell history (replaces fzf's Ctrl+R)
 eval "$(atuin init zsh --disable-up-arrow)"
+eval "$(atuin ai init zsh)"
 
 # Worktrunk - Git worktree management (cd integration + completions)
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi

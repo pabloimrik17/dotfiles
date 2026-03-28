@@ -41,3 +41,12 @@ The config SHALL enable AI features via `ai.enabled = true` under the `[ai]` sec
 
 - **WHEN** the user invokes atuin AI
 - **THEN** the current working directory SHALL NOT be included in the data sent to the AI endpoint
+
+### Requirement: AI shell integration in .zshrc
+
+The `.zshrc` SHALL include `eval "$(atuin ai init zsh)"` to enable the `?` prefix for natural language command generation in the shell.
+
+#### Scenario: Natural language command generation
+
+- **WHEN** the user types `?` at the start of a shell line
+- **THEN** atuin AI inline mode SHALL activate, allowing natural language input to generate shell commands

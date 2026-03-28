@@ -20,8 +20,8 @@
 
 ## 4. Brew upgrade
 
-- [ ] 4.1 Run `brew upgrade` for all outdated packages
-- [ ] 4.2 Verify `wt list` works correctly on worktrunk 0.32
-- [ ] 4.3 Verify `atuin` daemon is running and AI responds (`atuin ai "list files"`)
-- [ ] 4.4 Verify `lazygit` opens without errors
-- [ ] 4.5 Verify `delta` renders diffs correctly (open a git diff)
+- [x] 4.1 Run `brew upgrade` for all outdated packages
+- [x] 4.2 Verify `wt list` works correctly on worktrunk 0.33
+- [x] 4.3 Verify `atuin` daemon is running and AI responds (`?` prefix)
+- [x] 4.4 Verify `lazygit` opens without errors
+- [x] 4.5 Verify `delta` renders diffs correctly (open a git diff)
