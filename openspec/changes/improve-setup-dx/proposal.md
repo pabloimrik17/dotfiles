@@ -26,5 +26,5 @@ The setup scripts (`run_onchange_install-packages.sh.tmpl` and `run_once_configu
 - **Files modified**: `run_once_configure-macos-defaults.sh.tmpl` (add grouped confirm with previews), `run_onchange_install-packages.sh.tmpl` (fzf picker for casks, idempotency checks for MAS/CC marketplaces/CC plugins, adaptive prompt logic)
 - **Dependencies**: `fzf` (already installed in Group 1 brew formulae, available by Group 4 casks)
 - **Ordering**: fzf must be installed before Group 4 runs. Current group ordering already satisfies this (Group 1 installs fzf, Group 4 uses it)
-- **Backward compatibility**: If fzf is unavailable (e.g., Group 1 was skipped), cask installation falls back to current confirm-per-app behavior
+- **Backward compatibility**: If fzf is unavailable (e.g., Group 1 was skipped), cask installation falls back to listing all pending casks (with descriptions) and a single confirm prompt for all
 - **Cross-references**: The `mac-dev-setup` change introduced the current cask/defaults/MAS structure. This change refines its UX without changing what gets installed.
