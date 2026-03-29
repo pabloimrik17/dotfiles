@@ -32,6 +32,7 @@ Several CLI tools in active use (`fd`, `gh`, `git-delta`, etc.) are missing from
 **Decision**: Create a new `run_once_configure-macos-defaults.sh.tmpl` as a separate file.
 
 **Rationale**: macOS system settings are conceptually different from package installation. They configure the OS, not install tools. Separating them means:
+
 - The defaults script can run independently and be re-triggered separately (chezmoi `run_once_` keyed by content hash)
 - Failure in defaults doesn't affect package installation
 - Easier to review and modify the settings list
@@ -45,6 +46,7 @@ Several CLI tools in active use (`fd`, `gh`, `git-delta`, etc.) are missing from
 **Rationale**: Brew casks error out if an app already exists in `/Applications/`. The user has 27+ apps installed manually (none via brew currently). A cask-to-app-name mapping function (`cask_to_app()`) handles cases where the cask name doesn't match the `.app` name (e.g., `visual-studio-code` -> `Visual Studio Code`, `zoom` -> `zoom.us`, `1password` -> `1Password`).
 
 **Alternatives considered**:
+
 - `brew list --cask` check: Only detects brew-managed installs, would miss manual ones
 - `brew install --cask --force`: Overwrites existing installs, risky
 - Skip cask group entirely on non-fresh machines: Loses the value of automating new installs
@@ -52,6 +54,7 @@ Several CLI tools in active use (`fd`, `gh`, `git-delta`, etc.) are missing from
 ### D3: Core casks (single confirm) + optional casks (individual confirm)
 
 **Decision**: Split casks into two tiers:
+
 - **Core** (19 apps): Single `confirm()` prompt installs all. These are apps the user always wants.
 - **Optional** (11 apps): Each gets its own `confirm()` prompt. These vary by machine or use case.
 
@@ -92,6 +95,7 @@ Several CLI tools in active use (`fd`, `gh`, `git-delta`, etc.) are missing from
 ### D9: Group ordering within install script
 
 **Decision**: New groups are inserted in this order:
+
 1. Brew formulae (expanded) -- installs `mas` needed by group 5
 2. Fonts
 3. Oh-my-zsh + plugins
@@ -100,9 +104,10 @@ Several CLI tools in active use (`fd`, `gh`, `git-delta`, etc.) are missing from
 6. NVM + Node LTS + corepack -- new
 7. OpenCode plugins (existing, renumbered)
 8. Claude Code plugins (existing, renumbered)
-9. Manual install instructions -- new, printed last
+9. Agent skills (existing, renumbered)
+10. Manual install instructions -- new, always printed last (unnumbered, no confirm)
 
-**Rationale**: Dependencies flow downward. `mas` must be installed (group 1) before App Store apps (group 5). NVM/Node (group 6) is independent but placed after GUI apps because it takes longer (downloads + compiles). Plugin groups (7-8) remain last because they depend on their parent tools being available.
+**Rationale**: Dependencies flow downward. `mas` must be installed (group 1) before App Store apps (group 5). NVM/Node (group 6) is independent but placed after GUI apps because it takes longer (downloads + compiles). Plugin and skills groups (7-9) remain last because they depend on their parent tools being available.
 
 ## Risks / Trade-offs
 
@@ -110,7 +115,7 @@ Several CLI tools in active use (`fd`, `gh`, `git-delta`, etc.) are missing from
 -> Mitigation: The mapping covers only known exceptions. The default case derives the name from the cask. Worst case: brew errors out on duplicate, user skips manually. Not destructive.
 
 **[MAS requires App Store login]** `mas install` fails if the user isn't signed into the App Store. On a fresh Mac, this is done during initial setup but could be skipped.
--> Mitigation: The MAS group has its own `confirm()` prompt and checks `mas account` status before attempting installs. If not signed in, prints instructions.
+-> Mitigation: The MAS group has its own `confirm()` prompt. If `mas install` fails, the error message hints at sign-in. Note: `mas account` is broken on macOS 12+ and is not used.
 
 **[NVM curl script version pinning]** The NVM install URL includes a version (`v0.40.4`). This will go stale over time.
 -> Mitigation: Pin to current latest and update periodically. The NVM install script is backwards-compatible and auto-updates on re-run. Could add a renovate custom manager for this URL in the future.

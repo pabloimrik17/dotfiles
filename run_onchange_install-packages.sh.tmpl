@@ -52,7 +52,7 @@ fi
 # ------------------------------------------------------------------
 # Group 1: Brew packages
 # ------------------------------------------------------------------
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads)
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget opencode)
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -68,13 +68,25 @@ pkg_bin() {
 if confirm "Install brew packages (${BREW_PACKAGES[*]})?"; then
     info "Installing brew packages..."
     for pkg in "${BREW_PACKAGES[@]}"; do
-        bin="$(pkg_bin "$pkg")"
-        if command -v "$bin" &>/dev/null; then
-            info "  $pkg — already installed, skipping"
+        if [ "$pkg" = "git" ]; then
+            # Always install brew git — system git at /usr/bin/git is outdated
+            if brew list git &>/dev/null; then
+                info "  git — already installed (brew), skipping"
+            else
+                info "  Installing git (brew version)..."
+                if ! brew install git; then
+                    error "Failed to install git"
+                fi
+            fi
         else
-            info "  Installing $pkg..."
-            if ! brew install "$pkg"; then
-                error "Failed to install $pkg"
+            bin="$(pkg_bin "$pkg")"
+            if command -v "$bin" &>/dev/null; then
+                info "  $pkg — already installed, skipping"
+            else
+                info "  Installing $pkg..."
+                if ! brew install "$pkg"; then
+                    error "Failed to install $pkg"
+                fi
             fi
         fi
     done
@@ -170,7 +182,166 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Group 4: OpenCode plugins
+# Group 4: Brew casks (GUI apps)
+# ------------------------------------------------------------------
+CASK_PACKAGES=(
+    visual-studio-code docker ghostty jetbrains-toolbox dbeaver-community
+    google-chrome firefox
+    raycast rectangle ticktick numi the-unarchiver
+    claude chatgpt ollama
+    1password
+    iina superwhisper
+    adobe-acrobat-reader
+)
+
+OPTIONAL_CASK_PACKAGES=(
+    telegram whatsapp microsoft-teams
+    stremio
+    appcleaner
+    spark vnc-viewer raspberry-pi-imager transmission-remote-gui folx philips-hue-sync
+)
+
+# Map cask names to their /Applications/*.app names
+cask_to_app() {
+    case "$1" in
+        visual-studio-code)       echo "Visual Studio Code" ;;
+        dbeaver-community)        echo "DBeaver" ;;
+        jetbrains-toolbox)        echo "JetBrains Toolbox" ;;
+        microsoft-teams)          echo "Microsoft Teams" ;;
+        adobe-acrobat-reader)     echo "Adobe Acrobat Reader" ;;
+        the-unarchiver)           echo "The Unarchiver" ;;
+        1password)                echo "1Password" ;;
+        philips-hue-sync)         echo "Hue Sync" ;;
+        transmission-remote-gui)  echo "Transmission Remote GUI" ;;
+        chatgpt)                  echo "ChatGPT" ;;
+        ticktick)                 echo "TickTick" ;;
+        superwhisper)             echo "superwhisper" ;;
+        iina)                     echo "IINA" ;;
+        vnc-viewer)               echo "VNC Viewer" ;;
+        appcleaner)               echo "AppCleaner" ;;
+        whatsapp)                 echo "WhatsApp" ;;
+        *)
+            # Default: capitalize each word (replace hyphens with spaces)
+            echo "$1" | tr '-' ' ' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1'
+            ;;
+    esac
+}
+
+install_cask() {
+    local cask="$1"
+    local app_name
+    app_name="$(cask_to_app "$cask")"
+    if [ -d "/Applications/$app_name.app" ]; then
+        info "  $cask — already installed, skipping"
+    else
+        info "  Installing $cask..."
+        if ! brew install --cask "$cask"; then
+            error "Failed to install cask $cask"
+        fi
+    fi
+}
+
+if confirm "Install core GUI apps via brew cask (${#CASK_PACKAGES[@]} apps)?"; then
+    info "Installing core cask apps..."
+    for cask in "${CASK_PACKAGES[@]}"; do
+        install_cask "$cask"
+    done
+else
+    info "Skipping core cask apps."
+fi
+
+info ""
+info "Optional cask apps (confirm individually):"
+for cask in "${OPTIONAL_CASK_PACKAGES[@]}"; do
+    if confirm "  Install $cask?"; then
+        install_cask "$cask"
+    else
+        info "  Skipping $cask."
+    fi
+done
+
+# ------------------------------------------------------------------
+# Group 5: Mac App Store apps (via mas)
+# ------------------------------------------------------------------
+MAS_APPS=(
+    "6714467650 Perplexity"
+    "1568924476 Mela"
+)
+
+if confirm "Install Mac App Store apps (Perplexity, Mela)?"; then
+    if ! command -v mas &>/dev/null; then
+        warn "mas is not installed — skipping App Store apps"
+    else
+        for entry in "${MAS_APPS[@]}"; do
+            app_id="${entry%% *}"
+            app_name="${entry#* }"
+            info "  Installing $app_name ($app_id)..."
+            if ! mas install "$app_id"; then
+                error "Failed to install $app_name from App Store (are you signed in?)"
+            fi
+        done
+    fi
+else
+    info "Skipping Mac App Store apps."
+fi
+
+# ------------------------------------------------------------------
+# Group 6: NVM + Node LTS + Corepack
+# ------------------------------------------------------------------
+if confirm "Install NVM, Node LTS, and enable corepack?"; then
+    NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+    NVM_OK=false
+
+    if [ -d "$NVM_DIR" ]; then
+        info "  NVM — already installed ($NVM_DIR), skipping install"
+        NVM_OK=true
+    else
+        info "  Installing NVM via official curl script..."
+        # Pinned to known-good version for stability. Update periodically.
+        if PROFILE=/dev/null bash -c 'curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash'; then
+            NVM_OK=true
+        else
+            error "Failed to install NVM — skipping Node and corepack"
+        fi
+    fi
+
+    if $NVM_OK; then
+        # Source nvm so it's available in this session
+        export NVM_DIR
+        # shellcheck disable=SC1091
+        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+        if command -v node &>/dev/null; then
+            info "  Node — already installed ($(node --version)), skipping"
+        else
+            info "  Installing Node LTS..."
+            if nvm install --lts; then
+                nvm alias default 'lts/*'
+            else
+                error "Failed to install Node LTS"
+            fi
+        fi
+
+        # Ensure default alias is set even if Node was already present
+        if type nvm &>/dev/null; then
+            nvm alias default 'lts/*' 2>/dev/null || true
+        fi
+
+        if command -v node &>/dev/null; then
+            info "  Enabling corepack..."
+            if ! corepack enable; then
+                error "Failed to enable corepack"
+            fi
+        else
+            warn "Node is not available — skipping corepack"
+        fi
+    fi
+else
+    info "Skipping NVM/Node/corepack."
+fi
+
+# ------------------------------------------------------------------
+# Group 7: OpenCode plugins
 # ------------------------------------------------------------------
 if confirm "Install OpenCode plugin dependencies (plannotator, superpowers)?"; then
     if command -v opencode &>/dev/null; then
@@ -208,7 +379,7 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Group 5: Claude Code plugin dependencies
+# Group 8: Claude Code plugin dependencies
 # ------------------------------------------------------------------
 if confirm "Install Claude Code plugin dependencies (plannotator, worktrunk plugin)?"; then
     if command -v claude &>/dev/null; then
@@ -270,7 +441,7 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Group 6: Agent skills (skills.sh)
+# Group 9: Agent skills (skills.sh)
 # ------------------------------------------------------------------
 if confirm "Install global agent skills via skills.sh?"; then
     if command -v npx &>/dev/null; then
@@ -317,6 +488,19 @@ if confirm "Install global agent skills via skills.sh?"; then
 else
     info "Skipping agent skills."
 fi
+# ------------------------------------------------------------------
+# Manual install instructions (always printed)
+# ------------------------------------------------------------------
+info ""
+info "=== Manual Installation Required ==="
+info ""
+info "The following apps require manual installation:"
+info "  - Last.fm Scrobbler: https://last.fm/about/trackmymusic"
+info "  - CleanMyMac: requires license — install from https://cleanmymac.com"
+info "  - Adobe Creative Cloud: requires Adobe login — install from https://creativecloud.adobe.com"
+info "  - 1Password for Safari: install from the Mac App Store (Safari extension)"
+info ""
+
 {{ else -}}
 # ====================================================================
 # Non-macOS — print manual instructions
@@ -326,7 +510,7 @@ info "This system is not macOS. Automatic installation is not supported."
 info ""
 info "Please install the following packages manually:"
 info ""
-info "  CLI tools: git, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"

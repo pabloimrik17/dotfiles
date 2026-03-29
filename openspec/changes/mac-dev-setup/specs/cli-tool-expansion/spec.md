@@ -9,6 +9,7 @@ Existing: `starship`, `eza`, `bat`, `zoxide`, `atuin`, `fzf`, `ripgrep`, `lazygi
 New additions: `fd`, `gh`, `git-delta`, `git`, `tmux`, `uv`, `mas`, `wget`, `opencode`
 
 #### Scenario: All packages listed in array
+
 - **WHEN** the install script is loaded
 - **THEN** the `BREW_PACKAGES` array contains exactly 17 entries
 
@@ -16,18 +17,20 @@ New additions: `fd`, `gh`, `git-delta`, `git`, `tmux`, `uv`, `mas`, `wget`, `ope
 
 The `pkg_bin()` function SHALL map package names to their command-line binary names for idempotency checks. The following mappings SHALL exist:
 
-| Package | Binary |
-|---------|--------|
-| `ripgrep` | `rg` |
+| Package     | Binary  |
+| ----------- | ------- |
+| `ripgrep`   | `rg`    |
 | `git-delta` | `delta` |
 
 All other packages SHALL map to their own name (identity mapping via the default `*` case).
 
 #### Scenario: git-delta maps to delta
+
 - **WHEN** `pkg_bin "git-delta"` is called
 - **THEN** the function returns `delta`
 
 #### Scenario: Standard package maps to itself
+
 - **WHEN** `pkg_bin "fd"` is called
 - **THEN** the function returns `fd`
 
@@ -36,10 +39,12 @@ All other packages SHALL map to their own name (identity mapping via the default
 For the `git` package specifically, the script SHALL NOT use `command -v git` for the skip check (because system git at `/usr/bin/git` would always match). Instead, it SHALL check whether brew's git is installed via `brew list git`.
 
 #### Scenario: Only system git present
+
 - **WHEN** `/usr/bin/git` exists but `brew list git` fails
 - **THEN** `brew install git` is executed
 
 #### Scenario: Brew git already installed
+
 - **WHEN** `brew list git` succeeds
 - **THEN** git installation is skipped with informational message
 
@@ -48,5 +53,6 @@ For the `git` package specifically, the script SHALL NOT use `command -v git` fo
 The non-macOS branch of the install script SHALL list all 17 brew packages in its manual installation instructions, including the 9 newly added ones.
 
 #### Scenario: Non-macOS instructions are complete
+
 - **WHEN** the script runs on a non-macOS system
-- **THEN** the printed instructions include `fd`, `gh`, `git-delta`, `git`, `tmux`, `uv`, `mas`, `wget`, and `opencode` alongside the original 8 packages
+- **THEN** the printed instructions include `fd`, `gh`, `git-delta`, `git`, `tmux`, `uv`, `wget`, and `opencode` alongside the original 8 packages (excluding `mas`, which is macOS-only)
