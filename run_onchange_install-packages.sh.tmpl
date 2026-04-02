@@ -388,22 +388,23 @@ if command -v mas &>/dev/null; then
             FZF_MAS_INPUT=""
             for entry in "${PENDING_MAS[@]}"; do
                 IFS='|' read -r app_id app_name description <<< "$entry"
-                FZF_MAS_INPUT+="$(printf "%-20s %s" "$app_name" "$description")"$'\n'
+                FZF_MAS_INPUT+="$(printf "%s|%-20s %s" "$app_id" "$app_name" "$description")"$'\n'
             done
 
             SELECTED_MAS="$(echo "$FZF_MAS_INPUT" | fzf --multi --no-sort \
                 --header "TAB = toggle, Ctrl-A = select all, ENTER = confirm" \
                 --bind "ctrl-a:toggle-all" \
+                --with-nth=2.. --delimiter='|' \
                 --prompt "Select App Store apps to install> " || true)"
 
             if [ -z "$SELECTED_MAS" ]; then
                 info "  No apps selected, skipping."
             else
                 while IFS= read -r line; do
-                    selected_name="$(echo "$line" | awk '{print $1}')"
+                    selected_id="${line%%|*}"
                     for entry in "${PENDING_MAS[@]}"; do
                         IFS='|' read -r app_id app_name description <<< "$entry"
-                        if [ "$app_name" = "$selected_name" ]; then
+                        if [ "$app_id" = "$selected_id" ]; then
                             info "  Installing $app_name ($app_id)..."
                             if ! mas install "$app_id"; then
                                 error "Failed to install $app_name from App Store (are you signed in?)"
