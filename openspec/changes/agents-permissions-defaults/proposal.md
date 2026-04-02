@@ -25,4 +25,4 @@ _(none)_
 
 - **Files modified**: `dot_claude/settings.json.tmpl`, `dot_config/opencode/opencode.jsonc`
 - **User experience**: Fewer permission prompts for safe operations, hard blocks on dangerous commands, consistent behavior across both AI coding tools
-- **No breaking changes**: Existing project-level overrides (`.claude/settings.local.json`, per-project `opencode.json`) continue to work — user-level is the lowest precedence layer
+- **No breaking changes**: Existing project-level overrides (`.claude/settings.local.json`, per-project `opencode.json`) continue to work for allow/ask rules — user-level is the lowest precedence layer. Note: deny rules are absolute and cannot be overridden at any level; this is intentional for safety
