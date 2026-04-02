@@ -10,7 +10,7 @@ The dotfiles setup includes `gh` CLI but lacks a visual dashboard for managing P
 - Add custom keybindings integrating with existing tools: `g` for lazygit, `C` for Claude Code PR review via tmux
 - Use `delta` as the diff pager (already configured globally)
 - Map repo paths to `~/WebstormProjects/` for checkout operations
-- Add `gd` shell alias for `gh dash`
+- Add `ghd` shell alias for `gh dash`
 
 ## Capabilities
 

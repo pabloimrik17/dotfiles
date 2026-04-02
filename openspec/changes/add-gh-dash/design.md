@@ -81,7 +81,7 @@ This maps any `owner/repo` to `~/WebstormProjects/repo` for checkout operations.
 
 ### 7. Shell alias placement
 
-Add `alias gd="gh dash"` in the GitHub section of `dot_zshrc.tmpl`, alongside existing `ghpr`, `ghpv`, `ghpl` aliases.
+Add `alias ghd="gh dash"` in the GitHub section of `dot_zshrc.tmpl`, alongside existing `ghpr`, `ghpv`, `ghpl` aliases.
 
 ## Risks / Trade-offs
 

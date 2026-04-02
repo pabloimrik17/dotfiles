@@ -12,7 +12,7 @@
 ## 2. Installation
 
 - [ ] 2.1 Add gh extensions group to `run_onchange_install-packages.sh.tmpl` after brew packages, with `gh extension install dlvhdr/gh-dash` and idempotency check via `gh extension list`
-- [ ] 2.2 Add `alias gd="gh dash"` to `dot_zshrc.tmpl` in the GitHub aliases section
+- [ ] 2.2 Add `alias ghd="gh dash"` to `dot_zshrc.tmpl` in the GitHub aliases section
 
 ## 3. Verification
 

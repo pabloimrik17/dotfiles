@@ -21,9 +21,9 @@ The chezmoi install script SHALL include a new confirmable group for gh CLI exte
 
 ### Requirement: Shell alias
 
-The zshrc SHALL define alias `gd="gh dash"` in the GitHub aliases section alongside `ghpr`, `ghpv`, and `ghpl`.
+The zshrc SHALL define alias `ghd="gh dash"` in the GitHub aliases section alongside `ghpr`, `ghpv`, and `ghpl`.
 
 #### Scenario: User launches gh-dash via alias
 
-- **WHEN** the user types `gd` in the terminal
+- **WHEN** the user types `ghd` in the terminal
 - **THEN** `gh dash` is executed, opening the gh-dash TUI
