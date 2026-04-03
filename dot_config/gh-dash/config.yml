@@ -1,0 +1,78 @@
+# gh-dash configuration — Catppuccin Mocha themed
+# https://github.com/dlvhdr/gh-dash
+
+prSections:
+    - title: My Pull Requests
+      filters: is:open author:@me
+    - title: Needs My Review
+      filters: is:open review-requested:@me
+    - title: Involved
+      filters: is:open involves:@me -author:@me
+
+issueSections:
+    - title: My Issues
+      filters: is:open author:@me
+    - title: Assigned
+      filters: is:open assignee:@me
+    - title: Involved
+      filters: is:open involves:@me -author:@me
+
+notificationSections:
+    - title: All
+      filters: ""
+    - title: Review Requested
+      filters: reason:review-requested
+    - title: Participating
+      filters: reason:participating
+    - title: Mentions
+      filters: reason:mention
+
+theme:
+    ui:
+        sectionsShowCount: true
+        table:
+            showSeparator: true
+    colors:
+        text:
+            primary: "#cdd6f4"
+            secondary: "#94e2d5"
+            inverted: "#1e1e2e"
+            faint: "#6c7086"
+            warning: "#f38ba8"
+            success: "#a6e3a1"
+        background:
+            selected: "#313244"
+        border:
+            primary: "#89b4fa"
+            secondary: "#a6e3a1"
+            faint: "#45475a"
+
+defaults:
+    view: prs
+    prsLimit: 20
+    issuesLimit: 20
+    notificationsLimit: 20
+    preview:
+        open: true
+        width: 0.45
+    refetchIntervalMinutes: 30
+
+confirmQuit: false
+showAuthorIcons: true
+smartFilteringAtLaunch: true
+
+keybindings:
+    universal:
+        - key: g
+          command: cd {{.RepoPath}} && lazygit
+    prs:
+        - key: C
+          command: >
+              tmux new-window -n "PR-{{.PrNumber}}" -c {{.RepoPath}}
+              'claude "/code-review:code-review {{.RepoName}}#{{.PrNumber}}"'
+
+pager:
+    diff: delta
+
+repoPaths:
+    "*/*": ~/WebstormProjects/*

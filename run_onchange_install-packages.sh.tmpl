@@ -115,6 +115,26 @@ if command -v bat &>/dev/null; then
 fi
 
 # ------------------------------------------------------------------
+# Group: gh CLI extensions
+# ------------------------------------------------------------------
+if command -v gh &>/dev/null; then
+    if confirm "Install gh CLI extensions (gh-dash)?"; then
+        if gh extension list 2>/dev/null | grep -q "dlvhdr/gh-dash"; then
+            info "  gh-dash — already installed, skipping"
+        else
+            info "  Installing gh-dash..."
+            if ! gh extension install dlvhdr/gh-dash; then
+                error "Failed to install gh-dash"
+            fi
+        fi
+    else
+        info "Skipping gh CLI extensions."
+    fi
+else
+    warn "gh CLI is not installed — skipping gh extensions"
+fi
+
+# ------------------------------------------------------------------
 # Group 2: Fonts
 # ------------------------------------------------------------------
 if confirm "Install terminal fonts (Hack + JetBrainsMono Nerd Font)?"; then
