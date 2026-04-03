@@ -5,6 +5,10 @@
 # Note: set -e intentionally omitted — script continues on individual package failures
 set -o pipefail
 
+# Redirect all output to the terminal so the user sees prompts and progress.
+# chezmoi captures stdout/stderr of scripts by default, hiding interactive output.
+exec > /dev/tty 2>&1
+
 ERRORS=0
 
 info() {
@@ -23,7 +27,7 @@ error() {
 run_claude_step() {
     local label="$1"
     shift
-    if ! "$@" 2>&1; then
+    if ! "$@"; then
         error "Claude step failed: $label ($*)"
         return 0  # continue script
     fi
@@ -32,7 +36,8 @@ run_claude_step() {
 confirm() {
     local prompt="$1"
     local reply
-    if ! read -r -p "[dotfiles] $prompt [Y/n] " reply </dev/tty 2>/dev/null; then
+    printf "[dotfiles] %s [Y/n] " "$prompt"
+    if ! read -r reply </dev/tty 2>/dev/null; then
         warn "No TTY available for '$prompt' — defaulting to no"
         return 1
     fi
