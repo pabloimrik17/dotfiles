@@ -32,7 +32,10 @@ run_claude_step() {
 confirm() {
     local prompt="$1"
     local reply
-    read -r -p "[dotfiles] $prompt [Y/n] " reply </dev/tty
+    if ! read -r -p "[dotfiles] $prompt [Y/n] " reply </dev/tty 2>/dev/null; then
+        warn "No TTY available for '$prompt' — defaulting to no"
+        return 1
+    fi
     case "$reply" in
         [nN]*) return 1 ;;
         *) return 0 ;;
@@ -65,7 +68,20 @@ pkg_bin() {
     esac
 }
 
-if confirm "Install brew packages (${BREW_PACKAGES[*]})?"; then
+# Pre-scan: check which brew packages are already installed
+BREW_PENDING=0
+for pkg in "${BREW_PACKAGES[@]}"; do
+    if [ "$pkg" = "git" ]; then
+        brew list git &>/dev/null || BREW_PENDING=$((BREW_PENDING + 1))
+    else
+        bin="$(pkg_bin "$pkg")"
+        command -v "$bin" &>/dev/null || BREW_PENDING=$((BREW_PENDING + 1))
+    fi
+done
+
+if [ "$BREW_PENDING" -eq 0 ]; then
+    info "Brew packages: ${#BREW_PACKAGES[@]}/${#BREW_PACKAGES[@]} installed"
+elif confirm "Install brew packages ($BREW_PENDING/${#BREW_PACKAGES[@]} pending)?"; then
     info "Installing brew packages..."
     for pkg in "${BREW_PACKAGES[@]}"; do
         if [ "$pkg" = "git" ]; then
@@ -117,7 +133,18 @@ fi
 # ------------------------------------------------------------------
 # Group 2: Fonts
 # ------------------------------------------------------------------
-if confirm "Install terminal fonts (Hack + JetBrainsMono Nerd Font)?"; then
+# Pre-scan: check if fonts are already installed
+FONTS_PENDING=0
+if ! brew list --cask font-hack-nerd-font &>/dev/null && ! ls ~/Library/Fonts/HackNerdFont*.ttf &>/dev/null 2>&1; then
+    FONTS_PENDING=$((FONTS_PENDING + 1))
+fi
+if ! brew list --cask font-jetbrains-mono-nerd-font &>/dev/null && ! ls ~/Library/Fonts/JetBrainsMonoNerdFont*.ttf &>/dev/null 2>&1; then
+    FONTS_PENDING=$((FONTS_PENDING + 1))
+fi
+
+if [ "$FONTS_PENDING" -eq 0 ]; then
+    info "Fonts: 2/2 installed"
+elif confirm "Install terminal fonts ($FONTS_PENDING/2 pending)?"; then
     info "Installing terminal fonts..."
     if brew list --cask font-hack-nerd-font &>/dev/null; then
         info "  font-hack-nerd-font — already installed (via brew), skipping"
@@ -144,7 +171,18 @@ fi
 # ------------------------------------------------------------------
 # Group 3: Oh-my-zsh + plugins
 # ------------------------------------------------------------------
-if confirm "Install oh-my-zsh and zsh plugins?"; then
+# Pre-scan: check if oh-my-zsh and plugins are already installed
+OMZ_PENDING=0
+[ -d "$HOME/.oh-my-zsh" ] || OMZ_PENDING=$((OMZ_PENDING + 1))
+YSU_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/you-should-use"
+[ -d "$YSU_DIR" ] || OMZ_PENDING=$((OMZ_PENDING + 1))
+for pkg in zsh-autosuggestions zsh-syntax-highlighting zsh-completions; do
+    brew list "$pkg" &>/dev/null || OMZ_PENDING=$((OMZ_PENDING + 1))
+done
+
+if [ "$OMZ_PENDING" -eq 0 ]; then
+    info "Oh-my-zsh + plugins: 5/5 installed"
+elif confirm "Install oh-my-zsh and zsh plugins ($OMZ_PENDING/5 pending)?"; then
     # oh-my-zsh
     if [ -d "$HOME/.oh-my-zsh" ]; then
         info "  oh-my-zsh — already installed, skipping"
@@ -156,7 +194,6 @@ if confirm "Install oh-my-zsh and zsh plugins?"; then
     fi
 
     # you-should-use plugin (git clone)
-    YSU_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/you-should-use"
     if [ -d "$YSU_DIR" ]; then
         info "  you-should-use plugin — already installed, skipping"
     else
@@ -182,55 +219,45 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Group 4: Brew casks (GUI apps)
+# Group 4: Brew casks (GUI apps) — unified structured list
+# Format: "cask-name|AppName|Category|Description"
 # ------------------------------------------------------------------
-CASK_PACKAGES=(
-    visual-studio-code docker ghostty jetbrains-toolbox dbeaver-community
-    google-chrome firefox
-    raycast rectangle ticktick numi the-unarchiver
-    claude chatgpt ollama
-    1password
-    iina superwhisper
-    adobe-acrobat-reader
+ALL_CASKS=(
+    "visual-studio-code|Visual Studio Code|Dev|IDE"
+    "docker|Docker|Dev|Container runtime"
+    "ghostty|Ghostty|Dev|GPU-accelerated terminal"
+    "jetbrains-toolbox|JetBrains Toolbox|Dev|JetBrains IDE manager"
+    "dbeaver-community|DBeaver|Dev|Database GUI client"
+    "google-chrome|Google Chrome|Browser|Browser"
+    "firefox|Firefox|Browser|Browser"
+    "raycast|Raycast|Productivity|App launcher (Spotlight alt)"
+    "rectangle|Rectangle|Productivity|Window manager"
+    "ticktick|TickTick|Productivity|Task manager"
+    "numi|Numi|Productivity|Natural language calculator"
+    "the-unarchiver|The Unarchiver|Productivity|Archive extraction utility"
+    "claude|Claude|AI|Claude desktop app"
+    "chatgpt|ChatGPT|AI|ChatGPT desktop app"
+    "ollama|Ollama|AI|Local LLM runner"
+    "1password|1Password|Security|Password manager"
+    "iina|IINA|Media|Modern media player"
+    "superwhisper|superwhisper|AI|Voice-to-text via Whisper"
+    "adobe-acrobat-reader|Adobe Acrobat Reader|Productivity|PDF reader"
+    "telegram|Telegram|Optional|Messaging"
+    "whatsapp|WhatsApp|Optional|Messaging"
+    "microsoft-teams|Microsoft Teams|Optional|Video conferencing"
+    "stremio|Stremio|Optional|Streaming aggregator"
+    "appcleaner|AppCleaner|Optional|App uninstaller"
+    "spark|Spark|Optional|Email client"
+    "vnc-viewer|VNC Viewer|Optional|Remote desktop"
+    "raspberry-pi-imager|Raspberry Pi Imager|Optional|SD card flasher"
+    "transmission-remote-gui|Transmission Remote GUI|Optional|Torrent remote UI"
+    "folx|Folx|Optional|Download manager"
+    "philips-hue-sync|Hue Sync|Optional|Philips Hue screen sync"
 )
-
-OPTIONAL_CASK_PACKAGES=(
-    telegram whatsapp microsoft-teams
-    stremio
-    appcleaner
-    spark vnc-viewer raspberry-pi-imager transmission-remote-gui folx philips-hue-sync
-)
-
-# Map cask names to their /Applications/*.app names
-cask_to_app() {
-    case "$1" in
-        visual-studio-code)       echo "Visual Studio Code" ;;
-        dbeaver-community)        echo "DBeaver" ;;
-        jetbrains-toolbox)        echo "JetBrains Toolbox" ;;
-        microsoft-teams)          echo "Microsoft Teams" ;;
-        adobe-acrobat-reader)     echo "Adobe Acrobat Reader" ;;
-        the-unarchiver)           echo "The Unarchiver" ;;
-        1password)                echo "1Password" ;;
-        philips-hue-sync)         echo "Hue Sync" ;;
-        transmission-remote-gui)  echo "Transmission Remote GUI" ;;
-        chatgpt)                  echo "ChatGPT" ;;
-        ticktick)                 echo "TickTick" ;;
-        superwhisper)             echo "superwhisper" ;;
-        iina)                     echo "IINA" ;;
-        vnc-viewer)               echo "VNC Viewer" ;;
-        appcleaner)               echo "AppCleaner" ;;
-        whatsapp)                 echo "WhatsApp" ;;
-        *)
-            # Default: capitalize each word (replace hyphens with spaces)
-            echo "$1" | tr '-' ' ' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1'
-            ;;
-    esac
-}
 
 install_cask() {
     local cask="$1"
-    local app_name
-    app_name="$(cask_to_app "$cask")"
+    local app_name="$2"
     if [ -d "/Applications/$app_name.app" ]; then
         info "  $cask — already installed, skipping"
     else
@@ -241,55 +268,194 @@ install_cask() {
     fi
 }
 
-if confirm "Install core GUI apps via brew cask (${#CASK_PACKAGES[@]} apps)?"; then
-    info "Installing core cask apps..."
-    for cask in "${CASK_PACKAGES[@]}"; do
-        install_cask "$cask"
-    done
-else
-    info "Skipping core cask apps."
-fi
-
-info ""
-info "Optional cask apps (confirm individually):"
-for cask in "${OPTIONAL_CASK_PACKAGES[@]}"; do
-    if confirm "  Install $cask?"; then
-        install_cask "$cask"
-    else
-        info "  Skipping $cask."
+# Pre-scan: build list of pending (uninstalled) casks
+PENDING_CASKS=()
+for entry in "${ALL_CASKS[@]}"; do
+    IFS='|' read -r cask app_name category description <<< "$entry"
+    if [ ! -d "/Applications/$app_name.app" ]; then
+        PENDING_CASKS+=("$entry")
     fi
 done
 
+TOTAL_CASKS=${#ALL_CASKS[@]}
+PENDING_COUNT=${#PENDING_CASKS[@]}
+INSTALLED_COUNT=$((TOTAL_CASKS - PENDING_COUNT))
+
+if [ "$PENDING_COUNT" -eq 0 ]; then
+    # 0 pending: silent skip
+    info "GUI apps: $TOTAL_CASKS/$TOTAL_CASKS installed"
+elif [ "$PENDING_COUNT" -le 3 ]; then
+    # 1-3 pending: direct confirm per app
+    info "GUI apps: $INSTALLED_COUNT/$TOTAL_CASKS installed, $PENDING_COUNT pending"
+    for entry in "${PENDING_CASKS[@]}"; do
+        IFS='|' read -r cask app_name category description <<< "$entry"
+        if confirm "Install $cask ($description)?"; then
+            install_cask "$cask" "$app_name"
+        else
+            info "  Skipping $cask."
+        fi
+    done
+else
+    # 4+ pending: fzf picker or fallback
+    info "GUI apps: $INSTALLED_COUNT/$TOTAL_CASKS installed, $PENDING_COUNT pending"
+    if command -v fzf &>/dev/null; then
+        # Build fzf input lines
+        FZF_INPUT=""
+        for entry in "${PENDING_CASKS[@]}"; do
+            IFS='|' read -r cask app_name category description <<< "$entry"
+            FZF_INPUT+="$(printf "[%-12s] %-30s %s" "$category" "$cask" "$description")"$'\n'
+        done
+
+        SELECTED="$(echo "$FZF_INPUT" | fzf --multi --no-sort \
+            --header "TAB = toggle, Ctrl-A = select all, ENTER = confirm" \
+            --bind "ctrl-a:toggle-all" \
+            --bind 'enter:transform:(( FZF_SELECT_COUNT )) && echo accept || echo abort' \
+            --prompt "Select GUI apps to install> " || true)"
+
+        if [ -z "$SELECTED" ]; then
+            info "  No apps selected, skipping."
+        else
+            while IFS= read -r line; do
+                # Extract cask name from fzf line: [Category    ] cask-name ...
+                selected_cask="$(echo "$line" | sed 's/^\[.*\] *//' | awk '{print $1}')"
+                # Find the full entry to get app_name
+                for entry in "${PENDING_CASKS[@]}"; do
+                    IFS='|' read -r cask app_name category description <<< "$entry"
+                    if [ "$cask" = "$selected_cask" ]; then
+                        install_cask "$cask" "$app_name"
+                        break
+                    fi
+                done
+            done <<< "$SELECTED"
+        fi
+    else
+        # Fallback: list all pending + single confirm
+        info ""
+        info "  Pending GUI apps:"
+        for entry in "${PENDING_CASKS[@]}"; do
+            IFS='|' read -r cask app_name category description <<< "$entry"
+            info "    [$category] $cask — $description"
+        done
+        if confirm "Install all $PENDING_COUNT pending GUI apps?"; then
+            for entry in "${PENDING_CASKS[@]}"; do
+                IFS='|' read -r cask app_name category description <<< "$entry"
+                install_cask "$cask" "$app_name"
+            done
+        else
+            info "  Skipping GUI apps."
+        fi
+    fi
+fi
+
 # ------------------------------------------------------------------
 # Group 5: Mac App Store apps (via mas)
+# Format: "app_id|app_name|description"
 # ------------------------------------------------------------------
 MAS_APPS=(
-    "6714467650 Perplexity"
-    "1568924476 Mela"
+    "6714467650|Perplexity|AI search assistant"
+    "1568924476|Mela|Recipe manager"
 )
 
-if confirm "Install Mac App Store apps (Perplexity, Mela)?"; then
-    if ! command -v mas &>/dev/null; then
-        warn "mas is not installed — skipping App Store apps"
-    else
-        for entry in "${MAS_APPS[@]}"; do
-            app_id="${entry%% *}"
-            app_name="${entry#* }"
-            info "  Installing $app_name ($app_id)..."
-            if ! mas install "$app_id"; then
-                error "Failed to install $app_name from App Store (are you signed in?)"
+if command -v mas &>/dev/null; then
+    MAS_INSTALLED="$(mas list 2>/dev/null || true)"
+
+    PENDING_MAS=()
+    for entry in "${MAS_APPS[@]}"; do
+        IFS='|' read -r app_id app_name description <<< "$entry"
+        if ! echo "$MAS_INSTALLED" | grep -q "^$app_id "; then
+            PENDING_MAS+=("$entry")
+        fi
+    done
+
+    TOTAL_MAS=${#MAS_APPS[@]}
+    PENDING_MAS_COUNT=${#PENDING_MAS[@]}
+
+    if [ "$PENDING_MAS_COUNT" -eq 0 ]; then
+        info "App Store apps: $TOTAL_MAS/$TOTAL_MAS installed"
+    elif [ "$PENDING_MAS_COUNT" -le 3 ]; then
+        info "App Store apps: $((TOTAL_MAS - PENDING_MAS_COUNT))/$TOTAL_MAS installed, $PENDING_MAS_COUNT pending"
+        for entry in "${PENDING_MAS[@]}"; do
+            IFS='|' read -r app_id app_name description <<< "$entry"
+            if confirm "Install $app_name ($description)?"; then
+                info "  Installing $app_name ($app_id)..."
+                if ! mas install "$app_id"; then
+                    error "Failed to install $app_name from App Store (are you signed in?)"
+                fi
+            else
+                info "  Skipping $app_name."
             fi
         done
+    else
+        # 4+ pending: fzf picker or fallback (same pattern as casks)
+        info "App Store apps: $((TOTAL_MAS - PENDING_MAS_COUNT))/$TOTAL_MAS installed, $PENDING_MAS_COUNT pending"
+        if command -v fzf &>/dev/null; then
+            FZF_MAS_INPUT=""
+            for entry in "${PENDING_MAS[@]}"; do
+                IFS='|' read -r app_id app_name description <<< "$entry"
+                FZF_MAS_INPUT+="$(printf "%s|%-20s %s" "$app_id" "$app_name" "$description")"$'\n'
+            done
+
+            SELECTED_MAS="$(echo "$FZF_MAS_INPUT" | fzf --multi --no-sort \
+                --header "TAB = toggle, Ctrl-A = select all, ENTER = confirm" \
+                --bind "ctrl-a:toggle-all" \
+                --bind 'enter:transform:(( FZF_SELECT_COUNT )) && echo accept || echo abort' \
+                --with-nth=2.. --delimiter='|' \
+                --prompt "Select App Store apps to install> " || true)"
+
+            if [ -z "$SELECTED_MAS" ]; then
+                info "  No apps selected, skipping."
+            else
+                while IFS= read -r line; do
+                    selected_id="${line%%|*}"
+                    for entry in "${PENDING_MAS[@]}"; do
+                        IFS='|' read -r app_id app_name description <<< "$entry"
+                        if [ "$app_id" = "$selected_id" ]; then
+                            info "  Installing $app_name ($app_id)..."
+                            if ! mas install "$app_id"; then
+                                error "Failed to install $app_name from App Store (are you signed in?)"
+                            fi
+                            break
+                        fi
+                    done
+                done <<< "$SELECTED_MAS"
+            fi
+        else
+            info ""
+            info "  Pending App Store apps:"
+            for entry in "${PENDING_MAS[@]}"; do
+                IFS='|' read -r app_id app_name description <<< "$entry"
+                info "    $app_name — $description"
+            done
+            if confirm "Install all $PENDING_MAS_COUNT pending App Store apps?"; then
+                for entry in "${PENDING_MAS[@]}"; do
+                    IFS='|' read -r app_id app_name description <<< "$entry"
+                    info "  Installing $app_name ($app_id)..."
+                    if ! mas install "$app_id"; then
+                        error "Failed to install $app_name from App Store (are you signed in?)"
+                    fi
+                done
+            else
+                info "  Skipping App Store apps."
+            fi
+        fi
     fi
 else
-    info "Skipping Mac App Store apps."
+    warn "mas is not installed — skipping App Store apps"
 fi
 
 # ------------------------------------------------------------------
 # Group 6: NVM + Node LTS + Corepack
 # ------------------------------------------------------------------
-if confirm "Install NVM, Node LTS, and enable corepack?"; then
-    NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+# Pre-scan: check if NVM, Node, and corepack are all present
+NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+NVM_PENDING=0
+[ -d "$NVM_DIR" ] || NVM_PENDING=$((NVM_PENDING + 1))
+command -v node &>/dev/null || NVM_PENDING=$((NVM_PENDING + 1))
+command -v corepack &>/dev/null || NVM_PENDING=$((NVM_PENDING + 1))
+
+if [ "$NVM_PENDING" -eq 0 ]; then
+    info "NVM/Node/corepack: 3/3 installed"
+elif confirm "Install NVM, Node LTS, and enable corepack ($NVM_PENDING/3 pending)?"; then
     NVM_OK=false
 
     if [ -d "$NVM_DIR" ]; then
@@ -381,63 +547,132 @@ fi
 # ------------------------------------------------------------------
 # Group 8: Claude Code plugin dependencies
 # ------------------------------------------------------------------
-if confirm "Install Claude Code plugin dependencies (plannotator, worktrunk plugin)?"; then
-    if command -v claude &>/dev/null; then
-        if command -v plannotator &>/dev/null; then
-            info "  plannotator — already installed, skipping"
+CC_MARKETPLACES=(
+    "anthropics/claude-plugins-official"
+    "jarrodwatts/claude-hud"
+    "expo/skills"
+    "pabloimrik17/monolab"
+    "obra/superpowers-marketplace"
+    "https://github.com/wakatime/claude-code-wakatime.git"
+    "nrwl/nx-ai-agents-config"
+    "backnotprop/plannotator"
+    "max-sixty/worktrunk"
+    "steveyegge/beads"
+)
+
+CC_PLUGINS=(
+    "typescript-lsp@claude-plugins-official"
+    "frontend-design@claude-plugins-official"
+    "code-review@claude-plugins-official"
+    "commit-commands@claude-plugins-official"
+    "claude-md-management@claude-plugins-official"
+    "plugin-dev@claude-plugins-official"
+    "skill-creator@claude-plugins-official"
+    "claude-hud@claude-hud"
+    "expo-app-design@expo-plugins"
+    "upgrading-expo@expo-plugins"
+    "expo-deployment@expo-plugins"
+    "expo-developer@monolab"
+    "experiments@monolab"
+    "double-shot-latte@superpowers-marketplace"
+    "elements-of-style@superpowers-marketplace"
+    "episodic-memory@superpowers-marketplace"
+    "superpowers@superpowers-marketplace"
+    "superpowers-chrome@superpowers-marketplace"
+    "superpowers-developing-for-claude-code@superpowers-marketplace"
+    "superpowers-lab@superpowers-marketplace"
+    "claude-code-wakatime@wakatime"
+    "plannotator@plannotator"
+    "worktrunk@worktrunk"
+    "beads@beads-marketplace"
+    "code-simplifier@claude-plugins-official"
+)
+
+if command -v claude &>/dev/null; then
+    # Pre-scan marketplaces and plugins
+    CC_MARKETPLACE_JSON="$(claude plugin marketplace list --json 2>/dev/null || true)"
+    CC_PLUGIN_JSON="$(claude plugin list --json 2>/dev/null || true)"
+
+    marketplace_installed() {
+        local repo="$1"
+        if [ -n "$CC_MARKETPLACE_JSON" ]; then
+            echo "$CC_MARKETPLACE_JSON" | grep -q "$repo"
         else
-            info "  Installing plannotator..."
-            if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
-                error "Failed to install plannotator"
-            fi
-            if ! command -v plannotator &>/dev/null; then
-                error "plannotator installed but not found in PATH"
-            fi
+            return 1
         fi
+    }
 
-        info "  Registering Claude Code plugin marketplaces..."
-        run_claude_step "marketplace anthropics/claude-plugins-official" claude plugin marketplace add anthropics/claude-plugins-official
-        run_claude_step "marketplace jarrodwatts/claude-hud" claude plugin marketplace add jarrodwatts/claude-hud
-        run_claude_step "marketplace expo/skills" claude plugin marketplace add expo/skills
-        run_claude_step "marketplace pabloimrik17/monolab" claude plugin marketplace add pabloimrik17/monolab
-        run_claude_step "marketplace obra/superpowers-marketplace" claude plugin marketplace add obra/superpowers-marketplace
-        run_claude_step "marketplace wakatime" claude plugin marketplace add https://github.com/wakatime/claude-code-wakatime.git
-        run_claude_step "marketplace nrwl/nx-ai-agents-config" claude plugin marketplace add nrwl/nx-ai-agents-config
-        run_claude_step "marketplace backnotprop/plannotator" claude plugin marketplace add backnotprop/plannotator
-        run_claude_step "marketplace max-sixty/worktrunk" claude plugin marketplace add max-sixty/worktrunk
-        run_claude_step "marketplace steveyegge/beads" claude plugin marketplace add steveyegge/beads
+    plugin_installed() {
+        local plugin_id="$1"
+        if [ -n "$CC_PLUGIN_JSON" ]; then
+            echo "$CC_PLUGIN_JSON" | grep -q "$plugin_id"
+        else
+            return 1
+        fi
+    }
 
-        info "  Installing Claude Code plugins..."
-        run_claude_step "plugin typescript-lsp" claude plugin install typescript-lsp@claude-plugins-official
-        run_claude_step "plugin frontend-design" claude plugin install frontend-design@claude-plugins-official
-        run_claude_step "plugin code-review" claude plugin install code-review@claude-plugins-official
-        run_claude_step "plugin commit-commands" claude plugin install commit-commands@claude-plugins-official
-        run_claude_step "plugin claude-md-management" claude plugin install claude-md-management@claude-plugins-official
-        run_claude_step "plugin plugin-dev" claude plugin install plugin-dev@claude-plugins-official
-        run_claude_step "plugin skill-creator" claude plugin install skill-creator@claude-plugins-official
-        run_claude_step "plugin claude-hud" claude plugin install claude-hud@claude-hud
-        run_claude_step "plugin expo-app-design" claude plugin install expo-app-design@expo-plugins
-        run_claude_step "plugin upgrading-expo" claude plugin install upgrading-expo@expo-plugins
-        run_claude_step "plugin expo-deployment" claude plugin install expo-deployment@expo-plugins
-        run_claude_step "plugin expo-developer" claude plugin install expo-developer@monolab
-        run_claude_step "plugin experiments" claude plugin install experiments@monolab
-        run_claude_step "plugin double-shot-latte" claude plugin install double-shot-latte@superpowers-marketplace
-        run_claude_step "plugin elements-of-style" claude plugin install elements-of-style@superpowers-marketplace
-        run_claude_step "plugin episodic-memory" claude plugin install episodic-memory@superpowers-marketplace
-        run_claude_step "plugin superpowers" claude plugin install superpowers@superpowers-marketplace
-        run_claude_step "plugin superpowers-chrome" claude plugin install superpowers-chrome@superpowers-marketplace
-        run_claude_step "plugin superpowers-developing-for-claude-code" claude plugin install superpowers-developing-for-claude-code@superpowers-marketplace
-        run_claude_step "plugin superpowers-lab" claude plugin install superpowers-lab@superpowers-marketplace
-        run_claude_step "plugin claude-code-wakatime" claude plugin install claude-code-wakatime@wakatime
-        run_claude_step "plugin plannotator" claude plugin install plannotator@plannotator
-        run_claude_step "plugin worktrunk" claude plugin install worktrunk@worktrunk
-        run_claude_step "plugin beads" claude plugin install beads@beads-marketplace
-        run_claude_step "plugin code-simplifier" claude plugin install code-simplifier@claude-plugins-official
+    # Check if plannotator CLI is pending
+    PLANNOTATOR_PENDING=0
+    command -v plannotator &>/dev/null || PLANNOTATOR_PENDING=1
+
+    # Count pending marketplaces
+    PENDING_MP=0
+    TOTAL_MP=${#CC_MARKETPLACES[@]}
+    for repo in "${CC_MARKETPLACES[@]}"; do
+        if ! marketplace_installed "$repo"; then
+            PENDING_MP=$((PENDING_MP + 1))
+        fi
+    done
+
+    # Count pending plugins
+    PENDING_PL=0
+    TOTAL_PL=${#CC_PLUGINS[@]}
+    for plugin in "${CC_PLUGINS[@]}"; do
+        if ! plugin_installed "$plugin"; then
+            PENDING_PL=$((PENDING_PL + 1))
+        fi
+    done
+
+    if [ "$PLANNOTATOR_PENDING" -eq 0 ] && [ "$PENDING_MP" -eq 0 ] && [ "$PENDING_PL" -eq 0 ]; then
+        info "CC marketplaces: $TOTAL_MP/$TOTAL_MP registered"
+        info "CC plugins: $TOTAL_PL/$TOTAL_PL installed"
     else
-        warn "Claude Code is not installed — skipping plugin setup"
+        if confirm "Install Claude Code plugin dependencies ($PLANNOTATOR_PENDING cli + $PENDING_MP marketplaces + $PENDING_PL plugins pending)?"; then
+            if command -v plannotator &>/dev/null; then
+                info "  plannotator — already installed, skipping"
+            else
+                info "  Installing plannotator..."
+                if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
+                    error "Failed to install plannotator"
+                fi
+                if ! command -v plannotator &>/dev/null; then
+                    error "plannotator installed but not found in PATH"
+                fi
+            fi
+
+            info "  Registering Claude Code plugin marketplaces..."
+            for repo in "${CC_MARKETPLACES[@]}"; do
+                if marketplace_installed "$repo"; then
+                    info "  $repo — already registered, skipping"
+                else
+                    run_claude_step "marketplace $repo" claude plugin marketplace add "$repo"
+                fi
+            done
+
+            info "  Installing Claude Code plugins..."
+            for plugin in "${CC_PLUGINS[@]}"; do
+                if plugin_installed "$plugin"; then
+                    info "  $plugin — already installed, skipping"
+                else
+                    run_claude_step "plugin $plugin" claude plugin install "$plugin"
+                fi
+            done
+        else
+            info "Skipping Claude Code plugin dependencies."
+        fi
     fi
 else
-    info "Skipping Claude Code plugin dependencies."
+    warn "Claude Code is not installed — skipping plugin setup"
 fi
 
 # ------------------------------------------------------------------
