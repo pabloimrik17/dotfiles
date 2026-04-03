@@ -176,10 +176,6 @@ alias lta="eza --icons --group-directories-first --tree --level=2 -a"
 alias cat="bat --style=auto"
 alias catp="bat --style=plain"  # No line numbers or decorations
 
-# zoxide (smart cd)
-alias cd="z"  # Use zoxide instead of traditional cd
-alias cdi="zi"  # Interactive navigation with fzf
-
 # Git shortcuts
 alias gs="git status"
 alias ga="git add"
@@ -278,4 +274,5 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 # Zoxide - MUST be last (chpwd hook conflicts if anything comes after)
-eval "$(zoxide init zsh)"
+# --cmd cd: replaces cd/cdi directly (with proper completions), no aliases needed
+eval "$(zoxide init zsh --cmd cd)"
