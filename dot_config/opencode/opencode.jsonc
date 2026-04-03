@@ -29,7 +29,21 @@
         "bash": {
             "*": "ask",
 
-            // Filesystem read-only
+            // --- DENY: dangerous operations ---
+            "sudo *": "deny",
+            "curl * | bash": "deny",
+            "curl * | sh": "deny",
+            "wget * | bash": "deny",
+            "wget * | sh": "deny",
+            "git push --force *": "deny",
+            "git push * --force": "deny",
+            "git push -f *": "deny",
+            "git push * -f": "deny",
+            "npm publish *": "deny",
+            "bun publish *": "deny",
+            "chmod -R 777 *": "deny",
+
+            // --- ALLOW: filesystem read-only ---
             "ls": "allow",
             "ls *": "allow",
             "cat *": "allow",
@@ -42,8 +56,11 @@
             "file *": "allow",
             "find *": "allow",
             "rg *": "allow",
+            "du *": "allow",
+            "tree *": "allow",
+            "stat *": "allow",
 
-            // Git read-only
+            // --- ALLOW: git read-only ---
             "git status": "allow",
             "git status *": "allow",
             "git diff": "allow",
@@ -52,14 +69,67 @@
             "git log *": "allow",
             "git show *": "allow",
             "git branch": "allow",
-            "git branch -a": "allow",
-            "git branch --show-current": "allow",
-            "git remote -v": "allow",
+            "git branch *": "allow",
+            "git remote *": "allow",
+            "git stash list *": "allow",
+            "git ls-tree *": "allow",
+            "git rev-parse *": "allow",
+            "git config --get *": "allow",
 
-            // Runtime info
+            // --- ALLOW: git write ---
+            "git add *": "allow",
+            "git fetch *": "allow",
+            "git push *": "allow",
+
+            // --- ALLOW: build/test ---
+            "bun run *": "allow",
+            "bun test *": "allow",
+            "bun install --frozen-lockfile": "allow",
+            "pnpm run *": "allow",
+            "pnpm test *": "allow",
+            "pnpm install --frozen-lockfile": "allow",
+
+            // --- ALLOW: version checks ---
             "node --version": "allow",
             "bun --version": "allow",
             "npm --version": "allow",
+
+            // --- ALLOW: chezmoi read ---
+            "chezmoi cat *": "allow",
+            "chezmoi diff *": "allow",
+            "chezmoi managed *": "allow",
+            "chezmoi source-path *": "allow",
+            "chezmoi status *": "allow",
+            "chezmoi data *": "allow",
+
+            // --- ALLOW: package manager info ---
+            "brew info *": "allow",
+            "brew list *": "allow",
+            "brew outdated *": "allow",
+            "npm info *": "allow",
+
+            // --- ALLOW: openspec ---
+            "openspec list *": "allow",
+            "openspec status *": "allow",
+            "openspec instructions *": "allow",
+            "bunx openspec *": "allow",
+
+            // --- ALLOW: worktrunk ---
+            "wt list *": "allow",
+            "wt config *": "allow",
+            "wt --help *": "allow",
+
+            // --- ALLOW: github cli ---
+            "gh api *": "allow",
+            "gh issue *": "allow",
+            "gh pr *": "allow",
+            "gh repo *": "allow",
+
+            // --- ALLOW: claude code cli ---
+            "claude mcp *": "allow",
+            "claude plugin *": "allow",
+            "claude skill *": "allow",
+            "claude skills *": "allow",
         },
 
         // Prevent infinite tool loops — default is ask, we want hard deny
