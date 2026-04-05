@@ -54,6 +54,20 @@ For the `git` package specifically, the script SHALL NOT use `command -v git` fo
 - **WHEN** `brew list git` succeeds
 - **THEN** git installation is skipped with informational message
 
+### Requirement: Atuin history imported on fresh machines
+
+After brew packages are installed, the script SHALL check if atuin has zero history entries. If so, `atuin import auto` SHALL be run to import existing shell history (from `~/.zsh_history` or similar). This ensures autosuggestions work immediately on fresh machines.
+
+#### Scenario: Fresh machine with existing zsh history
+
+- **WHEN** atuin is installed and has no history entries
+- **THEN** `atuin import auto` is executed
+
+#### Scenario: History already present
+
+- **WHEN** atuin already has history entries
+- **THEN** the import step is skipped
+
 ### Requirement: Non-macOS fallback includes all new packages
 
 The non-macOS branch of the install script SHALL list all 17 brew packages in its manual installation instructions, including the 9 newly added ones.

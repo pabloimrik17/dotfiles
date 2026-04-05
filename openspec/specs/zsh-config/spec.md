@@ -30,6 +30,15 @@ The `zsh-autosuggestions` plugin SHALL be configured with a highlight style, buf
 - **WHEN** a user opens `dot_zshrc.tmpl`
 - **THEN** commented lines above the active `ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE` show at least two alternative color values with labels
 
+### Requirement: User-local binaries PATH
+
+The `.zshrc` SHALL add `$HOME/.local/bin` to PATH for user-local binaries (Claude Code, plannotator, etc.) that install to this directory. This ensures these tools are available on fresh machines where no other mechanism adds this path.
+
+#### Scenario: Claude Code available after chezmoi apply
+
+- **WHEN** Claude Code is installed to `~/.local/bin/claude` and the user opens a new shell
+- **THEN** `claude` is found in PATH
+
 ### Requirement: Zsh external plugin sources use OS-conditional paths
 
 Source paths for zsh-autosuggestions and zsh-syntax-highlighting SHALL use template conditionals for platform differences (e.g., `/usr/local/share/` on Intel macOS vs `/opt/homebrew/share/` on Apple Silicon vs `/usr/share/` on Linux). On macOS, fzf binary PATH SHALL use OS/arch-conditional template paths (`/opt/homebrew/opt/fzf/bin` on ARM, `/usr/local/opt/fzf/bin` on Intel). fzf initialization SHALL be inline via `source <(fzf --zsh)` instead of sourcing an external `~/.fzf.zsh` file.

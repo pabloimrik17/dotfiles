@@ -20,6 +20,16 @@ The script SHALL install NVM using the official curl installer from `https://raw
 - **WHEN** `$HOME/.nvm` directory already exists
 - **THEN** NVM installation is skipped with informational message
 
+### Requirement: NVM is sourced before pre-scan for idempotency
+
+The script SHALL source `$NVM_DIR/nvm.sh` before the pre-scan that checks whether `node` and `corepack` are available. NVM-managed binaries are not in PATH until nvm.sh is sourced, so without this step the pre-scan would always report them as missing, causing redundant re-installation on every `chezmoi apply`.
+
+#### Scenario: NVM already installed, node present
+
+- **WHEN** NVM is installed and Node was previously installed via nvm
+- **THEN** the pre-scan detects `node` and `corepack` as present after sourcing nvm.sh
+- **AND** the group reports "3/3 installed" without prompting
+
 ### Requirement: Node LTS is installed and set as default
 
 After NVM is installed, the script SHALL source `$NVM_DIR/nvm.sh` to make `nvm` available, then run `nvm install --lts` and `nvm alias default lts/*`.

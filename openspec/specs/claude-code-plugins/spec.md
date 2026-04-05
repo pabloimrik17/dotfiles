@@ -91,6 +91,26 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 - **WHEN** Claude Code checks for plugin updates
 - **THEN** the beads marketplace is included in the auto-update cycle because `autoUpdate` is `true`
 
+### Requirement: Claude CLI commands use PTY wrapper on macOS
+
+The `run_claude_step()` helper SHALL wrap Claude CLI commands with `script -q` on macOS to provide a pseudo-TTY. This works around a Bun runtime crash (oven-sh/bun#24158) where `tty.WriteStream` fails with `EINVAL kqueue` when given a non-TTY file descriptor. On non-macOS platforms, commands run directly. The wrapper SHALL capture output and display it only on failure, filtering Bun runtime noise. The wrapper SHALL always return 0 to avoid halting the install script.
+
+#### Scenario: Claude plugin install on macOS
+
+- **WHEN** `run_claude_step` executes a `claude plugin` command on macOS
+- **THEN** the command runs inside a `script -q` pseudo-TTY wrapper
+
+#### Scenario: Command fails with useful error
+
+- **WHEN** a wrapped Claude CLI command fails
+- **THEN** the error output is shown (unless it is Bun runtime noise like kqueue/isTTY errors)
+- **AND** the script continues to the next step
+
+#### Scenario: Pre-scan commands run without wrapper
+
+- **WHEN** `claude plugin marketplace list --json` or `claude plugin list --json` run for pre-scan
+- **THEN** they execute directly (without `script`) since read-only commands do not trigger the Bun crash
+
 ### Requirement: Beads plugin and marketplace are registered in install script
 
 The install script (`run_onchange_install-packages.sh.tmpl`) SHALL register the `beads-marketplace` marketplace (`steveyegge/beads`) and install the `beads@beads-marketplace` plugin in the Claude Code plugin dependencies group. Before registering a marketplace, the script SHALL check `claude plugin marketplace list --json` and skip if the marketplace repo is already registered. Before installing a plugin, the script SHALL check `claude plugin list --json` and skip if the plugin ID is already installed.
