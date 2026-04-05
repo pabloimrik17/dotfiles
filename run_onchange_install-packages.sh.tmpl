@@ -223,7 +223,7 @@ elif confirm "Install oh-my-zsh and zsh plugins ($OMZ_PENDING/5 pending)?"; then
         info "  you-should-use plugin — already installed, skipping"
     else
         info "  Cloning you-should-use plugin..."
-        if ! git clone https://github.com/MichaelAquilina/you-should-use.git "$YSU_DIR"; then
+        if ! git clone https://github.com/MichaelAquilina/zsh-you-should-use.git "$YSU_DIR"; then
             error "Failed to clone you-should-use plugin"
         fi
     fi
@@ -776,7 +776,7 @@ info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: oh-my-zsh (https://ohmyz.sh/)"
 info "  Zsh plugins:"
-info "    - you-should-use: git clone https://github.com/MichaelAquilina/you-should-use.git \${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/you-should-use"
+info "    - you-should-use: git clone https://github.com/MichaelAquilina/zsh-you-should-use.git \${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/you-should-use"
 info "    - zsh-autosuggestions (via package manager or git clone)"
 info "    - zsh-syntax-highlighting (via package manager or git clone)"
 info "    - zsh-completions: apt install zsh-completions"
