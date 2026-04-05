@@ -29,11 +29,21 @@ run_claude_step() {
     shift
     # Claude Code (Bun) crashes with 'process.stderr.fd' errors when
     # run from scripts without a proper TTY.  Feed /dev/null as stdin
-    # and redirect stderr so the Bun runtime doesn't choke.
-    if ! "$@" </dev/null 2>/dev/null; then
+    # and capture stderr so we can show it only on failure.
+    local stderr_file
+    stderr_file="$(mktemp)"
+    if ! "$@" </dev/null 2>"$stderr_file"; then
         error "Claude step failed: $label ($*)"
+        local stderr_out
+        stderr_out="$(cat "$stderr_file")"
+        # Filter out Bun runtime noise (minified stack traces)
+        if [ -n "$stderr_out" ] && ! echo "$stderr_out" | grep -q 'process\.stderr\.fd'; then
+            printf "        %s\n" "$stderr_out" >&2
+        fi
+        rm -f "$stderr_file"
         return 0  # continue script
     fi
+    rm -f "$stderr_file"
 }
 
 confirm() {
