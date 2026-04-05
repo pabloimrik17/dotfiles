@@ -473,6 +473,9 @@ fi
 # ------------------------------------------------------------------
 # Pre-scan: check if NVM, Node, and corepack are all present
 NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+# Source nvm so node/corepack are visible for the pre-scan
+# shellcheck disable=SC1091
+[ -s "$NVM_DIR/nvm.sh" ] && export NVM_DIR && . "$NVM_DIR/nvm.sh"
 NVM_PENDING=0
 [ -d "$NVM_DIR" ] || NVM_PENDING=$((NVM_PENDING + 1))
 command -v node &>/dev/null || NVM_PENDING=$((NVM_PENDING + 1))
