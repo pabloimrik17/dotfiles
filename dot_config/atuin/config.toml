@@ -4,6 +4,7 @@
 
 [daemon]
 enabled = true
+autostart = true
 
 [ai]
 enabled = true

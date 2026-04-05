@@ -132,6 +132,17 @@ else
 fi
 
 # ------------------------------------------------------------------
+# Atuin: import existing shell history
+# ------------------------------------------------------------------
+if command -v atuin &>/dev/null; then
+    ATUIN_COUNT="$(atuin history list 2>/dev/null | wc -l | tr -d ' ')"
+    if [ "$ATUIN_COUNT" -eq 0 ]; then
+        info "  Importing shell history into atuin..."
+        atuin import auto 2>/dev/null || true
+    fi
+fi
+
+# ------------------------------------------------------------------
 # Bat theme: Catppuccin Mocha
 # ------------------------------------------------------------------
 if command -v bat &>/dev/null; then
