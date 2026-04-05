@@ -27,23 +27,26 @@ error() {
 run_claude_step() {
     local label="$1"
     shift
-    # Claude Code (Bun) crashes with 'process.stderr.fd' errors when
-    # run from scripts without a proper TTY.  Feed /dev/null as stdin
-    # and capture stderr so we can show it only on failure.
-    local stderr_file
-    stderr_file="$(mktemp)"
-    if ! "$@" </dev/null 2>"$stderr_file"; then
-        error "Claude step failed: $label ($*)"
-        local stderr_out
-        stderr_out="$(cat "$stderr_file")"
-        # Filter out Bun runtime noise (minified stack traces)
-        if [ -n "$stderr_out" ] && ! echo "$stderr_out" | grep -q 'process\.stderr\.fd'; then
-            printf "        %s\n" "$stderr_out" >&2
-        fi
-        rm -f "$stderr_file"
-        return 0  # continue script
+    # Claude Code runs on Bun, which crashes with EINVAL kqueue errors
+    # when tty.WriteStream gets a non-TTY fd (oven-sh/bun#24158).
+    # Wrap with `script` to provide a pseudo-TTY on macOS.
+    local output_file
+    output_file="$(mktemp)"
+    if [[ "$OSTYPE" == darwin* ]]; then
+        script -q "$output_file" "$@" >/dev/null 2>&1
+    else
+        "$@" >"$output_file" 2>&1
     fi
-    rm -f "$stderr_file"
+    local rc=$?
+    if [ "$rc" -ne 0 ]; then
+        error "Claude step failed: $label ($*)"
+        # Show output on failure, filtering Bun runtime noise
+        if [ -s "$output_file" ] && ! grep -q 'process\.std.*\.fd\|process\.std.*\.isTTY\|EINVAL.*kqueue' "$output_file"; then
+            sed 's/^/        /' "$output_file" >&2
+        fi
+    fi
+    rm -f "$output_file"
+    return 0  # always continue script
 }
 
 confirm() {
@@ -633,8 +636,8 @@ CC_PLUGINS=(
 
 if command -v claude &>/dev/null; then
     # Pre-scan marketplaces and plugins
-    CC_MARKETPLACE_JSON="$(claude plugin marketplace list --json </dev/null 2>/dev/null || true)"
-    CC_PLUGIN_JSON="$(claude plugin list --json </dev/null 2>/dev/null || true)"
+    CC_MARKETPLACE_JSON="$(claude plugin marketplace list --json 2>/dev/null || true)"
+    CC_PLUGIN_JSON="$(claude plugin list --json 2>/dev/null || true)"
 
     marketplace_installed() {
         local repo="$1"
