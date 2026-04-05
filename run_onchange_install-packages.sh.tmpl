@@ -543,6 +543,8 @@ if confirm "Install OpenCode plugin dependencies (plannotator, superpowers)?"; t
             if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
                 error "Failed to install plannotator"
             fi
+            # plannotator installs to ~/.local/bin which may not be in PATH yet
+            export PATH="$HOME/.local/bin:$PATH"
             if ! command -v plannotator &>/dev/null; then
                 error "plannotator installed but not found in PATH"
             fi
@@ -670,6 +672,8 @@ if command -v claude &>/dev/null; then
                 if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
                     error "Failed to install plannotator"
                 fi
+                # plannotator installs to ~/.local/bin which may not be in PATH yet
+                export PATH="$HOME/.local/bin:$PATH"
                 if ! command -v plannotator &>/dev/null; then
                     error "plannotator installed but not found in PATH"
                 fi
