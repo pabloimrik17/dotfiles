@@ -27,7 +27,10 @@ error() {
 run_claude_step() {
     local label="$1"
     shift
-    if ! "$@"; then
+    # Claude Code (Bun) crashes with 'process.stderr.fd' errors when
+    # run from scripts without a proper TTY.  Feed /dev/null as stdin
+    # and redirect stderr so the Bun runtime doesn't choke.
+    if ! "$@" </dev/null 2>/dev/null; then
         error "Claude step failed: $label ($*)"
         return 0  # continue script
     fi
@@ -620,8 +623,8 @@ CC_PLUGINS=(
 
 if command -v claude &>/dev/null; then
     # Pre-scan marketplaces and plugins
-    CC_MARKETPLACE_JSON="$(claude plugin marketplace list --json 2>/dev/null || true)"
-    CC_PLUGIN_JSON="$(claude plugin list --json 2>/dev/null || true)"
+    CC_MARKETPLACE_JSON="$(claude plugin marketplace list --json </dev/null 2>/dev/null || true)"
+    CC_PLUGIN_JSON="$(claude plugin list --json </dev/null 2>/dev/null || true)"
 
     marketplace_installed() {
         local repo="$1"
