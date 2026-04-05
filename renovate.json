@@ -44,6 +44,15 @@
             "fileMatch": ["^\\.mcp\\.json$"],
             "matchStrings": ["\"(?<depName>@?[^\"@]+)@(?<currentValue>[^\"]+)\""],
             "datasourceTemplate": "npm"
+        },
+        {
+            "customType": "regex",
+            "description": "Update pinned CLI tool versions in CI workflows (pnpm dlx/bunx/npx)",
+            "fileMatch": ["^\\.github/workflows/.+\\.ya?ml$"],
+            "matchStrings": [
+                "(?:pnpm dlx|bunx|npx) (?<depName>(?:@[^/\\s]+/)?[^@\\s]+)@(?<currentValue>[^\\s]+)"
+            ],
+            "datasourceTemplate": "npm"
         }
     ]
 }
