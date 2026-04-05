@@ -270,6 +270,9 @@ fgco() {
 # Tool environment
 command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 
+# User-local binaries (Claude Code, plannotator, etc.)
+export PATH="$HOME/.local/bin:$PATH"
+
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
