@@ -64,15 +64,26 @@ smartFilteringAtLaunch: true
 keybindings:
     universal:
         - key: g
+          name: Lazygit
           command: cd {{.RepoPath}} && lazygit
     prs:
+        # Direct execution (suspends TUI)
         - key: C
-          command: >
-              tmux new-window -n "PR-{{.PrNumber}}" -c {{.RepoPath}}
-              'claude "/code-review:code-review {{.RepoName}}#{{.PrNumber}}"'
+          name: Code review with Claude
+          command: wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"
+        - key: W
+          name: Worktree + Claude
+          command: wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude
+        # Tmux variants (opens in new window)
+        - key: R
+          name: Code review (tmux)
+          command: tmux new-window -n "PR-{{.PrNumber}}" 'wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"'
+        - key: E
+          name: Worktree + Claude (tmux)
+          command: tmux new-window -n "PR-{{.PrNumber}}" 'wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude'
 
 pager:
     diff: delta
 
 repoPaths:
-    "*/*": ~/WebstormProjects/*
+    ":owner/:repo": ~/WebstormProjects/:repo
