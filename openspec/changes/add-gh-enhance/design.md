@@ -52,15 +52,13 @@ keybindings:
     prs:
         - key: T
           name: CI checks (tmux)
-          command: >
-              tmux new-window -n "CI-{{.PrNumber}}" -c {{.RepoPath}}
-              'ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}'
+          command: tmux split-window -h 'ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}'
         - key: t
           name: CI checks (inline)
           command: ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}
 ```
 
-- `T` (tmux): Opens a new tmux window — non-blocking, can switch back to gh-dash while CI runs
+- `T` (tmux): Opens a horizontal split pane — non-blocking, gh-dash visible in the other pane
 - `t` (inline): Replaces gh-dash in the current terminal — simpler, returns to gh-dash on quit
 
 The user wants both during a trial period to decide which flow they prefer.

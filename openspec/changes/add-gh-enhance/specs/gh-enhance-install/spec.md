@@ -5,7 +5,7 @@
 - gh-enhance is installed as a gh CLI extension via `gh extension install dlvhdr/gh-enhance`
 - Installation is idempotent: skipped if `gh extension list` already contains `dlvhdr/gh-enhance`
 - Installation lives in the existing "gh CLI extensions" confirmable group in the install script
-- Requires `gh` CLI to be installed and authenticated (already guaranteed by brew packages group)
+- Requires `gh` CLI to be installed and authenticated (both brew install and gh auth are user-confirmable steps; not automatically guaranteed)
 
 ### Shell alias
 

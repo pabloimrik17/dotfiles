@@ -9,7 +9,7 @@ GitHub issue: pabloimrik17/dotfiles#105
 - Install `gh-enhance` as a `gh` CLI extension via the chezmoi install script (alongside existing `gh-dash`)
 - Add `ghe` shell alias that invokes `gh enhance` with the Catppuccin Mocha theme pre-set
 - Add two keybindings in `gh-dash` config to launch ENHANCE from the PR view:
-    - `T` — opens in a new tmux window (non-blocking)
+    - `T` — opens in a tmux split pane (non-blocking)
     - `t` — opens inline (replaces gh-dash temporarily, returns on exit)
 - No new config file — ENHANCE has no `config.yml`; theming is via env var, keybindings are built-in
 
