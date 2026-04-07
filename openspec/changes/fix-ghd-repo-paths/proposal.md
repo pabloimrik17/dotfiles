@@ -7,6 +7,7 @@ The `C` keybinding in gh-dash fails with `failed to parsetemplate` because `repo
 - Fix `repoPaths` pattern from `"*/*": ~/WebstormProjects/*` to `:owner/:repo` template syntax that gh-dash actually supports
 - Fix existing tmux keybinding (was broken due to empty `{{.RepoPath}}`)
 - Add direct execution (non-tmux) variants of each keybinding as alternatives
+- Tmux variants use split pane (side-by-side) instead of new window so gh-dash stays visible
 - Maintain both tmux and direct variants so user can compare workflows
 - Add `name` field to all keybindings for readable help menu entries
 - Key scheme: `C`/`W` = direct, `R`/`E` = tmux variants

@@ -33,7 +33,7 @@ The `:owner/:repo` template pattern maps to `~/WebstormProjects/:repo`. This dro
 Both execution modes have trade-offs worth evaluating:
 
 - **Direct execution** (`C`/`W`): gh-dash suspends TUI, runs command, resumes on exit. Always works, simpler. Blocks the TUI while command runs.
-- **Tmux** (`R`/`E`): Opens command in a new tmux window. Non-blocking — user can switch between gh-dash and the command. Requires active tmux session.
+- **Tmux** (`R`/`E`): Opens command in a side-by-side tmux pane (`split-window -h`). Non-blocking — gh-dash stays visible alongside the command. Requires active tmux session.
 
 Keeping both lets the user compare workflows and remove the variant they don't prefer later.
 

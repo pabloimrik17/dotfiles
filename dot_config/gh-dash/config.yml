@@ -77,10 +77,10 @@ keybindings:
         # Tmux variants (opens in new window)
         - key: R
           name: Code review (tmux)
-          command: tmux new-window -n "PR-{{.PrNumber}}" 'wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"'
+          command: tmux split-window -h 'wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"'
         - key: E
           name: Worktree + Claude (tmux)
-          command: tmux new-window -n "PR-{{.PrNumber}}" 'wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude'
+          command: tmux split-window -h 'wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude'
 
 pager:
     diff: delta

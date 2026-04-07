@@ -38,30 +38,21 @@ The PR keybindings SHALL include a `W` key that checks out a worktree for the PR
 
 ### Requirement: PR code review keybinding (tmux)
 
-The PR keybindings SHALL include an `R` key that checks out a worktree for the PR and launches Claude with a code review prompt in a new tmux window.
+The PR keybindings SHALL include an `R` key that checks out a worktree for the PR and launches Claude with a code review prompt in a side-by-side tmux pane.
 
-#### Scenario: Code review launches in tmux window
+#### Scenario: Code review launches in tmux pane
 
 - **WHEN** user presses `R` on a PR while inside a tmux session
-- **THEN** a new tmux window opens running `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"`
+- **THEN** a horizontal split pane opens running `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"` alongside gh-dash
 
 ### Requirement: PR worktree + Claude keybinding (tmux)
 
-The PR keybindings SHALL include an `E` key that checks out a worktree for the PR and launches Claude without a specific prompt in a new tmux window.
+The PR keybindings SHALL include an `E` key that checks out a worktree for the PR and launches Claude without a specific prompt in a side-by-side tmux pane.
 
-#### Scenario: Claude opens in tmux window
+#### Scenario: Claude opens in tmux pane
 
 - **WHEN** user presses `E` on a PR while inside a tmux session
-- **THEN** a new tmux window opens running `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude`
-
-### Requirement: Tmux keybindings use descriptive window names
-
-Tmux variant keybindings SHALL set the tmux window name to `PR-{{.PrNumber}}` for easy identification.
-
-#### Scenario: Tmux window has PR number in name
-
-- **WHEN** user presses `R` or `E` on PR #42
-- **THEN** the new tmux window is named `PR-42`
+- **THEN** a horizontal split pane opens running `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude` alongside gh-dash
 
 ### Requirement: RepoPath passed to worktrunk via -C flag
 
