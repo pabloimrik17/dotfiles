@@ -16,9 +16,9 @@ The `repoPaths` section in `config.yml` SHALL use the `:owner/:repo` template sy
 
 ### Requirement: No unsupported wildcard patterns
 
-The `repoPaths` configuration SHALL NOT use the `"*/*"` pattern, as it is not supported by gh-dash's path resolution logic.
+The `repoPaths` configuration SHALL NOT use the `"*/*"` pattern. Only accepted patterns SHALL be used: exact (`owner/repo`), owner wildcard (`owner/*`), or template (`:owner/:repo`).
 
-#### Scenario: Pattern is valid gh-dash syntax
+#### Scenario: Rejected pattern is not present
 
 - **WHEN** the config is loaded by gh-dash
-- **THEN** every key in `repoPaths` matches one of: exact (`owner/repo`), owner wildcard (`owner/*`), or template (`:owner/:repo`)
+- **THEN** no `repoPaths` key uses the `"*/*"` pattern

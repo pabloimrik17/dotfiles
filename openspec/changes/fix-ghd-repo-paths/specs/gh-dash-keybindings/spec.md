@@ -65,7 +65,7 @@ Tmux variant keybindings SHALL set the tmux window name to `PR-{{.PrNumber}}` fo
 
 ### Requirement: RepoPath passed to worktrunk via -C flag
 
-All keybinding commands that use `wt` SHALL pass `-C {{.RepoPath}}` to specify the target repository directory, since gh-dash does not change directory before executing commands.
+All keybinding commands that use `wt` SHALL pass `-C {{.RepoPath}}` to specify the target repository directory.
 
 #### Scenario: wt receives correct repo path
 
