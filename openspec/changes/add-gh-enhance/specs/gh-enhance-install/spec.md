@@ -1,14 +1,24 @@
-## gh-enhance-install
+## ADDED Requirements
 
-### Installation
+### Requirement: gh-enhance extension install
 
-- gh-enhance is installed as a gh CLI extension via `gh extension install dlvhdr/gh-enhance`
-- Installation is idempotent: skipped if `gh extension list` already contains `dlvhdr/gh-enhance`
-- Installation lives in the existing "gh CLI extensions" confirmable group in the install script
-- Requires `gh` CLI to be installed and authenticated (both brew install and gh auth are user-confirmable steps; not automatically guaranteed)
+The chezmoi install script SHALL install `gh-enhance` in the existing gh CLI extensions confirmable group using `gh extension install dlvhdr/gh-enhance`.
 
-### Shell alias
+#### Scenario: Fresh install of gh-enhance
 
-- `ghe` alias defined in `dot_zshrc.tmpl` in the GitHub aliases section
-- Alias sets `ENHANCE_THEME=catppuccin_mocha` and invokes `gh enhance`
-- Alias accepts all gh-enhance flags and arguments (PR number, URL, `--flat`, `-R`)
+- **WHEN** chezmoi apply runs and the user confirms the gh extensions group
+- **THEN** `gh-enhance` is installed via `gh extension install dlvhdr/gh-enhance`
+
+#### Scenario: gh-enhance already installed
+
+- **WHEN** chezmoi apply runs and gh-enhance is already listed in `gh extension list`
+- **THEN** the script skips installation and reports it as already installed
+
+### Requirement: Shell alias
+
+The zshrc SHALL define alias `ghe` that sets `ENHANCE_THEME=catppuccin_mocha` and invokes `gh enhance`, placed in the GitHub aliases section.
+
+#### Scenario: User launches gh-enhance via alias
+
+- **WHEN** the user types `ghe 767` in the terminal
+- **THEN** `ENHANCE_THEME=catppuccin_mocha gh enhance 767` is executed, opening ENHANCE with Catppuccin Mocha theme
