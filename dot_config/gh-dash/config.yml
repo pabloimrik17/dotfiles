@@ -74,13 +74,19 @@ keybindings:
         - key: W
           name: Worktree + Claude
           command: wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude
-        # Tmux variants (opens in new window)
+        - key: t
+          name: CI checks (inline)
+          command: ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}
+        # Tmux variants (opens in split pane)
         - key: R
           name: Code review (tmux)
           command: tmux split-window -h 'wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"'
         - key: E
           name: Worktree + Claude (tmux)
           command: tmux split-window -h 'wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude'
+        - key: T
+          name: CI checks (tmux)
+          command: tmux split-window -h 'ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}'
 
 pager:
     diff: delta

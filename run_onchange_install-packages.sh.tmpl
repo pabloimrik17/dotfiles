@@ -166,13 +166,22 @@ fi
 # Group: gh CLI extensions
 # ------------------------------------------------------------------
 if command -v gh &>/dev/null; then
-    if confirm "Install gh CLI extensions (gh-dash)?"; then
+    if confirm "Install gh CLI extensions (gh-dash, gh-enhance)?"; then
         if gh extension list 2>/dev/null | grep -q "dlvhdr/gh-dash"; then
             info "  gh-dash — already installed, skipping"
         else
             info "  Installing gh-dash..."
             if ! gh extension install dlvhdr/gh-dash; then
                 error "Failed to install gh-dash"
+            fi
+        fi
+
+        if gh extension list 2>/dev/null | grep -q "dlvhdr/gh-enhance"; then
+            info "  gh-enhance — already installed, skipping"
+        else
+            info "  Installing gh-enhance..."
+            if ! gh extension install dlvhdr/gh-enhance; then
+                error "Failed to install gh-enhance"
             fi
         fi
     else
