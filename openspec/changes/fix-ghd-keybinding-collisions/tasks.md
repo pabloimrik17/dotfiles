@@ -8,5 +8,5 @@
 
 ## 2. Verify no collisions
 
-- [x] 2.1 Confirm keys `g`, `G`, `C`, `W`, `R` are no longer used by custom keybindings
+- [x] 2.1 Confirm keys `g`, `G`, `C`, `W`, `R`, `E` are no longer used by custom keybindings
 - [x] 2.2 Confirm all custom keys (`L`, `b`, `B`, `i`, `I`, `t`, `T`) are not in the built-in default set
