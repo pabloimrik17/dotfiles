@@ -49,7 +49,7 @@ The `mcpServers` key in `dot_claude/settings.json.tmpl` SHALL include `atlassian
 
 ### Requirement: Template uses no machine-specific conditionals for MCP
 
-The `mcpServers` block SHALL be plain JSON without chezmoi template conditionals (`{{ if }}`, `{{ else }}`). All 9 servers are deployed identically to every machine.
+The `mcpServers` block SHALL be plain JSON without chezmoi template conditionals (`{{ if }}`, `{{ else }}`). All 10 servers are deployed identically to every machine.
 
 #### Scenario: No conditional logic in mcpServers block
 
