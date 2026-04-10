@@ -13,6 +13,13 @@
         "opencode-wakatime",
         "opencode-websearch-cited@1.2.0",
     ],
+    "mcp": {
+        "expect": {
+            "type": "local",
+            "command": ["npx", "-y", "expect-cli@latest", "mcp"],
+            "enabled": true,
+        },
+    },
     "formatter": {
         "oxfmt": {
             "command": ["oxfmt", "$FILE"],
