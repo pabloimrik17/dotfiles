@@ -302,6 +302,7 @@ ALL_CASKS=(
     "1password|1Password|Security|Password manager"
     "iina|IINA|Media|Modern media player"
     "superwhisper|superwhisper|AI|Voice-to-text via Whisper"
+    "coderabbit|CodeRabbit|AI|AI code review CLI"
     "adobe-acrobat-reader|Adobe Acrobat Reader|Productivity|PDF reader"
     "telegram|Telegram|Optional|Messaging"
     "whatsapp|WhatsApp|Optional|Messaging"
@@ -316,10 +317,19 @@ ALL_CASKS=(
     "philips-hue-sync|Hue Sync|Optional|Philips Hue screen sync"
 )
 
+is_cask_installed() {
+    local cask="$1"
+    local app_name="$2"
+    if [ -n "$app_name" ] && [ -d "/Applications/$app_name.app" ]; then
+        return 0
+    fi
+    brew list --cask "$cask" &>/dev/null
+}
+
 install_cask() {
     local cask="$1"
     local app_name="$2"
-    if [ -d "/Applications/$app_name.app" ]; then
+    if is_cask_installed "$cask" "$app_name"; then
         info "  $cask — already installed, skipping"
     else
         info "  Installing $cask..."
@@ -333,7 +343,7 @@ install_cask() {
 PENDING_CASKS=()
 for entry in "${ALL_CASKS[@]}"; do
     IFS='|' read -r cask app_name category description <<< "$entry"
-    if [ ! -d "/Applications/$app_name.app" ]; then
+    if ! is_cask_installed "$cask" "$app_name"; then
         PENDING_CASKS+=("$entry")
     fi
 done
@@ -785,6 +795,8 @@ if confirm "Install global agent skills via skills.sh?"; then
         install_skill "anthropics/skills" "pptx"
         install_skill "anthropics/skills" "docx"
         install_skill "anthropics/skills" "xlsx"
+        install_skill "coderabbitai/skills" "code-review"
+        install_skill "coderabbitai/skills" "autofix"
     else
         warn "npx is not available — skipping agent skills installation"
     fi
@@ -802,6 +814,7 @@ info "  - Last.fm Scrobbler: https://last.fm/about/trackmymusic"
 info "  - CleanMyMac: requires license — install from https://cleanmymac.com"
 info "  - Adobe Creative Cloud: requires Adobe login — install from https://creativecloud.adobe.com"
 info "  - 1Password for Safari: install from the Mac App Store (Safari extension)"
+info "  - CodeRabbit: coderabbit auth login (opens browser for authentication)"
 info ""
 
 {{ else -}}
