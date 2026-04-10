@@ -25,7 +25,7 @@ _None — this is a new tool addition with no changes to existing specs._
 
 ## Impact
 
-- **Files modified**: `run_onchange_install-packages.sh.tmpl` only (three insertions: cask entry, two skill installs, one manual instruction line)
+- **Files modified**: `run_onchange_install-packages.sh.tmpl` only (four insertions: cask entry, two skill installs, one manual instruction line)
 - **Dependencies**: `brew` (already installed), `npx` (already available for Group 9 skills)
 - **No new config files** — CodeRabbit has no global config (`~/.coderabbit.yaml` does not exist); config is per-project only
 - **No new aliases** — `cr` is already provided by the CLI as a built-in shorthand

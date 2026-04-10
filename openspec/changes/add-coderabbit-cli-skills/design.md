@@ -58,7 +58,7 @@ install_skill "coderabbitai/skills" "autofix"
 
 **Decision:** Add a line to the manual instructions block (alongside 1Password, Adobe, etc.):
 
-```
+```bash
 info "  - CodeRabbit: coderabbit auth login (opens browser for authentication)"
 ```
 
