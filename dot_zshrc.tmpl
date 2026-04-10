@@ -72,6 +72,13 @@ zstyle ':omz:plugins:nvm' silent-autoload yes
 
 source $ZSH/oh-my-zsh.sh
 
+# Pre-seed PATH with default nvm node for non-shell subprocesses (Gradle, Xcode)
+if [ -d "$NVM_DIR/versions/node" ]; then
+  _nvm_default_node_dir=$(command ls -1d "$NVM_DIR/versions/node/"v* 2>/dev/null | sort -V | tail -1)
+  [ -n "$_nvm_default_node_dir" ] && export PATH="$_nvm_default_node_dir/bin:$PATH"
+  unset _nvm_default_node_dir
+fi
+
 # User configuration
 export EDITOR="code --wait"
 export VISUAL="code --wait"
