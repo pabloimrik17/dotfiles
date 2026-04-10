@@ -302,6 +302,7 @@ ALL_CASKS=(
     "1password|1Password|Security|Password manager"
     "iina|IINA|Media|Modern media player"
     "superwhisper|superwhisper|AI|Voice-to-text via Whisper"
+    "coderabbit|CodeRabbit|AI|AI code review CLI"
     "adobe-acrobat-reader|Adobe Acrobat Reader|Productivity|PDF reader"
     "telegram|Telegram|Optional|Messaging"
     "whatsapp|WhatsApp|Optional|Messaging"
@@ -785,6 +786,8 @@ if confirm "Install global agent skills via skills.sh?"; then
         install_skill "anthropics/skills" "pptx"
         install_skill "anthropics/skills" "docx"
         install_skill "anthropics/skills" "xlsx"
+        install_skill "coderabbitai/skills" "code-review"
+        install_skill "coderabbitai/skills" "autofix"
     else
         warn "npx is not available — skipping agent skills installation"
     fi
@@ -802,6 +805,7 @@ info "  - Last.fm Scrobbler: https://last.fm/about/trackmymusic"
 info "  - CleanMyMac: requires license — install from https://cleanmymac.com"
 info "  - Adobe Creative Cloud: requires Adobe login — install from https://creativecloud.adobe.com"
 info "  - 1Password for Safari: install from the Mac App Store (Safari extension)"
+info "  - CodeRabbit: coderabbit auth login (opens browser for authentication)"
 info ""
 
 {{ else -}}
