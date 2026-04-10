@@ -63,25 +63,25 @@ smartFilteringAtLaunch: true
 
 keybindings:
     universal:
-        - key: g
+        - key: L
           name: Lazygit
           command: cd {{.RepoPath}} && lazygit
     prs:
         # Direct execution (suspends TUI)
-        - key: C
+        - key: b
           name: Code review with Claude
           command: wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"
-        - key: W
+        - key: i
           name: Worktree + Claude
           command: wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude
         - key: t
           name: CI checks (inline)
           command: ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}
         # Tmux variants (opens in split pane)
-        - key: R
+        - key: B
           name: Code review (tmux)
           command: tmux split-window -h 'wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"'
-        - key: E
+        - key: I
           name: Worktree + Claude (tmux)
           command: tmux split-window -h 'wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude'
         - key: T
