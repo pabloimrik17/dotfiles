@@ -23,21 +23,15 @@ Currently the template does not include `COLUMNS=200`, so every `chezmoi apply` 
 
 **Choice**: Prefix the bun invocation with `COLUMNS=200` inside the existing `bash -c` wrapper.
 
-**Current command**:
+**Implemented command** (after merge conflict resolution in `6a61140`):
 
 ```bash
-bash -c '"{{ .chezmoi.homeDir }}/.bun/bin/bun" "$(ls -td ~/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts"'
+bash -c 'export COLUMNS=200; plugin_dir=$(ls -d "${CLAUDE_CONFIG_DIR:-$HOME/.claude}"/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | awk -F/ '"'"'{ print $(NF-1) "\t" $(0) }'"'"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); exec "{{ .chezmoi.homeDir }}/.bun/bin/bun" --env-file /dev/null "${plugin_dir}src/index.ts"'
 ```
 
-**New command**:
+The original PR (#111) used an inline `COLUMNS=200` prefix on the bun invocation. A subsequent merge conflict resolution (`6a61140`) restructured the command to use version-sorted plugin resolution instead of time-sorted `ls -td`, while preserving the COLUMNS fix as `export COLUMNS=200;`.
 
-```bash
-bash -c 'COLUMNS=200 "{{ .chezmoi.homeDir }}/.bun/bin/bun" "$(ls -td ~/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts"'
-```
-
-**Rationale**: This is the simplest approach — a single environment variable prefix. It requires no extra shell wrapper, no chezmoi template logic, and matches the exact workaround documented in the issue.
-
-**Alternative considered**: Using `env COLUMNS=200 ...` — functionally identical but more verbose; the bash inline variable assignment is idiomatic and shorter.
+**Rationale**: `export COLUMNS=200` at the start of the bash subshell sets the variable for the entire command, including the `exec`'d bun process. Functionally equivalent to the inline prefix approach.
 
 ## Risks / Trade-offs
 

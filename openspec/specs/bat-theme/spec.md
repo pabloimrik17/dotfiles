@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+Configure the BAT_THEME environment variable to use Catppuccin Mocha for consistent syntax highlighting across bat and delta.
+
+## Requirements
 
 ### Requirement: BAT_THEME environment variable
 

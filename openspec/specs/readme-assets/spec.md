@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+Manage the assets directory structure for README images and screenshots.
+
+## Requirements
 
 ### Requirement: Assets directory structure
 

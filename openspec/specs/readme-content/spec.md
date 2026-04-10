@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+Define the README content structure including badges, sections, and formatting for the dotfiles repository.
+
+## Requirements
 
 ### Requirement: Shield-wall badges
 

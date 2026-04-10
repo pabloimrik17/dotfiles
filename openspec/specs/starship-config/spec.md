@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+Configure the Starship prompt with Catppuccin Mocha theming and custom module settings.
+
+## Requirements
 
 ### Requirement: Catppuccin mocha palette definition
 

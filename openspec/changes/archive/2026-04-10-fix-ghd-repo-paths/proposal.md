@@ -10,7 +10,7 @@ The `C` keybinding in gh-dash fails with `failed to parsetemplate` because `repo
 - Tmux variants use split pane (side-by-side) instead of new window so gh-dash stays visible
 - Maintain both tmux and direct variants so user can compare workflows
 - Add `name` field to all keybindings for readable help menu entries
-- Key scheme: `C`/`W` = direct, `R`/`E` = tmux variants
+- Key scheme: `b`/`i` = direct, `B`/`I` = tmux variants
 - Pass `-C {{.RepoPath}}` to `wt switch` since gh-dash doesn't cd into the repo directory
 
 ## Capabilities

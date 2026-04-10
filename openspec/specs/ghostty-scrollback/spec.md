@@ -1,3 +1,9 @@
+## Purpose
+
+Configure Ghostty's scrollback buffer size for extended terminal sessions.
+
+## Requirements
+
 ### Requirement: Scrollback buffer is set to 50MB
 
 The Ghostty config SHALL include `scrollback-limit = 50000000` to provide ~50MB of scrollback per terminal surface, sufficient for extended AI coding sessions.

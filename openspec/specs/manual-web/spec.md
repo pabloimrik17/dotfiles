@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+Provide a browsable HTML manual documenting all dotfiles aliases, keybindings, functions, and workflow guides.
+
+## Requirements
 
 ### Requirement: Browsable HTML manual with all dotfiles shortcuts and flows
 

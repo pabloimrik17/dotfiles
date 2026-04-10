@@ -32,8 +32,8 @@ The `:owner/:repo` template pattern maps to `~/WebstormProjects/:repo`. This dro
 
 Both execution modes have trade-offs worth evaluating:
 
-- **Direct execution** (`C`/`W`): gh-dash suspends TUI, runs command, resumes on exit. Always works, simpler. Blocks the TUI while command runs.
-- **Tmux** (`R`/`E`): Opens command in a side-by-side tmux pane (`split-window -h`). Non-blocking — gh-dash stays visible alongside the command. Requires active tmux session.
+- **Direct execution** (`b`/`i`): gh-dash suspends TUI, runs command, resumes on exit. Always works, simpler. Blocks the TUI while command runs.
+- **Tmux** (`B`/`I`): Opens command in a side-by-side tmux pane (`split-window -h`). Non-blocking — gh-dash stays visible alongside the command. Requires active tmux session.
 
 Keeping both lets the user compare workflows and remove the variant they don't prefer later.
 
@@ -45,5 +45,5 @@ Since gh-dash doesn't cd into the repo before executing commands, pass `-C {{.Re
 
 - [Direct execution blocks TUI] → Acceptable for interactive tools (lazygit, claude). User returns to gh-dash when done.
 - [Tmux variants fail outside tmux] → Expected. User uses direct variants when not in tmux.
-- [4 PR keybindings instead of 2] → Temporary duplication while evaluating. User will prune later.
+- [4 PR keybindings instead of 2] → Temporary duplication while evaluating. User will prune later. Keys remapped from `C`/`W`/`R`/`E` to `b`/`i`/`B`/`I` to avoid collisions with gh-dash defaults.
 - [`:repo` without `:owner` in path] → If two repos from different owners have the same name, path collision. Unlikely given current usage.

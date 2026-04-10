@@ -1,4 +1,8 @@
-## ADDED Requirements
+## Purpose
+
+Synchronize gitignored configuration files across git worktrees so each worktree has the necessary local files.
+
+## Requirements
 
 ### Requirement: Gitignored files are copied on worktree creation
 

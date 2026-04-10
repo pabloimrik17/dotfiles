@@ -11,47 +11,47 @@ Every keybinding entry in `config.yml` SHALL include a `name` field with a human
 
 ### Requirement: Universal lazygit keybinding
 
-The universal keybindings SHALL include a `g` key that opens lazygit in the repo directory using direct execution (no tmux).
+The universal keybindings SHALL include an `L` key that opens lazygit in the repo directory using direct execution (no tmux).
 
 #### Scenario: Lazygit opens in repo directory
 
-- **WHEN** user presses `g` on any item
+- **WHEN** user presses `L` on any item
 - **THEN** gh-dash suspends TUI, runs `cd {{.RepoPath}} && lazygit`, and resumes TUI on exit
 
 ### Requirement: PR code review keybinding (direct)
 
-The PR keybindings SHALL include a `C` key that checks out a worktree for the PR and launches Claude with a code review prompt using direct execution.
+The PR keybindings SHALL include a `b` key that checks out a worktree for the PR and launches Claude with a code review prompt using direct execution.
 
 #### Scenario: Code review launches for a PR (direct)
 
-- **WHEN** user presses `C` on a PR
+- **WHEN** user presses `b` on a PR
 - **THEN** gh-dash suspends TUI and runs `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"`
 
 ### Requirement: PR worktree + Claude keybinding (direct)
 
-The PR keybindings SHALL include a `W` key that checks out a worktree for the PR and launches Claude without a specific prompt using direct execution.
+The PR keybindings SHALL include an `i` key that checks out a worktree for the PR and launches Claude without a specific prompt using direct execution.
 
 #### Scenario: Claude opens in PR worktree (direct)
 
-- **WHEN** user presses `W` on a PR
+- **WHEN** user presses `i` on a PR
 - **THEN** gh-dash suspends TUI and runs `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude`
 
 ### Requirement: PR code review keybinding (tmux)
 
-The PR keybindings SHALL include an `R` key that checks out a worktree for the PR and launches Claude with a code review prompt in a side-by-side tmux pane.
+The PR keybindings SHALL include a `B` key that checks out a worktree for the PR and launches Claude with a code review prompt in a side-by-side tmux pane.
 
 #### Scenario: Code review launches in tmux pane
 
-- **WHEN** user presses `R` on a PR while inside a tmux session
+- **WHEN** user presses `B` on a PR while inside a tmux session
 - **THEN** a horizontal split pane opens running `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"` alongside gh-dash
 
 ### Requirement: PR worktree + Claude keybinding (tmux)
 
-The PR keybindings SHALL include an `E` key that checks out a worktree for the PR and launches Claude without a specific prompt in a side-by-side tmux pane.
+The PR keybindings SHALL include an `I` key that checks out a worktree for the PR and launches Claude without a specific prompt in a side-by-side tmux pane.
 
 #### Scenario: Claude opens in tmux pane
 
-- **WHEN** user presses `E` on a PR while inside a tmux session
+- **WHEN** user presses `I` on a PR while inside a tmux session
 - **THEN** a horizontal split pane opens running `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude` alongside gh-dash
 
 ### Requirement: RepoPath passed to worktrunk via -C flag
@@ -60,5 +60,5 @@ All keybinding commands that use `wt` SHALL pass `-C {{.RepoPath}}` to specify t
 
 #### Scenario: wt receives correct repo path
 
-- **WHEN** user presses `C`, `W`, `R`, or `E` on a PR from repo `owner/my-repo`
+- **WHEN** user presses `b`, `i`, `B`, or `I` on a PR from repo `owner/my-repo`
 - **THEN** the command includes `-C {{.RepoPath}}` where `{{.RepoPath}}` resolves to the local repo path
