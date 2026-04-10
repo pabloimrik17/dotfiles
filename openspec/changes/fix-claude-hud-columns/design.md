@@ -25,13 +25,13 @@ Currently the template does not include `COLUMNS=200`, so every `chezmoi apply` 
 
 **Current command**:
 
-```
+```bash
 bash -c '"{{ .chezmoi.homeDir }}/.bun/bin/bun" "$(ls -td ~/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts"'
 ```
 
 **New command**:
 
-```
+```bash
 bash -c 'COLUMNS=200 "{{ .chezmoi.homeDir }}/.bun/bin/bun" "$(ls -td ~/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts"'
 ```
 
