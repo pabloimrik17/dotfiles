@@ -8,7 +8,7 @@ Global MCP server configuration managed by chezmoi — defines which MCP servers
 
 ### Requirement: Global MCP servers are defined in chezmoi settings template
 
-`dot_claude/settings.json.tmpl` SHALL contain an `mcpServers` key with the following 9 servers:
+`dot_claude/settings.json.tmpl` SHALL contain an `mcpServers` key with the following 10 servers:
 
 | Name            | Type  | Command/URL                                         |
 | --------------- | ----- | --------------------------------------------------- |
@@ -18,19 +18,20 @@ Global MCP server configuration managed by chezmoi — defines which MCP servers
 | memory          | stdio | `npx -y @modelcontextprotocol/server-memory@latest` |
 | playwright      | stdio | `npx -y @playwright/mcp@latest`                     |
 | chrome-devtools | stdio | `npx -y chrome-devtools-mcp@latest`                 |
+| expect          | stdio | `npx -y expect-cli@latest mcp`                      |
 | gh_grep         | http  | `https://mcp.grep.app`                              |
 | atlassian       | http  | `https://mcp.atlassian.com/v1/mcp`                  |
 | figma           | http  | `https://mcp.figma.com/mcp`                         |
 
-#### Scenario: All 9 servers present after chezmoi apply
+#### Scenario: All 10 servers present after chezmoi apply
 
 - **WHEN** `chezmoi apply` is run on a new machine
-- **THEN** `~/.claude/settings.json` SHALL contain an `mcpServers` object with exactly the 9 servers listed above
+- **THEN** `~/.claude/settings.json` SHALL contain an `mcpServers` object with exactly the 10 servers listed above
 
 #### Scenario: Stdio servers use @latest versions
 
 - **WHEN** inspecting the deployed `~/.claude/settings.json`
-- **THEN** all 6 stdio servers SHALL reference `@latest` (not pinned versions)
+- **THEN** all 7 stdio servers SHALL reference `@latest` (not pinned versions)
 
 #### Scenario: Existing settings keys are preserved
 
