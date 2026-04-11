@@ -71,22 +71,27 @@ Detect three types of gaps:
 
 Present proposals in a structured format:
 
-```
+```markdown
 ## Proposed Manual Updates
 
 ### ✚ ADD (Section X: Name)
+
 - New table row for `alias_name` — description
 
 ### ✎ MODIFY (Section Y: Name)
+
 - Update `alias_name`: "old description" → "new description"
 
 ### ✖ REMOVE (Section Z: Name)
+
 - Remove row for `alias_name` — no longer in config
 
 ### 📋 NEW SUBSECTION (Section W: Name)
+
 - New h3: "Tool Name" with table of N entries
 
 ### No changes needed
+
 - Section A, Section B — already in sync
 ```
 

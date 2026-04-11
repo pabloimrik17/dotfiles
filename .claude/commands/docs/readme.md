@@ -71,34 +71,40 @@ Compare actual installed/configured tools against README content:
 
 Present proposals in a structured format:
 
-```
+```markdown
 ## Proposed README Updates
 
 ### ✚ ADD to What's Included
-| Category | Tool | Description |
-|----------|------|-------------|
-| **Git** | [gh-dash](https://github.com/...) | GitHub dashboard TUI with Catppuccin theme |
+
+| Category | Tool                              | Description                                |
+| -------- | --------------------------------- | ------------------------------------------ |
+| **Git**  | [gh-dash](https://github.com/...) | GitHub dashboard TUI with Catppuccin theme |
 
 ### ✎ MODIFY
+
 - Update description for Tool X: "old" → "new"
 - Update intro paragraph to mention new tool category
 
 ### ✖ REMOVE from What's Included
+
 - Remove row for Tool Y — no longer installed
 
 ### 📸 SCREENSHOT SUGGESTIONS
 
 #### gh-dash-overview.png
+
 - **Show**: gh-dash running with open PRs, Catppuccin Mocha theme visible
 - **Simulate**: Run `gh dash` in a repo with open PRs. Resize terminal to ~120x35.
 - **Placement**: Could be added as a second screenshot below the terminal overview, or inline in What's Included
 
 #### terminal-overview.png (UPDATE)
+
 - **Show**: Updated terminal with new prompt/theme changes visible
 - **Simulate**: Open Ghostty, run `ls` in a colorful directory, show starship prompt
 - **Placement**: Replace existing featured screenshot
 
 ### No changes needed
+
 - Setup section, Daily Workflows — still accurate
 ```
 
