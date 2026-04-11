@@ -506,6 +506,44 @@
                                 <td>Go to tab N</td>
                             </tr>
                             <tr>
+                                <td><kbd>⌘</kbd>+<kbd>⇧</kbd>+<kbd>↑</kbd>/<kbd>↓</kbd></td>
+                                <td>Jump to previous/next prompt</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>⌘</kbd>+<kbd>D</kbd></td>
+                                <td>New split right</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>⌘</kbd>+<kbd>⇧</kbd>+<kbd>D</kbd></td>
+                                <td>New split down</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <kbd>⌘</kbd
+                                    >+<kbd>⌥</kbd>+<kbd>←</kbd>/<kbd>→</kbd>/<kbd>↑</kbd>/<kbd
+                                        >↓</kbd
+                                    >
+                                </td>
+                                <td>Navigate splits</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <kbd>Ctrl</kbd
+                                    >+<kbd>⌘</kbd>+<kbd>←</kbd>/<kbd>→</kbd>/<kbd>↑</kbd>/<kbd
+                                        >↓</kbd
+                                    >
+                                </td>
+                                <td>Resize splits</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>⌘</kbd>+<kbd>⇧</kbd>+<kbd>Enter</kbd></td>
+                                <td>Toggle split zoom</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>⌘</kbd>+<kbd>⇧</kbd>+<kbd>=</kbd></td>
+                                <td>Equalize splits</td>
+                            </tr>
+                            <tr>
                                 <td><kbd>Ctrl</kbd>+<kbd>º</kbd></td>
                                 <td>Toggle quick terminal (global, drops from top)</td>
                             </tr>
@@ -888,6 +926,10 @@
                                 <td><code>git remotes</code></td>
                                 <td>List all remotes</td>
                             </tr>
+                            <tr>
+                                <td><code>git lg</code></td>
+                                <td>Pretty graph log with colors and author</td>
+                            </tr>
                         </tbody>
                     </table>
 
@@ -1048,6 +1090,17 @@
                                 <td><code>ghpl</code></td>
                                 <td><code>gh pr list</code></td>
                             </tr>
+                            <tr>
+                                <td><code>ghd</code></td>
+                                <td><code>gh dash</code> &mdash; GitHub dashboard TUI</td>
+                            </tr>
+                            <tr>
+                                <td><code>ghe</code></td>
+                                <td>
+                                    <code>gh enhance</code> &mdash; GitHub Actions CI/CD TUI
+                                    (Catppuccin theme)
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
 
@@ -1086,6 +1139,46 @@
                             <tr>
                                 <td><code>fgco</code></td>
                                 <td>Switch branch with fzf + log preview</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>gh-dash keybindings</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><kbd>L</kbd></td>
+                                <td>Open lazygit in repo</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>b</kbd></td>
+                                <td>Code review with Claude (inline)</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>i</kbd></td>
+                                <td>Worktree + Claude session (inline)</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>t</kbd></td>
+                                <td>CI checks via gh-enhance (inline)</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>B</kbd></td>
+                                <td>Code review with Claude (tmux split)</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>I</kbd></td>
+                                <td>Worktree + Claude (tmux split)</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>T</kbd></td>
+                                <td>CI checks via gh-enhance (tmux split)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1820,7 +1913,11 @@
                             </tr>
                             <tr>
                                 <td><code>/code-review</code></td>
-                                <td>Review a pull request</td>
+                                <td>Review a pull request (CodeRabbit)</td>
+                            </tr>
+                            <tr>
+                                <td><code>/autofix</code></td>
+                                <td>Auto-fix CodeRabbit review comments</td>
                             </tr>
                             <tr>
                                 <td><code>/plannotator-review</code></td>
@@ -2060,6 +2157,10 @@
                             <tr>
                                 <td>gh_grep</td>
                                 <td>Search across GitHub repos</td>
+                            </tr>
+                            <tr>
+                                <td>expect</td>
+                                <td>Visual testing and accessibility audits</td>
                             </tr>
                         </tbody>
                     </table>
