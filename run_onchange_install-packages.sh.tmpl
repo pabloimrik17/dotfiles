@@ -754,6 +754,88 @@ else
 fi
 
 # ------------------------------------------------------------------
+# Group 8.5: Claude Code MCP servers
+# ------------------------------------------------------------------
+MCP_STDIO_SERVERS=(
+    "eslint:npx:-y:@eslint/mcp@latest"
+    "context7:npx:-y:@upstash/context7-mcp@latest"
+    "knip:npx:-y:@knip/mcp@latest"
+    "memory:npx:-y:@modelcontextprotocol/server-memory@latest"
+    "playwright:npx:-y:@playwright/mcp@latest"
+    "chrome-devtools:npx:-y:chrome-devtools-mcp@latest"
+    "expect:npx:-y:expect-cli@latest:mcp"
+)
+
+MCP_HTTP_SERVERS=(
+    "gh_grep:https://mcp.grep.app"
+    "atlassian:https://mcp.atlassian.com/v1/mcp"
+    "figma:https://mcp.figma.com/mcp"
+)
+
+if command -v claude &>/dev/null; then
+    # Pre-scan: count already-registered MCP servers
+    MCP_LIST_JSON="$(claude mcp list --json --scope user 2>/dev/null || true)"
+
+    mcp_registered() {
+        local name="$1"
+        if [ -n "$MCP_LIST_JSON" ]; then
+            echo "$MCP_LIST_JSON" | grep -q "\"$name\""
+        else
+            return 1
+        fi
+    }
+
+    TOTAL_MCP=$(( ${#MCP_STDIO_SERVERS[@]} + ${#MCP_HTTP_SERVERS[@]} ))
+    PENDING_MCP=0
+    for entry in "${MCP_STDIO_SERVERS[@]}"; do
+        name="${entry%%:*}"
+        if ! mcp_registered "$name"; then
+            PENDING_MCP=$((PENDING_MCP + 1))
+        fi
+    done
+    for entry in "${MCP_HTTP_SERVERS[@]}"; do
+        name="${entry%%:*}"
+        if ! mcp_registered "$name"; then
+            PENDING_MCP=$((PENDING_MCP + 1))
+        fi
+    done
+
+    if [ "$PENDING_MCP" -eq 0 ]; then
+        info "MCP servers: $TOTAL_MCP/$TOTAL_MCP registered"
+    else
+        if confirm "Register MCP servers ($((TOTAL_MCP - PENDING_MCP))/$TOTAL_MCP registered, $PENDING_MCP pending)?"; then
+            info "  Registering stdio MCP servers..."
+            for entry in "${MCP_STDIO_SERVERS[@]}"; do
+                name="${entry%%:*}"
+                rest="${entry#*:}"
+                # Split rest on ':' to get command and args
+                IFS=':' read -ra parts <<< "$rest"
+                if mcp_registered "$name"; then
+                    info "  $name — already registered, skipping"
+                else
+                    run_claude_step "mcp $name" claude mcp add --scope user "$name" -- "${parts[@]}"
+                fi
+            done
+
+            info "  Registering http MCP servers..."
+            for entry in "${MCP_HTTP_SERVERS[@]}"; do
+                name="${entry%%:*}"
+                url="${entry#*:}"
+                if mcp_registered "$name"; then
+                    info "  $name — already registered, skipping"
+                else
+                    run_claude_step "mcp $name" claude mcp add --scope user --transport http "$name" "$url"
+                fi
+            done
+        else
+            info "Skipping MCP server registration."
+        fi
+    fi
+else
+    warn "Claude Code is not installed — skipping MCP server registration"
+fi
+
+# ------------------------------------------------------------------
 # Group 9: Agent skills (skills.sh)
 # ------------------------------------------------------------------
 if confirm "Install global agent skills via skills.sh?"; then
@@ -815,6 +897,8 @@ info "  - CleanMyMac: requires license — install from https://cleanmymac.com"
 info "  - Adobe Creative Cloud: requires Adobe login — install from https://creativecloud.adobe.com"
 info "  - 1Password for Safari: install from the Mac App Store (Safari extension)"
 info "  - CodeRabbit: coderabbit auth login (opens browser for authentication)"
+info "  - Atlassian MCP: requires OAuth authentication — run 'claude mcp get atlassian' or use on first invocation"
+info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma' or use on first invocation"
 info ""
 
 {{ else -}}
