@@ -53,6 +53,13 @@
                 "(?:pnpm dlx|bunx|npx) (?<depName>(?:@[^/\\s]+/)?[^@\\s]+)@(?<currentValue>[^\\s]+)"
             ],
             "datasourceTemplate": "npm"
+        },
+        {
+            "customType": "regex",
+            "description": "Update pinned MCP server versions in install script",
+            "fileMatch": ["^run_onchange_install-packages\\.sh\\.tmpl$"],
+            "matchStrings": [":(?<depName>(?:@[^@:]+/)?[^@:]+)@(?<currentValue>[^\":]+)"],
+            "datasourceTemplate": "npm"
         }
     ]
 }

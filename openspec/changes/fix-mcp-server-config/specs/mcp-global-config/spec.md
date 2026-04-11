@@ -36,10 +36,11 @@
 - **WHEN** reading `dot_claude/settings.json.tmpl`
 - **THEN** the file SHALL NOT contain an `mcpServers` key at any level
 
-#### Scenario: Stdio servers use @latest versions
+#### Scenario: Stdio servers use pinned versions managed by Renovate
 
 - **WHEN** inspecting registered stdio servers via `claude mcp get <name>`
-- **THEN** all 7 stdio servers SHALL reference `@latest` (not pinned versions)
+- **THEN** all 7 stdio servers SHALL reference pinned versions (not `@latest`)
+- **AND** `renovate.json` SHALL contain a custom regex manager for the install script template
 
 ### Requirement: MCP registration is idempotent and follows install script patterns
 
