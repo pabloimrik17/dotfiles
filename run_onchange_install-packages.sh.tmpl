@@ -773,47 +773,73 @@ MCP_HTTP_SERVERS=(
 )
 
 if command -v claude &>/dev/null; then
-    # Pre-scan: count already-registered MCP servers
-    MCP_LIST_JSON="$(claude mcp list --json --scope user 2>/dev/null || true)"
+    # Pre-scan: read ~/.claude.json directly (claude mcp list has no --json flag)
+    CLAUDE_JSON_CONTENT=""
+    if [ -f "$HOME/.claude.json" ]; then
+        CLAUDE_JSON_CONTENT="$(cat "$HOME/.claude.json" 2>/dev/null || true)"
+    fi
 
     mcp_registered() {
         local name="$1"
-        if [ -n "$MCP_LIST_JSON" ]; then
-            echo "$MCP_LIST_JSON" | grep -q "\"$name\""
-        else
-            return 1
-        fi
+        [ -n "$CLAUDE_JSON_CONTENT" ] && echo "$CLAUDE_JSON_CONTENT" | grep -q "\"$name\""
     }
 
+    mcp_config_matches() {
+        local match_string="$1"
+        [ -n "$CLAUDE_JSON_CONTENT" ] && echo "$CLAUDE_JSON_CONTENT" | grep -qF "$match_string"
+    }
+
+    # Count new and outdated servers
     TOTAL_MCP=$(( ${#MCP_STDIO_SERVERS[@]} + ${#MCP_HTTP_SERVERS[@]} ))
     PENDING_MCP=0
+    OUTDATED_MCP=0
     for entry in "${MCP_STDIO_SERVERS[@]}"; do
         name="${entry%%:*}"
+        rest="${entry#*:}"
+        IFS=':' read -ra parts <<< "$rest"
+        # Find the package@version part (contains @<digit>)
+        pkg_version=""
+        for part in "${parts[@]}"; do
+            if [[ "$part" == *@[0-9]* ]]; then pkg_version="$part"; break; fi
+        done
         if ! mcp_registered "$name"; then
             PENDING_MCP=$((PENDING_MCP + 1))
+        elif [ -n "$pkg_version" ] && ! mcp_config_matches "$pkg_version"; then
+            OUTDATED_MCP=$((OUTDATED_MCP + 1))
         fi
     done
     for entry in "${MCP_HTTP_SERVERS[@]}"; do
         name="${entry%%:*}"
+        url="${entry#*:}"
         if ! mcp_registered "$name"; then
             PENDING_MCP=$((PENDING_MCP + 1))
+        elif ! mcp_config_matches "$url"; then
+            OUTDATED_MCP=$((OUTDATED_MCP + 1))
         fi
     done
 
-    if [ "$PENDING_MCP" -eq 0 ]; then
-        info "MCP servers: $TOTAL_MCP/$TOTAL_MCP registered"
+    CHANGES_MCP=$((PENDING_MCP + OUTDATED_MCP))
+    if [ "$CHANGES_MCP" -eq 0 ]; then
+        info "MCP servers: $TOTAL_MCP/$TOTAL_MCP registered (all up to date)"
     else
-        if confirm "Register MCP servers ($((TOTAL_MCP - PENDING_MCP))/$TOTAL_MCP registered, $PENDING_MCP pending)?"; then
+        if confirm "Register MCP servers ($CHANGES_MCP changes: $PENDING_MCP new, $OUTDATED_MCP outdated)?"; then
             info "  Registering stdio MCP servers..."
             for entry in "${MCP_STDIO_SERVERS[@]}"; do
                 name="${entry%%:*}"
                 rest="${entry#*:}"
-                # Split rest on ':' to get command and args
                 IFS=':' read -ra parts <<< "$rest"
-                if mcp_registered "$name"; then
-                    info "  $name — already registered, skipping"
-                else
+                pkg_version=""
+                for part in "${parts[@]}"; do
+                    if [[ "$part" == *@[0-9]* ]]; then pkg_version="$part"; break; fi
+                done
+                if ! mcp_registered "$name"; then
                     run_claude_step "mcp $name" claude mcp add --scope user "$name" -- "${parts[@]}"
+                elif [ -n "$pkg_version" ] && ! mcp_config_matches "$pkg_version"; then
+                    info "  $name — version changed, updating..."
+                    claude mcp remove "$name" -s user 2>/dev/null || true
+                    run_claude_step "mcp $name" claude mcp add --scope user "$name" -- "${parts[@]}"
+                else
+                    info "  $name — already registered, skipping"
                 fi
             done
 
@@ -821,10 +847,14 @@ if command -v claude &>/dev/null; then
             for entry in "${MCP_HTTP_SERVERS[@]}"; do
                 name="${entry%%:*}"
                 url="${entry#*:}"
-                if mcp_registered "$name"; then
-                    info "  $name — already registered, skipping"
-                else
+                if ! mcp_registered "$name"; then
                     run_claude_step "mcp $name" claude mcp add --scope user --transport http "$name" "$url"
+                elif ! mcp_config_matches "$url"; then
+                    info "  $name — URL changed, updating..."
+                    claude mcp remove "$name" -s user 2>/dev/null || true
+                    run_claude_step "mcp $name" claude mcp add --scope user --transport http "$name" "$url"
+                else
+                    info "  $name — already registered, skipping"
                 fi
             done
         else
