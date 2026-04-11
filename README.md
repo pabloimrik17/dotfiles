@@ -10,6 +10,10 @@
   <img src="assets/terminal-overview.png" alt="Terminal overview" width="800">
 </p>
 
+<p align="center">
+  <img src="assets/gh-dash-overview.png" alt="gh-dash GitHub dashboard" width="800">
+</p>
+
 Chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Ghostty, Starship, zsh with Oh-My-Zsh, modern CLI replacements (`eza`, `bat`, `zoxide`, `fzf`), and AI tooling like Claude Code and OpenCode. Everything themed with Catppuccin Mocha.
 
 ## What's Included
@@ -29,12 +33,16 @@ Chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **CLI Tools**  | [fd](https://github.com/sharkdp/fd)                                             | Fast `find` alternative                                        |
 | **CLI Tools**  | [ripgrep](https://github.com/BurntSushi/ripgrep)                                | Fast recursive grep                                            |
 | **CLI Tools**  | [atuin](https://atuin.sh/)                                                      | Modern shell history search                                    |
+| **CLI Tools**  | [direnv](https://direnv.net/)                                                   | Auto-load/unload env vars per directory                        |
 | **Git**        | [git-delta](https://github.com/dandavison/delta)                                | Syntax-highlighted diff viewer                                 |
 | **Git**        | [lazygit](https://github.com/jesseduffield/lazygit)                             | TUI for git operations                                         |
 | **Git**        | [GitHub CLI](https://cli.github.com/)                                           | GitHub from the terminal                                       |
-| **Git**        | [Worktrunk](https://github.com/pabloimrik17/worktrunk)                          | Git worktree manager with AI commit messages                   |
+| **Git**        | [gh-dash](https://github.com/dlvhdr/gh-dash)                                    | GitHub dashboard TUI with Catppuccin Mocha theme               |
+| **Git**        | [gh-enhance](https://github.com/dlvhdr/gh-enhance)                              | GitHub Actions TUI for workflow runs                           |
+| **Git**        | [Worktrunk](https://github.com/max-sixty/worktrunk)                             | Git worktree manager for parallel AI agent workflows           |
 | **AI Tooling** | [Claude Code](https://code.claude.com/)                                         | AI coding assistant CLI with plugins                           |
 | **AI Tooling** | [OpenCode](https://github.com/anomalyco/opencode)                               | AI code editor                                                 |
+| **AI Tooling** | [CodeRabbit](https://www.coderabbit.ai/)                                        | AI code review CLI                                             |
 
 ## Setup
 
