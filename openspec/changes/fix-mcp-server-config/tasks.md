@@ -5,9 +5,9 @@
 ## 2. Add MCP registration group to install script
 
 - [x] 2.1 Add MCP server arrays (stdio + http) to `run_onchange_install-packages.sh.tmpl` as a new group between CC plugins (Group 8) and Agent skills (Group 9)
-- [x] 2.2 Implement pre-scan using `claude mcp list --json --scope user` to count already-registered servers
+- [x] 2.2 Implement pre-scan by reading `~/.claude.json` directly to count already-registered and outdated servers (`claude mcp list` has no `--json` or `--scope` flags)
 - [x] 2.3 Add `confirm` prompt and registration loop: stdio servers via `claude mcp add --scope user NAME -- COMMAND ARGS`, http servers via `claude mcp add --scope user --transport http NAME URL`
-- [x] 2.4 Use `run_claude_step` wrapper for each `claude mcp add` call and skip already-registered servers
+- [x] 2.4 Use `run_claude_step` wrapper for each `claude mcp add` call; skip up-to-date servers, re-register outdated ones via `claude mcp remove` + `claude mcp add`
 
 ## 3. Update manual instructions
 
