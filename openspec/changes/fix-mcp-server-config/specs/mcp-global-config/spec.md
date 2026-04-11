@@ -1,6 +1,6 @@
 ## MODIFIED Requirements
 
-### Requirement: Global MCP servers are defined in chezmoi settings template
+### Requirement: Global MCP servers are registered via Claude CLI in install script
 
 `run_onchange_install-packages.sh.tmpl` SHALL register the following 10 MCP servers via `claude mcp add --scope user`, which writes to `~/.claude.json`:
 
