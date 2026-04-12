@@ -83,7 +83,7 @@ The only custom cable channel needed. Replicates `frg()` behavior: ripgrep searc
 - **Files modified**: `dot_zshrc.tmpl`, `run_onchange_install-packages.sh.tmpl`
 - **Files created**: `dot_config/television/config.toml`, `dot_config/television/themes/catppuccin-mocha-mauve.toml`, `dot_config/television/cable/rg-edit.toml`
 - **Dependencies**: `brew` (existing), `rg` (existing), `bat` (existing), `fd` (existing)
-- **No breaking changes**: fzf stays installed and functional. Alt+C still works. `| fzf` piping still works. The only behavioral change is Ctrl+T now launches tv's smart autocomplete instead of fzf's file search.
+- **Low-impact behavior changes**: fzf stays installed and functional — Alt+C and `| fzf` piping still work. Ctrl+T now launches tv smart autocomplete instead of fzf file search (empty prompt falls back to fzf files). The `fgco`, `fglog`, `fkill`, and `frg` shell functions are removed; their workflows are replaced by `tv git-branch`, `tv git-log`, `tv procs`, and `tv rg-edit` respectively.
 - **Net lines of shell code removed**: ~19 lines of function definitions replaced by declarative TOML configs
 
 ## Implementation Notes
