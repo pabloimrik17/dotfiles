@@ -1,0 +1,22 @@
+[metadata]
+name = "rg-edit"
+description = "Ripgrep search and open in editor at exact line"
+requirements = ["rg", "bat"]
+
+[source]
+command = "rg --line-number --no-heading --color=never '.*'"
+output = "{0}"
+
+[preview]
+command = "bat --color=always --highlight-line {split:\\::1} {split:\\::0}"
+
+[ui]
+preview_panel = { size = 60 }
+
+[keybindings]
+enter = "actions:open"
+
+[actions.open]
+description = "Open file at line in editor"
+command = "${EDITOR:-code} {split:\\::0} +{split:\\::1}"
+mode = "execute"

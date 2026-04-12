@@ -76,7 +76,7 @@ fi
 # ------------------------------------------------------------------
 # Group 1: Brew packages
 # ------------------------------------------------------------------
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget opencode)
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget opencode television)
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -85,6 +85,7 @@ pkg_bin() {
         ripgrep)   echo "rg" ;;
         worktrunk) echo "wt" ;;
         beads)     echo "bd" ;;
+        television) echo "tv" ;;
         *)         echo "$1" ;;
     esac
 }
@@ -129,6 +130,14 @@ elif confirm "Install brew packages ($BREW_PENDING/${#BREW_PACKAGES[@]} pending)
     done
 else
     info "Skipping brew packages."
+fi
+
+# ------------------------------------------------------------------
+# Television: download community cable channels
+# ------------------------------------------------------------------
+if command -v tv &>/dev/null; then
+    info "Updating television cable channels..."
+    tv update-channels 2>/dev/null || warn "Failed to update television cable channels (network issue?)"
 fi
 
 # ------------------------------------------------------------------

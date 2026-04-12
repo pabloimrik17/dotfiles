@@ -1,0 +1,34 @@
+# Television configuration
+# https://alexpasmantier.github.io/television/user-guide/configuration/
+
+[ui]
+theme = "catppuccin-mocha-mauve"
+
+[ui.preview_panel]
+size = 55
+
+[ui.help_panel]
+hidden = false
+
+[ui.remote_control]
+show_channel_descriptions = true
+sort_alphabetically = true
+
+# Shell integration: tv owns Ctrl+T (smart autocomplete), atuin owns Ctrl+R (history).
+# command_history is omitted (defaults to ctrl-r) — atuin overwrites it via init order in zshrc.
+[shell_integration.keybindings]
+smart_autocomplete = "ctrl-t"
+
+[shell_integration.channel_triggers]
+"git-branch" = ["git checkout", "git switch", "git merge", "git rebase"]
+"git-log" = ["git show", "git revert", "git cherry-pick"]
+"git-diff" = ["git add", "git restore"]
+"git-stash" = ["git stash apply", "git stash pop", "git stash drop"]
+"docker-images" = ["docker run", "docker rmi"]
+"docker-containers" = ["docker stop", "docker start", "docker rm", "docker logs", "docker exec"]
+"ssh-hosts" = ["ssh", "scp"]
+"tmux-sessions" = ["tmux attach", "tmux switch"]
+"dirs" = ["cd", "ls", "rmdir"]
+"npm-scripts" = ["bun run"]
+"brew-packages" = ["brew uninstall", "brew info"]
+"zoxide" = ["z"]
