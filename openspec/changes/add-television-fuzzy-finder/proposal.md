@@ -16,7 +16,7 @@ The killer feature is **smart autocomplete** (Ctrl+T): instead of always showing
 ### Shell integration
 
 - Add `eval "$(tv init zsh)"` to zshrc, **before** the atuin init (so atuin's Ctrl+R wins over tv's)
-- Disable tv's Ctrl+R binding explicitly via config (belt and suspenders — atuin owns history search)
+- Ctrl+R ownership handled by init ordering only — tv's config parser does not support disabling `command_history` (see Implementation Notes)
 - fzf shell integration stays untouched (`source <(fzf --zsh)` remains) — fzf is still used for Alt+C directory jump and as a generic pipe tool (`| fzf`)
 
 ### Configuration (new chezmoi-managed files)
@@ -28,7 +28,7 @@ The killer feature is **smart autocomplete** (Ctrl+T): instead of always showing
 ### Config highlights
 
 - **Theme**: catppuccin-mocha-mauve (matches Ghostty `theme = catppuccin-mocha` and Starship `palette = 'catppuccin_mocha'`)
-- **Ctrl+R disabled** in tv (atuin handles history with AI search, sync, and stats — superior)
+- **Ctrl+R owned by atuin** via init ordering (atuin handles history with AI search, sync, and stats — superior)
 - **Ctrl+T** = tv smart autocomplete (context-aware, replaces fzf's always-files behavior)
 - **Channel triggers** map common commands to the right channel:
     - `git checkout/switch/merge/rebase` → git-branch
