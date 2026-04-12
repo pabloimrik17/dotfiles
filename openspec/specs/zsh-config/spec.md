@@ -41,7 +41,7 @@ The `.zshrc` SHALL add `$HOME/.local/bin` to PATH for user-local binaries (Claud
 
 ### Requirement: Zsh external plugin sources use OS-conditional paths
 
-Source paths for zsh-autosuggestions and zsh-syntax-highlighting SHALL use template conditionals for platform differences (e.g., `/usr/local/share/` on Intel macOS vs `/opt/homebrew/share/` on Apple Silicon vs `/usr/share/` on Linux). On macOS, fzf binary PATH SHALL use OS/arch-conditional template paths (`/opt/homebrew/opt/fzf/bin` on ARM, `/usr/local/opt/fzf/bin` on Intel). fzf initialization SHALL be inline via `source <(fzf --zsh)` instead of sourcing an external `~/.fzf.zsh` file.
+Source paths for zsh-autosuggestions and zsh-syntax-highlighting SHALL use template conditionals for platform differences (e.g., `/usr/local/share/` on Intel macOS vs `/opt/homebrew/share/` on Apple Silicon vs `/usr/share/` on Linux). On macOS, fzf binary PATH SHALL use OS/arch-conditional template paths (`/opt/homebrew/opt/fzf/bin` on ARM, `/usr/local/opt/fzf/bin` on Intel). fzf initialization SHALL be inline via `source <(fzf --zsh)` instead of sourcing an external `~/.fzf.zsh` file. Television initialization SHALL be inline via `eval "$(tv init zsh)"` positioned after fzf init and before atuin init.
 
 #### Scenario: Correct fzf PATH on Apple Silicon macOS
 
@@ -56,7 +56,7 @@ Source paths for zsh-autosuggestions and zsh-syntax-highlighting SHALL use templ
 #### Scenario: fzf keybindings and completions loaded inline
 
 - **WHEN** chezmoi apply completes and user opens a new shell
-- **THEN** fzf keybindings (Ctrl+T, Ctrl+R, Alt+C) and completions are available without any external file dependency
+- **THEN** fzf keybindings (Alt+C) and completions are available without any external file dependency
 
 #### Scenario: No reference to external fzf file
 
@@ -72,3 +72,13 @@ Source paths for zsh-autosuggestions and zsh-syntax-highlighting SHALL use templ
 
 - **WHEN** chezmoi apply runs on an Intel Mac
 - **THEN** `.zshrc` sources plugins from `/usr/local/share/`
+
+#### Scenario: Television init is positioned between fzf and atuin
+
+- **WHEN** chezmoi apply completes and user opens a new shell
+- **THEN** `eval "$(tv init zsh)"` appears after `source <(fzf --zsh)` and before `eval "$(atuin init zsh --disable-up-arrow)"`
+
+#### Scenario: Ctrl+T is owned by television
+
+- **WHEN** the user presses Ctrl+T in a new shell
+- **THEN** television smart autocomplete launches (not fzf file search)
