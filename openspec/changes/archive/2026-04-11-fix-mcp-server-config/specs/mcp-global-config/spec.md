@@ -1,10 +1,4 @@
-# Capability: mcp-global-config
-
-## Purpose
-
-Global MCP server configuration managed by chezmoi — defines which MCP servers are available in every Claude Code session across all machines.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Global MCP servers are registered via Claude CLI in install script
 
@@ -108,3 +102,10 @@ The MCP server list in `run_onchange_install-packages.sh.tmpl` SHALL be plain ba
 
 - **WHEN** `chezmoi apply` deploys the updated OpenCode config
 - **THEN** the `model`, `tui`, `plugin`, `formatter`, and `permission` keys SHALL remain unchanged
+
+## REMOVED Requirements
+
+### Requirement: Atlassian and Figma included as local HTTP servers
+
+**Reason**: Merged into the updated "Global MCP servers" requirement above. The servers are still included but registered via CLI instead of template.
+**Migration**: No action needed — the servers remain in the same table, just registered differently.
