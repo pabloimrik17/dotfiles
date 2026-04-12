@@ -144,6 +144,9 @@ export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
 # Init order: fzf → tv → atuin. tv overrides fzf's Ctrl+T with smart
 # autocomplete; atuin then overrides tv's Ctrl+R for AI-powered history.
 command -v tv &>/dev/null && eval "$(tv init zsh)"
+# Make Ctrl+T on empty prompt launch fzf file search instead of zsh completion.
+# tv's smart autocomplete delegates to fzf_default_completion when no command is typed.
+fzf_default_completion=fzf-file-widget
 
 # atuin - Modern shell history (replaces fzf's Ctrl+R)
 eval "$(atuin init zsh --disable-up-arrow)"
