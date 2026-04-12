@@ -4,20 +4,20 @@
 
 `run_onchange_install-packages.sh.tmpl` SHALL register the following 12 MCP servers via `claude mcp add --scope user`, which writes to `~/.claude.json`:
 
-| Name            | Type  | Command/URL                                         |
-| --------------- | ----- | --------------------------------------------------- |
-| eslint          | stdio | `npx -y @eslint/mcp@latest`                         |
-| context7        | stdio | `npx -y @upstash/context7-mcp@latest`               |
-| knip            | stdio | `npx -y @knip/mcp@latest`                           |
-| memory          | stdio | `npx -y @modelcontextprotocol/server-memory@latest` |
-| playwright      | stdio | `npx -y @playwright/mcp@latest`                     |
-| chrome-devtools | stdio | `npx -y chrome-devtools-mcp@latest`                 |
-| expect          | stdio | `npx -y expect-cli@latest mcp`                      |
-| gh_grep         | http  | `https://mcp.grep.app`                              |
-| atlassian       | http  | `https://mcp.atlassian.com/v1/mcp`                  |
-| figma           | http  | `https://mcp.figma.com/mcp`                         |
-| linear          | http  | `https://mcp.linear.app/mcp`                        |
-| storybook       | http  | `http://localhost:6006/mcp`                         |
+| Name            | Type  | Command/URL                                            |
+| --------------- | ----- | ------------------------------------------------------ |
+| eslint          | stdio | `npx -y @eslint/mcp@0.3.0`                             |
+| context7        | stdio | `npx -y @upstash/context7-mcp@2.1.2`                   |
+| knip            | stdio | `npx -y @knip/mcp@0.0.19`                              |
+| memory          | stdio | `npx -y @modelcontextprotocol/server-memory@2026.1.26` |
+| playwright      | stdio | `npx -y @playwright/mcp@0.0.68`                        |
+| chrome-devtools | stdio | `npx -y chrome-devtools-mcp@0.18.1`                    |
+| expect          | stdio | `npx -y expect-cli@0.1.3 mcp`                          |
+| gh_grep         | http  | `https://mcp.grep.app`                                 |
+| atlassian       | http  | `https://mcp.atlassian.com/v1/mcp`                     |
+| figma           | http  | `https://mcp.figma.com/mcp`                            |
+| linear          | http  | `https://mcp.linear.app/mcp`                           |
+| storybook       | http  | `http://localhost:6006/mcp`                            |
 
 `dot_claude/settings.json.tmpl` SHALL NOT contain an `mcpServers` key.
 
