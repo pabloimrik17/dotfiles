@@ -70,6 +70,9 @@ zstyle ':omz:plugins:nvm' silent-autoload yes
 [ -d /usr/share/zsh-completions ] && fpath+=/usr/share/zsh-completions
 {{- end }}
 
+# Catppuccin Mocha theme for zsh-syntax-highlighting (must load before plugin)
+[[ -f ~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh ]] && source ~/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh
+
 source $ZSH/oh-my-zsh.sh
 
 # Pre-seed PATH with default nvm node for non-shell subprocesses (Gradle, Xcode)
@@ -136,6 +139,10 @@ export FZF_DEFAULT_OPTS="
   --preview 'bat --color=always --style=numbers --line-range=:500 {}'
   --preview-window=right:60%
   --bind='ctrl-/:toggle-preview'
+  --color=bg+:#313244,bg:#1E1E2E,spinner:#F5E0DC,hl:#F38BA8
+  --color=fg:#CDD6F4,header:#F38BA8,info:#CBA6F7,pointer:#F5E0DC
+  --color=marker:#B4BEFE,fg+:#CDD6F4,prompt:#CBA6F7,hl+:#F38BA8
+  --color=selected-bg:#45475A,border:#6C7086,label:#CDD6F4
 "
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"

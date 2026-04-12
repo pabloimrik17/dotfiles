@@ -43,11 +43,15 @@
 [interactive]
 	diffFilter = delta --color-only
 
+[include]
+	path = ~/.config/delta/catppuccin.gitconfig
+
 [delta]
 	navigate = true
 	light = false
 	side-by-side = true
 	line-numbers = true
+	features = catppuccin-mocha
 
 [alias]
 	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit

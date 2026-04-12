@@ -8,3 +8,6 @@ autostart = true
 
 [ai]
 enabled = true
+
+[theme]
+name = "catppuccin-mocha-blue"
