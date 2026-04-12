@@ -24,5 +24,5 @@
 
 ## 5. Verification
 
-- [ ] 5.1 Run `chezmoi apply --dry-run` to verify all managed files deploy correctly
-- [ ] 5.2 Open each tool (fzf, lazygit, tmux, delta diff, eza, gh-dash, atuin) and confirm Catppuccin Mocha colors render
+- [x] 5.1 Run `chezmoi apply --dry-run` to verify all managed files deploy correctly
+- [x] 5.2 Open each tool (fzf, lazygit, tmux, delta diff, eza, gh-dash, atuin) and confirm Catppuccin Mocha colors render
