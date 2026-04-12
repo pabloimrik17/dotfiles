@@ -773,20 +773,15 @@ MCP_HTTP_SERVERS=(
 )
 
 if command -v claude &>/dev/null; then
-    # Pre-scan: read ~/.claude.json directly (claude mcp list has no --json flag)
-    CLAUDE_JSON_CONTENT=""
-    if [ -f "$HOME/.claude.json" ]; then
-        CLAUDE_JSON_CONTENT="$(cat "$HOME/.claude.json" 2>/dev/null || true)"
-    fi
-
+    # Pre-scan: grep ~/.claude.json directly (claude mcp list has no --json flag)
     mcp_registered() {
         local name="$1"
-        [ -n "$CLAUDE_JSON_CONTENT" ] && echo "$CLAUDE_JSON_CONTENT" | grep -q "\"$name\""
+        [ -f "$HOME/.claude.json" ] && grep -q "\"$name\"" "$HOME/.claude.json" 2>/dev/null
     }
 
     mcp_config_matches() {
         local match_string="$1"
-        [ -n "$CLAUDE_JSON_CONTENT" ] && echo "$CLAUDE_JSON_CONTENT" | grep -qF "$match_string"
+        [ -f "$HOME/.claude.json" ] && grep -qF "$match_string" "$HOME/.claude.json" 2>/dev/null
     }
 
     # Count new and outdated servers
@@ -836,8 +831,13 @@ if command -v claude &>/dev/null; then
                     run_claude_step "mcp $name" claude mcp add --scope user "$name" -- "${parts[@]}"
                 elif [ -n "$pkg_version" ] && ! mcp_config_matches "$pkg_version"; then
                     info "  $name — version changed, updating..."
-                    claude mcp remove "$name" -s user 2>/dev/null || true
-                    run_claude_step "mcp $name" claude mcp add --scope user "$name" -- "${parts[@]}"
+                    run_claude_step "mcp remove $name" claude mcp remove "$name" -s user
+                    # Verify removal before re-adding (remove may fail silently due to Bun PTY issues)
+                    if [ -f "$HOME/.claude.json" ] && grep -q "\"$name\"" "$HOME/.claude.json" 2>/dev/null; then
+                        error "  $name — remove failed, skipping update"
+                    else
+                        run_claude_step "mcp $name" claude mcp add --scope user "$name" -- "${parts[@]}"
+                    fi
                 else
                     info "  $name — already registered, skipping"
                 fi
@@ -851,8 +851,12 @@ if command -v claude &>/dev/null; then
                     run_claude_step "mcp $name" claude mcp add --scope user --transport http "$name" "$url"
                 elif ! mcp_config_matches "$url"; then
                     info "  $name — URL changed, updating..."
-                    claude mcp remove "$name" -s user 2>/dev/null || true
-                    run_claude_step "mcp $name" claude mcp add --scope user --transport http "$name" "$url"
+                    run_claude_step "mcp remove $name" claude mcp remove "$name" -s user
+                    if [ -f "$HOME/.claude.json" ] && grep -q "\"$name\"" "$HOME/.claude.json" 2>/dev/null; then
+                        error "  $name — remove failed, skipping update"
+                    else
+                        run_claude_step "mcp $name" claude mcp add --scope user --transport http "$name" "$url"
+                    fi
                 else
                     info "  $name — already registered, skipping"
                 fi
