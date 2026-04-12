@@ -23,9 +23,9 @@
 
 - [x] 4.1 Run `chezmoi apply --dry-run` to verify template renders correctly
 - [x] 4.2 Verify `tv` launches with catppuccin-mocha-mauve theme
-- [ ] 4.3 Verify Ctrl+T triggers tv smart autocomplete (not fzf file search)
-- [ ] 4.4 Verify Ctrl+R triggers atuin (not tv shell history)
-- [ ] 4.5 Verify Alt+C triggers fzf directory jump (unchanged)
-- [ ] 4.6 Verify `tv rg-edit` channel works (search → preview → open in editor)
-- [ ] 4.7 Verify `tv git-branch` Enter action does checkout
-- [ ] 4.8 Verify `tv procs` Ctrl+K action kills a process
+- [x] 4.3 Verify Ctrl+T triggers tv smart autocomplete (not fzf file search)
+- [x] 4.4 Verify Ctrl+R triggers atuin (not tv shell history)
+- [x] 4.5 Verify Alt+C triggers fzf directory jump (unchanged)
+- [x] 4.6 Verify `tv rg-edit` channel works (search → preview → open in editor)
+- [x] 4.7 Verify `tv git-branch` Enter action does checkout
+- [x] 4.8 Verify `tv procs` Ctrl+K action kills a process
