@@ -23,19 +23,19 @@ The config SHALL set `theme = "catppuccin-mocha-mauve"` under `[ui]`. A correspo
 - **WHEN** `chezmoi apply` runs
 - **THEN** `~/.config/television/themes/catppuccin-mocha-mauve.toml` exists
 
-### Requirement: Shell integration disables Ctrl+R and keeps Ctrl+T
+### Requirement: Shell integration configures Ctrl+T for smart autocomplete
 
-The config SHALL set `[shell_integration.keybindings]` with `smart_autocomplete = "ctrl-t"` and `command_history = ""` (empty string to disable). This ensures tv does not compete with atuin for Ctrl+R.
-
-#### Scenario: Ctrl+R is not bound by tv config
-
-- **WHEN** tv reads its config.toml
-- **THEN** tv does not bind any shell keybinding for command history
+The config SHALL set `[shell_integration.keybindings]` with `smart_autocomplete = "ctrl-t"`. The `command_history` field is left at its default (`ctrl-r`) because tv's config parser does not support disabling it. Ctrl+R ownership is handled by init ordering in zshrc: atuin inits after tv and overwrites the binding.
 
 #### Scenario: Ctrl+T triggers smart autocomplete
 
 - **WHEN** tv reads its config.toml
 - **THEN** Ctrl+T is bound to tv smart autocomplete in the shell
+
+#### Scenario: Ctrl+R owned by atuin via init order
+
+- **WHEN** the user opens a new shell
+- **THEN** atuin owns Ctrl+R because its init runs after tv's init in zshrc
 
 ### Requirement: Channel triggers map commands to appropriate channels
 

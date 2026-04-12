@@ -143,8 +143,7 @@ export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
 # television - Smart fuzzy finder with context-aware autocomplete
 # Init order: fzf → tv → atuin. tv overrides fzf's Ctrl+T with smart
 # autocomplete; atuin then overrides tv's Ctrl+R for AI-powered history.
-# Config also disables tv's Ctrl+R as belt-and-suspenders.
-eval "$(tv init zsh)"
+command -v tv &>/dev/null && eval "$(tv init zsh)"
 
 # atuin - Modern shell history (replaces fzf's Ctrl+R)
 eval "$(atuin init zsh --disable-up-arrow)"

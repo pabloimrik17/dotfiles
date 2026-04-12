@@ -2,7 +2,7 @@
 
 ### Requirement: BREW_PACKAGES array includes all actively used CLI tools
 
-The `BREW_PACKAGES` array SHALL contain the following 18 packages (17 existing + 1 new):
+The `BREW_PACKAGES` array SHALL contain the following 22 packages (21 existing + 1 new):
 
 Existing: `git`, `git-delta`, `starship`, `eza`, `bat`, `zoxide`, `atuin`, `fzf`, `ripgrep`, `lazygit`, `worktrunk`, `terminal-notifier`, `fd`, `direnv`, `beads`, `gh`, `tmux`, `uv`, `mas`, `wget`, `opencode`
 
