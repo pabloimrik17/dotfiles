@@ -70,7 +70,7 @@ The only custom cable channel needed. Replicates `frg()` behavior: ripgrep searc
 
 - `television-install`: Television binary installed via brew, cable channels updated on setup
 - `television-config`: Chezmoi-managed config.toml with catppuccin-mocha-mauve theme, smart autocomplete triggers, and UI preferences
-- `television-shell-integration`: tv init in zshrc with Ctrl+T smart autocomplete, Ctrl+R disabled (atuin owns it)
+- `television-shell-integration`: tv init in zshrc with Ctrl+T smart autocomplete, Ctrl+R owned by atuin via init ordering
 - `television-rg-edit-channel`: Custom cable channel for ripgrep → editor workflow
 
 ### Modified Capabilities
@@ -85,3 +85,23 @@ The only custom cable channel needed. Replicates `frg()` behavior: ripgrep searc
 - **Dependencies**: `brew` (existing), `rg` (existing), `bat` (existing), `fd` (existing)
 - **No breaking changes**: fzf stays installed and functional. Alt+C still works. `| fzf` piping still works. The only behavioral change is Ctrl+T now launches tv's smart autocomplete instead of fzf's file search.
 - **Net lines of shell code removed**: ~19 lines of function definitions replaced by declarative TOML configs
+
+## Implementation Notes
+
+Discoveries and deviations from the original plan, captured during implementation:
+
+### rg-edit channel hardcodes `code -g` instead of `$EDITOR`
+
+The spec says the action should use `$EDITOR` with a fallback to `code`. The implementation hardcodes `code -g '{file}:{line}'` directly. Reason: tv cable channel TOML commands don't support conditional shell variable expansion (`${EDITOR:-code}` expands but the `code -g` vs `vim +N` syntax difference can't be handled in a single command string without an inline bash if/else, which is fragile). Since the dotfiles set `EDITOR="code --wait"` globally, the behavior is identical in practice. If the editor changes, the channel TOML needs a manual update.
+
+### `command_history` cannot be disabled in tv config
+
+The original plan was to set `command_history = ""` in config.toml to disable tv's Ctrl+R binding. tv's config parser does not support empty strings or "none" for keybinding fields — it requires a valid key. The implementation relies solely on init ordering (atuin inits after tv and overwrites Ctrl+R). This works but is less explicit than a config-level disable.
+
+### Ctrl+T on empty prompt falls back to fzf file search
+
+tv's smart autocomplete delegates to zsh's `expand-or-complete` when no command is typed, which dumps 4000+ completions. Fixed by setting `fzf_default_completion=fzf-file-widget` after tv init, so the empty-prompt case launches fzf's familiar fuzzy file search instead.
+
+### tv init is guarded by `command -v tv`
+
+Added per CodeRabbit review feedback. Prevents `command not found: tv` errors on first bootstrap before television is installed. Same pattern used for `direnv` and `worktrunk` in the zshrc.
