@@ -6,7 +6,7 @@ A chezmoi-managed theme file SHALL exist at `dot_config/eza/theme.yml` deploying
 
 - File kinds: directories blue (`#89b4fa`), executables green (`#a6e3a1`), symlinks blue, pipes subtext0, devices maroon
 - Permissions: read red, write yellow, execute green (bold for user, normal for group/other)
-- File sizes: color scale from green (small) to red (large)
+- File sizes: Catppuccin multi-color progression (subtext0 → blue → mauve) for numbers and units
 - Git status: new green, modified yellow, deleted red, renamed blue
 
 #### Scenario: listing files with eza

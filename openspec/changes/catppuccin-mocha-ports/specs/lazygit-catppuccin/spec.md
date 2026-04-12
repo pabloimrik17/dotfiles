@@ -2,7 +2,9 @@
 
 ### Requirement: lazygit renders with Catppuccin Mocha blue theme
 
-A chezmoi-managed config file SHALL exist at `dot_config/lazygit/config.yml` deploying to `~/.config/lazygit/config.yml` (macOS: `~/Library/Application Support/lazygit/config.yml` is also valid, but `~/.config/lazygit/` is the XDG standard path). The file SHALL contain the official Catppuccin Mocha blue theme under `gui.theme`:
+A chezmoi-managed config file SHALL exist at `dot_config/lazygit/config.yml` deploying to `~/.config/lazygit/config.yml` (macOS: `~/Library/Application Support/lazygit/config.yml` is also valid, but `~/.config/lazygit/` is the XDG standard path). The file SHALL contain the official Catppuccin Mocha blue theme under `gui`:
+
+**`gui.theme`:**
 
 - `activeBorderColor`: `#89b4fa` bold (Blue)
 - `inactiveBorderColor`: `#a6adc8` (Subtext0)
@@ -16,7 +18,10 @@ A chezmoi-managed config file SHALL exist at `dot_config/lazygit/config.yml` dep
 - `markedBaseCommitBgColor`: `#f9e2af` (Yellow)
 - `unstagedChangesColor`: `#f38ba8` (Red)
 - `defaultFgColor`: `#cdd6f4` (Text)
-- `authorColors.*`: `#b4befe` (Lavender)
+
+**`gui.authorColors`:**
+
+- `*`: `#b4befe` (Lavender)
 
 #### Scenario: lazygit launched
 
