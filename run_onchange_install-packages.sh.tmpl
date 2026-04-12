@@ -770,6 +770,8 @@ MCP_HTTP_SERVERS=(
     "gh_grep:https://mcp.grep.app"
     "atlassian:https://mcp.atlassian.com/v1/mcp"
     "figma:https://mcp.figma.com/mcp"
+    "linear:https://mcp.linear.app/mcp"
+    "storybook:http://localhost:6006/mcp"
 )
 
 if command -v claude &>/dev/null; then
@@ -933,6 +935,8 @@ info "  - 1Password for Safari: install from the Mac App Store (Safari extension
 info "  - CodeRabbit: coderabbit auth login (opens browser for authentication)"
 info "  - Atlassian MCP: requires OAuth authentication — run 'claude mcp get atlassian' or use on first invocation"
 info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma' or use on first invocation"
+info "  - Linear MCP: requires OAuth authentication — run 'claude mcp get linear' or use on first invocation"
+info "  - Storybook MCP: requires @storybook/addon-mcp installed in each Storybook project and 'storybook dev' running on port 6006"
 info ""
 
 {{ else -}}
