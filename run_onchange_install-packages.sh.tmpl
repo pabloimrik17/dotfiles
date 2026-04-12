@@ -163,6 +163,74 @@ if command -v bat &>/dev/null; then
 fi
 
 # ------------------------------------------------------------------
+# Delta theme: Catppuccin Mocha
+# ------------------------------------------------------------------
+DELTA_THEME_PATH="$HOME/.config/delta/catppuccin.gitconfig"
+if [ -f "$DELTA_THEME_PATH" ]; then
+    info "  delta Catppuccin Mocha theme — already installed, skipping"
+else
+    info "  Installing delta Catppuccin Mocha theme..."
+    mkdir -p "$(dirname "$DELTA_THEME_PATH")"
+    if curl -fsSLo "$DELTA_THEME_PATH" \
+        "https://raw.githubusercontent.com/catppuccin/delta/main/catppuccin.gitconfig"; then
+        info "  delta Catppuccin Mocha theme installed successfully"
+    else
+        error "Failed to download delta Catppuccin Mocha theme"
+    fi
+fi
+
+# ------------------------------------------------------------------
+# zsh-syntax-highlighting theme: Catppuccin Mocha
+# ------------------------------------------------------------------
+ZSH_SYNTAX_THEME_PATH="$HOME/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh"
+if [ -f "$ZSH_SYNTAX_THEME_PATH" ]; then
+    info "  zsh-syntax-highlighting Catppuccin Mocha theme — already installed, skipping"
+else
+    info "  Installing zsh-syntax-highlighting Catppuccin Mocha theme..."
+    mkdir -p "$(dirname "$ZSH_SYNTAX_THEME_PATH")"
+    if curl -fsSLo "$ZSH_SYNTAX_THEME_PATH" \
+        "https://raw.githubusercontent.com/catppuccin/zsh-syntax-highlighting/main/themes/catppuccin_mocha-zsh-syntax-highlighting.zsh"; then
+        info "  zsh-syntax-highlighting Catppuccin Mocha theme installed successfully"
+    else
+        error "Failed to download zsh-syntax-highlighting Catppuccin Mocha theme"
+    fi
+fi
+
+# ------------------------------------------------------------------
+# Atuin theme: Catppuccin Mocha Blue
+# ------------------------------------------------------------------
+ATUIN_THEME_PATH="$HOME/.config/atuin/themes/catppuccin-mocha-blue.toml"
+if [ -f "$ATUIN_THEME_PATH" ]; then
+    info "  atuin Catppuccin Mocha Blue theme — already installed, skipping"
+else
+    info "  Installing atuin Catppuccin Mocha Blue theme..."
+    mkdir -p "$(dirname "$ATUIN_THEME_PATH")"
+    if curl -fsSLo "$ATUIN_THEME_PATH" \
+        "https://raw.githubusercontent.com/catppuccin/atuin/main/themes/mocha/catppuccin-mocha-blue.toml"; then
+        info "  atuin Catppuccin Mocha Blue theme installed successfully"
+    else
+        error "Failed to download atuin Catppuccin Mocha Blue theme"
+    fi
+fi
+
+# ------------------------------------------------------------------
+# tmux plugin: Catppuccin (pinned to v2.3.0)
+# ------------------------------------------------------------------
+TMUX_CATPPUCCIN_DIR="$HOME/.config/tmux/plugins/catppuccin/tmux"
+if [ -d "$TMUX_CATPPUCCIN_DIR" ]; then
+    info "  tmux Catppuccin plugin — already installed, skipping"
+else
+    info "  Installing tmux Catppuccin plugin (v2.3.0)..."
+    mkdir -p "$(dirname "$TMUX_CATPPUCCIN_DIR")"
+    if git clone --depth 1 --branch v2.3.0 \
+        "https://github.com/catppuccin/tmux.git" "$TMUX_CATPPUCCIN_DIR"; then
+        info "  tmux Catppuccin plugin installed successfully"
+    else
+        error "Failed to clone tmux Catppuccin plugin"
+    fi
+fi
+
+# ------------------------------------------------------------------
 # Group: gh CLI extensions
 # ------------------------------------------------------------------
 if command -v gh &>/dev/null; then
