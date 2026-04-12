@@ -90,13 +90,13 @@ The only custom cable channel needed. Replicates `frg()` behavior: ripgrep searc
 
 Discoveries and deviations from the original plan, captured during implementation:
 
-### rg-edit channel hardcodes `code -g` instead of `$EDITOR`
+### rg-edit channel uses `$EDITOR -g` for line navigation
 
-The spec says the action should use `$EDITOR` with a fallback to `code`. The implementation hardcodes `code -g '{file}:{line}'` directly. Reason: tv cable channel TOML commands don't support conditional shell variable expansion (`${EDITOR:-code}` expands but the `code -g` vs `vim +N` syntax difference can't be handled in a single command string without an inline bash if/else, which is fragile). Since the dotfiles set `EDITOR="code --wait"` globally, the behavior is identical in practice. If the editor changes, the channel TOML needs a manual update.
+The action command uses `$EDITOR -g '{file}:{line}'` which relies on VS Code's `--goto` flag syntax. Since the dotfiles set `EDITOR="code --wait"` globally, this works correctly. If the editor changes to one that doesn't support `-g` (e.g., vim uses `+N` syntax), the channel TOML needs a manual update. tv cable channel commands are executed through the shell, so `$EDITOR` expands correctly.
 
-### `command_history` cannot be disabled in tv config
+### Ctrl+R disabled in tv via `no_op` keybinding and init ordering
 
-The original plan was to set `command_history = ""` in config.toml to disable tv's Ctrl+R binding. tv's config parser does not support empty strings or "none" for keybinding fields — it requires a valid key. The implementation relies solely on init ordering (atuin inits after tv and overwrites Ctrl+R). This works but is less explicit than a config-level disable.
+The original plan was to set `command_history = ""` in config.toml, but tv's config parser does not support empty strings for keybinding fields. The implementation uses two complementary mechanisms: `ctrl-r = "no_op"` in `[keybindings]` disables Ctrl+R inside tv's TUI, and init ordering (atuin inits after tv) ensures atuin owns Ctrl+R in the shell.
 
 ### Ctrl+T on empty prompt falls back to fzf file search
 

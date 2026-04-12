@@ -14,8 +14,12 @@ hidden = false
 show_channel_descriptions = true
 sort_alphabetically = true
 
+# Disable Ctrl+R inside tv's TUI (atuin owns Ctrl+R in the shell via init order,
+# but this prevents tv from intercepting it when the TUI is open).
+[keybindings]
+ctrl-r = "no_op"
+
 # Shell integration: tv owns Ctrl+T (smart autocomplete), atuin owns Ctrl+R (history).
-# command_history is omitted (defaults to ctrl-r) — atuin overwrites it via init order in zshrc.
 [shell_integration.keybindings]
 smart_autocomplete = "ctrl-t"
 
