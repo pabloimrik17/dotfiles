@@ -46,7 +46,7 @@ Key constraint: the theme stack is **catppuccin-mocha** across Ghostty and Stars
 2. `eval "$(tv init zsh)"` — overwrites Ctrl+T with smart autocomplete, binds Ctrl+R
 3. `eval "$(atuin init zsh --disable-up-arrow)"` — overwrites Ctrl+R with atuin
 
-Note: tv's config parser does not support disabling `command_history` via empty string or "none" — the field requires a valid keybinding. The init ordering alone is sufficient since atuin's init runs after tv's and overwrites Ctrl+R.
+Note: tv's `[shell_integration.keybindings]` does not support disabling `command_history` via empty string — the field requires a valid keybinding. However, `ctrl-r = "no_op"` in the `[keybindings]` section disables Ctrl+R inside tv's TUI. Combined with init ordering (atuin overwrites Ctrl+R in the shell), this provides belt-and-suspenders Ctrl+R ownership for atuin.
 
 ### Decision 2: Theme file downloaded from catppuccin/television repo, not the built-in
 

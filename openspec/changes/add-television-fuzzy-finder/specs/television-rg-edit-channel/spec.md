@@ -29,14 +29,9 @@ The channel's `[preview]` command SHALL use `bat --color=always --highlight-line
 
 ### Requirement: Enter opens file in editor at matched line
 
-The channel SHALL define an action triggered by Enter that opens the selected file in `$EDITOR` (falling back to `code`) at the matched line number. The action mode SHALL be `execute` (replaces tv with the editor).
+The channel SHALL define an action triggered by Enter that opens the selected file in `$EDITOR` at the matched line number using the `-g file:line` flag (VS Code goto syntax). The action mode SHALL be `execute` (replaces tv with the editor). The `$EDITOR` variable is set to `code --wait` in the zshrc; if the editor changes to one with different line-navigation syntax, the channel TOML needs a manual update.
 
 #### Scenario: Enter opens editor at line
 
 - **WHEN** the user presses Enter on an entry showing `src/main.rs:42:let x = 5`
-- **THEN** tv exits and the editor opens `src/main.rs` at line 42
-
-#### Scenario: EDITOR not set falls back to code
-
-- **WHEN** `$EDITOR` is not set and the user presses Enter
-- **THEN** `code` is used as the editor
+- **THEN** tv exits and `$EDITOR -g src/main.rs:42` runs, opening the file at line 42
