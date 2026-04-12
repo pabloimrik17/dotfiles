@@ -147,6 +147,24 @@ export FZF_DEFAULT_OPTS="
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --style=numbers --line-range=:500 {}'"
 export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
 
+# television - Smart fuzzy finder with context-aware autocomplete
+# Init order: fzf → tv → atuin. tv overrides fzf's Ctrl+T with smart
+# autocomplete; atuin then overrides tv's Ctrl+R for AI-powered history.
+if command -v tv &>/dev/null; then
+  eval "$(tv init zsh)"
+  # Wrap Ctrl+T: empty prompt → fzf file picker, non-empty → tv smart autocomplete.
+  # tv's default empty-prompt fallback uses fzf_default_completion which is also used
+  # by fzf's Tab handler — overriding it globally breaks normal Tab completion.
+  _tv_ctrl_t_wrapper() {
+    if [[ ${#${(z)LBUFFER}} -lt 1 ]]; then
+      fzf-file-widget
+    else
+      _tv_smart_autocomplete
+    fi
+  }
+  zle -N tv-smart-autocomplete _tv_ctrl_t_wrapper
+fi
+
 # atuin - Modern shell history (replaces fzf's Ctrl+R)
 eval "$(atuin init zsh --disable-up-arrow)"
 eval "$(atuin ai init zsh)"
@@ -248,39 +266,6 @@ alias bx="bunx"
 alias jqless="jq -C . | less -R"
 alias pretty-json="jq ."
 alias check-json="jq empty"
-
-# fzf power functions
-fkill() {
-  local sig="${1:-9}"
-  local pids
-  pids=$(ps -ef | sed 1d | fzf -m --header='Select process(es) to kill' | awk '{print $2}')
-  [ -n "$pids" ] && echo "$pids" | xargs kill -"$sig"
-}
-
-frg() {
-  local result
-  result=$(rg --color=always --line-number --no-heading "$@" |
-    fzf --ansi --delimiter=: \
-      --preview 'bat --color=always --highlight-line {2} {1}' \
-      --preview-window=right:60%)
-  [ -n "$result" ] && ${EDITOR:-code} "$(echo "$result" | cut -d: -f1)" +"$(echo "$result" | cut -d: -f2)"
-}
-
-# Git + fzf integration
-fglog() {
-  git log --oneline --color=always |
-    fzf --ansi --no-sort --preview 'git show --color=always {1}' \
-      --preview-window=right:60%
-}
-
-fgco() {
-  local branch
-  branch=$(git branch -a --color=never | grep -v HEAD |
-    sed 's/^[* ]*//' |
-    fzf --preview 'git log --oneline --color=always {} | head -20' \
-        --preview-window=right:60%)
-  [ -n "$branch" ] && git checkout "$(echo "$branch" | sed 's#remotes/[^/]*/##')"
-}
 
 # Tool environment
 command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
