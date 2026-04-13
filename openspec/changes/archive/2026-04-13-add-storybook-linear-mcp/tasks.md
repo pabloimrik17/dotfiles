@@ -12,4 +12,4 @@
 
 - [x] 3.1 Run `chezmoi diff` to verify only expected files changed
 - [x] 3.2 Run `chezmoi execute-template` to confirm template renders correctly
-- [ ] 3.3 Verify `claude mcp list` shows linear and storybook after registration (requires actual `chezmoi apply`)
+- [x] 3.3 Verify `claude mcp list` shows linear and storybook after registration (requires actual `chezmoi apply`)

@@ -8,28 +8,30 @@ Global MCP server configuration managed by chezmoi — defines which MCP servers
 
 ### Requirement: Global MCP servers are registered via Claude CLI in install script
 
-`run_onchange_install-packages.sh.tmpl` SHALL register the following 10 MCP servers via `claude mcp add --scope user`, which writes to `~/.claude.json`:
+`run_onchange_install-packages.sh.tmpl` SHALL register the following 12 MCP servers via `claude mcp add --scope user`, which writes to `~/.claude.json`:
 
-| Name            | Type  | Command/URL                                         |
-| --------------- | ----- | --------------------------------------------------- |
-| eslint          | stdio | `npx -y @eslint/mcp@latest`                         |
-| context7        | stdio | `npx -y @upstash/context7-mcp@latest`               |
-| knip            | stdio | `npx -y @knip/mcp@latest`                           |
-| memory          | stdio | `npx -y @modelcontextprotocol/server-memory@latest` |
-| playwright      | stdio | `npx -y @playwright/mcp@latest`                     |
-| chrome-devtools | stdio | `npx -y chrome-devtools-mcp@latest`                 |
-| expect          | stdio | `npx -y expect-cli@latest mcp`                      |
-| gh_grep         | http  | `https://mcp.grep.app`                              |
-| atlassian       | http  | `https://mcp.atlassian.com/v1/mcp`                  |
-| figma           | http  | `https://mcp.figma.com/mcp`                         |
+| Name            | Type  | Command/URL                                            |
+| --------------- | ----- | ------------------------------------------------------ |
+| eslint          | stdio | `npx -y @eslint/mcp@0.3.0`                             |
+| context7        | stdio | `npx -y @upstash/context7-mcp@2.1.2`                   |
+| knip            | stdio | `npx -y @knip/mcp@0.0.19`                              |
+| memory          | stdio | `npx -y @modelcontextprotocol/server-memory@2026.1.26` |
+| playwright      | stdio | `npx -y @playwright/mcp@0.0.68`                        |
+| chrome-devtools | stdio | `npx -y chrome-devtools-mcp@0.18.1`                    |
+| expect          | stdio | `npx -y expect-cli@0.1.3 mcp`                          |
+| gh_grep         | http  | `https://mcp.grep.app`                                 |
+| atlassian       | http  | `https://mcp.atlassian.com/v1/mcp`                     |
+| figma           | http  | `https://mcp.figma.com/mcp`                            |
+| linear          | http  | `https://mcp.linear.app/mcp`                           |
+| storybook       | http  | `http://localhost:6006/mcp`                            |
 
 `dot_claude/settings.json.tmpl` SHALL NOT contain an `mcpServers` key.
 
-#### Scenario: All 10 servers registered after install script runs
+#### Scenario: All 12 servers registered after install script runs
 
 - **WHEN** `chezmoi apply` runs the install script on a machine with `claude` CLI available
 - **AND** the user confirms the MCP servers install group
-- **THEN** `claude mcp list --scope user` SHALL list all 10 servers above
+- **THEN** `claude mcp list --scope user` SHALL list all 12 servers above
 
 #### Scenario: Servers registered to correct file
 
@@ -72,23 +74,34 @@ The MCP server registration group SHALL use the existing `run_claude_step` helpe
 - **WHEN** `claude` is not in PATH during `chezmoi apply`
 - **THEN** the MCP registration group SHALL be skipped with a warning (same guard as CC plugins group)
 
-### Requirement: Atlassian and Figma included as HTTP servers with auth note
+### Requirement: Atlassian, Figma, Linear, and Storybook included as HTTP servers with auth/setup notes
 
-The install script SHALL register `atlassian` and `figma` as HTTP MCP servers. The manual instructions section SHALL note that these servers require interactive OAuth authentication after registration.
+The install script SHALL register `atlassian`, `figma`, `linear`, and `storybook` as HTTP MCP servers. The manual instructions section SHALL note authentication and setup requirements for each.
 
 #### Scenario: HTTP servers registered with correct transport
 
-- **WHEN** the install script registers `atlassian` and `figma`
+- **WHEN** the install script registers `atlassian`, `figma`, `linear`, and `storybook`
 - **THEN** it SHALL use `claude mcp add --scope user --transport http <name> <url>`
 
-#### Scenario: Manual auth instructions printed
+#### Scenario: Manual auth instructions printed for OAuth servers
 
 - **WHEN** the install script reaches the manual instructions section
-- **THEN** it SHALL include a line noting that `atlassian` and `figma` MCP servers require authentication via `claude mcp get <name>` or first use
+- **THEN** it SHALL include a line noting that `atlassian`, `figma`, and `linear` MCP servers require OAuth authentication via `/mcp` or first use
+
+#### Scenario: Manual setup instructions printed for Storybook
+
+- **WHEN** the install script reaches the manual instructions section
+- **THEN** it SHALL include a line noting that `storybook` MCP requires `@storybook/addon-mcp` installed in each Storybook project and `storybook dev` running on port 6006
+
+#### Scenario: Storybook gracefully fails when not running
+
+- **WHEN** `storybook dev` is NOT running on localhost:6006
+- **THEN** `claude mcp list` SHALL show `storybook` as failed to connect
+- **AND** no error SHALL affect other MCP server connections
 
 ### Requirement: Template uses no machine-specific conditionals for MCP
 
-The MCP server list in `run_onchange_install-packages.sh.tmpl` SHALL be plain bash arrays without chezmoi template conditionals (`{{ if }}`, `{{ else }}`). All 10 servers are registered identically on every machine.
+The MCP server list in `run_onchange_install-packages.sh.tmpl` SHALL be plain bash arrays without chezmoi template conditionals (`{{ if }}`, `{{ else }}`). All 12 servers are registered identically on every machine.
 
 #### Scenario: No conditional logic in MCP server arrays
 
