@@ -1,6 +1,9 @@
 # Worktrunk user configuration
 # Managed by chezmoi — edit the source, not ~/.config/worktrunk/config.toml
 
+[pre-start]
+copy = "wt step copy-ignored"
+
 [post-start]
 deps = """
 if [ -f bun.lock ]; then
