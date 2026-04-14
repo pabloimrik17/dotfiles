@@ -4,5 +4,5 @@
 
 ## 2. Verification
 
-- [x] 3.1 Verify TOML syntax is valid and config renders correctly (chezmoi dry-run not available in worktree — validated by reading rendered file)
-- [x] 3.2 Confirm the `[pre-start]` section appears before `[post-start]` in the rendered config
+- [x] 2.1 Verify TOML syntax is valid and config renders correctly (chezmoi dry-run not available in worktree — validated by reading rendered file)
+- [x] 2.2 Confirm the `[pre-start]` section appears before `[post-start]` in the rendered config
