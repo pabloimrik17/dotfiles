@@ -54,7 +54,7 @@ The existing Group 9 caches `skills list -g --json` at the top of the block and 
 
 ### Decision 4: Non-macOS branch gets the literal command (not a reference)
 
-The macOS failure/manual block (lines 1048+) lists each skill install verbatim. Slidev's line mirrors that: `npx -y skills add slidevjs/slidev --skill slidev -g -y`. Copy-paste instructions win over indirection.
+The non-macOS manual-instructions block (lines 1048+) lists each skill install verbatim. Slidev's line mirrors that: `npx -y skills add slidevjs/slidev --skill slidev -g -y`. Copy-paste instructions win over indirection.
 
 ### Decision 5: Documentation updates are proposed, not forced
 
