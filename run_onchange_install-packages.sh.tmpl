@@ -992,6 +992,7 @@ if confirm "Install global agent skills via skills.sh?"; then
         install_skill "anthropics/skills" "xlsx"
         install_skill "coderabbitai/skills" "code-review"
         install_skill "coderabbitai/skills" "autofix"
+        install_skill "slidevjs/slidev" "slidev"
     else
         warn "npx is not available — skipping agent skills installation"
     fi
@@ -1056,6 +1057,7 @@ info "    npx -y skills add anthropics/skills --skill pdf -g -y"
 info "    npx -y skills add anthropics/skills --skill pptx -g -y"
 info "    npx -y skills add anthropics/skills --skill docx -g -y"
 info "    npx -y skills add anthropics/skills --skill xlsx -g -y"
+info "    npx -y skills add slidevjs/slidev --skill slidev -g -y"
 info ""
 
 {{ end -}}
