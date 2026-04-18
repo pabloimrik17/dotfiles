@@ -1,14 +1,14 @@
 ## ADDED Requirements
 
-### Requirement: Slidev skill is installed globally for the Claude Code agent
+### Requirement: Slidev skill is installed globally via skills.sh
 
-The install script (`run_onchange_install-packages.sh.tmpl`) SHALL install the `slidev` skill from the `slidevjs/slidev` repository scoped explicitly to the `claude-code` agent during the existing agent-skills installation group. The executed command MUST include the `--agent claude-code` flag, the `-g` global flag, and be placed inside the group's confirmation-gated block so it shares the single user prompt with the other global skills.
+The install script (`run_onchange_install-packages.sh.tmpl`) SHALL install the `slidev` skill from the `slidevjs/slidev` repository during the existing agent-skills installation group, using the same `install_skill <repo> <name>` helper shape as the other skills in that group. The executed command MUST include the `-g` global flag and be placed inside the group's confirmation-gated block so it shares the single user prompt with the other global skills.
 
 #### Scenario: First run on clean machine with npx available and user confirms
 
 - **WHEN** `chezmoi apply` runs the install script, `npx` is available, and the user confirms the agent-skills group
-- **THEN** the script executes `npx -y skills add slidevjs/slidev --skill slidev --agent claude-code -g -y`
-- **AND** a symlink is created at `~/.claude/skills/slidev` pointing into the `skills.sh` global store
+- **THEN** the script executes `npx -y skills add slidevjs/slidev --skill slidev -g -y`
+- **AND** a symlink is created at `~/.claude/skills/slidev` pointing to `../../.agents/skills/slidev` (same layout as the other skills in the group)
 - **AND** no prompt or additional confirmation is requested beyond the group-level one
 
 #### Scenario: User declines the agent-skills group
@@ -46,7 +46,7 @@ A failure of the Slidev `skills add` invocation SHALL NOT stop execution of the 
 
 #### Scenario: Slidev install fails mid-run
 
-- **WHEN** the `npx -y skills add slidevjs/slidev --skill slidev --agent claude-code -g -y` command exits non-zero
+- **WHEN** the `npx -y skills add slidevjs/slidev --skill slidev -g -y` command exits non-zero
 - **THEN** the failure is logged with the skill name
 - **AND** the group-level error counter is incremented by 1
 - **AND** the script continues with the next skill in the group and with later groups
@@ -73,15 +73,15 @@ The non-macOS branch of the install script SHALL display the literal Slidev inst
 #### Scenario: Script runs on a non-macOS platform
 
 - **WHEN** the install script executes on a platform other than macOS
-- **THEN** the displayed manual-instructions block includes the line `npx -y skills add slidevjs/slidev --skill slidev --agent claude-code -g -y`
+- **THEN** the displayed manual-instructions block includes the line `npx -y skills add slidevjs/slidev --skill slidev -g -y`
 - **AND** the line appears alongside the existing skill install commands, not in a separate section
 
 ### Requirement: Slidev install is scoped to Claude Code only in this change
 
-The Slidev install step introduced by this change SHALL target only the `claude-code` agent. Any extension to other agents (e.g., OpenCode) is out of scope and MUST be addressed by a separate change.
+The Slidev install step introduced by this change SHALL result in the skill being available only to Claude Code on machines where `skills.sh`'s default agent resolution targets Claude Code (as observed on the user's machine). Extending availability to other agents (e.g., OpenCode) is out of scope and MUST be addressed by a separate change.
 
 #### Scenario: Only Claude Code receives the skill
 
-- **WHEN** the install step runs successfully on a machine that has both Claude Code and OpenCode configured
+- **WHEN** the install step runs successfully on a machine that has both Claude Code and OpenCode configured and whose `skills.sh` default resolution targets only Claude Code
 - **THEN** the `slidev` skill symlink appears under `~/.claude/skills/`
 - **AND** no `slidev` symlink is created under `~/.config/opencode/skills/` or `~/.opencode/skills/` as a result of this change

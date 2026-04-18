@@ -6,7 +6,7 @@ Linear: [DOT-2](https://linear.app/monolab/issue/DOT-2/anadir-skills-de-slidev-p
 
 ## What Changes
 
-- Install the `slidev` skill from `slidevjs/slidev` globally for the `claude-code` agent via `skills.sh` during machine setup.
+- Install the `slidev` skill from `slidevjs/slidev` globally via `skills.sh` during machine setup, using the same `install_skill <repo> <name>` helper shape as the existing ten skills (default agent resolution — on this machine that maps to Claude Code).
 - Add the install step to the existing global-agent-skills group in `run_onchange_install-packages.sh.tmpl`, with idempotent skip when the skill is already present.
 - Extend the non-macOS manual-instructions branch with the Slidev install command for parity.
 - Do not modify any chezmoi-managed file (the skill symlinks live outside chezmoi's scope).
@@ -16,11 +16,11 @@ Linear: [DOT-2](https://linear.app/monolab/issue/DOT-2/anadir-skills-de-slidev-p
 
 ### New Capabilities
 
-- `slidev-skill-install`: Provisioning of the Slidev agent skill for Claude Code via `skills.sh` during chezmoi setup, including idempotency, failure handling, and non-macOS manual parity.
+- `slidev-skill-install`: Provisioning of the Slidev agent skill via `skills.sh` during chezmoi setup, including idempotency, failure handling, and non-macOS manual parity.
 
 ### Modified Capabilities
 
-None. The existing `skills-global-install` capability is intentionally untouched — Slidev lives in its own capability so its requirements (e.g., explicit `--agent claude-code` scope, OpenCode-deferred note) do not contaminate the generic ten-skill list.
+None. The existing `skills-global-install` capability is intentionally untouched — Slidev lives in its own capability so its requirements (e.g., the OpenCode-deferred note) do not contaminate the generic ten-skill list.
 
 ## Impact
 

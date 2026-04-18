@@ -2,7 +2,9 @@
 
 This dotfiles repo provisions external agent skills through `skills.sh` during machine setup. The existing capability `skills-global-install` declares a single group in `run_onchange_install-packages.sh.tmpl` (Group 9, around lines 952–999) that installs ten skills from `vercel-labs`, `anthropics`, and related sources, each via the helper `install_skill <repo> <name>` that expands to `npx -y skills add <repo> --skill <name> -g -y`. The helper is idempotent (consults `npx -y skills list -g --json` up-front), gated by a user confirmation, and tolerates individual failures via an error counter.
 
-Empirical check during exploration: `skills.sh` stores skill payloads in `~/.agents/skills/<name>/` and symlinks per-agent. On this machine, all ten current skills symlink into `~/.claude/skills/` but **not** into `~/.config/opencode/skills/` — meaning the current command's default agent resolution covers Claude Code but not OpenCode. That asymmetry is load-bearing for this design.
+Empirical check during exploration: `skills.sh` stores skill payloads in `~/.agents/skills/<name>/` and symlinks per-agent. On this machine, all ten current skills symlink into `~/.claude/skills/` but **not** into `~/.config/opencode/skills/` — meaning the current command's default agent resolution covers Claude Code but not OpenCode. That asymmetry is accepted: DOT-3 is the sibling ticket that addresses OpenCode separately.
+
+**Mid-implementation revision:** an earlier draft of this design argued for an explicit `--agent claude-code` flag on the Slidev install, with the helper extended to accept an optional third `<agent>` argument. When we executed that path we observed that `skills.sh` handles agent-scoped installs differently from default installs: instead of staging under `~/.agents/skills/` and symlinking, it writes the skill directly into `~/.claude/skills/slidev/`. That diverges from the uniform layout of the other ten skills, bypasses the shared store that `skills.sh update -g` uses, and produces the opposite of the "reads-more-precisely" benefit the flag was meant to deliver. We reverted: Slidev uses the same two-argument `install_skill <repo> <name>` call as the other ten skills, and the helper was restored to its two-argument form. DOT-3 will decide its own shape for OpenCode (likely `--agent opencode`) without needing symmetry on the Claude side.
 
 Linear ticket DOT-2 scopes the work to Claude Code. DOT-3 is the sibling ticket for OpenCode and is out of scope here.
 
@@ -12,7 +14,7 @@ Linear ticket DOT-2 scopes the work to Claude Code. DOT-3 is the sibling ticket 
 
 - Make the Slidev skill available globally to Claude Code on every fresh `chezmoi apply`.
 - Keep the install idempotent, failure-tolerant, and non-destructive to chezmoi-managed files, on par with the existing ten-skill pattern.
-- Make the Claude-Code-only scope **explicit in the implementation**, not implicit via skills.sh defaults — so the intent is readable and DOT-3 can add an OpenCode counterpart symmetrically.
+- Use the same call shape as the existing ten skills — one fewer variant to maintain, uniform layout under `~/.agents/skills/`.
 - Preserve parity on non-macOS (manual-instructions branch gets the Slidev command too).
 
 **Non-Goals:**
@@ -21,25 +23,28 @@ Linear ticket DOT-2 scopes the work to Claude Code. DOT-3 is the sibling ticket 
 - Adding any Slidev CLI (`@slidev/cli`), npm package, brew formula, or shell alias.
 - Modifying the existing `skills-global-install` capability. Its ten skills and their behavior stay untouched.
 - Auto-updating the skill. `skills.sh update` is already a separate workflow the user runs manually.
+- Retrofitting the existing ten skills with explicit `--agent` flags. Their implicit default resolution is already battle-tested.
 
 ## Decisions
 
 ### Decision 1: New capability `slidev-skill-install`, not a delta on `skills-global-install`
 
-The user explicitly requested a separate spec. Rationale beyond that preference: Slidev has an **explicit agent scope** (`claude-code` only until DOT-3 lands) that differs from the ten-skill block, which relies on `skills.sh`'s default agent resolution. Co-locating them would either force the ten-skill block to declare an explicit agent (churn, not this ticket's job) or leave Slidev's scope implicit (losing the benefit of separation). A dedicated capability captures the Slidev-specific requirement — explicit `--agent claude-code` — without contaminating the generic list.
+The user explicitly requested a separate spec. A dedicated capability also lets the Slidev-specific OpenCode-deferred note live in its own requirements block without touching the generic ten-skill list. When DOT-3 lands, it can either extend this capability or introduce its own OpenCode counterpart cleanly.
 
-**Alternative considered:** Delta-add Slidev to `skills-global-install` (one-line change). Rejected because it hides the agent-scope distinction and would need a second delta the moment DOT-3 is implemented.
+**Alternative considered:** Delta-add Slidev to `skills-global-install` (one-line change). Rejected to respect the user's separation preference and to keep the OpenCode-deferred note scoped.
 
-### Decision 2: Install with explicit `--agent claude-code`
+### Decision 2: Use the same two-argument `install_skill <repo> <name>` shape as the other ten skills
 
-Use `npx -y skills add slidevjs/slidev --skill slidev --agent claude-code -g -y` rather than the default-resolution form. Two reasons:
+The Slidev install uses `install_skill "slidevjs/slidev" "slidev"` — identical in shape to the existing ten calls. No `--agent` flag, no helper extension, no dedicated comment.
 
-1. The spec reads more precisely — "Slidev is installed for Claude Code" maps to code that says exactly that.
-2. DOT-3 will mirror this with `--agent opencode`; explicit scoping on both sides makes the pair reviewable at a glance.
+**Rationale:**
 
-**Alternative considered:** Reuse the existing `install_skill` helper unchanged (which omits `--agent`) for uniformity with the ten-skill block. Rejected for the reasons above; the cost is introducing a second call shape, but the second shape is documentation-in-code for a real scope difference.
+1. **Uniform layout.** Default-scope installs stage under `~/.agents/skills/<name>/` with a symlink at `~/.claude/skills/<name>`. Every current skill follows this layout, and `skills.sh update -g` manages them uniformly. An agent-scoped install bypasses the shared store and produces a direct directory under `~/.claude/skills/`, which is a regression in consistency.
+2. **Same user-visible outcome.** On this machine, default resolution already targets Claude Code only (no OpenCode symlink is created), so the explicit flag adds nothing functional.
+3. **Less code.** No third helper argument, no branching, no explanatory comment. The diff is one call that reads exactly like the others.
+4. **DOT-3 independence.** OpenCode support can add its own explicit `--agent opencode` call (or a vendored copy) without needing the Claude side to be explicit for symmetry. Asymmetry on the OpenCode side is a fact of this machine; pretending otherwise on the Claude side costs maintenance without gain.
 
-**Implementation shape (deferred to apply):** Either (a) extend `install_skill` to accept an optional third `<agent>` argument (preferred — backward-compatible, reuses idempotency check and error handling), or (b) add a dedicated `install_skill_for_agent` helper. The spec does not mandate either shape; it only requires the end-effect and the `--agent claude-code` flag in the executed command.
+**Alternative considered:** Explicit `--agent claude-code` with a helper extension. Rejected — see Context revision above. The behavior we observed (direct directory, no shared-store entry) made the "explicit-reads-better" argument moot because the resulting layout is worse than the uniform pattern.
 
 ### Decision 3: Idempotency uses the same `skills list -g --json` lookup as Group 9
 
@@ -49,7 +54,7 @@ The existing Group 9 caches `skills list -g --json` at the top of the block and 
 
 ### Decision 4: Non-macOS branch gets the literal command (not a reference)
 
-The macOS failure/manual block (lines 1048+) lists each skill install verbatim. Slidev's line mirrors that: `npx -y skills add slidevjs/slidev --skill slidev --agent claude-code -g -y`. Copy-paste instructions win over indirection.
+The macOS failure/manual block (lines 1048+) lists each skill install verbatim. Slidev's line mirrors that: `npx -y skills add slidevjs/slidev --skill slidev -g -y`. Copy-paste instructions win over indirection.
 
 ### Decision 5: Documentation updates are proposed, not forced
 
@@ -57,10 +62,9 @@ The spec does not require a README or manual change. Instead, the tasks file ins
 
 ## Risks / Trade-offs
 
-- **[Risk] Non-uniform call shape inside Group 9** (ten default-scope calls + one explicit-scope call) → _Mitigation:_ comment in the install script above the Slidev line explains why the scope is explicit; design.md (this file) preserves the rationale long-term.
 - **[Risk] `slidevjs/slidev` repo layout changes could break `--skill slidev` resolution** → _Mitigation:_ `skills.sh add` fails loudly; the existing error counter lets the rest of Group 9 continue. User re-runs after upstream fix.
 - **[Risk] OpenCode users on this machine miss the skill until DOT-3 ships** → _Accepted._ DOT-3 is the dedicated ticket; conflating scopes would defeat the separation the user asked for.
-- **[Trade-off] Specless alternative — a one-line delta on `skills-global-install`** would have been ~5 minutes of work but would lose the scope-explicit documentation and force a second delta later.
+- **[Trade-off] No explicit agent scope in the code** → _Accepted._ Implicit resolution matches the existing ten skills and produces the canonical `skills.sh` layout; the explicit-flag variant proved to break that layout in practice.
 
 ## Migration Plan
 
@@ -68,4 +72,4 @@ No migration needed — this is additive. Rollback: revert the change; `skills.s
 
 ## Open Questions
 
-None blocking. Post-implementation, reconsider whether the ten existing skills should also gain explicit `--agent` flags (tracked separately, not in this change).
+None blocking. Post-implementation, reconsider whether the ten existing skills (and Slidev) should eventually gain explicit `--agent` flags once `skills.sh` behavior for agent-scoped installs becomes uniform with default installs — tracked separately, not in this change.
