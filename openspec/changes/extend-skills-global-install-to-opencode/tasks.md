@@ -12,7 +12,7 @@
 ## 3. Verificación
 
 - [x] 3.1 Ejecutar `chezmoi diff` sobre el template para confirmar presencia (no conteo exacto) de: la línea `install_skill "slidevjs/slidev" "slidev"`, el bloque `mkdir -p "$HOME/.config/opencode/skills"` + `ln -sfn`/`-shf` dentro de `install_skill`, y la detección de plataforma con `uname`.
-- [x] 3.2 Correr `chezmoi apply` en modo seco y verificar que tras la ejecución existen `~/.claude/skills/slidev/SKILL.md` y `~/.config/opencode/skills/slidev` como symlink válido a ese directorio.
+- [x] 3.2 Correr `chezmoi apply` (ejecución real en un entorno de prueba) y verificar que tras la ejecución existen `~/.claude/skills/slidev/SKILL.md` y `~/.config/opencode/skills/slidev` como symlink válido a ese directorio.
 - [x] 3.3 Verificar idempotencia: ejecutar el `run_onchange` dos veces seguidas y confirmar que los symlinks quedan intactos y que no se reinstalan skills ya presentes.
 - [x] 3.4 Verificar el retrofit: sobre una máquina con `~/.claude/skills/pdf/` pero sin `~/.config/opencode/skills/pdf`, correr el script y comprobar que el symlink aparece.
 
