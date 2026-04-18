@@ -43,15 +43,22 @@ ln -sf "$HOME/.claude/skills/<name>" "$HOME/.config/opencode/skills/<name>"
 
 `install_skill` es quien crea el symlink, así que la regla aplica uniforme para las 11+ skills. Slidev es el trigger, pero el comportamiento es genérico.
 
-**Por qué genérico**: el coste marginal es cero (un `ln -sf` por skill) y cualquier usuario del dotfiles se beneficia de tener `find-skills`, `frontend-design`, etc. en OpenCode sin trabajo extra.
+**Por qué genérico**: el coste marginal es cero (un `ln -sfn`/`-shf` por skill) y cualquier usuario del dotfiles se beneficia de tener `find-skills`, `frontend-design`, etc. en OpenCode sin trabajo extra.
 
 **Alternativa considerada**: symlinkar solo `slidev` por una whitelist. Rechazada — añade complejidad y deja las otras skills huérfanas en OpenCode.
 
-### Decisión 3: Manejo de colisiones — `ln -sf` sobrescribe
+### Decisión 3: Manejo de colisiones — `ln -sfn`/`-shf` con detección de plataforma
 
-Si el usuario tiene un symlink o directorio previo en `~/.config/opencode/skills/<name>/`, `ln -sf` lo reemplaza. Con `-f` aceptamos que el install script es autoritativo sobre ese directorio.
+`ln -sf` **por sí solo no reemplaza un symlink a directorio**: en GNU y en BSD/macOS, si `$dst` apunta a un directorio existente, `ln -sf` deref'a el symlink y crea el nuevo enlace _dentro_ del directorio objetivo. Para reemplazar el symlink como un fichero hace falta la flag de no-dereference:
 
-**Alternativa considerada**: detectar colisión y pedir confirmación. Rechazada — el flujo del install script es no interactivo para esta sección y complicaría la idempotencia. El caso de "usuario pone una skill custom con el mismo nombre" es patológico.
+- **Linux (GNU coreutils)**: `ln -sfn "$src" "$dst"` (`-n` = no dereference)
+- **macOS/BSD**: `ln -shf "$src" "$dst"` (`-h` = no dereference)
+
+El install script detecta la plataforma con `uname -s` (precedente ya en el template de chezmoi) y elige la flag correcta. Broken symlinks y ausencia previa del destino funcionan igual en ambos casos.
+
+**Directorios reales no se sobrescriben**: si `$dst` existe como directorio real (no symlink), `ln -sfn`/`-shf` falla con "cannot overwrite directory". Aceptamos este fail-safe: el script reporta el error vía `run_claude_step`, incrementa el contador, y continúa sin tocar el directorio. El usuario debe eliminarlo manualmente si quiere que el symlink lo reemplace.
+
+**Alternativa considerada**: detectar colisión con `[ -L "$dst" ] || [ ! -e "$dst" ]` antes de llamar a `ln`. Rechazada — el fallo de `ln` ya transmite la misma información y no merece la complejidad extra.
 
 ### Decisión 4: Sin entrada en la spec para el `superpowers` symlink existente
 
@@ -59,7 +66,7 @@ El symlink de `superpowers` (grupo 8) se queda como está — apunta a un clone 
 
 ## Risks / Trade-offs
 
-- **[Riesgo] El usuario tiene una skill real en `~/.config/opencode/skills/<name>/`** → el `ln -sf` la sobrescribe silenciosamente. **Mitigación**: documentar en la spec y el manual que ese directorio es gestionado por el install script; los usuarios que quieran skills custom de OpenCode deberían usar nombres distintos.
+- **[Riesgo] El usuario tiene una skill real en `~/.config/opencode/skills/<name>/`** → `ln -sfn`/`-shf` falla con "cannot overwrite directory" y no la sobrescribe. **Mitigación**: esto es el comportamiento deseado (fail-safe). Se reporta el error y se continúa; el usuario decide si eliminar el directorio.
 - **[Riesgo] Si `~/.claude/skills/<name>/` no existe (p. ej. fallo del `skills add`)** → el symlink apuntaría a un path inexistente. **Mitigación**: el symlink se crea solo dentro del bloque de éxito de `install_skill`, nunca si `skills add` falla. Además, sigue siendo idempotente en la próxima ejecución.
-- **[Riesgo] Plataforma no-macOS** → el script imprime instrucciones manuales. **Mitigación**: añadir también el comando `ln -sf` a esa sección.
+- **[Riesgo] Plataforma no-macOS** → el script imprime instrucciones manuales. **Mitigación**: esa sección debe incluir tanto el comando de install como el comando de symlink correcto para Linux (`ln -sfn`).
 - **[Trade-off] La spec seguirá listando N+1 skills mientras el script instala N+3** (por la drift preexistente con `code-review`/`autofix`). Aceptado como deuda fuera de alcance.

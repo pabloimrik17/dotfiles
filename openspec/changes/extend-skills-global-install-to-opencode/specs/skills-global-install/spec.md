@@ -2,7 +2,7 @@
 
 ### Requirement: Global agent skills are installed individually via run_once script
 
-The install script (`run_once_install-packages.sh.tmpl`) SHALL include a dedicated group that installs individual global agent skills using `npx -y skills add <repo> --skill <name> -g -y`. The group MUST prompt for confirmation before installing. The group MUST check that `npx` is available before attempting installation.
+The install script (`run_onchange_install-packages.sh.tmpl`) SHALL include a dedicated group that installs individual global agent skills using `npx -y skills add <repo> --skill <name> -g -y`. The group MUST prompt for confirmation before installing. The group MUST check that `npx` is available before attempting installation.
 
 #### Scenario: First run on clean machine with npx available
 

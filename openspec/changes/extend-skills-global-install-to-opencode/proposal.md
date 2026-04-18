@@ -6,7 +6,7 @@ OpenCode no ve ninguna de las skills globales que ya se instalan para Claude Cod
 
 - Añadir `slidevjs/slidev --skill slidev` a la lista de skills globales instaladas por el grupo 9 del `run_onchange_install-packages.sh.tmpl`.
 - Tras cada `skills add` exitoso, crear un symlink `~/.config/opencode/skills/<name>/` → `~/.claude/skills/<name>/` para que OpenCode cargue la misma skill.
-- Retrofitear las 12 skills ya instaladas: el script debe ser idempotente y crear los symlinks también para las skills que ya existan en `~/.claude/skills/`.
+- Retrofitear las skills ya instaladas: el script debe ser idempotente y crear los symlinks también para las skills que ya existan en `~/.claude/skills/` desde ejecuciones previas.
 - Actualizar las instrucciones manuales (no-macOS) del mismo script para reflejar el nuevo paso de symlink.
 
 ## Capabilities
