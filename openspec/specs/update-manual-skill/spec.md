@@ -1,4 +1,10 @@
-## ADDED Requirements
+# Capability: update-manual-skill
+
+## Purpose
+
+Skill and matching `/docs:manual` command that detect drift between dotfiles configuration and `docs/manual.html`, then propose HTML edits (new table rows, subsections, sections) following the manual's existing conventions — auto-triggered by Claude on config file changes, or invoked manually.
+
+## Requirements
 
 ### Requirement: Skill auto-triggers on config file changes
 

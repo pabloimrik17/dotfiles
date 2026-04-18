@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - Zsh shell configuration management.
+Zsh shell configuration managed by chezmoi — covers plugin tuning (autosuggestions highlight, buffer limits, async mode), PATH setup for user-local binaries, and OS/arch-conditional sourcing of external tools (zsh-autosuggestions, zsh-syntax-highlighting, fzf, television) so the same `dot_zshrc.tmpl` works on Apple Silicon macOS, Intel macOS, and Linux.
 
 ## Requirements
 
@@ -41,7 +41,21 @@ The `.zshrc` SHALL add `$HOME/.local/bin` to PATH for user-local binaries (Claud
 
 ### Requirement: Zsh external plugin sources use OS-conditional paths
 
-Source paths for zsh-autosuggestions and zsh-syntax-highlighting SHALL use template conditionals for platform differences (e.g., `/usr/local/share/` on Intel macOS vs `/opt/homebrew/share/` on Apple Silicon vs `/usr/share/` on Linux). On macOS, fzf binary PATH SHALL use OS/arch-conditional template paths (`/opt/homebrew/opt/fzf/bin` on ARM, `/usr/local/opt/fzf/bin` on Intel). fzf initialization SHALL be inline via `source <(fzf --zsh)` instead of sourcing an external `~/.fzf.zsh` file. Television initialization SHALL be inline via `eval "$(tv init zsh)"` positioned after fzf init and before atuin init.
+Source paths for zsh-autosuggestions and zsh-syntax-highlighting SHALL use template conditionals for platform differences: `/usr/local/share/` on Intel macOS, `/opt/homebrew/share/` on Apple Silicon, `/usr/share/` on Linux.
+
+#### Scenario: Correct plugin path on Apple Silicon macOS
+
+- **WHEN** chezmoi apply runs on an Apple Silicon Mac
+- **THEN** `.zshrc` sources plugins from `/opt/homebrew/share/`
+
+#### Scenario: Correct plugin path on Intel macOS
+
+- **WHEN** chezmoi apply runs on an Intel Mac
+- **THEN** `.zshrc` sources plugins from `/usr/local/share/`
+
+### Requirement: fzf uses OS/arch-conditional PATH and inline initialization
+
+On macOS, fzf binary PATH SHALL use OS/arch-conditional template paths (`/opt/homebrew/opt/fzf/bin` on ARM, `/usr/local/opt/fzf/bin` on Intel). fzf initialization SHALL be inline via `source <(fzf --zsh)` instead of sourcing an external `~/.fzf.zsh` file.
 
 #### Scenario: Correct fzf PATH on Apple Silicon macOS
 
@@ -63,15 +77,9 @@ Source paths for zsh-autosuggestions and zsh-syntax-highlighting SHALL use templ
 - **WHEN** chezmoi apply completes
 - **THEN** `.zshrc` does NOT contain `source ~/.fzf.zsh` or any reference to the `~/.fzf.zsh` file
 
-#### Scenario: Correct plugin path on Apple Silicon macOS
+### Requirement: Television init is inline and ordered between fzf and atuin
 
-- **WHEN** chezmoi apply runs on an Apple Silicon Mac
-- **THEN** `.zshrc` sources plugins from `/opt/homebrew/share/`
-
-#### Scenario: Correct plugin path on Intel macOS
-
-- **WHEN** chezmoi apply runs on an Intel Mac
-- **THEN** `.zshrc` sources plugins from `/usr/local/share/`
+Television initialization SHALL be inline via `eval "$(tv init zsh)"` positioned after fzf init and before atuin init, so television owns the Ctrl+T binding.
 
 #### Scenario: Television init is positioned between fzf and atuin
 

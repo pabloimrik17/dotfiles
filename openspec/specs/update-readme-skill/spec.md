@@ -1,4 +1,10 @@
-## ADDED Requirements
+# Capability: update-readme-skill
+
+## Purpose
+
+Skill and matching `/docs:readme` command that detect tool-level drift between the dotfiles setup and `README.md` (What's Included table, badges, setup steps, workflows, screenshots), then propose markdown edits plus actionable screenshot descriptions — auto-triggered on tool additions/removals or significant visual changes, never on alias- or keybinding-level edits.
+
+## Requirements
 
 ### Requirement: Skill auto-triggers on tool-level changes
 
