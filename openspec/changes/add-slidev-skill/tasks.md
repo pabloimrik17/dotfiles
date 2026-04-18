@@ -1,7 +1,7 @@
 ## 1. Install script
 
-- [ ] 1.1 Extend the agent-skills helper in `run_onchange_install-packages.sh.tmpl` (around lines 977–982) to accept an optional third `<agent>` argument that, when present, appends `--agent <agent>` to the `npx -y skills add` invocation — keep backward compatibility so existing ten `install_skill <repo> <name>` calls continue to work unchanged.
-- [ ] 1.2 Inside the same `if confirm "Install global agent skills via skills.sh?"; then … fi` block, after the existing twelve `install_skill` calls, add `install_skill "slidevjs/slidev" "slidev" "claude-code"` so Slidev reuses the shared confirmation prompt, shared skills-list cache, and shared error counter.
+- [ ] 1.1 Extend the agent-skills helper in `run_onchange_install-packages.sh.tmpl` (around lines 977–982) to accept an optional third `<agent>` argument that, when present, appends `--agent <agent>` to the `npx -y skills add` invocation — keep backward compatibility so existing `install_skill <repo> <name>` calls continue to work unchanged.
+- [ ] 1.2 Inside the same `if confirm "Install global agent skills via skills.sh?"; then … fi` block, after the existing `install_skill` calls, add `install_skill "slidevjs/slidev" "slidev" "claude-code"` so Slidev reuses the shared confirmation prompt, shared skills-list cache, and shared error counter.
 - [ ] 1.3 Add a one-line comment above the new call explaining why the agent is explicit (scope limited to Claude Code; OpenCode tracked separately in DOT-3) so future readers understand the asymmetry with the other calls.
 
 ## 2. Non-macOS manual instructions
