@@ -970,6 +970,25 @@ if confirm "Install global agent skills via skills.sh?"; then
             fi
         }
 
+        expose_skill_to_opencode() {
+            local name="$1"
+            local src="$HOME/.claude/skills/$name"
+            local dst="$HOME/.config/opencode/skills/$name"
+            # Only expose skills that actually landed in ~/.claude/skills/.
+            # If `skills add` failed, the source directory won't exist and we
+            # must not create a dangling symlink.
+            [ -d "$src" ] || return 0
+            mkdir -p "$HOME/.config/opencode/skills"
+            # `ln -sf` alone dereferences an existing symlink-to-directory and
+            # creates the new link _inside_ it. We need the no-dereference flag:
+            # BSD/macOS uses -h, GNU coreutils uses -n.
+            if [ "$(uname -s)" = "Darwin" ]; then
+                ln -shf "$src" "$dst"
+            else
+                ln -sfn "$src" "$dst"
+            fi
+        }
+
         install_skill() {
             local repo="$1"
             local name="$2"
@@ -978,6 +997,7 @@ if confirm "Install global agent skills via skills.sh?"; then
             else
                 run_claude_step "skill $name" npx -y skills add "$repo" --skill "$name" -g -y
             fi
+            expose_skill_to_opencode "$name"
         }
 
         install_skill "vercel-labs/skills" "find-skills"
@@ -992,6 +1012,7 @@ if confirm "Install global agent skills via skills.sh?"; then
         install_skill "anthropics/skills" "xlsx"
         install_skill "coderabbitai/skills" "code-review"
         install_skill "coderabbitai/skills" "autofix"
+        install_skill "slidevjs/slidev" "slidev"
     else
         warn "npx is not available — skipping agent skills installation"
     fi
@@ -1056,6 +1077,21 @@ info "    npx -y skills add anthropics/skills --skill pdf -g -y"
 info "    npx -y skills add anthropics/skills --skill pptx -g -y"
 info "    npx -y skills add anthropics/skills --skill docx -g -y"
 info "    npx -y skills add anthropics/skills --skill xlsx -g -y"
+info "    npx -y skills add slidevjs/slidev --skill slidev -g -y"
+info ""
+info "  Expose skills to OpenCode (symlink ~/.claude/skills/<name> -> ~/.config/opencode/skills/<name>):"
+info "    mkdir -p \"\$HOME/.config/opencode/skills\""
+info "    ln -sfn \"\$HOME/.claude/skills/find-skills\" \"\$HOME/.config/opencode/skills/find-skills\""
+info "    ln -sfn \"\$HOME/.claude/skills/vercel-react-best-practices\" \"\$HOME/.config/opencode/skills/vercel-react-best-practices\""
+info "    ln -sfn \"\$HOME/.claude/skills/web-design-guidelines\" \"\$HOME/.config/opencode/skills/web-design-guidelines\""
+info "    ln -sfn \"\$HOME/.claude/skills/vercel-composition-patterns\" \"\$HOME/.config/opencode/skills/vercel-composition-patterns\""
+info "    ln -sfn \"\$HOME/.claude/skills/frontend-design\" \"\$HOME/.config/opencode/skills/frontend-design\""
+info "    ln -sfn \"\$HOME/.claude/skills/skill-creator\" \"\$HOME/.config/opencode/skills/skill-creator\""
+info "    ln -sfn \"\$HOME/.claude/skills/pdf\" \"\$HOME/.config/opencode/skills/pdf\""
+info "    ln -sfn \"\$HOME/.claude/skills/pptx\" \"\$HOME/.config/opencode/skills/pptx\""
+info "    ln -sfn \"\$HOME/.claude/skills/docx\" \"\$HOME/.config/opencode/skills/docx\""
+info "    ln -sfn \"\$HOME/.claude/skills/xlsx\" \"\$HOME/.config/opencode/skills/xlsx\""
+info "    ln -sfn \"\$HOME/.claude/skills/slidev\" \"\$HOME/.config/opencode/skills/slidev\""
 info ""
 
 {{ end -}}
