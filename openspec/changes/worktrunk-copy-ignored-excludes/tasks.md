@@ -19,5 +19,5 @@
 
 ## 4. OpenSpec validation
 
-- [x] 4.1 Run `openspec validate worktrunk-copy-ignored-excludes` and confirm it passes
-- [x] 4.2 Run `openspec verify worktrunk-copy-ignored-excludes` (or equivalent) before archive
+- [x] 4.1 Run `openspec validate --strict worktrunk-copy-ignored-excludes` and confirm it passes
+- [x] 4.2 Run `openspec verify worktrunk-copy-ignored-excludes` before archive
