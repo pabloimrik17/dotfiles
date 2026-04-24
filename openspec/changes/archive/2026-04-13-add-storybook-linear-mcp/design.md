@@ -1,50 +1,50 @@
 ## Context
 
-El install script (`run_onchange_install-packages.sh.tmpl`) ya registra 10 MCP servers globales en el Group 8.5, usando dos arrays bash: `MCP_STDIO_SERVERS` (7 entries) y `MCP_HTTP_SERVERS` (3 entries). Los servers HTTP se registran con `claude mcp add --scope user --transport http`. El script tiene pre-scan, idempotencia, y manejo de versiones outdated. Al final del script hay una sección de instrucciones manuales que menciona la auth de Atlassian y Figma.
+The install script (`run_onchange_install-packages.sh.tmpl`) already registers 10 global MCP servers in Group 8.5, using two bash arrays: `MCP_STDIO_SERVERS` (7 entries) and `MCP_HTTP_SERVERS` (3 entries). HTTP servers are registered with `claude mcp add --scope user --transport http`. The script has pre-scan, idempotency, and outdated-version handling. At the end of the script there is a manual instructions section that mentions Atlassian and Figma auth.
 
-Ambos nuevos servidores (Linear y Storybook) son de tipo HTTP — encajan directamente en el array `MCP_HTTP_SERVERS` sin cambios estructurales al script.
+Both new servers (Linear and Storybook) are HTTP type — they fit directly into the `MCP_HTTP_SERVERS` array without structural changes to the script.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- Registrar Linear y Storybook como MCP servers HTTP globales via el install script
-- Documentar auth OAuth para Linear y requisito de addon para Storybook
-- Mantener idempotencia y consistencia con el patrón existente
+- Register Linear and Storybook as global HTTP MCP servers via the install script
+- Document OAuth auth for Linear and addon requirement for Storybook
+- Preserve idempotency and consistency with the existing pattern
 
 **Non-Goals:**
 
-- No instalar el addon `@storybook/addon-mcp` automáticamente (es per-project)
-- No configurar auth de Linear automáticamente (requiere browser interactivo)
-- No cambiar la estructura del script ni los helpers existentes
-- No pinear versiones de servidores HTTP remotos (no aplica — son URLs fijas, no paquetes npm)
+- Do not install the `@storybook/addon-mcp` addon automatically (it's per-project)
+- Do not configure Linear auth automatically (requires an interactive browser)
+- Do not change the script structure or existing helpers
+- Do not pin versions of remote HTTP servers (not applicable — they are fixed URLs, not npm packages)
 
 ## Decisions
 
-### Decision 1: Ambos servers van en `MCP_HTTP_SERVERS`
+### Decision 1: Both servers go in `MCP_HTTP_SERVERS`
 
-Linear es un servidor remoto (`https://mcp.linear.app/mcp`). Storybook es un servidor HTTP local (`http://localhost:6006/mcp`). Ambos usan transporte HTTP.
+Linear is a remote server (`https://mcp.linear.app/mcp`). Storybook is a local HTTP server (`http://localhost:6006/mcp`). Both use HTTP transport.
 
-**Alternativa descartada**: Registrar Storybook como stdio con un wrapper. No tiene sentido — el MCP de Storybook es un endpoint HTTP del dev server, no un proceso standalone.
+**Rejected alternative**: Register Storybook as stdio with a wrapper. It makes no sense — the Storybook MCP is an HTTP endpoint on the dev server, not a standalone process.
 
-### Decision 2: Storybook a nivel de usuario (no proyecto)
+### Decision 2: Storybook at user scope (not per-project)
 
-Registrar a nivel de usuario significa que cuando Storybook no está corriendo, el server simplemente falla la conexión — sin impacto. Esto ya sucede con el MCP de JetBrains (`jetbrains: ✗ Failed to connect`). Evita tener que configurar `.mcp.json` en cada proyecto.
+Registering at user scope means that when Storybook is not running, the server simply fails to connect — no impact. This already happens with the JetBrains MCP (`jetbrains: ✗ Failed to connect`). Avoids having to configure `.mcp.json` in every project.
 
-**Alternativa descartada**: Registrar per-project. Requeriría configuración repetida y no aporta nada — el endpoint siempre es `localhost:6006/mcp`.
+**Rejected alternative**: Register per-project. It would require repeated configuration and adds nothing — the endpoint is always `localhost:6006/mcp`.
 
-### Decision 3: Linear con OAuth (no API key)
+### Decision 3: Linear with OAuth (not API key)
 
-OAuth interactivo es el método oficial de Linear para su MCP server. El token se cachea en `~/.mcp-auth` automáticamente.
+Interactive OAuth is Linear's official method for its MCP server. The token is cached in `~/.mcp-auth` automatically.
 
-**Alternativa descartada**: API key personal via env var. Requiere gestión manual del token y es menos seguro que OAuth con refresh.
+**Rejected alternative**: Personal API key via env var. Requires manual token management and is less secure than OAuth with refresh.
 
-### Decision 4: Instrucciones manuales al final del script
+### Decision 4: Manual instructions at the end of the script
 
-Añadir notas para Linear (OAuth) y Storybook (addon per-project) junto a las notas existentes de Atlassian y Figma. Mismo patrón, mismo lugar.
+Add notes for Linear (OAuth) and Storybook (per-project addon) next to the existing Atlassian and Figma notes. Same pattern, same place.
 
 ## Risks / Trade-offs
 
-- **[Storybook puerto no-estándar]** → Si un proyecto usa un puerto distinto a 6006, el MCP no conecta. Mitigación: documentar en las instrucciones manuales. En la práctica el puerto default rara vez se cambia.
-- **[Linear OAuth expira]** → El token OAuth puede expirar. Mitigación: Linear maneja refresh automáticamente. Si falla, `rm -rf ~/.mcp-auth` y re-autenticar.
-- **[Storybook sin addon]** → Aunque Storybook corra, sin `@storybook/addon-mcp` el endpoint `/mcp` no existe. Mitigación: documentar claramente en instrucciones manuales.
+- **[Storybook non-standard port]** → If a project uses a port other than 6006, the MCP does not connect. Mitigation: document in the manual instructions. In practice the default port is rarely changed.
+- **[Linear OAuth expires]** → The OAuth token can expire. Mitigation: Linear handles refresh automatically. If it fails, `rm -rf ~/.mcp-auth` and re-authenticate.
+- **[Storybook without addon]** → Even if Storybook is running, without `@storybook/addon-mcp` the `/mcp` endpoint does not exist. Mitigation: document clearly in the manual instructions.

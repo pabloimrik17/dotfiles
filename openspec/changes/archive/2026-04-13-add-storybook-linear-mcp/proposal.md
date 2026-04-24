@@ -1,27 +1,27 @@
 ## Why
 
-El setup actual tiene 10 MCP servers globales pero falta integración con Linear (gestión de issues/proyectos) y Storybook (documentación y testing de componentes). Linear es un servicio remoto que funciona desde cualquier repo; Storybook es un servidor HTTP local que se activa solo cuando `storybook dev` está corriendo — ambos encajan como servidores globales a nivel de usuario.
+The current setup has 10 global MCP servers but lacks integration with Linear (issue/project management) and Storybook (component documentation and testing). Linear is a remote service that works from any repo; Storybook is a local HTTP server that activates only when `storybook dev` is running — both fit as user-scope global servers.
 
 ## What Changes
 
-- Registrar el MCP server de **Linear** (`https://mcp.linear.app/mcp`) como servidor HTTP global con autenticación OAuth interactiva
-- Registrar el MCP server de **Storybook** (`http://localhost:6006/mcp`) como servidor HTTP global — disponible solo cuando un proyecto tiene Storybook corriendo (falla silenciosamente en caso contrario, igual que el MCP de JetBrains)
-- Actualizar el install script para registrar 12 servers en vez de 10
-- Documentar que Linear requiere OAuth post-registro y que Storybook requiere el addon `@storybook/addon-mcp` por proyecto
+- Register the **Linear** MCP server (`https://mcp.linear.app/mcp`) as a global HTTP server with interactive OAuth authentication
+- Register the **Storybook** MCP server (`http://localhost:6006/mcp`) as a global HTTP server — available only when a project has Storybook running (fails silently otherwise, same as the JetBrains MCP)
+- Update the install script to register 12 servers instead of 10
+- Document that Linear requires post-registration OAuth and that Storybook requires the `@storybook/addon-mcp` addon per project
 
 ## Capabilities
 
 ### New Capabilities
 
-_(ninguna — no se introduce una capacidad nueva)_
+_(none — no new capability is introduced)_
 
 ### Modified Capabilities
 
-- `mcp-global-config`: Se añaden 2 servidores HTTP a la tabla de servidores globales (Linear y Storybook), pasando de 10 a 12 servidores registrados. Se actualizan los scenarios de conteo y las instrucciones de auth manual.
+- `mcp-global-config`: 2 HTTP servers are added to the global servers table (Linear and Storybook), going from 10 to 12 registered servers. Count scenarios and manual auth instructions are updated.
 
 ## Impact
 
-- **Install script** (`run_onchange_install-packages.sh.tmpl`): arrays de MCP servers crecen con 2 entradas HTTP adicionales
-- **Spec `mcp-global-config`**: tabla de servidores y scenarios de conteo deben actualizarse
-- **Manual/README**: documentar requisitos de auth (Linear OAuth) y addon por proyecto (Storybook)
-- **No hay breaking changes**: servidores existentes no se modifican
+- **Install script** (`run_onchange_install-packages.sh.tmpl`): MCP server arrays grow by 2 additional HTTP entries
+- **Spec `mcp-global-config`**: server table and count scenarios must be updated
+- **Manual/README**: document auth requirements (Linear OAuth) and per-project addon (Storybook)
+- **No breaking changes**: existing servers are not modified
