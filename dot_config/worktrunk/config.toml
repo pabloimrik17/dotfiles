@@ -27,6 +27,37 @@ elif [ -f package-lock.json ]; then
 fi
 """
 
+[step.copy-ignored]
+# Skip regenerable directories: [post-start].deps reinstalls packages, rebuilds regenerate
+# framework/bundler/test caches, and venvs bake in absolute paths that break after copy.
+# Keep `.idea/` (JetBrains project state) and `ios/Pods/` (CocoaPods is slow to reinstall).
+exclude = [
+    "node_modules/",
+    ".next/",
+    ".nx/",
+    ".turbo/",
+    ".expo/",
+    ".cache/",
+    ".parcel-cache/",
+    ".vite/",
+    ".swc/",
+    "dist/",
+    "build/",
+    "out/",
+    "storybook-static/",
+    "coverage/",
+    ".nyc_output/",
+    "htmlcov/",
+    "playwright-report/",
+    "test-results/",
+    "__pycache__/",
+    ".pytest_cache/",
+    ".mypy_cache/",
+    ".ruff_cache/",
+    ".venv/",
+    "venv/",
+]
+
 [commit.generation]
 command = "MAX_THINKING_TOKENS=0 claude -p --model=haiku --tools='' --disable-slash-commands --setting-sources='' --system-prompt=''"
 
