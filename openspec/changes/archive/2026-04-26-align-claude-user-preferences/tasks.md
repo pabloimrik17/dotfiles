@@ -18,5 +18,5 @@
 
 ## 4. Close out
 
-- [ ] 4.1 Reference issue #129 in the commit/PR message
-- [ ] 4.2 After merge, run `/opsx:archive align-claude-user-preferences` to fold delta requirements into `openspec/specs/claude-user-preferences/spec.md`
+- [x] 4.1 Reference issue #129 in the commit/PR message
+- [x] 4.2 After merge, run `/opsx:archive align-claude-user-preferences` to fold delta requirements into `openspec/specs/claude-user-preferences/spec.md`
