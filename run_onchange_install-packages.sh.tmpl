@@ -851,7 +851,11 @@ MCP_HTTP_SERVERS=(
     "storybook:http://localhost:6006/mcp"
 )
 
-if command -v claude &>/dev/null; then
+if ! command -v claude &>/dev/null; then
+    warn "Claude Code is not installed — skipping MCP server registration"
+elif ! command -v jq &>/dev/null; then
+    warn "jq is required for MCP server detection — skipping MCP server registration"
+else
     # Pre-scan: query ~/.claude.json with jq, scoped to .mcpServers
     # (claude mcp list has no --json flag; grep would false-match on per-project mcpServers and other fields)
     mcp_registered() {
@@ -860,8 +864,9 @@ if command -v claude &>/dev/null; then
     }
 
     mcp_config_matches() {
-        local match_string="$1"
-        [ -f "$HOME/.claude.json" ] && jq -e --arg s "$match_string" '.mcpServers | tostring | contains($s)' "$HOME/.claude.json" >/dev/null 2>&1
+        local name="$1"
+        local match_string="$2"
+        [ -f "$HOME/.claude.json" ] && jq -e --arg n "$name" --arg s "$match_string" '.mcpServers[$n] | tostring | contains($s)' "$HOME/.claude.json" >/dev/null 2>&1
     }
 
     # Count new and outdated servers
@@ -879,7 +884,7 @@ if command -v claude &>/dev/null; then
         done
         if ! mcp_registered "$name"; then
             PENDING_MCP=$((PENDING_MCP + 1))
-        elif [ -n "$pkg_version" ] && ! mcp_config_matches "$pkg_version"; then
+        elif [ -n "$pkg_version" ] && ! mcp_config_matches "$name" "$pkg_version"; then
             OUTDATED_MCP=$((OUTDATED_MCP + 1))
         fi
     done
@@ -888,7 +893,7 @@ if command -v claude &>/dev/null; then
         url="${entry#*:}"
         if ! mcp_registered "$name"; then
             PENDING_MCP=$((PENDING_MCP + 1))
-        elif ! mcp_config_matches "$url"; then
+        elif ! mcp_config_matches "$name" "$url"; then
             OUTDATED_MCP=$((OUTDATED_MCP + 1))
         fi
     done
@@ -909,7 +914,7 @@ if command -v claude &>/dev/null; then
                 done
                 if ! mcp_registered "$name"; then
                     run_claude_step "mcp $name" claude mcp add --scope user "$name" -- "${parts[@]}"
-                elif [ -n "$pkg_version" ] && ! mcp_config_matches "$pkg_version"; then
+                elif [ -n "$pkg_version" ] && ! mcp_config_matches "$name" "$pkg_version"; then
                     info "  $name — version changed, updating..."
                     run_claude_step "mcp remove $name" claude mcp remove "$name" -s user
                     # Verify removal before re-adding (remove may fail silently due to Bun PTY issues)
@@ -929,7 +934,7 @@ if command -v claude &>/dev/null; then
                 url="${entry#*:}"
                 if ! mcp_registered "$name"; then
                     run_claude_step "mcp $name" claude mcp add --scope user --transport http "$name" "$url"
-                elif ! mcp_config_matches "$url"; then
+                elif ! mcp_config_matches "$name" "$url"; then
                     info "  $name — URL changed, updating..."
                     run_claude_step "mcp remove $name" claude mcp remove "$name" -s user
                     if mcp_registered "$name"; then
@@ -945,8 +950,6 @@ if command -v claude &>/dev/null; then
             info "Skipping MCP server registration."
         fi
     fi
-else
-    warn "Claude Code is not installed — skipping MCP server registration"
 fi
 
 # ------------------------------------------------------------------
