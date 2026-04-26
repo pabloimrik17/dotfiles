@@ -37,5 +37,5 @@ This ordering applies only to the keys listed above (the user-preference block).
 
 #### Scenario: User-preference block is in canonical order
 
-- **WHEN** the rendered `dot_claude/settings.json.tmpl` is parsed and the five user-preference keys above are extracted in source order
+- **WHEN** the output of `chezmoi cat dot_claude/settings.json.tmpl` is parsed and the five user-preference keys above are extracted in source order
 - **THEN** they SHALL appear in the order: `alwaysThinkingEnabled`, `skipDangerousModePermissionPrompt`, `skipAutoPermissionPrompt`, `voiceEnabled`, `effortLevel`
