@@ -1,55 +1,55 @@
 ## Context
 
-Tmux actual: 3 líneas en `dot_tmux.conf` (mouse, 256 colores, focus events). Sin plugins, sin persistencia, sin gestión de sesiones. Referencia: omerxx/dotfiles tiene un setup completo con TPM y 8+ plugins.
+Current tmux: 3 lines in `dot_tmux.conf` (mouse, 256 colors, focus events). No plugins, no persistence, no session management. Reference: omerxx/dotfiles has a full setup with TPM and 8+ plugins.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Añadir TPM (Tmux Plugin Manager) como gestor de plugins
-- Persistencia automática de sesiones con resurrect + continuum
-- Gestión de sesiones con sessionx (fzf + zoxide integration)
-- Paneles flotantes con floax
-- Selección rápida de texto con thumbs
-- Apertura de URLs con fzf-url
-- Tema Catppuccin Mocha coherente con el resto del setup
-- Prefix Ctrl+A (más ergonómico que Ctrl+B por defecto)
-- Vi copy mode para consistencia con vim keybindings
+- Add TPM (Tmux Plugin Manager) as the plugin manager
+- Automatic session persistence with resurrect + continuum
+- Session management with sessionx (fzf + zoxide integration)
+- Floating panes with floax
+- Fast text selection with thumbs
+- URL opening with fzf-url
+- Catppuccin Mocha theme consistent with the rest of the setup
+- Prefix Ctrl+A (more ergonomic than the default Ctrl+B)
+- Vi copy mode for consistency with vim keybindings
 
 **Non-Goals:**
-- Reemplazar Ghostty tabs/splits (tmux es complementario)
-- Configurar tmux para SSH remoto (puede venir después)
-- Scripts de sesiones predefinidas por proyecto (puede venir después)
-- Integración con SketchyBar o status bars externos
+- Replace Ghostty tabs/splits (tmux is complementary)
+- Configure tmux for remote SSH (can come later)
+- Predefined per-project session scripts (can come later)
+- Integration with SketchyBar or external status bars
 
 ## Decisions
 
-### TPM como plugin manager
-TPM (tmux-plugin-manager) se instala via git clone en `~/.tmux/plugins/tpm`. Los plugins se declaran en `dot_tmux.conf` con `set -g @plugin`. TPM se encarga de instalar/actualizar.
-- **Alternativa:** Instalar plugins manualmente → descartado por mantenimiento.
-- **Alternativa:** Nix/Home Manager → descartado porque usamos Chezmoi, no Nix.
+### TPM as plugin manager
+TPM (tmux-plugin-manager) is installed via git clone into `~/.tmux/plugins/tpm`. Plugins are declared in `dot_tmux.conf` with `set -g @plugin`. TPM handles install/update.
+- **Alternative:** install plugins manually → rejected for maintenance reasons.
+- **Alternative:** Nix/Home Manager → rejected because we use Chezmoi, not Nix.
 
-### Plugin selection (de omerxx, adaptado)
-| Plugin | Propósito | De omerxx? |
-|--------|-----------|------------|
-| tmux-resurrect | Persistir sesiones entre reinicios | Sí |
-| tmux-continuum | Auto-save cada 15 min | Sí |
-| tmux-sessionx | Session picker con fzf/zoxide | Sí (plugin propio) |
-| tmux-floax | Paneles flotantes | Sí (plugin propio) |
-| tmux-thumbs | Selección rápida de texto | Sí |
-| tmux-fzf-url | Abrir URLs visibles | Sí |
-| catppuccin/tmux | Tema | Sí (fork propio, nosotros usamos el oficial) |
-| tmux-sensible | Defaults razonables | Sí |
-| tmux-yank | Copy to system clipboard | Sí |
+### Plugin selection (from omerxx, adapted)
+| Plugin | Purpose | From omerxx? |
+|--------|---------|--------------|
+| tmux-resurrect | Persist sessions across restarts | Yes |
+| tmux-continuum | Auto-save every 15 min | Yes |
+| tmux-sessionx | Session picker with fzf/zoxide | Yes (own plugin) |
+| tmux-floax | Floating panes | Yes (own plugin) |
+| tmux-thumbs | Fast text selection | Yes |
+| tmux-fzf-url | Open visible URLs | Yes |
+| catppuccin/tmux | Theme | Yes (own fork, we use the official one) |
+| tmux-sensible | Sensible defaults | Yes |
+| tmux-yank | Copy to system clipboard | Yes |
 
 ### Prefix: Ctrl+A
-Ctrl+A es más accesible que Ctrl+B (especialmente con Caps→Ctrl de Karabiner). Conflicto potencial con readline "inicio de línea" → mitigado con `bind C-a send-prefix` para enviar Ctrl+A literal.
+Ctrl+A is more accessible than Ctrl+B (especially with Karabiner's Caps→Ctrl). Potential collision with readline "start of line" → mitigated with `bind C-a send-prefix` to send a literal Ctrl+A.
 
-### Status bar en top
-Coherente con la posición de tabs de Ghostty. Información mínima: sesión a la izquierda, directorio a la derecha.
+### Status bar on top
+Consistent with Ghostty's tab position. Minimal information: session on the left, directory on the right.
 
 ## Risks / Trade-offs
 
-- **[Conflicto Ctrl+A con readline]** → Mitigación: `send-prefix` permite enviar Ctrl+A literal con doble pulsación
-- **[TPM requiere git clone manual]** → Mitigación: añadir al install script como paso automático
-- **[Plugins pueden romperse en actualizaciones de tmux]** → Mitigación: todos los plugins seleccionados están activamente mantenidos
-- **[Duplicación con Ghostty tabs]** → No es un riesgo real, son complementarios. Tmux añade persistencia y detach
+- **[Ctrl+A collision with readline]** → Mitigation: `send-prefix` allows sending a literal Ctrl+A by double-tapping.
+- **[TPM requires a manual git clone]** → Mitigation: add it to the install script as an automated step.
+- **[Plugins may break across tmux upgrades]** → Mitigation: every selected plugin is actively maintained.
+- **[Duplication with Ghostty tabs]** → Not a real risk, they are complementary. Tmux adds persistence and detach.
