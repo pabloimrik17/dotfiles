@@ -1,42 +1,42 @@
 ## Context
 
-No existe ningún remapping de teclado en el dotfiles actual. macOS soporta Caps Lock → modifier nativo en System Settings, pero para remaps avanzados (Ctrl+HJKL → arrows) se necesita Karabiner-Elements. Referencia: omerxx/dotfiles incluye config de Karabiner con exactamente estos remaps.
+There is no keyboard remapping in the current dotfiles. macOS natively supports Caps Lock → modifier in System Settings, but advanced remaps (Ctrl+HJKL → arrows) require Karabiner-Elements. Reference: omerxx/dotfiles includes a Karabiner config with exactly these remaps.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Remap Caps Lock → Left Control (para todo el sistema)
-- Remap Ctrl+HJKL → Arrow keys (vim-style navigation en todas las apps)
-- Configuración JSON versionada en dotfiles, gestionada por Chezmoi
-- Instalación automatizada via brew cask
+- Remap Caps Lock → Left Control (system-wide)
+- Remap Ctrl+HJKL → Arrow keys (vim-style navigation across all apps)
+- JSON configuration versioned in dotfiles, managed by Chezmoi
+- Automated install via brew cask
 
 **Non-Goals:**
-- Remaps complejos tipo Hyper key (Caps Lock como Ctrl+Shift+Cmd+Alt)
-- Remaps específicos por aplicación
-- Backslash → Delete (de omerxx, demasiado opinado)
-- Sistema de capas tipo QMK
+- Complex Hyper-key style remaps (Caps Lock as Ctrl+Shift+Cmd+Alt)
+- App-specific remaps
+- Backslash → Delete (from omerxx, too opinionated)
+- QMK-style layer system
 
 ## Decisions
 
 ### Config structure
-Karabiner usa `~/.config/karabiner/karabiner.json`. En Chezmoi será `dot_config/karabiner/karabiner.json`. No es template (no necesita variables de Chezmoi).
+Karabiner uses `~/.config/karabiner/karabiner.json`. In Chezmoi this becomes `dot_config/karabiner/karabiner.json`. It is not a template (no Chezmoi variables needed).
 
 ### Remap 1: Caps Lock → Left Control
-Implementado como `simple_modification` en Karabiner (el más básico). Caps Lock pierde su función original por completo.
-- **Alternativa:** macOS nativo (System Settings → Keyboard → Modifier Keys) → descartado porque no es versionable en dotfiles y no se puede combinar con Karabiner rules.
-- **Alternativa:** Dual-role (Caps solo = Escape, Caps+key = Ctrl) → descartado por complejidad y latencia perceptible.
+Implemented as a `simple_modification` in Karabiner (the most basic kind). Caps Lock loses its original function entirely.
+- **Alternative:** native macOS (System Settings → Keyboard → Modifier Keys) → rejected because it is not versionable in dotfiles and cannot be combined with Karabiner rules.
+- **Alternative:** Dual-role (Caps alone = Escape, Caps+key = Ctrl) → rejected for complexity and perceptible latency.
 
 ### Remap 2: Ctrl+HJKL → Arrow keys
-Implementado como `complex_modification` con rules. Se mapea tanto Left Control como Right Control + HJKL. Esto permite:
-- Con Caps Lock (ahora Ctrl) + HJKL → arrows (el flujo principal)
-- Con Ctrl original + HJKL → arrows (por si acaso)
+Implemented as a `complex_modification` with rules. Both Left Control and Right Control + HJKL are mapped. This enables:
+- Caps Lock (now Ctrl) + HJKL → arrows (the primary flow)
+- Original Ctrl + HJKL → arrows (just in case)
 
-### Alcance: solo HJKL, no JK para scroll
-Solo flechas de dirección. No añadimos Ctrl+D/U para Page Down/Up ni otros remaps vim. KISS.
+### Scope: only HJKL, not JK for scrolling
+Arrow keys only. We do not add Ctrl+D/U for Page Down/Up or other vim remaps. KISS.
 
 ## Risks / Trade-offs
 
-- **[Caps Lock desaparece]** → Riesgo bajo: casi nadie la usa. Si se necesita, Shift+Caps Lock sigue funcionando en Karabiner
-- **[Ctrl+H conflicto en apps]** → Algunos apps usan Ctrl+H (backspace en terminal, help en algunos programas). Mitigación: la mayoría de apps modernas usan Cmd+H. Si hay conflicto real, se puede excluir apps específicas por bundle ID
-- **[Karabiner requiere permisos de accesibilidad]** → Esperado; se documenta en el install script como paso manual post-instalación
-- **[Latencia de input]** → Karabiner opera a nivel de kernel; latencia imperceptible (<1ms)
+- **[Caps Lock disappears]** → Low risk: almost no one uses it. If needed, Shift+Caps Lock still works in Karabiner.
+- **[Ctrl+H conflict in apps]** → Some apps use Ctrl+H (backspace in terminal, help in some programs). Mitigation: most modern apps use Cmd+H. If a real conflict appears, specific apps can be excluded by bundle ID.
+- **[Karabiner requires accessibility permissions]** → Expected; documented in the install script as a manual post-install step.
+- **[Input latency]** → Karabiner operates at the kernel level; latency is imperceptible (<1ms).

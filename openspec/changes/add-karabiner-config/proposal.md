@@ -1,27 +1,27 @@
 ## Why
 
-No tenemos ningún remapping de teclado. Dos cambios ergonómicos de alto impacto: Caps Lock → Control (la tecla más usada en un sitio accesible en vez de la esquina) y Ctrl+HJKL → flechas de dirección (navegación vim-style en todas las apps de macOS sin mover las manos del home row). Inspirado en el config de Karabiner de omerxx/dotfiles.
+We have no keyboard remapping. Two high-impact ergonomic changes: Caps Lock → Control (the most-used key in an accessible spot instead of the corner) and Ctrl+HJKL → arrow keys (vim-style navigation across all macOS apps without leaving the home row). Inspired by the Karabiner config from omerxx/dotfiles.
 
 ## What Changes
 
-- Instalar Karabiner-Elements via brew cask
-- Crear configuración JSON con los remaps:
-  - Caps Lock → Left Control (para todo el sistema)
-  - Right Cmd + HJKL → Arrow keys (navegación vim)
-  - Left Ctrl + HJKL → Arrow keys (navegación vim, complementario con Caps→Ctrl)
-- Añadir config de Karabiner al dotfiles gestionado por Chezmoi
-- Añadir Karabiner-Elements al install script
+- Install Karabiner-Elements via brew cask
+- Create a JSON configuration with the remaps:
+  - Caps Lock → Left Control (system-wide)
+  - Right Cmd + HJKL → Arrow keys (vim navigation)
+  - Left Ctrl + HJKL → Arrow keys (vim navigation, complementary to Caps→Ctrl)
+- Add the Karabiner config to the dotfiles managed by Chezmoi
+- Add Karabiner-Elements to the install script
 
 ## Capabilities
 
 ### New Capabilities
-- `karabiner-config`: Configuración de Karabiner-Elements con remaps de teclado (Caps→Ctrl, vim arrows)
+- `karabiner-config`: Karabiner-Elements configuration with keyboard remaps (Caps→Ctrl, vim arrows)
 
 ### Modified Capabilities
 
 ## Impact
 
-- **Archivos nuevos:** `dot_config/karabiner/karabiner.json` (o estructura equivalente de Chezmoi)
-- **Archivos modificados:** `run_onchange_install-packages.sh.tmpl` (añadir brew cask)
-- **Dependencias nuevas:** `karabiner-elements` (brew cask)
-- **Riesgo:** Bajo. Karabiner solo actúa cuando está corriendo. Si se desactiva, el teclado vuelve a su comportamiento normal. No afecta a ningún otro archivo del dotfiles
+- **New files:** `dot_config/karabiner/karabiner.json` (or the equivalent Chezmoi structure)
+- **Modified files:** `run_onchange_install-packages.sh.tmpl` (add brew cask)
+- **New dependencies:** `karabiner-elements` (brew cask)
+- **Risk:** Low. Karabiner only acts while it is running. If disabled, the keyboard returns to its default behavior. It does not affect any other dotfile.
