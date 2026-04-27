@@ -1,33 +1,33 @@
 ## Why
 
-Usamos Rectangle para window management con layouts fijos y apps que siempre van en el mismo sitio, en un setup de 3 pantallas (laptop + 2 monitores) con 7 escritorios. AeroSpace automatiza lo que hoy se hace manualmente: tiling automático, asignación de apps a workspaces, workspaces por monitor, y navegación instantánea con alt+hjkl sin animaciones de macOS. Inspirado en el config de omerxx/dotfiles.
+We use Rectangle for window management with fixed layouts and apps that always go to the same place, in a 3-screen setup (laptop + 2 monitors) with 7 desktops. AeroSpace automates what is currently done manually: automatic tiling, app-to-workspace assignment, workspaces per monitor, and instant alt+hjkl navigation without macOS animations. Inspired by the omerxx/dotfiles config.
 
 ## What Changes
 
-- Instalar AeroSpace via brew cask
-- Crear configuración TOML con:
-  - Navegación entre ventanas: alt+HJKL
-  - Mover ventanas: alt+shift+HJKL
-  - Workspaces 1-7 con alt+número (cambio instantáneo)
-  - Reglas de auto-asignación de apps a workspaces
-  - Workspace-to-monitor assignments para 3 pantallas
-  - Lista de apps flotantes (Finder, calculadora, etc.)
-  - Gaps configurables
-- Añadir config al dotfiles gestionado por Chezmoi
-- Añadir AeroSpace al install script
-- Documentar que reemplaza Rectangle
+- Install AeroSpace via brew cask
+- Create a TOML configuration with:
+  - Window navigation: alt+HJKL
+  - Move windows: alt+shift+HJKL
+  - Workspaces 1-7 with alt+number (instant switch)
+  - App-to-workspace auto-assignment rules
+  - Workspace-to-monitor assignments for 3 screens
+  - Floating apps list (Finder, calculator, etc.)
+  - Configurable gaps
+- Add the config to the dotfiles managed by Chezmoi
+- Add AeroSpace to the install script
+- Document that it replaces Rectangle
 
 ## Capabilities
 
 ### New Capabilities
-- `aerospace-config`: Configuración de AeroSpace tiling WM (workspaces, navegación, reglas por app, multi-monitor)
+- `aerospace-config`: AeroSpace tiling WM configuration (workspaces, navigation, per-app rules, multi-monitor)
 
 ### Modified Capabilities
 
 ## Impact
 
-- **Archivos nuevos:** `dot_config/aerospace/aerospace.toml`
-- **Archivos modificados:** `run_onchange_install-packages.sh.tmpl` (añadir brew cask, opcionalmente eliminar Rectangle)
-- **Dependencias nuevas:** `aerospace` (brew cask)
-- **Reemplaza:** Rectangle (se puede desinstalar tras validar AeroSpace)
-- **Riesgo:** Medio. Cambiar de window manager requiere periodo de adaptación (~1-2 semanas). Rectangle se puede mantener instalado mientras se evalúa AeroSpace
+- **New files:** `dot_config/aerospace/aerospace.toml`
+- **Modified files:** `run_onchange_install-packages.sh.tmpl` (add brew cask, optionally remove Rectangle)
+- **New dependencies:** `aerospace` (brew cask)
+- **Replaces:** Rectangle (can be uninstalled once AeroSpace is validated)
+- **Risk:** Medium. Switching window managers requires an adaptation period (~1-2 weeks). Rectangle can stay installed while AeroSpace is being evaluated.
