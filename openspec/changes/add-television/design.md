@@ -1,39 +1,45 @@
 ## Context
 
-Actualmente usamos fzf con funciones shell custom en `.zshrc` (frg, fgco, fglog, fkill) y configuración de FZF_DEFAULT_COMMAND/OPTS. Television ofrece un sistema declarativo de canales TOML con autocomplete contextual (Ctrl+T detecta el comando que se está escribiendo).
+We currently use fzf with custom shell functions in `.zshrc` (frg, fgco, fglog, fkill) and FZF_DEFAULT_COMMAND/OPTS configuration. Television offers a declarative TOML channel system with contextual autocomplete (Ctrl+T detects the command being typed).
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Instalar television y configurar shell integration (Ctrl+T contextual, Ctrl+R historia)
-- Configurar channel triggers para nuestro stack: git, gh, docker, bun, brew
-- Crear canal custom bun-scripts para ejecutar scripts de package.json
-- Aplicar tema Catppuccin
-- Evaluar qué funciones fzf custom de .zshrc puede reemplazar television
+
+- Install television and configure shell integration (Ctrl+T contextual, Ctrl+R history)
+- Configure channel triggers for our stack: git, gh, docker, bun, brew
+- Create a custom `bun-scripts` channel to run scripts from package.json
+- Apply the Catppuccin theme
+- Evaluate which custom fzf functions in .zshrc television can replace
 
 **Non-Goals:**
-- Eliminar fzf por completo (television lo usa internamente y fzf sigue siendo útil para pipes ad-hoc)
-- Crear canales custom para kubernetes/AWS (no es nuestro stack principal)
-- Reemplazar atuin para historial (atuin tiene sync y AI, television solo tiene búsqueda local)
+
+- Remove fzf entirely (television uses it internally and fzf is still useful for ad-hoc pipes)
+- Create custom channels for Kubernetes/AWS (not our primary stack)
+- Replace atuin for history (atuin has sync and AI, television only does local search)
 
 ## Decisions
 
-### Coexistencia fzf + television
-fzf sigue instalado. Television usa fzf internamente para el fuzzy matching. Lo que cambia:
-- Ctrl+T: pasa de fzf (siempre archivos) a television (contextual)
-- Ctrl+R: sigue con atuin (tiene sync + AI), no con television
-- Las funciones custom (frg, fgco, fglog, fkill) se mantienen inicialmente y se evalúa su eliminación después de validar que television las cubre
+### fzf + television coexistence
+
+fzf stays installed. Television uses fzf internally for fuzzy matching. What changes:
+
+- Ctrl+T: moves from fzf (always files) to television (contextual)
+- Ctrl+R: stays on atuin (sync + AI), not television
+- The custom functions (frg, fgco, fglog, fkill) stay initially and we evaluate removing them after confirming television covers them
 
 ### Keybinding strategy
-| Keybinding | Actual | Propuesto |
-|------------|--------|-----------|
-| Ctrl+R | atuin (historial AI) | atuin (sin cambio) |
-| Ctrl+T | fzf (archivos) | television (contextual) |
-| Alt+C | fzf (directorios) | fzf (sin cambio, television no tiene equivalente) |
 
-Television se inicializa DESPUÉS de fzf en .zshrc para que sobrescriba Ctrl+T pero no afecte otros bindings.
+| Keybinding | Current            | Proposed                                      |
+| ---------- | ------------------ | --------------------------------------------- |
+| Ctrl+R     | atuin (AI history) | atuin (no change)                             |
+| Ctrl+T     | fzf (files)        | television (contextual)                       |
+| Alt+C      | fzf (directories)  | fzf (no change, television has no equivalent) |
 
-### Channel triggers para nuestro stack
+Television is initialized AFTER fzf in .zshrc so it overrides Ctrl+T without affecting other bindings.
+
+### Channel triggers for our stack
+
 ```toml
 [shell_integration.channel_triggers]
 "git-branch" = ["git checkout", "git branch", "git merge", "git rebase"]
@@ -46,12 +52,13 @@ Television se inicializa DESPUÉS de fzf en .zshrc para que sobrescriba Ctrl+T p
 "brew-packages" = ["brew info", "brew upgrade", "brew uninstall"]
 ```
 
-### Canal custom: bun-scripts
-Archivo TOML en `cable/bun-scripts.toml` que lee `package.json` con jq y lista los scripts disponibles. Enter ejecuta el script con `bun run`.
+### Custom channel: bun-scripts
+
+A TOML file in `cable/bun-scripts.toml` that reads `package.json` with jq and lists the available scripts. Enter runs the script with `bun run`.
 
 ## Risks / Trade-offs
 
-- **[Conflicto Ctrl+T con fzf]** → Mitigación: television se inicializa después de fzf, sobrescribe el binding limpiamente
-- **[television es relativamente nuevo]** → Mitigación: 10k+ stars en GitHub, release frecuente, escrito en Rust
-- **[Canal bun-scripts requiere jq]** → Mitigación: jq ya debería estar instalado; añadir al install script si no lo está
-- **[Funciones custom duplicadas temporalmente]** → Aceptable: se eliminan en un cambio posterior tras validación
+- **[Ctrl+T collision with fzf]** → Mitigation: television initializes after fzf and overrides the binding cleanly.
+- **[television is relatively new]** → Mitigation: 10k+ stars on GitHub, frequent releases, written in Rust.
+- **[The bun-scripts channel requires jq]** → Mitigation: jq should already be installed; add it to the install script if not.
+- **[Custom functions duplicated temporarily]** → Acceptable: they will be removed in a later change after validation.
