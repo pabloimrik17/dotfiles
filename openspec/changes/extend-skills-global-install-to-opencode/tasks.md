@@ -1,27 +1,27 @@
 ## 1. Install script — core changes
 
-- [x] 1.1 Extend `install_skill` en el grupo 9 de `run_onchange_install-packages.sh.tmpl` para que, tras un `skills add` exitoso (y también cuando la skill ya está presente), cree `~/.config/opencode/skills/` con `mkdir -p` y ejecute `ln -sf "$HOME/.claude/skills/<name>" "$HOME/.config/opencode/skills/<name>"`.
-- [x] 1.2 Asegurar que el symlink NO se crea cuando `skills add` falla (flujo de error de `run_claude_step`).
-- [x] 1.3 Añadir la línea `install_skill "slidevjs/slidev" "slidev"` al final de la lista del grupo 9.
+- [x] 1.1 Extend `install_skill` in group 9 of `run_onchange_install-packages.sh.tmpl` so that, after a successful `skills add` (and also when the skill is already present), it creates `~/.config/opencode/skills/` with `mkdir -p` and runs `ln -sf "$HOME/.claude/skills/<name>" "$HOME/.config/opencode/skills/<name>"`.
+- [x] 1.2 Ensure the symlink is NOT created when `skills add` fails (`run_claude_step` error flow).
+- [x] 1.3 Append the line `install_skill "slidevjs/slidev" "slidev"` to the end of the group 9 list.
 
 ## 2. Non-macOS manual instructions
 
-- [x] 2.1 En la sección de instrucciones manuales (rama `{{ else }}` del template), añadir el comando de install para slidev: `npx -y skills add slidevjs/slidev --skill slidev -g -y`.
-- [x] 2.2 Añadir un bloque "Expose skills to OpenCode" que liste, para las once skills, el comando `ln -sf "$HOME/.claude/skills/<name>" "$HOME/.config/opencode/skills/<name>"` (incluyendo el `mkdir -p` previo).
+- [x] 2.1 In the manual instructions section (the template's `{{ else }}` branch), add the install command for slidev: `npx -y skills add slidevjs/slidev --skill slidev -g -y`.
+- [x] 2.2 Add an "Expose skills to OpenCode" block that lists, for all eleven skills, the command `ln -sf "$HOME/.claude/skills/<name>" "$HOME/.config/opencode/skills/<name>"` (including the preceding `mkdir -p`).
 
-## 3. Verificación
+## 3. Verification
 
-- [x] 3.1 Ejecutar `chezmoi diff` sobre el template para confirmar presencia (no conteo exacto) de: la línea `install_skill "slidevjs/slidev" "slidev"`, el bloque `mkdir -p "$HOME/.config/opencode/skills"` + `ln -sfn`/`-shf` dentro de `install_skill`, y la detección de plataforma con `uname`.
-- [x] 3.2 Correr `chezmoi apply` (ejecución real en un entorno de prueba) y verificar que tras la ejecución existen `~/.claude/skills/slidev/SKILL.md` y `~/.config/opencode/skills/slidev` como symlink válido a ese directorio.
-- [x] 3.3 Verificar idempotencia: ejecutar el `run_onchange` dos veces seguidas y confirmar que los symlinks quedan intactos y que no se reinstalan skills ya presentes.
-- [x] 3.4 Verificar el retrofit: sobre una máquina con `~/.claude/skills/pdf/` pero sin `~/.config/opencode/skills/pdf`, correr el script y comprobar que el symlink aparece.
+- [x] 3.1 Run `chezmoi diff` on the template to confirm the presence (not exact counts) of: the `install_skill "slidevjs/slidev" "slidev"` line, the `mkdir -p "$HOME/.config/opencode/skills"` + `ln -sfn`/`-shf` block inside `install_skill`, and the platform detection via `uname`.
+- [x] 3.2 Run `chezmoi apply` (a real run in a test environment) and verify that after execution `~/.claude/skills/slidev/SKILL.md` exists and `~/.config/opencode/skills/slidev` is a valid symlink to that directory.
+- [x] 3.3 Verify idempotency: run `run_onchange` twice in a row and confirm the symlinks remain intact and already-installed skills are not reinstalled.
+- [x] 3.4 Verify the retrofit: on a machine with `~/.claude/skills/pdf/` but without `~/.config/opencode/skills/pdf`, run the script and confirm the symlink appears.
 
-## 4. Docs (opcional, evaluar al final)
+## 4. Docs (optional, evaluate at the end)
 
-- [x] 4.1 Revisar `docs/manual.html` con la skill `docs:manual` y proponer una línea en la sección relevante de OpenCode/skills explicando que las skills globales aparecen symlinkadas en `~/.config/opencode/skills/`.
-- [x] 4.2 Revisar `README.md` con `docs:readme` y decidir si merece mención en la tabla "What's Included" o si se omite (probablemente se omite por ser detalle interno).
+- [x] 4.1 Review `docs/manual.html` with the `docs:manual` skill and propose a line in the relevant OpenCode/skills section explaining that global skills appear symlinked in `~/.config/opencode/skills/`.
+- [x] 4.2 Review `README.md` with `docs:readme` and decide whether it deserves a mention in the "What's Included" table or whether to omit it (likely omitted as an internal detail).
 
 ## 5. OpenSpec validation
 
-- [x] 5.1 `openspec validate extend-skills-global-install-to-opencode` pasa sin warnings ni errors.
-- [x] 5.2 `openspec verify extend-skills-global-install-to-opencode` pasa (todos los scenarios satisfechos por la implementación).
+- [x] 5.1 `openspec validate extend-skills-global-install-to-opencode` passes with no warnings or errors.
+- [x] 5.2 `openspec verify extend-skills-global-install-to-opencode` passes (all scenarios satisfied by the implementation).

@@ -1,28 +1,28 @@
 ## Why
 
-OpenCode no ve ninguna de las skills globales que ya se instalan para Claude Code vía `skills.sh`, así que trabajar con Slidev (u otras skills existentes) desde OpenCode supone no tener guía contextual. La tarea DOT-3 pide añadir las skills oficiales de Slidev a OpenCode, pero el problema real es estructural: falta un puente entre `~/.claude/skills/` y `~/.config/opencode/skills/`.
+OpenCode does not see any of the global skills already installed for Claude Code via `skills.sh`, so working with Slidev (or other existing skills) from OpenCode means having no contextual guidance. Task DOT-3 asks to add the official Slidev skills to OpenCode, but the real problem is structural: there is no bridge between `~/.claude/skills/` and `~/.config/opencode/skills/`.
 
 ## What Changes
 
-- Añadir `slidevjs/slidev --skill slidev` a la lista de skills globales instaladas por el grupo 9 del `run_onchange_install-packages.sh.tmpl`.
-- Tras cada `skills add` exitoso, crear un symlink `~/.config/opencode/skills/<name>/` → `~/.claude/skills/<name>/` para que OpenCode cargue la misma skill.
-- Retrofitear las skills ya instaladas: el script debe ser idempotente y crear los symlinks también para las skills que ya existan en `~/.claude/skills/` desde ejecuciones previas.
-- Actualizar las instrucciones manuales (no-macOS) del mismo script para reflejar el nuevo paso de symlink.
+- Add `slidevjs/slidev --skill slidev` to the list of global skills installed by group 9 of `run_onchange_install-packages.sh.tmpl`.
+- After every successful `skills add`, create a symlink `~/.config/opencode/skills/<name>/` → `~/.claude/skills/<name>/` so OpenCode loads the same skill.
+- Retrofit already-installed skills: the script must be idempotent and create symlinks for skills that already exist in `~/.claude/skills/` from previous runs as well.
+- Update the manual (non-macOS) instructions in the same script to reflect the new symlink step.
 
 ## Capabilities
 
 ### New Capabilities
 
-Ninguna.
+None.
 
 ### Modified Capabilities
 
-- `skills-global-install`: se añade `slidev` a la lista instalada, y se añade un nuevo requisito que obliga a symlinkar cada skill global también bajo `~/.config/opencode/skills/`.
+- `skills-global-install`: `slidev` is added to the installed list, and a new requirement is added that mandates symlinking every global skill under `~/.config/opencode/skills/` as well.
 
 ## Impact
 
-- **Código afectado**: `run_onchange_install-packages.sh.tmpl` (grupo 9 "Agent skills" + sección de instrucciones manuales al final).
-- **Sistemas**: `~/.config/opencode/skills/` pasa a contener symlinks gestionados por el script de install; OpenCode las descubre como skills locales del usuario.
-- **Dependencias**: ninguna nueva — solo `ln -sf` (coreutils) y `npx` ya requeridos.
-- **Docs**: README.md y `docs/manual.html` pueden necesitar una mención breve del nuevo comportamiento (evaluado en tasks).
-- **Riesgos**: si un usuario tiene un directorio real `~/.config/opencode/skills/<name>/` con el mismo nombre, `ln -sf` lo reemplazaría. Mitigación: detectar el caso y avisar en vez de sobrescribir.
+- **Affected code**: `run_onchange_install-packages.sh.tmpl` (group 9 "Agent skills" + manual instructions section at the end).
+- **Systems**: `~/.config/opencode/skills/` now holds symlinks managed by the install script; OpenCode discovers them as user-local skills.
+- **Dependencies**: no new ones — only `ln -sf` (coreutils) and `npx`, both already required.
+- **Docs**: README.md and `docs/manual.html` may need a brief mention of the new behavior (evaluated in tasks).
+- **Risks**: if a user has a real `~/.config/opencode/skills/<name>/` directory with the same name, `ln -sf` would replace it. Mitigation: detect the case and warn instead of overwriting.

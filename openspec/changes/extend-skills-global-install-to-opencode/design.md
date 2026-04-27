@@ -1,72 +1,72 @@
 ## Context
 
-El grupo 9 del `run_onchange_install-packages.sh.tmpl` instala skills globales mediante `npx -y skills add <repo> --skill <name> -g -y`. La CLI `skills.sh` escribe en `~/.claude/skills/<name>/`, el directorio global de Claude Code. OpenCode, en cambio, lee skills desde `~/.config/opencode/skills/<name>/` y no tiene ninguna CLI equivalente — hoy solo existe un caso aislado (`superpowers`) que usa `ln -sf` manual.
+Group 9 of `run_onchange_install-packages.sh.tmpl` installs global skills via `npx -y skills add <repo> --skill <name> -g -y`. The `skills.sh` CLI writes to `~/.claude/skills/<name>/`, the global directory for Claude Code. OpenCode, on the other hand, reads skills from `~/.config/opencode/skills/<name>/` and has no equivalent CLI — today there is only one isolated case (`superpowers`) using a manual `ln -sf`.
 
-La tarea DOT-3 requiere que la skill `slidev` (repo `slidevjs/slidev`) esté disponible en OpenCode. En lugar de duplicar la instalación por canal, aprovechamos la infra existente de Claude + un puente de symlinks.
+Task DOT-3 requires the `slidev` skill (repo `slidevjs/slidev`) to be available in OpenCode. Instead of duplicating the install per channel, we leverage the existing Claude infrastructure plus a symlink bridge.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- `slidev` se instala como skill global via `skills.sh`, igual que el resto.
-- Toda skill global instalada en `~/.claude/skills/<name>/` queda expuesta a OpenCode bajo `~/.config/opencode/skills/<name>/` sin duplicar datos.
-- La operación es idempotente: ejecutar el script varias veces no rompe nada y retrofittea las skills ya existentes.
-- Mantener el install script como única fuente de verdad para skills globales.
+- `slidev` is installed as a global skill via `skills.sh`, just like the rest.
+- Every global skill installed in `~/.claude/skills/<name>/` is exposed to OpenCode under `~/.config/opencode/skills/<name>/` without duplicating data.
+- The operation is idempotent: running the script multiple times does not break anything and retrofits already-installed skills.
+- Keep the install script as the single source of truth for global skills.
 
 **Non-Goals:**
 
-- Reorganizar el mecanismo de instalación actual (`skills.sh` CLI sigue siendo el método canónico).
-- Unificar la drift entre el script (que instala `code-review` y `autofix`) y la spec (que aún lista 10 skills). Tema separado.
-- Gestionar skills de OpenCode que NO existan en `~/.claude/skills/` — este puente es unidireccional.
-- Tocar el symlink existente de `superpowers` (vive fuera de `~/.claude/skills/`).
+- Reorganize the current install mechanism (`skills.sh` CLI remains the canonical method).
+- Reconcile the drift between the script (which installs `code-review` and `autofix`) and the spec (which still lists 10 skills). Separate topic.
+- Manage OpenCode skills that do NOT exist in `~/.claude/skills/` — this bridge is one-way.
+- Touch the existing `superpowers` symlink (it lives outside `~/.claude/skills/`).
 
 ## Decisions
 
-### Decisión 1: Symlink `~/.claude/skills/<name>/` → `~/.config/opencode/skills/<name>/`
+### Decision 1: Symlink `~/.claude/skills/<name>/` → `~/.config/opencode/skills/<name>/`
 
-Tras cada `npx skills add ... -g -y` con éxito, el helper `install_skill` ejecuta:
+After every successful `npx skills add ... -g -y`, the `install_skill` helper runs:
 
 ```bash
 mkdir -p "$HOME/.config/opencode/skills"
 ln -sf "$HOME/.claude/skills/<name>" "$HOME/.config/opencode/skills/<name>"
 ```
 
-**Por qué symlink y no copia**: cuando `skills.sh` actualice una skill, Claude Code y OpenCode verán la misma versión sin resyncs. Las skills pueden incluir `references/` con varios archivos — copiar implicaría mantener un árbol en paralelo.
+**Why a symlink and not a copy**: when `skills.sh` updates a skill, Claude Code and OpenCode will see the same version with no resyncs. Skills may include `references/` with multiple files — copying would mean maintaining a parallel tree.
 
-**Alternativas consideradas**:
+**Alternatives considered**:
 
-- **Copia recursiva con `cp -R`**: rechazado; duplica datos y requiere detección de cambios.
-- **Escribir un shim en OpenCode que lea `~/.claude/skills/`**: rechazado; OpenCode no expone ese hook y pondría acoplamiento frágil.
-- **Mover a una ubicación neutra (`~/.local/share/ai-skills/`) y symlinkar ambos**: más "limpio" pero rompe la convención de `skills.sh` CLI, que siempre escribe en `~/.claude/skills/`.
+- **Recursive copy with `cp -R`**: rejected; duplicates data and requires change detection.
+- **Write a shim in OpenCode that reads `~/.claude/skills/`**: rejected; OpenCode does not expose that hook and it would introduce fragile coupling.
+- **Move to a neutral location (`~/.local/share/ai-skills/`) and symlink both**: cleaner but breaks the `skills.sh` CLI convention, which always writes to `~/.claude/skills/`.
 
-### Decisión 2: El puente se aplica a TODAS las skills globales, no solo a Slidev
+### Decision 2: The bridge applies to ALL global skills, not just Slidev
 
-`install_skill` es quien crea el symlink, así que la regla aplica uniforme para las 11+ skills. Slidev es el trigger, pero el comportamiento es genérico.
+`install_skill` is what creates the symlink, so the rule applies uniformly to all 11+ skills. Slidev is the trigger, but the behavior is generic.
 
-**Por qué genérico**: el coste marginal es cero (un `ln -sfn`/`-shf` por skill) y cualquier usuario del dotfiles se beneficia de tener `find-skills`, `frontend-design`, etc. en OpenCode sin trabajo extra.
+**Why generic**: the marginal cost is zero (one `ln -sfn`/`-shf` per skill) and any dotfiles user benefits from having `find-skills`, `frontend-design`, etc. in OpenCode without extra work.
 
-**Alternativa considerada**: symlinkar solo `slidev` por una whitelist. Rechazada — añade complejidad y deja las otras skills huérfanas en OpenCode.
+**Alternative considered**: symlink only `slidev` via a whitelist. Rejected — adds complexity and leaves other skills orphaned in OpenCode.
 
-### Decisión 3: Manejo de colisiones — `ln -sfn`/`-shf` con detección de plataforma
+### Decision 3: Collision handling — `ln -sfn`/`-shf` with platform detection
 
-`ln -sf` **por sí solo no reemplaza un symlink a directorio**: en GNU y en BSD/macOS, si `$dst` apunta a un directorio existente, `ln -sf` deref'a el symlink y crea el nuevo enlace _dentro_ del directorio objetivo. Para reemplazar el symlink como un fichero hace falta la flag de no-dereference:
+`ln -sf` **by itself does not replace a symlink to a directory**: on both GNU and BSD/macOS, if `$dst` points to an existing directory, `ln -sf` dereferences the symlink and creates the new link _inside_ the target directory. Replacing the symlink as a file requires the no-dereference flag:
 
 - **Linux (GNU coreutils)**: `ln -sfn "$src" "$dst"` (`-n` = no dereference)
 - **macOS/BSD**: `ln -shf "$src" "$dst"` (`-h` = no dereference)
 
-El install script detecta la plataforma con `uname -s` (precedente ya en el template de chezmoi) y elige la flag correcta. Broken symlinks y ausencia previa del destino funcionan igual en ambos casos.
+The install script detects the platform with `uname -s` (already a precedent in the chezmoi template) and picks the right flag. Broken symlinks and a previously-absent target work the same way in both cases.
 
-**Directorios reales no se sobrescriben**: si `$dst` existe como directorio real (no symlink), `ln -sfn`/`-shf` falla con "cannot overwrite directory". Aceptamos este fail-safe: el script reporta el error vía `run_claude_step`, incrementa el contador, y continúa sin tocar el directorio. El usuario debe eliminarlo manualmente si quiere que el symlink lo reemplace.
+**Real directories are not overwritten**: if `$dst` exists as a real directory (not a symlink), `ln -sfn`/`-shf` fails with "cannot overwrite directory". We accept this fail-safe: the script reports the error via `run_claude_step`, increments the counter, and continues without touching the directory. The user must remove it manually if they want the symlink to replace it.
 
-**Alternativa considerada**: detectar colisión con `[ -L "$dst" ] || [ ! -e "$dst" ]` antes de llamar a `ln`. Rechazada — el fallo de `ln` ya transmite la misma información y no merece la complejidad extra.
+**Alternative considered**: detect the collision with `[ -L "$dst" ] || [ ! -e "$dst" ]` before calling `ln`. Rejected — `ln`'s failure already conveys the same information and does not warrant the extra complexity.
 
-### Decisión 4: Sin entrada en la spec para el `superpowers` symlink existente
+### Decision 4: No spec entry for the existing `superpowers` symlink
 
-El symlink de `superpowers` (grupo 8) se queda como está — apunta a un clone propio (`$SUPERPOWERS_DIR/skills`), no a `~/.claude/skills/`. Es un mecanismo distinto (una carpeta completa como skill) fuera del alcance de `skills-global-install`.
+The `superpowers` symlink (group 8) is left as-is — it points to its own clone (`$SUPERPOWERS_DIR/skills`), not to `~/.claude/skills/`. It is a different mechanism (a whole folder as a skill) outside the scope of `skills-global-install`.
 
 ## Risks / Trade-offs
 
-- **[Riesgo] El usuario tiene una skill real en `~/.config/opencode/skills/<name>/`** → `ln -sfn`/`-shf` falla con "cannot overwrite directory" y no la sobrescribe. **Mitigación**: esto es el comportamiento deseado (fail-safe). Se reporta el error y se continúa; el usuario decide si eliminar el directorio.
-- **[Riesgo] Si `~/.claude/skills/<name>/` no existe (p. ej. fallo del `skills add`)** → el symlink apuntaría a un path inexistente. **Mitigación**: el symlink se crea solo dentro del bloque de éxito de `install_skill`, nunca si `skills add` falla. Además, sigue siendo idempotente en la próxima ejecución.
-- **[Riesgo] Plataforma no-macOS** → el script imprime instrucciones manuales. **Mitigación**: esa sección debe incluir tanto el comando de install como el comando de symlink correcto para Linux (`ln -sfn`).
-- **[Trade-off] La spec seguirá listando N+1 skills mientras el script instala N+3** (por la drift preexistente con `code-review`/`autofix`). Aceptado como deuda fuera de alcance.
+- **[Risk] The user has a real skill at `~/.config/opencode/skills/<name>/`** → `ln -sfn`/`-shf` fails with "cannot overwrite directory" and does not overwrite it. **Mitigation**: this is the desired behavior (fail-safe). The error is reported and we continue; the user decides whether to remove the directory.
+- **[Risk] If `~/.claude/skills/<name>/` does not exist (e.g. `skills add` failed)** → the symlink would point to a non-existent path. **Mitigation**: the symlink is created only inside the `install_skill` success block, never if `skills add` fails. It also remains idempotent on the next run.
+- **[Risk] Non-macOS platforms** → the script prints manual instructions. **Mitigation**: that section must include both the install command and the correct symlink command for Linux (`ln -sfn`).
+- **[Trade-off] The spec will keep listing N+1 skills while the script installs N+3** (because of the preexisting drift with `code-review`/`autofix`). Accepted as out-of-scope debt.
