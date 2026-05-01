@@ -1,30 +1,75 @@
 # Worktrunk user configuration
 # Managed by chezmoi — edit the source, not ~/.config/worktrunk/config.toml
 
+[list]
+# `summary` requires `full` (or the `--full` flag) to render — see worktrunk
+# list docs. Defaulting to full ensures plain `wt list` shows the LLM summary,
+# CI status, and main…± diffstat without needing `wt list --full` every time.
+full = true
+summary = true
+
+[switch.picker]
+pager = "delta --paging=never"
+
 [[pre-start]]
 copy = "wt step copy-ignored"
 
+# Save base worktree path so [pre-remove].sync-claude can find the source worktree.
+# {{ base_worktree_path }} is only available during pre-start/post-start.
+# Guarded by `[ -d .claude ]` so the hook is a silent no-op in repos that do not
+# use Claude Code; `|| true` keeps the hook from blocking worktree creation if
+# the redirect fails for any reason.
+[[pre-start]]
+save-base = "[ -d .claude ] && echo '{{ base_worktree_path }}' > .claude/.worktree-base || true"
+
+# Sync .claude/settings.local.json back to the base worktree on merge/remove.
+#
+# Why: Claude Code accumulates command approvals in settings.local.json during
+# a worktree session. Without this hook, those approvals are lost when the
+# worktree is removed.
+#
+# How it works:
+#   1. Read base worktree path from .claude/.worktree-base
+#   2. Guard: skip silently if base path missing, no local settings, or base dir gone
+#   3. If base already has settings → jq deep merge (object merge + array union
+#      for permissions.allow/deny, worktree wins on conflict, dedup via unique,
+#      empty deny array deleted to keep base settings tidy).
+#      Written atomically via .tmp + mv.
+#   4. If base has no settings → plain cp (mkdir -p the base .claude/ first)
+#   5. On any failure: warn to stderr, never block worktree removal (|| true)
+#
+# Requires: jq (logs warning if missing/fails)
+[pre-remove]
+sync-claude = "bash -c 'BASE_WT=$(cat .claude/.worktree-base 2>/dev/null || echo); [ -n \"$BASE_WT\" ] && [ -f .claude/settings.local.json ] && [ -d \"$BASE_WT\" ] && { if [ -f \"$BASE_WT/.claude/settings.local.json\" ]; then jq -s \".[0] as \\$b | .[1] as \\$w | (\\$b * \\$w) | .permissions.allow = ([(\\$b.permissions.allow // [])[], (\\$w.permissions.allow // [])[]] | unique) | .permissions.deny = ([(\\$b.permissions.deny // [])[], (\\$w.permissions.deny // [])[]] | unique) | if .permissions.deny == [] then del(.permissions.deny) else . end\" \"$BASE_WT/.claude/settings.local.json\" .claude/settings.local.json > \"$BASE_WT/.claude/settings.local.json.tmp\" && mv \"$BASE_WT/.claude/settings.local.json.tmp\" \"$BASE_WT/.claude/settings.local.json\" || echo \"warn: claude settings merge failed\" >&2; else mkdir -p \"$BASE_WT/.claude\" && cp .claude/settings.local.json \"$BASE_WT/.claude/settings.local.json\"; fi; } || true'"
+
 [[post-start]]
-deps = """
+install-deps = """
+echo '[install-deps] detecting package manager…'
 if [ -f bun.lock ]; then
   if command -v bun >/dev/null 2>&1; then
+    echo '[install-deps] detected bun → installing'
     bun install
   else
     echo "[worktrunk] bun.lock detected but bun is not installed; skipping deps install" >&2
   fi
 elif [ -f pnpm-lock.yaml ]; then
   if command -v pnpm >/dev/null 2>&1; then
+    echo '[install-deps] detected pnpm → installing'
     pnpm install
   else
     echo "[worktrunk] pnpm-lock.yaml detected but pnpm is not installed; skipping deps install" >&2
   fi
 elif [ -f package-lock.json ]; then
   if command -v npm >/dev/null 2>&1; then
+    echo '[install-deps] detected npm → installing'
     npm install
   else
     echo "[worktrunk] package-lock.json detected but npm is not installed; skipping deps install" >&2
   fi
+else
+  echo '[install-deps] no recognised lockfile, skipping'
 fi
+echo '[install-deps] done'
 """
 
 [step.copy-ignored]
@@ -50,6 +95,7 @@ exclude = [
     "htmlcov/",
     "playwright-report/",
     "test-results/",
+    ".stryker-tmp/",
     "__pycache__/",
     ".pytest_cache/",
     ".mypy_cache/",
@@ -104,5 +150,21 @@ SQUASHED COMMITS:
 DIFF STAT:
 {{ git_diff_stat }}
 """
+
+[aliases]
+# Tail the log file of a hook by id. Usage: wt wtlog user:post-start:install-deps
+# Resolves the path via `wt config state logs --format=json` + jq, matching
+# `<source>:<hook_type>:<name>` against each hook_output entry. {{ args[0] }} is
+# already shell-escaped by worktrunk so it must NOT be wrapped in extra quotes.
+wtlog = '''id={{ args[0] }}; [ -n "$id" ] || { echo "usage: wt wtlog <source:hook_type:name>" >&2; exit 2; }; path="$(wt config state logs --format=json | jq -r --arg id "$id" '.hook_output[] | select((.source + ":" + .hook_type + ":" + .name) == $id) | .path' | head -1)"; [ -n "$path" ] || { echo "hook log not found: $id" >&2; exit 1; }; tail -f "$path"'''
+
+# Quick CI + branches snapshot.
+wtci = "wt list --full --branches"
+
+# wt merge with a one-shot WORKTRUNK_COMMIT__GENERATION__COMMAND override that
+# opens $EDITOR (fallback: vi) so the user handwrites the squash message instead
+# of calling Claude haiku. Diff arrives on stdin and is included as commented-out
+# context in the editor buffer; lines starting with `#` are stripped on output.
+mc = '''WORKTRUNK_COMMIT__GENERATION__COMMAND='f=$(mktemp); printf "\n\n" > "$f"; sed "s/^/# /" >> "$f"; ${EDITOR:-vi} "$f" < /dev/tty > /dev/tty; out="$(grep -v "^#" "$f")"; rm -f "$f"; printf "%s" "$out"' wt merge'''
 
 [projects]

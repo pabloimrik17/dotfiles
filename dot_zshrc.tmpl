@@ -224,6 +224,29 @@ alias ghpl="gh pr list"
 alias ghd="gh dash"
 alias ghe="ENHANCE_THEME=catppuccin_mocha gh enhance"
 
+# Worktrunk shortcuts
+alias wsc='wt switch --create --execute=claude'
+
+# wsh: detached worktree+claude handoff via tmux. Spawns a new tmux session
+# named after the branch and runs `wt switch --create <branch> --execute=claude`
+# inside it (with optional initial prompt forwarded to claude). The calling shell
+# returns immediately; attach later via `tmux attach -t <branch>`.
+wsh() {
+  local branch="$1"
+  if [ -z "$branch" ]; then
+    echo "usage: wsh <branch> [initial prompt]" >&2
+    return 2
+  fi
+  shift
+  local prompt="${*:-}"
+  if [ -n "$prompt" ]; then
+    tmux new-session -d -s "$branch" "wt switch --create $branch --execute=claude -- '$prompt'"
+  else
+    tmux new-session -d -s "$branch" "wt switch --create $branch --execute=claude"
+  fi
+  echo "✓ Handoff to '$branch' — attach with: tmux attach -t $branch"
+}
+
 # ripgrep shortcuts
 alias rgi="rg -i"  # Case insensitive
 alias rgf="rg --files | rg"  # Search in filenames
