@@ -2,6 +2,11 @@
 # https://github.com/catppuccin/lazygit
 
 gui:
+    # Branch-level icons (incl. open-PR indicator added in lazygit 0.61).
+    # Defaults are showIcons=false / nerdFontsVersion="" → no PR icon next
+    # to branches even when `gh` already maps them. Both flags required.
+    showIcons: true
+    nerdFontsVersion: "3"
     theme:
         activeBorderColor:
             - "#89b4fa"

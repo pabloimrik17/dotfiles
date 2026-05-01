@@ -23,7 +23,7 @@
 - [x] 4.2 Open lazygit in any repo and inspect the new "mix files and folders" file sort
 - [x] 4.3 Decide: pin previous behavior in `dot_config/lazygit/config.yml` OR accept new default; record decision in commit message
 - [x] 4.4 If pinning: edit `dot_config/lazygit/config.yml` with the explicit sort keys and run `chezmoi apply`
-- [ ] 4.5 Test PR icon integration: open lazygit in a repo with an open PR and confirm icon renders; test `shift-G` opens the PR in browser
+- [x] 4.5 Test PR icon integration: open lazygit in a repo with an open PR and confirm icon renders; test `shift-G` opens the PR in browser
 
 ## 5. Worktrunk upgrade and config migration
 
