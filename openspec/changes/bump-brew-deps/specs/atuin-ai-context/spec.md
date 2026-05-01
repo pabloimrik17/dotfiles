@@ -33,6 +33,20 @@ The TERMINAL.md content SHALL describe at minimum:
 - **WHEN** the user asks `atuin ai "open fuzzy file picker"`
 - **THEN** the response references the Ctrl+T binding (television) rather than suggesting fzf bindings that would conflict
 
+### Requirement: TERMINAL.md SHALL NOT contain secrets or PII
+
+Because `atuin ai` automatically includes the contents of `~/.config/atuin/TERMINAL.md` in every AI request context, the file SHALL NOT contain credentials, tokens, API keys, passwords, or personal/sensitive data. Maintainers SHALL treat the file as content that leaves the local machine on every `atuin ai` invocation.
+
+#### Scenario: No credentials present in TERMINAL.md
+
+- **WHEN** the file is reviewed before commit
+- **THEN** it contains only stack/tooling/keybinding/workflow conventions; no API tokens, SSH keys, passwords, OAuth secrets, or personal identifiers
+
+#### Scenario: Authors aware that contents leave the machine
+
+- **WHEN** a contributor adds new content to TERMINAL.md
+- **THEN** the contributor verifies the addition can be safely transmitted as part of an outbound AI request
+
 ### Requirement: TERMINAL.md remains under user-scope, not per-project
 
 The TERMINAL.md SHALL live at `~/.config/atuin/TERMINAL.md` (user scope) only. The repo SHALL NOT introduce per-project `.atuin/TERMINAL.md` files; project-specific context, if ever needed, SHALL be added by the user manually outside of chezmoi management.

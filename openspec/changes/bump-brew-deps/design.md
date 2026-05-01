@@ -91,7 +91,7 @@ The `bd config apply` routine after `bd dolt pull` only becomes available _after
 7. **Atuin TERMINAL.md**: create `dot_config/atuin/TERMINAL.md` → `chezmoi apply` → test with `atuin ai "..."` to confirm context is loaded.
 8. **Opencode shell field**: edit `dot_config/opencode/opencode.jsonc` to add `"shell": "zsh"` → `chezmoi apply` → verify with an opencode session that bash → zsh switch is reflected in agent shell tool output.
 
-**Rollback**: every repo-side change is one-line; `git revert` restores previous behavior. Brew downgrades are possible via `brew install <pkg>@<version>` for any package that ships versioned formulae, otherwise via `brew extract` from a prior tap commit.
+**Rollback**: repo-side changes are small and contained — most are 1–few hunks per file and revertable via `git revert`. A couple are multi-hunk: starship's `[git_status]` restructuring rewrites a ~10-line block, and any worktrunk hook pipeline migration (`[pre-start]` → `[[pre-start]]`) updates the relevant table-header lines. Brew downgrades are possible via `brew install <pkg>@<version>` for any package that ships versioned formulae, otherwise via `brew extract` from a prior tap commit.
 
 ## Open Questions
 

@@ -39,7 +39,10 @@
 - [x] 6.1 `brew upgrade starship` — verify with `starship --version`
 - [x] 6.2 Edit `dot_config/starship.toml`: replace `[git_status].format` to use split `($index_added$index_modified$index_deleted)($worktree_added$worktree_modified$worktree_deleted)($untracked)` with green styling for index variables and red styling for worktree variables; remove `$all_status`
 - [x] 6.3 Run `chezmoi apply` and re-source the shell
-- [x] 6.4 Verify the `[git_status]` split renders: stage one file, modify another, run `git status` mentally and confirm prompt shows green index group and red worktree group
+- [x] 6.4 Verify the `[git_status]` split renders correctly. In a clean repo:
+    - Create `fileA` and `fileB`, then `git add fileA` → prompt shows ONLY the `index_added` group (`+1`, green); no `worktree_*` group present
+    - `git restore --staged fileA && echo x >> fileB` (unstaged-only) → prompt shows ONLY the `worktree_modified` group (`~1`, red); no `index_*` group present
+    - `git add fileA` while `fileB` is still dirty (staged + unstaged) → prompt shows BOTH `index_added` (`+1`, green) AND `worktree_modified` (`~1`, red) groups together
 
 ## 7. Atuin TERMINAL.md adoption
 
