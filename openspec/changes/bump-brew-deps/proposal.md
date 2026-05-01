@@ -40,7 +40,6 @@
 - Adopt `bd ready --exclude-label wip` once spike issues are labeled
 - Use `bd batch` for bulk creates from the Claude beads plugin
 - Use bd type `spike` for time-boxed exploration issues
-- Add `bd dolt pull && bd config apply` to multi-machine switch routine (available after `bump-beads-1.0` lands)
 
 ## Capabilities
 
