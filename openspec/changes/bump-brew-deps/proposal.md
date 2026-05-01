@@ -1,6 +1,6 @@
 ## Why
 
-15 brew formulae and 1 cask are outdated, including two with security advisories (`openssl@3` 3.6.2 fixes 8 CVEs incl. one Moderate; `uv` 0.11.6 fixes GHSA-pjjw-68hj-v9mw). Beyond pure security, the changelogs surface several configurable features that fit this dotfiles setup — `[directory]` regex substitutions and `[git_status]` worktree/index split in starship 1.25, `TERMINAL.md` context file in atuin 18.16, and the `shell` field in opencode 1.14 — that are worth adopting at the same time as the version bumps. Beads 0.62→1.0.3 is intentionally excluded because its one-way schema migration to v11 plus the `steveyegge`→`gastownhall` repo move warrant an isolated, separately-archivable change.
+15 brew formulae and 1 cask are outdated, including two with security advisories (`openssl@3` 3.6.2 fixes 8 CVEs incl. one Moderate; `uv` 0.11.6 fixes GHSA-pjjw-68hj-v9mw). Beyond pure security, the changelogs surface several configurable features that fit this dotfiles setup — `[git_status]` worktree/index split in starship 1.25, `TERMINAL.md` context file in atuin 18.16, and the `shell` field in opencode 1.14 — that are worth adopting at the same time as the version bumps. Beads 0.62→1.0.3 is intentionally excluded because its one-way schema migration to v11 plus the `steveyegge`→`gastownhall` repo move warrant an isolated, separately-archivable change.
 
 ## What Changes
 
@@ -14,7 +14,6 @@
 ### Configuration adoption (changes to repo files)
 
 - `dot_config/starship.toml`:
-    - Add `[[directory.substitutions]]` entries with `regex = true` to shorten `~/WebstormProjects/` and `dotfiles.feature-*` paths in the prompt
     - Replace `[git_status]` to use the new split `index_*` and `worktree_*` variables (green for staged, red for unstaged) instead of lumped `$all_status`
 - `dot_config/atuin/TERMINAL.md` (new file): user-defined context loaded by `atuin ai` describing the stack, owned-tool keybindings, and common workflows
 - `dot_config/opencode/opencode.jsonc`: add `"shell": "zsh"` so the agent shell tool inherits aliases and PATH from `~/.zshrc`
@@ -51,14 +50,14 @@
 
 ### Modified Capabilities
 
-- `starship-config`: Adds regex-based `[directory]` substitutions and replaces the `[git_status]` requirement to use split worktree/index variables with green-for-staged / red-for-unstaged conventions
+- `starship-config`: Replaces the `[git_status]` requirement to use split worktree/index variables with green-for-staged / red-for-unstaged conventions
 - `opencode-user-config`: Adds explicit `shell: "zsh"` field so the agent shell tool resolves to zsh and inherits user aliases/PATH
 
 ## Impact
 
 ### Affected files
 
-- `dot_config/starship.toml` (modified — `[directory]` substitutions, `[git_status]` rewrite)
+- `dot_config/starship.toml` (modified — `[git_status]` rewrite)
 - `dot_config/atuin/TERMINAL.md` (new)
 - `dot_config/opencode/opencode.jsonc` (modified — one new field)
 - `dot_config/lazygit/config.yml` (potentially modified — depends on sort-default decision after upgrade)

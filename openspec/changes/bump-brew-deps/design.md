@@ -11,7 +11,6 @@ The user runs the same dotfiles across multiple machines synced through chezmoi.
 - Apply security upgrades (`openssl@3` 8 CVEs, `uv` GHSA-pjjw-68hj-v9mw) without delay.
 - Bump 13 other formulae and 1 cask to current upstream versions.
 - Adopt three configurable features that fit current usage:
-    - Starship `[directory]` regex substitutions to shorten worktree paths.
     - Starship `[git_status]` split (index vs. worktree) with green-for-staged / red-for-unstaged.
     - Atuin `TERMINAL.md` global context file for `atuin ai`.
     - Opencode `shell: "zsh"` so the agent shell tool inherits aliases.

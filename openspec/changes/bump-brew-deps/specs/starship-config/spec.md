@@ -1,24 +1,3 @@
-## ADDED Requirements
-
-### Requirement: Directory regex substitutions for common project paths
-
-The `[directory]` section SHALL declare regex-based substitutions (using the array-of-tables form `[[directory.substitutions]]` with `regex = true`) that shorten paths visible in the prompt. At minimum, the substitution set SHALL collapse the user's primary projects directory (`~/WebstormProjects/`) to a short prefix, and SHALL collapse worktrunk-style branch suffixes (`/<repo>.feature-<name>`) to a compact `df:<name>` form for the dotfiles repo.
-
-#### Scenario: WebstormProjects path collapsed
-
-- **WHEN** the prompt renders inside `~/WebstormProjects/dotfiles/`
-- **THEN** the directory segment uses the collapsed prefix (e.g., a single icon or short marker) instead of the literal `~/WebstormProjects/` path
-
-#### Scenario: Worktree branch suffix shortened
-
-- **WHEN** the prompt renders inside `~/WebstormProjects/dotfiles.feature-bump-brew-deps/`
-- **THEN** the worktree branch suffix renders in compacted form (e.g., `df:bump-brew-deps`) rather than the full `dotfiles.feature-bump-brew-deps` directory name
-
-#### Scenario: Non-matching paths render unchanged
-
-- **WHEN** the prompt renders inside a directory that matches no substitution rule (e.g., `~/Downloads/`)
-- **THEN** the directory segment renders using the existing truncation rules without substitution
-
 ## MODIFIED Requirements
 
 ### Requirement: Git status with split index/worktree counts and stash indicator

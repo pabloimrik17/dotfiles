@@ -14,7 +14,7 @@
 - [x] 3.1 `brew upgrade atuin` — verify with `atuin --version`
 - [x] 3.2 Re-source `~/.zshrc` (`exec zsh`) and confirm Ctrl+R still opens atuin search
 - [x] 3.3 Confirm Ctrl+T still opens television's smart autocomplete (init order fzf → tv → atuin preserved)
-- [ ] 3.4 Run `atuin ai "test"` and accept client-tool execution permissions restrictively (deny `edit_file`, deny `write_file`)
+- [x] 3.4 Run `atuin ai "test"` and accept client-tool execution permissions restrictively (deny `edit_file`, deny `write_file`)
 - [x] 3.5 Document the `strip_trailing_whitespace` default-on behavior change in commit message for future reference
 
 ## 4. Lazygit upgrade and sort-default decision
@@ -37,23 +37,21 @@
 ## 6. Starship upgrade and config adoption
 
 - [x] 6.1 `brew upgrade starship` — verify with `starship --version`
-- [x] 6.2 Edit `dot_config/starship.toml`: add `[[directory.substitutions]]` entries with `regex = true` for `^~/WebstormProjects/` (collapse to short prefix) and `dotfiles\.feature-(.+)$` (collapse to `df:$1`)
-- [x] 6.3 Edit `dot_config/starship.toml`: replace `[git_status].format` to use split `($index_added$index_modified$index_deleted)($worktree_added$worktree_modified$worktree_deleted)($untracked)` with green styling for index variables and red styling for worktree variables; remove `$all_status`
-- [x] 6.4 Run `chezmoi apply` and re-source the shell
-- [x] 6.5 Verify the `[directory]` substitutions render: `cd ~/WebstormProjects/dotfiles.feature-bump-brew-deps` and confirm prompt shows the collapsed form
-- [x] 6.6 Verify the `[git_status]` split renders: stage one file, modify another, run `git status` mentally and confirm prompt shows green index group and red worktree group
+- [x] 6.2 Edit `dot_config/starship.toml`: replace `[git_status].format` to use split `($index_added$index_modified$index_deleted)($worktree_added$worktree_modified$worktree_deleted)($untracked)` with green styling for index variables and red styling for worktree variables; remove `$all_status`
+- [x] 6.3 Run `chezmoi apply` and re-source the shell
+- [x] 6.4 Verify the `[git_status]` split renders: stage one file, modify another, run `git status` mentally and confirm prompt shows green index group and red worktree group
 
 ## 7. Atuin TERMINAL.md adoption
 
 - [x] 7.1 Create `dot_config/atuin/TERMINAL.md` documenting: shell (zsh), package manager (bun), host package manager (Homebrew), config manager (chezmoi), owned keybindings (atuin Ctrl+R, tv Ctrl+T, zoxide bound to `cd`), and named workflows (`wt switch`, `wt step commit`, `bd ready`)
 - [x] 7.2 Run `chezmoi apply` and confirm `~/.config/atuin/TERMINAL.md` exists
-- [ ] 7.3 Run `atuin ai "install package react in this project"` and verify the suggestion uses `bun add` (not `npm install`), confirming the TERMINAL.md context is loaded
+- [x] 7.3 Run `atuin ai "install package react in this project"` and verify the suggestion uses `bun add` (not `npm install`), confirming the TERMINAL.md context is loaded
 
 ## 8. Opencode shell field adoption
 
 - [x] 8.1 Edit `dot_config/opencode/opencode.jsonc`: add `"shell": "zsh"` at the top level
 - [x] 8.2 Run `chezmoi apply`
-- [ ] 8.3 Open an opencode session and ask the agent to run a zsh-only command (e.g., `echo $ZSH_VERSION`) to confirm zsh is in use
+- [x] 8.3 Open an opencode session and ask the agent to run a zsh-only command (e.g., `echo $ZSH_VERSION`) to confirm zsh is in use
 
 ## 9. Final validation and commit
 

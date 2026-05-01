@@ -39,16 +39,6 @@ truncation_symbol = "…/"
 home_symbol = "~"
 style = "bold sapphire"
 
-[[directory.substitutions]]
-regex = true
-from = '^~/WebstormProjects/'
-to = '~/ws/'
-
-[[directory.substitutions]]
-regex = true
-from = 'dotfiles\.feature-(.+)$'
-to = 'df:$1'
-
 [docker_context]
 symbol = " "
 
