@@ -128,7 +128,7 @@ DIFF STAT:
 # Resolves the path via `wt config state logs --format=json` + jq, matching
 # `<source>:<hook_type>:<name>` against each hook_output entry. {{ args[0] }} is
 # already shell-escaped by worktrunk so it must NOT be wrapped in extra quotes.
-wtlog = '''tail -f "$(wt config state logs --format=json | jq -r --arg id {{ args[0] }} '.hook_output[] | select((.source + ":" + .hook_type + ":" + .name) == $id) | .path' | head -1)"'''
+wtlog = '''id={{ args[0] }}; [ -n "$id" ] || { echo "usage: wt wtlog <source:hook_type:name>" >&2; exit 2; }; path="$(wt config state logs --format=json | jq -r --arg id "$id" '.hook_output[] | select((.source + ":" + .hook_type + ":" + .name) == $id) | .path' | head -1)"; [ -n "$path" ] || { echo "hook log not found: $id" >&2; exit 1; }; tail -f "$path"'''
 
 # Quick CI + branches snapshot.
 wtci = "wt list --full --branches"

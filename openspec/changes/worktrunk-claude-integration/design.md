@@ -49,11 +49,12 @@ A third minor friction: the user occasionally hands off a long-running agent tas
 **Rationale.** The marker is a Claude-state signal, not a worktree-state signal. It must update on Claude lifecycle (`SessionStart`, `Stop`, `Notification`), which only Claude Code emits. Coupling the markers to Claude Code's hook system keeps the responsibility correctly split: worktrunk owns worktree lifecycle, Claude Code owns agent lifecycle, and they meet via the `wt config state marker set` API.
 
 **Hook mapping:**
-| Claude event | Marker | Reasoning |
-|---|---|---|
-| `SessionStart` | `🤖` | Agent is now active in this branch |
-| `Stop` | `💬` | Turn complete; user input is the next step |
-| `Notification` | `💬` | Claude is asking for input or hit a permission prompt |
+
+| Claude event   | Marker | Reasoning                                             |
+| -------------- | ------ | ----------------------------------------------------- |
+| `SessionStart` | `🤖`   | Agent is now active in this branch                    |
+| `Stop`         | `💬`   | Turn complete; user input is the next step            |
+| `Notification` | `💬`   | Claude is asking for input or hit a permission prompt |
 
 The existing `SessionStart` hook block already runs `bd prime`. The marker command is added as a sibling in the same hook array. New `Stop` and `Notification` arrays are introduced.
 

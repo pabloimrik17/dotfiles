@@ -144,8 +144,8 @@ The user config SHALL define a `[step.copy-ignored]` section with an `exclude` l
 
 - **GIVEN** a Node project with `node_modules/` populated in the primary worktree
 - **WHEN** the user runs `wt switch --create <branch>`
-- **THEN** the new worktree SHALL NOT contain a `node_modules/` directory copied from the primary worktree before `[post-start].deps` runs
-- **AND** the `[post-start].deps` hook SHALL still install dependencies successfully
+- **THEN** the new worktree SHALL NOT contain a `node_modules/` directory copied from the primary worktree before `[post-start].install-deps` runs
+- **AND** the `[post-start].install-deps` hook SHALL still install dependencies successfully
 
 #### Scenario: Framework build caches not copied into new worktree
 

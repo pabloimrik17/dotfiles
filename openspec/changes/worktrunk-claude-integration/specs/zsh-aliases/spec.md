@@ -26,7 +26,7 @@ The zshrc SHALL define a `wsh` shell function that takes a branch name as the fi
 #### Scenario: Prints usage on missing branch
 
 - **WHEN** the user types `wsh` with no arguments
-- **THEN** the function SHALL print a usage line to stderr starting with `usage: wsh `
+- **THEN** the function SHALL print a usage line to stderr starting with `usage: wsh`
 - **AND** SHALL return a non-zero exit code
 
 #### Scenario: Function available after chezmoi apply
