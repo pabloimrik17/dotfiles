@@ -1,30 +1,47 @@
 # Worktrunk user configuration
 # Managed by chezmoi — edit the source, not ~/.config/worktrunk/config.toml
 
+[list]
+# `summary` requires `full` (or the `--full` flag) to render — see worktrunk
+# list docs. Defaulting to full ensures plain `wt list` shows the LLM summary,
+# CI status, and main…± diffstat without needing `wt list --full` every time.
+full = true
+summary = true
+
+[switch.picker]
+pager = "delta --paging=never"
+
 [pre-start]
 copy = "wt step copy-ignored"
 
 [post-start]
-deps = """
+install-deps = """
+echo '[install-deps] detecting package manager…'
 if [ -f bun.lock ]; then
   if command -v bun >/dev/null 2>&1; then
+    echo '[install-deps] detected bun → installing'
     bun install
   else
     echo "[worktrunk] bun.lock detected but bun is not installed; skipping deps install" >&2
   fi
 elif [ -f pnpm-lock.yaml ]; then
   if command -v pnpm >/dev/null 2>&1; then
+    echo '[install-deps] detected pnpm → installing'
     pnpm install
   else
     echo "[worktrunk] pnpm-lock.yaml detected but pnpm is not installed; skipping deps install" >&2
   fi
 elif [ -f package-lock.json ]; then
   if command -v npm >/dev/null 2>&1; then
+    echo '[install-deps] detected npm → installing'
     npm install
   else
     echo "[worktrunk] package-lock.json detected but npm is not installed; skipping deps install" >&2
   fi
+else
+  echo '[install-deps] no recognised lockfile, skipping'
 fi
+echo '[install-deps] done'
 """
 
 [step.copy-ignored]
@@ -50,6 +67,7 @@ exclude = [
     "htmlcov/",
     "playwright-report/",
     "test-results/",
+    ".stryker-tmp/",
     "__pycache__/",
     ".pytest_cache/",
     ".mypy_cache/",
@@ -104,5 +122,21 @@ SQUASHED COMMITS:
 DIFF STAT:
 {{ git_diff_stat }}
 """
+
+[aliases]
+# Tail the log file of a hook by id. Usage: wt wtlog user:post-start:install-deps
+# Resolves the path via `wt config state logs --format=json` + jq, matching
+# `<source>:<hook_type>:<name>` against each hook_output entry. {{ args[0] }} is
+# already shell-escaped by worktrunk so it must NOT be wrapped in extra quotes.
+wtlog = '''tail -f "$(wt config state logs --format=json | jq -r --arg id {{ args[0] }} '.hook_output[] | select((.source + ":" + .hook_type + ":" + .name) == $id) | .path' | head -1)"'''
+
+# Quick CI + branches snapshot.
+wtci = "wt list --full --branches"
+
+# wt merge with a one-shot WORKTRUNK_COMMIT__GENERATION__COMMAND override that
+# opens $EDITOR (fallback: vi) so the user handwrites the squash message instead
+# of calling Claude haiku. Diff arrives on stdin and is included as commented-out
+# context in the editor buffer; lines starting with `#` are stripped on output.
+mc = '''WORKTRUNK_COMMIT__GENERATION__COMMAND='f=$(mktemp); printf "\n\n" > "$f"; sed "s/^/# /" >> "$f"; ${EDITOR:-vi} "$f" < /dev/tty > /dev/tty; grep -v "^#" "$f"' wt merge'''
 
 [projects]

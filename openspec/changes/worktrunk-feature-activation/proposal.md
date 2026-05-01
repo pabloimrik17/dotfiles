@@ -9,7 +9,7 @@ The worktrunk user config already pulls its weight on cold-start avoidance and C
 - Add `.stryker-tmp/` to `[step.copy-ignored].exclude` (mutation-test artifacts observed in the monolab repo).
 - Rename `[post-start].deps` → `[post-start].install-deps` and add `echo` phase markers inside the bash to make `wt config state logs get` output greppable. Keep single-hook + non-blocking semantics.
 - Define global wt aliases:
-    - `wtlog` — tail the log of a named hook (`wt config state logs get --hook=…`).
+    - `wtlog` — tail the log of a named hook (resolves the path through `wt config state logs --format=json | jq` filtering on `<source>:<hook_type>:<name>`).
     - `wtci` — wrap `wt list --full --branches` for a quick CI-and-branches snapshot.
     - `mc` — wrap `wt merge` with a one-shot `WORKTRUNK_COMMIT__GENERATION__COMMAND` override that opens `$EDITOR` instead of calling Claude haiku, for when the user wants to handwrite the squash message.
 - Add the shell alias `wsc` to `dot_zshrc.tmpl` → `wt switch --create -x claude`, the most-used pattern when starting a Claude session inside a fresh worktree.

@@ -2,7 +2,7 @@
 
 ### Requirement: LLM branch summaries enabled in list view
 
-The user config SHALL set `[list].summary = true` so that `wt list` and the `wt switch` picker display LLM-generated summaries for each branch, generated via the configured `[commit.generation].command`.
+The user config SHALL set `[list].summary = true` AND `[list].full = true` so that plain `wt list` and the `wt switch` picker display LLM-generated summaries for each branch, generated via the configured `[commit.generation].command`. Worktrunk renders the `Summary` column only when `full` mode is active (either via the `--full` flag or `[list].full = true`); enabling both keys together honors the user's intent to see summaries on every list invocation without typing `--full`.
 
 #### Scenario: list shows branch summaries
 
@@ -18,7 +18,7 @@ The user config SHALL set `[list].summary = true` so that `wt list` and the `wt 
 #### Scenario: Config applied on fresh machine
 
 - **WHEN** the user runs `chezmoi apply`
-- **THEN** `~/.config/worktrunk/config.toml` SHALL contain `summary = true` under a `[list]` table
+- **THEN** `~/.config/worktrunk/config.toml` SHALL contain `summary = true` AND `full = true` under a `[list]` table
 
 ### Requirement: Switch picker uses delta as pager
 
@@ -60,13 +60,13 @@ The post-start install-deps hook SHALL emit `echo` markers at three phases — d
 
 ### Requirement: User-defined wt aliases for daily operations
 
-The user config SHALL define a `[aliases]` table with three entries: `wtlog` (tail the log file of a named hook via `wt config state logs get --hook=…`), `wtci` (wrapper for `wt list --full --branches`), and `mc` (wrapper for `wt merge` that overrides `WORKTRUNK_COMMIT__GENERATION__COMMAND` so the squash message is composed in `$EDITOR` instead of via the configured Claude haiku command).
+The user config SHALL define a `[aliases]` table with three entries: `wtlog` (tail the log file of a named hook by resolving its path through `wt config state logs --format=json | jq` filtering on `<source>:<hook_type>:<name>`), `wtci` (wrapper for `wt list --full --branches`), and `mc` (wrapper for `wt merge` that overrides `WORKTRUNK_COMMIT__GENERATION__COMMAND` so the squash message is composed in `$EDITOR` instead of via the configured Claude haiku command).
 
 #### Scenario: wtlog tails a named hook log
 
 - **GIVEN** the user passes a hook identifier such as `user:post-start:install-deps`
 - **WHEN** the user runs `wt wtlog <hook-id>`
-- **THEN** the alias SHALL execute `tail -f` on the path returned by `wt config state logs get --hook=<hook-id>`
+- **THEN** the alias SHALL execute `tail -f` on the path obtained by querying `wt config state logs --format=json` and filtering the `hook_output[]` array for the entry whose composite `<source>:<hook_type>:<name>` equals the supplied id
 
 #### Scenario: wtci shows full branch + CI snapshot
 
