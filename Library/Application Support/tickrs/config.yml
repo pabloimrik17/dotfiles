@@ -1,0 +1,48 @@
+chart_type: candle
+time_frame: 1M
+update_interval: 30
+enable_pre_post: true
+show_volumes: true
+symbols:
+    - ACM
+    - ADBE
+    - ADSK
+    - AVTR
+    - BAH
+    - BMI
+    - BRBR
+    - BSX
+    - CMG
+    - COO
+    - CPNG
+    - CPRT
+    - CRM
+    - CRTO
+    - DOCS
+    - DPZ
+    - DT
+    - DUOL
+    - FISV
+    - HLI
+    - HLNE
+    - HRL
+    - IPAR
+    - JJSF
+    - LULU
+    - MORN
+    - MSFT
+    - NKE
+    - NOMD
+    - ODD
+    - PAYX
+    - PCTY
+    - PINS
+    - PLNT
+    - POOL
+    - QLYS
+    - RACE
+    - RMD
+    - SMCI
+    - SMPL
+    - VEEV
+    - VITL
