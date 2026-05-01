@@ -7,16 +7,15 @@ Today, two separate forces converge in `.config/wt.toml` (project-level, in this
 
 This pattern is original work — the worktrunk tips page does not mention any "copy out" / sync-on-remove inverse of `wt step copy-ignored`, and the docs explicitly state none exists. Today the protection applies only inside this single repo. Any other repo (`monolab` foremost) where the user runs Claude in a worktree will silently lose `settings.local.json` accumulations on `wt remove`.
 
-Separately, worktrunk exposes `wt config state marker set <emoji>` for branch-scoped status markers that surface in `wt list` and the switch picker. The user runs Claude Code heavily across multiple worktrees in parallel, so a `🤖` (working) / `💬` (waiting for input) marker driven by Claude Code's lifecycle hooks would give a one-glance overview without needing to check each tmux pane or terminal tab.
+Separately: the user occasionally hands off a long-running agent task to a fresh worktree by typing out a tmux command followed by `wt switch --create … --execute=claude -- …`. This is a candidate for a one-line shell function.
 
-A third minor friction: the user occasionally hands off a long-running agent task to a fresh worktree by typing out a tmux command followed by `wt switch --create … -x claude -- …`. This is a candidate for a one-line shell function.
+> **Markers — already covered by the worktrunk plugin.** An earlier draft of this change wired `wt config state marker set "🤖"/"💬"` from `dot_claude/settings.json.tmpl` lifecycle hooks. Inspection of the installed `worktrunk@worktrunk` Claude Code plugin (`~/.claude/plugins/cache/worktrunk/.../hooks.json`) revealed it already ships `UserPromptSubmit`→🤖, `Notification`→💬, and `SessionEnd`→clear hooks. Adding parallel hooks in our config would duplicate `Notification` and use a less precise trigger (`SessionStart`-once vs the plugin's per-prompt 🤖). Decision: delegate marker behaviour entirely to the plugin and drop the marker work from this change.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
 - Make `.claude/settings.local.json` survive `wt remove` in every repo that uses Claude Code, not just this dotfiles repo.
-- Show agent state per branch in `wt list` via emoji markers driven by Claude Code hooks.
 - Provide a single-command path for detached agent handoff (tmux + worktrunk + claude).
 - Keep the project-level `.config/wt.toml` of this repo from drifting back toward duplicating global config — explicitly remove it once redundant.
 
@@ -24,7 +23,7 @@ A third minor friction: the user occasionally hands off a long-running agent tas
 
 - Sync of `.codex/` and `.opencode/` settings on remove. Captured as a future improvement; requires investigating which files in those directories carry per-worktree state worth merging back, and whether jq deep-merge is appropriate (those directories may use formats other than JSON).
 - Changes to the `worktrunk-claude-plugin` enablement spec — the plugin itself is unchanged.
-- Status-marker semantics beyond `🤖` / `💬`. No multi-state machine, no per-tool granularity, no log-file integration.
+- `wt list` agent-state markers (🤖/💬). Already implemented by the `worktrunk@worktrunk` plugin's `UserPromptSubmit`/`Notification`/`SessionEnd` hooks; no work needed in this change.
 - Replacing the `wt step copy-ignored` pre-start hook (already on global, untouched here).
 
 ## Decisions
@@ -44,25 +43,16 @@ A third minor friction: the user occasionally hands off a long-running agent tas
 
 **Alternative.** Replace the file content with a single comment such as `# Project-specific worktrunk overrides. None at this time.`. Either is acceptable; recommendation is removal because the lookup convention is "no file ⇒ inherit global", which is the correct mental model.
 
-### Decision: emit markers from `dot_claude/settings.json.tmpl` hooks, not from worktrunk hooks
+### Decision: delegate `wt list` agent markers to the worktrunk plugin
 
-**Rationale.** The marker is a Claude-state signal, not a worktree-state signal. It must update on Claude lifecycle (`SessionStart`, `Stop`, `Notification`), which only Claude Code emits. Coupling the markers to Claude Code's hook system keeps the responsibility correctly split: worktrunk owns worktree lifecycle, Claude Code owns agent lifecycle, and they meet via the `wt config state marker set` API.
+**Rationale.** The installed `worktrunk@worktrunk` Claude Code plugin already wires markers from agent lifecycle: `UserPromptSubmit`→🤖, `Notification`→💬, `SessionEnd`→clear. Adding our own `SessionStart`/`Stop`/`Notification` hooks in `dot_claude/settings.json.tmpl` would (a) duplicate `Notification`, (b) use a strictly worse 🤖 trigger (`SessionStart` fires once at startup; the plugin's `UserPromptSubmit` fires on every user message, which more accurately tracks "Claude is currently working"), and (c) split ownership of the same signal across two places.
 
-**Hook mapping:**
+The plugin lacks a `Stop`-fires-💬 hook, which means after Claude finishes a turn the marker stays on 🤖 until the next `Notification` or `SessionEnd`. This is a cosmetic gap, not a correctness gap: the user's primary "is Claude waiting on me?" signal is `Notification` (permission prompt) which the plugin already covers. Acceptable trade-off for keeping marker logic in one place.
 
-| Claude event   | Marker | Reasoning                                             |
-| -------------- | ------ | ----------------------------------------------------- |
-| `SessionStart` | `🤖`   | Agent is now active in this branch                    |
-| `Stop`         | `💬`   | Turn complete; user input is the next step            |
-| `Notification` | `💬`   | Claude is asking for input or hit a permission prompt |
+**Alternatives considered.**
 
-The existing `SessionStart` hook block already runs `bd prime`. The marker command is added as a sibling in the same hook array. New `Stop` and `Notification` arrays are introduced.
-
-**Guarding.** Each marker command must:
-
-1. Skip silently if `wt` is not on PATH (`command -v wt >/dev/null 2>&1`).
-2. Skip silently if the current directory is not inside a git repo (`git rev-parse --git-dir >/dev/null 2>&1`).
-3. Never block the hook (`|| true`) — a marker failure must not break Claude.
+- _Add only `Stop`-fires-💬 and skip the rest._ Tighter overlap, but still puts marker logic in two configs. Rejected to keep ownership clean. If the gap becomes annoying, raise it upstream in the worktrunk plugin instead of patching around it locally.
+- _Wire all three hooks ourselves and ignore the plugin._ Would require disabling the plugin's hooks (no clean mechanism) or accepting duplicate `Notification` calls. Rejected.
 
 ### Decision: `wsh` is a zsh function, not a wt alias
 
@@ -96,28 +86,21 @@ wsh() {
 ## Risks / Trade-offs
 
 - **Risk**: lifted `[pre-start].save-base` writes `.claude/.worktree-base` in every Claude-using repo. If `.claude/` is committed by mistake (unusual but possible), the file lands in git status. → **Mitigation**: `.gitignore_global` (managed via the `git-config` capability) already covers `.claude/` patterns; the project's own `.gitignore` typically does too. The file is a single line and easy to add explicitly if a project doesn't gitignore it.
-- **Risk**: marker commands run on every Claude session start, every turn end, and every notification. On a slow filesystem or with `wt` invocations queued behind heavy git operations, the hook latency adds up. → **Mitigation**: `wt config state marker set` is a small JSON-file write — sub-50 ms on local disk. Each command is suffixed with `|| true` so failures never block. If contention surfaces, extend the guard to include a `& disown` background fork.
 - **Risk**: `wsh` with a prompt containing single quotes will break the inner shell tokenization of `tmux new-session -d -s <name> "<command>"`. → **Mitigation**: document the single-quote limitation in the function or escape via printf. Initial scope: keep the simple form; document; iterate if it bites.
-- **Trade-off**: `Notification` marker overlaps with `Stop` marker (both set `💬`). Could be argued they should differ (`Stop` = "turn ended", `Notification` = "permission prompt blocking"). → Accepted as identical for v1; the distinction does not justify a third emoji that the user has to learn. The visible behavior is "any time Claude is not actively working, the marker is `💬`".
 - **Trade-off**: removing `.config/wt.toml` from this dotfiles repo is a destructive cleanup. → Accepted because the file's only contents are being lifted to global; removal is the natural conclusion of the lift, not a separate destructive act. Reversible via git.
+- **Trade-off**: relying on the worktrunk plugin for markers means we have no `Stop`-fires-💬 hook — after a turn ends the marker stays on 🤖 until the next notification or session end. → Accepted as cosmetic; if it becomes annoying, file upstream against the worktrunk plugin.
 
 ## Migration Plan
 
 1. Add `[pre-start].save-base` and `[pre-remove].sync-claude` to `dot_config/worktrunk/config.toml`, with the `.claude/`-existence guard on save-base.
-2. Update `dot_claude/settings.json.tmpl`:
-    - Append a marker command to the existing `SessionStart` hook block.
-    - Add new `Stop` and `Notification` hook blocks with their marker commands.
-3. Add the `wsh` function to `dot_zshrc.tmpl` next to `wsc`.
-4. Run `chezmoi apply`. Inspect the diffs for `~/.config/worktrunk/config.toml`, `~/.claude/settings.json`, and `~/.zshrc`.
-5. Smoke-test the lifted hook: in a Claude-using repo (e.g. monolab) create a worktree with `wsc`, accept a permission prompt to mutate `.claude/settings.local.json`, then `wt remove` and verify the base worktree's `settings.local.json` reflects the merged change.
-6. Smoke-test markers: open Claude in a worktree, observe `🤖` in `wt list`; let the turn finish, observe `💬`.
-7. Smoke-test handoff: `wsh test-handoff "list the largest files in this repo"`, attach via `tmux attach -t test-handoff`, observe Claude running.
-8. Remove `.config/wt.toml` from the dotfiles repo root (`git rm`).
+2. Add the `wsh` function to `dot_zshrc.tmpl` next to `wsc`.
+3. Run `chezmoi apply`. Inspect the diffs for `~/.config/worktrunk/config.toml` and `~/.zshrc`.
+4. Smoke-test the lifted hook: in a Claude-using repo (e.g. monolab) create a worktree with `wsc`, accept a permission prompt to mutate `.claude/settings.local.json`, then `wt remove` and verify the base worktree's `settings.local.json` reflects the merged change.
+5. Smoke-test handoff: `wsh test-handoff "list the largest files in this repo"`, attach via `tmux attach -t test-handoff`, observe Claude running.
+6. Remove `.config/wt.toml` from the dotfiles repo root (`git rm`).
 
-**Rollback.** Revert all four files via git, run `chezmoi apply`. The lifted hooks become inactive once the global config no longer contains them; the marker hooks disappear; the function is removed from `~/.zshrc` on next sourcing.
+**Rollback.** Revert the modified files via git, run `chezmoi apply`. The lifted hooks become inactive once the global config no longer contains them; the function is removed from `~/.zshrc` on next sourcing.
 
 ## Open Questions
 
-- Does worktrunk's `wt config state marker set` have a per-branch variant when invoked from inside a worktree without a `--branch` flag, or does it always target the current branch? Confirm at implementation; if global it would mean every Claude session contaminates the most-recently-checked-out branch's marker. Quick smoke test resolves this.
-- Should the `Notification` hook also include a non-marker action (e.g. desktop notification)? Out of this change's scope but flagged for a future iteration.
 - How does the lifted `sync-claude` interact when the user runs `wt remove` from outside the worktree (e.g. `wt remove <name>` from the base)? The current implementation reads `.claude/.worktree-base` _from the worktree being removed_ — verify worktrunk runs `pre-remove` with that as cwd, not from where the user invoked the command.
