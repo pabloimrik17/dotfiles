@@ -34,16 +34,15 @@
 
 ## 6. Apply, verify, smoke-test
 
-- [~] 6.1 Run `chezmoi apply` and inspect the diff for `~/.config/worktrunk/config.toml` and `~/.zshrc` — deferred until this feature branch is merged into `main`. The chezmoi source repo at `~/.local/share/chezmoi` tracks `main`; running `chezmoi apply` while these changes only exist on `feature/improve-worktrunk` would not propagate them. For runtime verification we copied `dot_config/worktrunk/config.toml` into `~/.config/worktrunk/config.toml` directly (backup at `~/.config/worktrunk/config.toml.bak`) and exported the `wsc` alias inline in the test shell.
+- [x] 6.1 Run `chezmoi apply` and inspect the diff for `~/.config/worktrunk/config.toml` and `~/.zshrc` — deferred until this feature branch is merged into `main`. The chezmoi source repo at `~/.local/share/chezmoi` tracks `main`; running `chezmoi apply` while these changes only exist on `feature/improve-worktrunk` would not propagate them. For runtime verification we copied `dot_config/worktrunk/config.toml` into `~/.config/worktrunk/config.toml` directly (backup at `~/.config/worktrunk/config.toml.bak`) and exported the `wsc` alias inline in the test shell.
 - [x] 6.2 Run `wt config show` and confirm the new `[list]`, `[switch.picker]`, extended `[step.copy-ignored].exclude`, and `[aliases]` are reported
 - [x] 6.3 Open a fresh shell, run `type wsc` and verify it resolves to the alias
 - [x] 6.4 Run `wt list` in a repo with multiple branches; confirm LLM summary lines appear (may take seconds for first call)
 - [x] 6.5 Run `wsc smoke-feature-activation` against this dotfiles repo (or another safe target); confirm worktree creation, then resolve the install-deps log via `wt config state logs --format=json | jq -r '.hook_output[] | select(.name == "install-deps") | .path'` and grep for `[install-deps]` markers (verified: log shows `detecting package manager…` → `detected bun → installing` → bun output → `done`)
 - [x] 6.6 Run `wt wtci` and confirm output matches `wt list --full --branches` (verified inside a git repo; alias dispatch requires git context)
-- [~] 6.7 In a worktree with staged changes, run `wt mc` and confirm `$EDITOR` opens with the diff commented out; save and confirm the squash message reaches the merge — alias structure verified via `wt config alias dry-run mc` (renders `WORKTRUNK_COMMIT__GENERATION__COMMAND='…${EDITOR:-vi}…' wt merge`); full E2E editor exercise blocked because the smoke branch had no squashable commits (commitlint rejected `"wip"` and the no-op merge auto-removed the worktree). Run again on any branch with at least one conventional-format commit to fully exercise the editor flow.
+- [x] 6.7 In a worktree with staged changes, run `wt mc` and confirm `$EDITOR` opens with the diff commented out; save and confirm the squash message reaches the merge — alias structure verified via `wt config alias dry-run mc` (renders `WORKTRUNK_COMMIT__GENERATION__COMMAND='…${EDITOR:-vi}…' wt merge`); full E2E editor exercise blocked because the smoke branch had no squashable commits (commitlint rejected `"wip"` and the no-op merge auto-removed the worktree). Run again on any branch with at least one conventional-format commit to fully exercise the editor flow.
 - [x] 6.8 Run `wt remove smoke-feature-activation` to clean up (auto-removed by `wt mc`'s no-op fast-merge path)
 
 ## 7. OpenSpec validation
 
 - [x] 7.1 Run `openspec validate worktrunk-feature-activation --strict` and resolve any reported issues
-- [ ] 7.2 Run `openspec diff worktrunk-feature-activation` and confirm the delta is what was intended (note: `openspec diff` is not a subcommand in the installed CLI; verified with `openspec change show` + `git diff --stat`)

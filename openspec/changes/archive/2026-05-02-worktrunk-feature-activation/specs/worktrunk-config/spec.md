@@ -68,6 +68,17 @@ The user config SHALL define a `[aliases]` table with three entries: `wtlog` (ta
 - **WHEN** the user runs `wt wtlog <hook-id>`
 - **THEN** the alias SHALL execute `tail -f` on the path obtained by querying `wt config state logs --format=json` and filtering the `hook_output[]` array for the entry whose composite `<source>:<hook_type>:<name>` equals the supplied id
 
+#### Scenario: wtlog reports a clear error when the hook id is missing
+
+- **WHEN** the user runs `wt wtlog` with no argument
+- **THEN** the alias SHALL print `usage: wt wtlog <source:hook_type:name>` to stderr AND exit with a non-zero status without invoking `tail`
+
+#### Scenario: wtlog reports a clear error when the hook id is unknown
+
+- **GIVEN** the user passes a hook identifier that does not match any entry in `wt config state logs --format=json`
+- **WHEN** the user runs `wt wtlog <hook-id>`
+- **THEN** the alias SHALL print `hook log not found: <hook-id>` to stderr AND exit with a non-zero status without invoking `tail`
+
 #### Scenario: wtci shows full branch + CI snapshot
 
 - **WHEN** the user runs `wt wtci`

@@ -23,12 +23,13 @@ This change is intentionally scoped to "activation" — wiring up features whose
 
 ## Decisions
 
-### Decision: keep `[post-start]` (single table) over `[[post-start]]` (array of tables)
+### Decision: keep `[[post-start]]` (array of tables) inherited from main
 
-**Rationale.** With one named hook (`install-deps`), `[post-start]` and `[[post-start]]` are semantically equivalent in worktrunk: both produce one log file (`user:post-start:install-deps`) and one process. The visibility benefit of named arrays comes from MULTIPLE entries — when a future change introduces a second post-start hook, migrating to `[[post-start]]` is a one-line conversion. Until then, the single-table form is shorter and avoids the implication that more hooks are coming.
+**Rationale.** The codebase already uses `[[pre-start]]` and `[[post-start]]` (array-of-tables form), introduced by the prior `worktrunk-config` work that landed on `main` before this change. With one named hook (`install-deps`), `[post-start]` and `[[post-start]]` are semantically equivalent in worktrunk — both produce one log file (`user:post-start:install-deps`) and one process — so there is no functional reason to flip back to the single-table form just for this change. The array form is also forward-compatible with `worktrunk-claude-integration`, which is expected to add a second post-start entry; keeping it now avoids a future churn commit.
 
 **Alternatives considered.**
 
+- _Flip back to single-table `[post-start]` while there is only one entry._ Cleaner read in `wt config show` for one hook, but introduces an unrelated TOML reformat on top of feature work and would have to be reverted as soon as the sibling change lands. Rejected.
 - _Three named hooks, one per package manager (bun/pnpm/npm)._ Gives per-PM logs but two hooks no-op on every worktree; adds three TOML entries for a single concern; complicates `wt config show`. Rejected.
 - _Pre-start blocking install (Prowler-style)._ Better debug visibility on failure but blocks worktree start by 30–120 s, which is hostile to the Claude-driven flow where `wsc <branch>` should hand control to the agent immediately. Rejected.
 
