@@ -137,6 +137,6 @@ wtci = "wt list --full --branches"
 # opens $EDITOR (fallback: vi) so the user handwrites the squash message instead
 # of calling Claude haiku. Diff arrives on stdin and is included as commented-out
 # context in the editor buffer; lines starting with `#` are stripped on output.
-mc = '''WORKTRUNK_COMMIT__GENERATION__COMMAND='f=$(mktemp); printf "\n\n" > "$f"; sed "s/^/# /" >> "$f"; ${EDITOR:-vi} "$f" < /dev/tty > /dev/tty; grep -v "^#" "$f"' wt merge'''
+mc = '''WORKTRUNK_COMMIT__GENERATION__COMMAND='f=$(mktemp); printf "\n\n" > "$f"; sed "s/^/# /" >> "$f"; ${EDITOR:-vi} "$f" < /dev/tty > /dev/tty; out="$(grep -v "^#" "$f")"; rm -f "$f"; printf "%s" "$out"' wt merge'''
 
 [projects]

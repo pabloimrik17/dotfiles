@@ -36,7 +36,7 @@ The user config SHALL set `[switch.picker].pager = "delta --paging=never"` so th
 
 ### Requirement: Install-deps hook emits phased log markers
 
-The post-start install-deps hook SHALL emit `echo` markers at three phases — detection start, package-manager-selected install start, and completion — each prefixed with `[install-deps]` so that `wt config state logs get --hook=user:post-start:install-deps` is greppable for the active phase.
+The post-start install-deps hook SHALL emit `echo` markers at three phases — detection start, package-manager-selected install start, and completion — each prefixed with `[install-deps]` so that hook output retrieved via `wt config state logs --format=json | jq` (filtered on `<source>:<hook_type>:<name>` = `user:post-start:install-deps`) is greppable for the active phase.
 
 #### Scenario: Detection phase logged
 
