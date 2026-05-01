@@ -94,7 +94,9 @@ pkg_bin() {
 # Register third-party Homebrew taps before the pre-scan.
 # `brew tap` is idempotent: returns 0 without re-fetching if already tapped.
 for tap in "${BREW_TAPS[@]}"; do
-    brew tap "$tap"
+    if ! brew tap "$tap"; then
+        error "Failed to tap $tap"
+    fi
 done
 
 # Pre-scan: check which brew packages are already installed

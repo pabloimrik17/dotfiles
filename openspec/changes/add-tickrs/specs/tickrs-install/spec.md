@@ -2,7 +2,7 @@
 
 ### Requirement: tickrs is installed via the tarkah/tickrs Homebrew tap
 
-The install script SHALL install the `tickrs` binary on macOS by tapping `tarkah/tickrs` and then running `brew install tickrs`. Both steps SHALL participate in the existing brew packages group's confirm prompt and idempotency logic — running the script again on a host with `tickrs` already installed SHALL skip both the tap and the install with informational messages.
+The install script SHALL install the `tickrs` binary on macOS by tapping `tarkah/tickrs` and then running `brew install tickrs`. The tap step SHALL run unconditionally on every script invocation, relying on `brew tap`'s native idempotency — re-runs SHALL exit 0 without re-fetching the tap. The install step SHALL participate in the existing brew packages group's confirm prompt and idempotency logic — re-runs on a host with `tickrs` already in PATH SHALL skip the install with an informational `already installed, skipping` message.
 
 #### Scenario: Fresh macOS install adds the tap and installs tickrs
 

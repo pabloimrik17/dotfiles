@@ -35,7 +35,7 @@ These values control how `tickrs` renders charts at launch (one-month candle vie
 
 #### Scenario: All five keys are present and use the documented values
 
-- **WHEN** the contents of `~/.config/tickrs/config.yml` are read
+- **WHEN** the contents of `~/Library/Application Support/tickrs/config.yml` are read
 - **THEN** the five top-level keys (`chart_type`, `time_frame`, `update_interval`, `enable_pre_post`, `show_volumes`) appear with the values from the table above
 
 ### Requirement: Symbol watchlist is the curated 42-ticker list
