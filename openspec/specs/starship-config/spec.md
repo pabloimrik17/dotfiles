@@ -56,9 +56,11 @@ The `[directory]` section SHALL set `truncate_to_repo = true`, `truncation_symbo
 - **WHEN** the directory is read-only
 - **THEN** the Nerd Font preset read-only symbol (` 󰌾`) is shown
 
-### Requirement: Git status with count-aware ahead/behind and stash indicator
+### Requirement: Git status with split index/worktree counts and stash indicator
 
-The `[git_status]` section SHALL display commit counts for ahead (`⇡${count}`) and behind (`⇣${count}`), full divergence info (`⇕⇡${ahead_count}⇣${behind_count}`), and a stash indicator (`≡`). Modified files SHALL use `●`, deleted SHALL use `✘`, renamed SHALL use `»`.
+The `[git_status]` section SHALL display commit counts for ahead (`⇡${count}`) and behind (`⇣${count}`), full divergence info (`⇕⇡${ahead_count}⇣${behind_count}`), and a stash indicator (`≡`).
+
+The status SHALL render index changes (staged) and worktree changes (unstaged) as separate visual groups via the `index_added`, `index_modified`, `index_deleted`, `worktree_added`, `worktree_modified`, and `worktree_deleted` variables. Index variables SHALL render with green styling and worktree variables SHALL render with red styling. Untracked files SHALL render via the `untracked` variable. The legacy single-symbol `$all_status` form SHALL NOT be used.
 
 #### Scenario: Ahead by N commits
 
@@ -80,10 +82,25 @@ The `[git_status]` section SHALL display commit counts for ahead (`⇡${count}`)
 - **WHEN** the git stash has entries
 - **THEN** the git status shows `≡`
 
-#### Scenario: Modified files
+#### Scenario: Only staged changes
 
-- **WHEN** there are modified tracked files
-- **THEN** the git status shows `●` (not the default `*`)
+- **WHEN** one file is added to the index and no files are modified in the worktree
+- **THEN** the git status renders the index group in green (e.g., `+1`) and renders no worktree group
+
+#### Scenario: Only unstaged changes
+
+- **WHEN** one file is modified in the worktree and the index is empty
+- **THEN** the git status renders the worktree group in red (e.g., `~1`) and renders no index group
+
+#### Scenario: Both staged and unstaged changes
+
+- **WHEN** one file is staged and another is modified in the worktree
+- **THEN** the git status renders both groups distinctly: an index group in green and a worktree group in red, visually separable
+
+#### Scenario: Untracked files
+
+- **WHEN** there are untracked files in the worktree
+- **THEN** the git status renders the `untracked` variable distinct from the index/worktree groups
 
 ### Requirement: Explicit character module
 
