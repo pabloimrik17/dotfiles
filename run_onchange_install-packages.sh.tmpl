@@ -76,7 +76,8 @@ fi
 # ------------------------------------------------------------------
 # Group 1: Brew packages
 # ------------------------------------------------------------------
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget opencode television)
+BREW_TAPS=(tarkah/tickrs)
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget opencode television tickrs)
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -89,6 +90,12 @@ pkg_bin() {
         *)         echo "$1" ;;
     esac
 }
+
+# Register third-party Homebrew taps before the pre-scan.
+# `brew tap` is idempotent: returns 0 without re-fetching if already tapped.
+for tap in "${BREW_TAPS[@]}"; do
+    brew tap "$tap"
+done
 
 # Pre-scan: check which brew packages are already installed
 BREW_PENDING=0
@@ -1030,9 +1037,10 @@ info "This system is not macOS. Automatic installation is not supported."
 info ""
 info "Please install the following packages manually:"
 info ""
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
+info "    - tickrs: cargo install tickrs (or brew tap tarkah/tickrs && brew install tickrs)"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: oh-my-zsh (https://ohmyz.sh/)"
 info "  Zsh plugins:"

@@ -14,6 +14,10 @@
   <img src="assets/gh-dash-overview.png" alt="gh-dash GitHub dashboard" width="800">
 </p>
 
+<p align="center">
+  <img src="assets/tickrs-overview.png" alt="tickrs real-time stock ticker" width="800">
+</p>
+
 Chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Ghostty, Starship, zsh with Oh-My-Zsh, modern CLI replacements (`eza`, `bat`, `zoxide`, `fzf`), and AI tooling like Claude Code and OpenCode. Everything themed with Catppuccin Mocha.
 
 ## What's Included
@@ -34,6 +38,7 @@ Chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **CLI Tools**  | [ripgrep](https://github.com/BurntSushi/ripgrep)                                | Fast recursive grep                                            |
 | **CLI Tools**  | [atuin](https://atuin.sh/)                                                      | Modern shell history search                                    |
 | **CLI Tools**  | [direnv](https://direnv.net/)                                                   | Auto-load/unload env vars per directory                        |
+| **CLI Tools**  | [tickrs](https://github.com/tarkah/tickrs)                                      | Real-time stock ticker TUI with curated 42-symbol watchlist    |
 | **Git**        | [git-delta](https://github.com/dandavison/delta)                                | Syntax-highlighted diff viewer                                 |
 | **Git**        | [lazygit](https://github.com/jesseduffield/lazygit)                             | TUI for git operations                                         |
 | **Git**        | [GitHub CLI](https://cli.github.com/)                                           | GitHub from the terminal                                       |
