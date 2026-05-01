@@ -35,4 +35,4 @@ The closing `info` line of the install script that enumerates installed CLI tool
 #### Scenario: Summary line includes tickrs
 
 - **WHEN** the install script reaches the closing summary `info` line
-- **THEN** the printed list includes `tickrs` alongside the other 22 CLI tools
+- **THEN** the printed comma-separated CLI tools list includes `tickrs`
