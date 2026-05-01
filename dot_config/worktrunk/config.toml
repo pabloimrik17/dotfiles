@@ -11,10 +11,10 @@ summary = true
 [switch.picker]
 pager = "delta --paging=never"
 
-[pre-start]
+[[pre-start]]
 copy = "wt step copy-ignored"
 
-[post-start]
+[[post-start]]
 install-deps = """
 echo '[install-deps] detecting package manager…'
 if [ -f bun.lock ]; then

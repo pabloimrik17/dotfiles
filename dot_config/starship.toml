@@ -204,18 +204,20 @@ symbol = " "
 symbol = " "
 
 [git_status]
-format = '[($all_status$ahead_behind )]($style)'
-style = "red"
+format = '([$ahead_behind ]($style))([$index_added$index_modified$index_deleted](bold green))([$worktree_added$worktree_modified$worktree_deleted](bold red))([$untracked](bold yellow))[$stashed](bold sapphire)[$conflicted](bold maroon)'
+style = "bold mauve"
 ahead = "⇡${count}"
 behind = "⇣${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
 stashed = "≡"
-modified = "●"
-deleted = "✘"
-renamed = "»"
 untracked = "?"
-staged = "+"
 conflicted = "="
+index_added = "+${count}"
+index_modified = "~${count}"
+index_deleted = "✘${count}"
+worktree_added = "+${count}"
+worktree_modified = "~${count}"
+worktree_deleted = "✘${count}"
 
 [character]
 success_symbol = "[❯](bold green)"

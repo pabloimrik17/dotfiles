@@ -1,8 +1,10 @@
 # Copy whitelisted gitignored files (e.g. .claude/) to new worktrees
-[pre-start]
+[[pre-start]]
 copy = "wt step copy-ignored"
+
 # Save base worktree path so pre-remove can find the source worktree.
 # {{ base_worktree_path }} is only available during pre-start/post-start.
+[[pre-start]]
 save-base = "echo '{{ base_worktree_path }}' > .claude/.worktree-base"
 
 # Sync .claude/settings.local.json back to the base worktree on merge/remove.
