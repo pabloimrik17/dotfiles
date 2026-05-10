@@ -40,7 +40,7 @@ save-base = "[ -d .claude ] && echo '{{ base_worktree_path }}' > .claude/.worktr
 #
 # Requires: jq (logs warning if missing/fails)
 [pre-remove]
-sync-claude = "bash -c 'BASE_WT=$(cat .claude/.worktree-base 2>/dev/null || echo); [ -n \"$BASE_WT\" ] && [ -f .claude/settings.local.json ] && [ -d \"$BASE_WT\" ] && { if [ -f \"$BASE_WT/.claude/settings.local.json\" ]; then jq -s \".[0] as \\$b | .[1] as \\$w | (\\$b * \\$w) | .permissions.allow = ([(\\$b.permissions.allow // [])[], (\\$w.permissions.allow // [])[]] | unique) | .permissions.deny = ([(\\$b.permissions.deny // [])[], (\\$w.permissions.deny // [])[]] | unique) | if .permissions.deny == [] then del(.permissions.deny) else . end\" \"$BASE_WT/.claude/settings.local.json\" .claude/settings.local.json > \"$BASE_WT/.claude/settings.local.json.tmp\" && mv \"$BASE_WT/.claude/settings.local.json.tmp\" \"$BASE_WT/.claude/settings.local.json\" || echo \"warn: claude settings merge failed\" >&2; else mkdir -p \"$BASE_WT/.claude\" && cp .claude/settings.local.json \"$BASE_WT/.claude/settings.local.json\"; fi; } || true'"
+sync-claude = "bash -c 'BASE_WT=$(cat .claude/.worktree-base 2>/dev/null || echo); [ -n \"$BASE_WT\" ] && [ -f .claude/settings.local.json ] && [ -d \"$BASE_WT\" ] && { if [ -f \"$BASE_WT/.claude/settings.local.json\" ]; then jq -s \".[0] as \\$b | .[1] as \\$w | (\\$b * \\$w) | .permissions.allow = ([(\\$b.permissions.allow // [])[], (\\$w.permissions.allow // [])[]] | unique) | .permissions.deny = ([(\\$b.permissions.deny // [])[], (\\$w.permissions.deny // [])[]] | unique) | if .permissions.deny == [] then del(.permissions.deny) else . end\" \"$BASE_WT/.claude/settings.local.json\" .claude/settings.local.json > \"$BASE_WT/.claude/settings.local.json.tmp\" && mv \"$BASE_WT/.claude/settings.local.json.tmp\" \"$BASE_WT/.claude/settings.local.json\" || echo \"warn: claude settings merge failed\" >&2; else mkdir -p \"$BASE_WT/.claude\" && cp .claude/settings.local.json \"$BASE_WT/.claude/settings.local.json\" || echo \"warn: claude settings copy failed\" >&2; fi; } || true'"
 
 [[post-start]]
 install-deps = """
@@ -165,6 +165,6 @@ wtci = "wt list --full --branches"
 # opens $EDITOR (fallback: vi) so the user handwrites the squash message instead
 # of calling Claude haiku. Diff arrives on stdin and is included as commented-out
 # context in the editor buffer; lines starting with `#` are stripped on output.
-mc = '''WORKTRUNK_COMMIT__GENERATION__COMMAND='f=$(mktemp); printf "\n\n" > "$f"; sed "s/^/# /" >> "$f"; ${EDITOR:-vi} "$f" < /dev/tty > /dev/tty; out="$(grep -v "^#" "$f")"; rm -f "$f"; printf "%s" "$out"' wt merge'''
+mc = '''WORKTRUNK_COMMIT__GENERATION__COMMAND='f=$(mktemp); trap '"'"'rm -f "$f"'"'"' EXIT; printf "\n\n" > "$f"; sed "s/^/# /" >> "$f"; ${EDITOR:-vi} "$f" < /dev/tty > /dev/tty || exit $?; out="$(grep -v "^#" "$f")"; printf "%s" "$out"' wt merge'''
 
 [projects]

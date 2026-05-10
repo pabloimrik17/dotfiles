@@ -12,6 +12,7 @@ The user also does manual one-off agent handoffs by typing out tmux + worktrunk 
 - **Empty / remove project config**: after lift, `.config/wt.toml` in this dotfiles repo becomes redundant. Remove it (or shrink to a comment placeholder) so the project-level layer stays free for genuinely repo-specific hooks in the future.
 - **Handoff helper**: add a `wsh` zsh function that wraps `tmux new-session -d -s <branch> "wt switch --create <branch> --execute=claude -- '<prompt>'"` for one-shot agent handoffs into detached tmux sessions.
 - **Documented as future improvement** (not in this change): extend the sync pattern to `.codex/` and `.opencode/`. Requires investigating which files in those directories accumulate per-worktree state worth merging back. Captured in `design.md`.
+- **Drive-by spec cleanup**: finish the `[post-start].deps` → `[post-start].install-deps` rename inside the `worktrunk-config` capability. The previous archived change (`worktrunk-feature-activation`) renamed the hook in the config and most of the spec, but left the requirement title `Post-create hook with package manager detection` and the `[post-start].deps` reference inside the `Pre-start hook copies gitignored files` scenario untouched. This change carries the leftover delta so the live spec is internally consistent post-archive.
 
 ## Capabilities
 
@@ -21,7 +22,7 @@ None.
 
 ### Modified Capabilities
 
-- `worktrunk-config`: gains a `[pre-start].save-base` and `[pre-remove].sync-claude` requirement at the global user-config level, with `.claude/`-existence guards.
+- `worktrunk-config`: gains a `[pre-start].save-base` and `[pre-remove].sync-claude` requirement at the global user-config level, with `.claude/`-existence guards. Also finishes the `[post-start].deps` → `[post-start].install-deps` rename across the leftover requirement title and scenario reference.
 - `zsh-aliases`: gains a `wsh` shell function for detached worktree+claude handoff via tmux.
 
 ## Impact
