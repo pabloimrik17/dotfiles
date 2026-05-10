@@ -1,6 +1,12 @@
 {{- $name := promptStringOnce . "name" "Your full name" -}}
 {{- $email := promptStringOnce . "email" "Your email address" -}}
 
+encryption = "age"
+
+[age]
+    identity = "~/.config/chezmoi/key.txt"
+    recipient = "age1azcayudn4mf5vgs30qszxs464lc5tareavvlq578x2ye80xhgs4skuv0ru"
+
 [data]
     name = {{ $name | quote }}
     email = {{ $email | quote }}

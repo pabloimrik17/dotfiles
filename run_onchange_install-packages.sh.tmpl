@@ -76,8 +76,8 @@ fi
 # ------------------------------------------------------------------
 # Group 1: Brew packages
 # ------------------------------------------------------------------
-BREW_TAPS=(tarkah/tickrs)
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget opencode television tickrs)
+BREW_TAPS=(tarkah/tickrs achannarasappa/tap)
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget opencode television tickrs ticker age)
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -1041,10 +1041,13 @@ info "This system is not macOS. Automatic installation is not supported."
 info ""
 info "Please install the following packages manually:"
 info ""
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age"
+info "    - terminal-notifier: macOS-only (skip on Linux)"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
 info "    - tickrs: cargo install tickrs (or brew tap tarkah/tickrs && brew install tickrs)"
+info "    - ticker: download a release binary from https://github.com/achannarasappa/ticker/releases (or use your distro's package manager)"
+info "    - age: brew install age (or use your distro's package manager, e.g. apt install age)"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: oh-my-zsh (https://ohmyz.sh/)"
 info "  Zsh plugins:"
@@ -1084,3 +1087,4 @@ if [ "$ERRORS" -gt 0 ]; then
 fi
 
 info "Installation complete!"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age"
