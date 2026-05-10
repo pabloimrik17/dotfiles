@@ -10,10 +10,8 @@ symbols:
     - AVTR
     - BAH
     - BMI
-    - BRBR
     - BSX
     - CMG
-    - COO
     - CPNG
     - CPRT
     - CRM
@@ -27,8 +25,8 @@ symbols:
     - HLNE
     - HRL
     - IPAR
-    - JJSF
     - LULU
+    - MCD
     - MORN
     - MSFT
     - NKE
@@ -36,9 +34,8 @@ symbols:
     - ODD
     - PAYX
     - PCTY
-    - PINS
     - PLNT
-    - POOL
+    - PODD
     - QLYS
     - RACE
     - RMD
