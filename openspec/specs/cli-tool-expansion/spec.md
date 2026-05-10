@@ -8,16 +8,16 @@ TBD - created by archiving change mac-dev-setup. Update Purpose after archive.
 
 ### Requirement: BREW_PACKAGES array includes all actively used CLI tools
 
-The `BREW_PACKAGES` array SHALL contain the following 23 packages (22 existing + 1 new):
+The `BREW_PACKAGES` array SHALL contain the following 25 packages (23 existing + 2 new):
 
-Existing: `git`, `git-delta`, `starship`, `eza`, `bat`, `zoxide`, `atuin`, `fzf`, `ripgrep`, `lazygit`, `worktrunk`, `terminal-notifier`, `fd`, `direnv`, `beads`, `gh`, `tmux`, `uv`, `mas`, `wget`, `opencode`, `television`
+Existing: `git`, `git-delta`, `starship`, `eza`, `bat`, `zoxide`, `atuin`, `fzf`, `ripgrep`, `lazygit`, `worktrunk`, `terminal-notifier`, `fd`, `direnv`, `beads`, `gh`, `tmux`, `uv`, `mas`, `wget`, `opencode`, `television`, `tickrs`
 
-New addition: `tickrs`
+New additions: `ticker`, `age`
 
 #### Scenario: All packages listed in array
 
 - **WHEN** the install script is loaded
-- **THEN** the `BREW_PACKAGES` array contains exactly 23 entries
+- **THEN** the `BREW_PACKAGES` array contains exactly 25 entries
 
 #### Scenario: television listed in array
 
@@ -38,6 +38,26 @@ New addition: `tickrs`
 
 - **WHEN** `pkg_bin "tickrs"` is called
 - **THEN** the function returns `tickrs` (via the default identity mapping)
+
+#### Scenario: ticker listed in array
+
+- **WHEN** the install script is loaded
+- **THEN** the `BREW_PACKAGES` array contains `ticker`
+
+#### Scenario: ticker maps to its own binary name
+
+- **WHEN** `pkg_bin "ticker"` is called
+- **THEN** the function returns `ticker` (via the default identity mapping)
+
+#### Scenario: age listed in array
+
+- **WHEN** the install script is loaded
+- **THEN** the `BREW_PACKAGES` array contains `age`
+
+#### Scenario: age maps to its own binary name
+
+- **WHEN** `pkg_bin "age"` is called
+- **THEN** the function returns `age` (via the default identity mapping)
 
 ### Requirement: pkg_bin function maps all packages to their binary names
 
@@ -116,7 +136,7 @@ After the brew packages group completes, if `tv` is available in PATH, the insta
 
 The install script SHALL declare a `BREW_TAPS` array immediately above `BREW_PACKAGES` listing every third-party tap required by any package in `BREW_PACKAGES`. Before the BREW_PACKAGES pre-scan runs, the script SHALL iterate `BREW_TAPS` and run `brew tap "$tap"` for each entry. `brew tap` SHALL be considered idempotent — re-running on a host where the tap is already registered SHALL succeed without re-fetching.
 
-The initial value of `BREW_TAPS` SHALL be `(tarkah/tickrs)` — the only tap currently required (for the `tickrs` formula).
+The value of `BREW_TAPS` SHALL be `(tarkah/tickrs achannarasappa/tap)` — the taps currently required (for the `tickrs` and `ticker` formulas respectively).
 
 #### Scenario: Tap loop runs before package install loop
 
@@ -128,7 +148,12 @@ The initial value of `BREW_TAPS` SHALL be `(tarkah/tickrs)` — the only tap cur
 - **WHEN** the install script is loaded
 - **THEN** `BREW_TAPS` contains `tarkah/tickrs`
 
+#### Scenario: achannarasappa/tap is registered
+
+- **WHEN** the install script is loaded
+- **THEN** `BREW_TAPS` contains `achannarasappa/tap`
+
 #### Scenario: Re-running on a tapped host is a no-op
 
-- **WHEN** the install script runs on a host where `tarkah/tickrs` is already tapped
-- **THEN** `brew tap tarkah/tickrs` exits successfully without printing a warning and the script continues
+- **WHEN** the install script runs on a host where every entry in `BREW_TAPS` is already tapped
+- **THEN** each `brew tap "$tap"` exits successfully without printing a warning and the script continues

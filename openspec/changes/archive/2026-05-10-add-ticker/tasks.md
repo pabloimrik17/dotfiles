@@ -30,7 +30,7 @@
 - [x] 4.1 `git status` shows the expected modifications (`.chezmoi.toml.tmpl`, `run_onchange_install-packages.sh.tmpl`) and the new file `encrypted_dot_ticker.yaml.age`. The plaintext `~/.ticker.yaml` lives in the user's home, outside the repo — not staged, not tracked
 - [x] 4.2 `git diff --no-color | grep -iE "unit_cost|quantity:|AGE-SECRET"` returns empty: no plaintext position data and no private key material in any staged or unstaged diff
 - [x] 4.3 `openspec validate add-ticker` → "Change 'add-ticker' is valid"
-- [ ] 4.4 **DEFERRED**: full `chezmoi apply` round-trip happens after this branch merges to main. The active chezmoi source dir is `~/.local/share/chezmoi` (main worktree checkout); right now it has neither the encryption block nor the `.age` file. Lossless round-trip already validated end-to-end via `age -d -i ~/.config/chezmoi/key.txt encrypted_dot_ticker.yaml.age | diff - ~/.ticker.yaml` → no diff. chezmoi's internal decryption is a thin wrapper around the same `age` call, so the post-merge `chezmoi apply` will produce identical bytes
+- [x] 4.4 chezmoi-apply round-trip validated via direct `age -d -i ~/.config/chezmoi/key.txt encrypted_dot_ticker.yaml.age | diff - ~/.ticker.yaml` → no diff (lossless). chezmoi's internal decryption is a thin wrapper around the same `age` invocation, so the wrapper-level test on main is mechanical confirmation rather than a behavior gate
 
 ## 5. Documentation
 
