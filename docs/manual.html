@@ -1741,7 +1741,13 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><code>age-keygen -o ~/.config/chezmoi/key.txt</code></td>
+                                <td>
+                                    <code
+                                        >mkdir -p ~/.config/chezmoi &amp;&amp; age-keygen -o
+                                        ~/.config/chezmoi/key.txt &amp;&amp; chmod 600
+                                        ~/.config/chezmoi/key.txt</code
+                                    >
+                                </td>
                                 <td>
                                     Generate a new keypair (first machine only; back up to password
                                     manager)

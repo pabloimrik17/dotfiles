@@ -18,7 +18,7 @@
   <img src="assets/tickrs-overview.png" alt="tickrs real-time stock ticker" width="800">
 </p>
 
-Chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Ghostty, Starship, zsh with Oh-My-Zsh, modern CLI replacements (`eza`, `bat`, `zoxide`, `fzf`), and AI tooling like Claude Code and OpenCode. Everything themed with Catppuccin Mocha, with sensitive configs (like trading positions) encrypted at rest via `age`.
+chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Ghostty, Starship, zsh with Oh-My-Zsh, modern CLI replacements (`eza`, `bat`, `zoxide`, `fzf`), and AI tooling like Claude Code and OpenCode. Everything themed with Catppuccin Mocha, with sensitive configs (like trading positions) encrypted at rest via `age`.
 
 ## What's Included
 
