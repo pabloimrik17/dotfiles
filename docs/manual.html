@@ -1684,6 +1684,83 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <h3>Stocks (TUI)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command / Key</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>tickrs</code></td>
+                                <td>
+                                    Launch real-time chart TUI &mdash; 42-symbol public watchlist,
+                                    candles, 30s refresh
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>ticker</code></td>
+                                <td>
+                                    Launch portfolio tracker TUI &mdash; cost-basis positions,
+                                    sector groups, 15s refresh
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Tab</kbd> / <kbd>⇧</kbd>+<kbd>Tab</kbd></td>
+                                <td>
+                                    Inside <code>ticker</code>: cycle forward / backward through
+                                    sector groups
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>ticker print</code></td>
+                                <td>
+                                    Non-interactive snapshot &mdash; JSON output with prices, costs,
+                                    weights per position
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Encrypted files (chezmoi + age)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>chezmoi re-add --encrypt ~/.ticker.yaml</code></td>
+                                <td>
+                                    Re-encrypt a target file after editing the plaintext on disk
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>age-keygen -o ~/.config/chezmoi/key.txt</code></td>
+                                <td>
+                                    Generate a new keypair (first machine only; back up to password
+                                    manager)
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flow-only">
+                        <strong>Flow: Update encrypted positions</strong><br />
+                        <code>$EDITOR ~/.ticker.yaml</code> &rarr;
+                        <code>chezmoi re-add --encrypt ~/.ticker.yaml</code> &rarr;
+                        <code>chezmoi git add encrypted_dot_ticker.yaml.age</code> &rarr; commit
+                    </div>
+                    <div class="flow-only">
+                        <strong>Flow: Bootstrap new machine</strong><br />
+                        restore <code>~/.config/chezmoi/key.txt</code> from password manager &rarr;
+                        <code>chmod 600 ~/.config/chezmoi/key.txt</code> &rarr;
+                        <code>chezmoi apply</code>
+                    </div>
                 </div>
             </details>
 
