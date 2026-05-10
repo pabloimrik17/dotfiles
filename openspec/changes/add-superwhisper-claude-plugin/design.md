@@ -2,7 +2,7 @@
 
 The chezmoi-managed `dot_claude/settings.json.tmpl` declares 25 enabled Claude Code plugins and 10 known marketplaces, and `run_onchange_install-packages.sh.tmpl` (Group 8) registers those marketplaces and installs those plugins via the `claude` CLI. Two locally-used integrations are missing from this template: the SuperWhisper marketplace (`superultrainc/superwhisper-claude-code`) and the `superwhisper@superwhisper` plugin, which together let SuperWhisper notify the user with voice when an agent finishes and reply via dictation.
 
-The SuperWhisper macOS app is already provisioned by the `gui-app-install` capability (the `superwhisper` cask is in `CASK_PACKAGES`), so this change is purely about wiring the Claude Code plugin and marketplace into chezmoi.
+The SuperWhisper macOS app is already provisioned by the `gui-app-install` capability (the `superwhisper` cask is in `ALL_CASKS`), so this change is purely about wiring the Claude Code plugin and marketplace into chezmoi.
 
 ## Goals / Non-Goals
 
