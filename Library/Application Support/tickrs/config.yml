@@ -6,7 +6,6 @@ show_volumes: true
 symbols:
     - ACM
     - ADBE
-    - ADSK
     - AVTR
     - BAH
     - BMI
@@ -16,6 +15,7 @@ symbols:
     - CPRT
     - CRM
     - CRTO
+    - CTAS
     - DOCS
     - DPZ
     - DT
@@ -39,7 +39,7 @@ symbols:
     - QLYS
     - RACE
     - RMD
-    - SMCI
     - SMPL
+    - TYL
     - VEEV
     - VITL
