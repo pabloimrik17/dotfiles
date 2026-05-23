@@ -1,8 +1,4 @@
-## Purpose
-
-Synchronize gitignored configuration files across git worktrees so each worktree has the necessary local files.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Gitignored files are copied on worktree creation
 
@@ -17,20 +13,6 @@ The system SHALL copy whitelisted gitignored files from the source worktree to t
 
 - **WHEN** a worktree already has `.claude/settings.local.json`
 - **THEN** `wt step copy-ignored` SHALL skip the file (default behavior, no `--force`)
-
-### Requirement: Only whitelisted directories are copied
-
-The system SHALL use a `.worktreeinclude` file to restrict which gitignored files are copied. Only files matching `.worktreeinclude` patterns AND listed in `.gitignore` are copied.
-
-#### Scenario: Non-whitelisted gitignored files are excluded
-
-- **WHEN** `wt step copy-ignored` runs
-- **THEN** `.idea/`, `.husky/_/`, and `node_modules/` SHALL NOT be copied
-
-#### Scenario: Whitelisted directory is copied
-
-- **WHEN** `wt step copy-ignored` runs
-- **THEN** only files under `.claude/` SHALL be copied
 
 ### Requirement: Hook is defined in project config
 

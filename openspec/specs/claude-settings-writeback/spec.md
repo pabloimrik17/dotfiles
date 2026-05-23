@@ -4,15 +4,6 @@ Deep-merge Claude Code local settings back from a worktree to its base worktree 
 
 ## Requirements
 
-### Requirement: Base worktree path is saved at creation time
-
-The system SHALL save `{{ base_worktree_path }}` to `.claude/.worktree-base` in the `post-create` hook defined in `worktree-file-sync/spec.md` (alongside `wt step copy-ignored`), so that `pre-remove` can identify the source worktree.
-
-#### Scenario: Base path persisted on worktree creation
-
-- **WHEN** a new worktree is created with `wt switch --create feature/A` from the `develop` worktree
-- **THEN** `.claude/.worktree-base` in the new worktree SHALL contain the absolute path to the `develop` worktree
-
 ### Requirement: Settings are deep-merged back to base on removal
 
 The system SHALL define a `pre-remove` hook that deep-merges `.claude/settings.local.json` from the current worktree into the base worktree's copy using jq. The merge uses `.[0] * .[1]` for object-level deep merge (worktree wins on conflict), then unions `permissions.allow` and `permissions.deny` arrays from both sides via `unique` to preserve approvals from both branches. Null arrays are handled with `// []` fallback. Empty `permissions.deny` arrays are removed from the output.
@@ -53,3 +44,19 @@ The system SHALL define a `pre-remove` hook that deep-merges `.claude/settings.l
 - **WHEN** worktree `feature/A` is removed
 - **AND** `.claude/settings.local.json` contains invalid JSON or `jq` is not installed
 - **THEN** the hook SHALL log a warning and exit without modifying the base worktree's settings
+
+### Requirement: Sync target path is saved at worktree creation
+
+The system SHALL save the sync target path to `.claude/.worktree-base` in the `[pre-start].save-base` hook defined by the `worktrunk-config` capability, rendered as `{{ base_worktree_path | default(primary_worktree_path) }}`. The filter preserves stack semantics on `wt switch --create … --base <branch>` (path of the base branch's worktree) while falling back to the primary worktree path when `base_worktree_path` is undefined (e.g. `wt switch <existing-branch>` without `--create`).
+
+#### Scenario: Stacked branch syncs back to its base on remove
+
+- **GIVEN** worktree `feature-B` created via `wt switch --create feature-B --base feature-A`
+- **WHEN** `feature-B` is removed
+- **THEN** `sync-claude` SHALL merge `feature-B`'s `settings.local.json` into `feature-A`'s copy (using the path stored in `.claude/.worktree-base`)
+
+#### Scenario: Existing-branch switch syncs back to primary
+
+- **GIVEN** worktree materialized via `wt switch <existing-branch>` (no `--create`)
+- **WHEN** that worktree is removed
+- **THEN** `sync-claude` SHALL merge its `settings.local.json` into the primary worktree's copy
