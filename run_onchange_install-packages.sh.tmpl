@@ -851,9 +851,8 @@ elif claude plugin list 2>/dev/null | grep -q "superwhisper@superwhisper"; then
     info "SuperWhisper plugin — already installed, skipping"
 elif confirm "Install SuperWhisper Claude Code plugin via superwhisper.com?"; then
     info "  Installing SuperWhisper Claude Code plugin via upstream installer..."
-    if ! curl -fsSL https://superwhisper.com/install-claude-code.sh | bash; then
-        error "Failed to install SuperWhisper Claude Code plugin via upstream installer"
-    fi
+    run_claude_step "superwhisper upstream installer" \
+        bash -lc 'curl -fsSL https://superwhisper.com/install-claude-code.sh | bash'
 else
     info "Skipping SuperWhisper Claude Code plugin."
 fi
