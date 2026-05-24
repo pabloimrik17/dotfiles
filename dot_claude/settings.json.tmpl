@@ -31,8 +31,8 @@
     "claude-session-driver@superpowers-marketplace": true,
     "claude-code-setup@claude-plugins-official": true,
     "beads@beads-marketplace": true,
-    "code-simplifier@claude-plugins-official": true,
-    "superwhisper@superwhisper": true
+    "code-simplifier@claude-plugins-official": true{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }},
+    "superwhisper@superwhisper": true{{ end }}
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -104,14 +104,14 @@
         "repo": "steveyegge/beads"
       },
       "autoUpdate": true
-    },
+    }{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }},
     "superwhisper": {
       "source": {
         "source": "github",
         "repo": "superultrainc/superwhisper-claude-code"
       },
       "autoUpdate": true
-    }
+    }{{ end }}
   },
   "alwaysThinkingEnabled": true,
   "skipDangerousModePermissionPrompt": true,

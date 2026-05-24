@@ -720,7 +720,6 @@ CC_MARKETPLACES=(
     "backnotprop/plannotator"
     "max-sixty/worktrunk"
     "steveyegge/beads"
-    "superultrainc/superwhisper-claude-code"
 )
 
 CC_PLUGINS=(
@@ -749,7 +748,6 @@ CC_PLUGINS=(
     "worktrunk@worktrunk"
     "beads@beads-marketplace"
     "code-simplifier@claude-plugins-official"
-    "superwhisper@superwhisper"
 )
 
 if command -v claude &>/dev/null; then
@@ -841,6 +839,26 @@ else
     warn "Claude Code is not installed — skipping plugin setup"
 fi
 
+{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") -}}
+# ------------------------------------------------------------------
+# Group 8.25: SuperWhisper Claude Code plugin (Apple Silicon only)
+# ------------------------------------------------------------------
+if ! command -v claude &>/dev/null; then
+    warn "Claude Code is not installed — skipping SuperWhisper plugin install"
+elif [ ! -d "/Applications/superwhisper.app" ]; then
+    warn "SuperWhisper.app not installed — skipping plugin install"
+elif claude plugin list 2>/dev/null | grep -q "superwhisper@superwhisper"; then
+    info "SuperWhisper plugin — already installed, skipping"
+elif confirm "Install SuperWhisper Claude Code plugin via superwhisper.com?"; then
+    info "  Installing SuperWhisper Claude Code plugin via upstream installer..."
+    if ! curl -fsSL https://superwhisper.com/install-claude-code.sh | bash; then
+        error "Failed to install SuperWhisper Claude Code plugin via upstream installer"
+    fi
+else
+    info "Skipping SuperWhisper Claude Code plugin."
+fi
+
+{{ end -}}
 # ------------------------------------------------------------------
 # Group 8.5: Claude Code MCP servers
 # ------------------------------------------------------------------
