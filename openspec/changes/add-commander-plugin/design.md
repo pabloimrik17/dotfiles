@@ -22,7 +22,7 @@ El marketplace `monolab` (`pabloimrik17/monolab`) ya está registrado con `autoU
 
 ## Decisions
 
-**Posición en `enabledPlugins`:** insertar `"commander@monolab": true` junto a las otras entradas `@monolab` (línea 14 `expo-developer@monolab` y línea 22 `experiments@monolab`) en orden agrupado por marketplace, no alfabético — coherente con el patrón actual del archivo.
+**Posición en `enabledPlugins`:** insertar `"commander@monolab": true` junto a las otras entradas `@monolab` (`expo-developer@monolab`, `experiments@monolab`) en orden agrupado por marketplace, no alfabético — coherente con el patrón actual del archivo.
 
 **Sin entrada por plugin para auto-update:** el flag `autoUpdate` vive en el marketplace, no en el plugin. Heredarlo del marketplace `monolab` ya existente es el patrón usado por los otros tres plugins de `monolab` y los seis de `superpowers-marketplace`. Alternativa descartada: duplicar la entrada del marketplace — no aporta nada y rompe el patrón.
 
