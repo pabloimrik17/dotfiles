@@ -1959,6 +1959,44 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <h3>Mac cleanup (mole)</h3>
+                    <p class="note">
+                        macOS-only TUI cleaner installed via Homebrew. Every invocation is
+                        user-initiated &mdash; the dotfiles never call <code>mole</code> from any
+                        script, hook, or alias. Destructive actions require explicit confirmation
+                        inside the TUI; non-destructive commands (e.g. <code>mole analyze</code> and
+                        <code>--dry-run</code>) only inspect or simulate changes.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>mole</code></td>
+                                <td>Launch the interactive TUI menu</td>
+                            </tr>
+                            <tr>
+                                <td><code>mole clean --dry-run</code></td>
+                                <td>Preview cache and log cleanup without deleting</td>
+                            </tr>
+                            <tr>
+                                <td><code>mole purge --dry-run</code></td>
+                                <td>
+                                    Preview old project artifacts (<code>node_modules</code>, build
+                                    dirs)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>mole analyze</code></td>
+                                <td>Explore disk usage (read-only)</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </details>
 
