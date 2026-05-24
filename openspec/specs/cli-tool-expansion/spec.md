@@ -8,16 +8,16 @@ TBD - created by archiving change mac-dev-setup. Update Purpose after archive.
 
 ### Requirement: BREW_PACKAGES array includes all actively used CLI tools
 
-The `BREW_PACKAGES` array SHALL contain the following 25 packages (23 existing + 2 new):
+The `BREW_PACKAGES` array SHALL contain the following 26 packages (25 existing + 1 new):
 
-Existing: `git`, `git-delta`, `starship`, `eza`, `bat`, `zoxide`, `atuin`, `fzf`, `ripgrep`, `lazygit`, `worktrunk`, `terminal-notifier`, `fd`, `direnv`, `beads`, `gh`, `tmux`, `uv`, `mas`, `wget`, `opencode`, `television`, `tickrs`
+Existing: `git`, `git-delta`, `starship`, `eza`, `bat`, `zoxide`, `atuin`, `fzf`, `ripgrep`, `lazygit`, `worktrunk`, `terminal-notifier`, `fd`, `direnv`, `beads`, `gh`, `tmux`, `uv`, `mas`, `wget`, `opencode`, `television`, `tickrs`, `ticker`, `age`
 
-New additions: `ticker`, `age`
+New additions: `mole`
 
 #### Scenario: All packages listed in array
 
 - **WHEN** the install script is loaded
-- **THEN** the `BREW_PACKAGES` array contains exactly 25 entries
+- **THEN** the `BREW_PACKAGES` array contains exactly 26 entries
 
 #### Scenario: television listed in array
 
@@ -58,6 +58,16 @@ New additions: `ticker`, `age`
 
 - **WHEN** `pkg_bin "age"` is called
 - **THEN** the function returns `age` (via the default identity mapping)
+
+#### Scenario: mole listed in array
+
+- **WHEN** the install script is loaded
+- **THEN** the `BREW_PACKAGES` array contains `mole`
+
+#### Scenario: mole maps to its own binary name
+
+- **WHEN** `pkg_bin "mole"` is called
+- **THEN** the function returns `mole` (via the default identity mapping)
 
 ### Requirement: pkg_bin function maps all packages to their binary names
 
