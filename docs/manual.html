@@ -1964,8 +1964,9 @@
                     <p class="note">
                         macOS-only TUI cleaner installed via Homebrew. Every invocation is
                         user-initiated &mdash; the dotfiles never call <code>mole</code> from any
-                        script, hook, or alias. All actions delete files and require explicit
-                        confirmation inside the TUI.
+                        script, hook, or alias. Destructive actions require explicit confirmation
+                        inside the TUI; non-destructive commands (e.g. <code>mole analyze</code> and
+                        <code>--dry-run</code>) only inspect or simulate changes.
                     </p>
                     <table>
                         <thead>
