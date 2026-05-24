@@ -3,6 +3,7 @@ time_frame: 1M
 update_interval: 30
 enable_pre_post: true
 show_volumes: true
+
 symbols:
     - ACM
     - ADBE
@@ -15,7 +16,6 @@ symbols:
     - CPRT
     - CRM
     - CRTO
-    - CTAS
     - DOCS
     - DPZ
     - DT
@@ -24,6 +24,7 @@ symbols:
     - HLI
     - HLNE
     - HRL
+    - INTU
     - IPAR
     - LULU
     - MCD
@@ -35,6 +36,7 @@ symbols:
     - PAYX
     - PCTY
     - PLNT
+    - PNR
     - PODD
     - QLYS
     - RACE
