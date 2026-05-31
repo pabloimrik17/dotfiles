@@ -11,7 +11,7 @@ The chezmoi-managed global allowlist (`dot_claude/settings.json.tmpl`) carries ~
 - **Remove** redundant rules Claude Code already auto-allows: the read-only filesystem group, the read-only git group, and `node --version`.
 - **BREAKING** Narrow `bun run *` / `pnpm run *` to named scripts (`typecheck`, `lint`, `build`, `test`). Unlisted scripts (e.g. `bun run dev`) are no longer blanket-allowed — in auto mode they route to the classifier, in default mode they prompt.
 - **Remove** `gh api *` — GET stays auto-allowed by Claude Code; this re-introduces a prompt only for `gh api` writes (POST/DELETE).
-- **Fix** `wt --help *` → `wt --help` (the trailing ` *` requires an argument and never matched bare `wt --help`).
+- **Fix** `wt --help *` → `wt --help` (the trailing wildcard requires an argument and never matched bare `wt --help`).
 - Keep broad `gh pr/issue/repo *` and the deny block unchanged.
 
 **Project-local (`.claude/settings.local.json`, gitignored — operational, not committed):**

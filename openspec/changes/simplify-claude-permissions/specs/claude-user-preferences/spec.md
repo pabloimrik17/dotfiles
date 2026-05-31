@@ -91,7 +91,7 @@ The chezmoi template SHALL include `Bash(openspec list *)`, `Bash(openspec statu
 
 ### Requirement: Allow rules permit worktrunk read commands
 
-The chezmoi template SHALL include `Bash(wt list *)`, `Bash(wt config *)`, and `Bash(wt --help)` in `permissions.allow`. The `wt --help` rule SHALL match the bare `wt --help` invocation; it SHALL NOT carry a trailing ` *`, which would require an argument after `--help` and never match.
+The chezmoi template SHALL include `Bash(wt list *)`, `Bash(wt config *)`, and `Bash(wt --help)` in `permissions.allow`. The `wt --help` rule SHALL match the bare `wt --help` invocation; it SHALL NOT carry a trailing wildcard, which would require an argument after `--help` and never match.
 
 #### Scenario: wt list runs without prompt
 
