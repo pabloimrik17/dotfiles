@@ -145,54 +145,74 @@ fi
 # Group 1.5: opencode + CodeRabbit (official installers, self-updating)
 # ------------------------------------------------------------------
 # Installed via official scripts instead of brew/cask so their built-in
-# auto-update works — a package-manager install disables it. Each step
-# migrates an existing brew install off brew first (preserving user config),
-# then installs idempotently. Ordered right after brew packages so opencode
-# is on PATH before the OpenCode plugins group (Group 7) probes for it.
+# auto-update works — a package-manager install disables it. Ordered right
+# after brew packages so opencode is on PATH before the OpenCode plugins
+# group (Group 7) probes for it.
 
-# --- opencode → ~/.opencode/bin (official installer) ---
-# PATH for ~/.opencode/bin is owned by dot_zshrc.tmpl, so run the installer
-# with --no-modify-path (piped, args after `-s --`) to keep it out of ~/.zshrc.
+# ~/.opencode/bin and ~/.local/bin hold the official-install binaries. Put them
+# on PATH for this run regardless of the prompt below: later groups probe
+# `command -v opencode`, and the CodeRabbit installer treats its rc-edit as a
+# no-op when ~/.local/bin is already on PATH. PATH edits are non-destructive.
 OPENCODE_BIN_DIR="$HOME/.opencode/bin"
-if brew list opencode &>/dev/null; then
-    info "Migrating opencode off Homebrew..."
-    brew uninstall opencode || error "Failed to uninstall brew opencode"
-    brew untap anomalyco/tap &>/dev/null || true  # tap no longer needed
-    hash -r
-fi
-if [ -x "$OPENCODE_BIN_DIR/opencode" ]; then
-    info "  opencode — already installed via official script, skipping"
-else
-    info "  Installing opencode via official script..."
-    if ! curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path; then
-        error "Failed to install opencode"
-    fi
-fi
-# Put ~/.opencode/bin on PATH so later groups (e.g. OpenCode plugins) detect it.
-export PATH="$OPENCODE_BIN_DIR:$PATH"
+export PATH="$OPENCODE_BIN_DIR:$HOME/.local/bin:$PATH"
 hash -r
 
-# --- CodeRabbit → ~/.local/bin (official installer, non-interactive) ---
-# ~/.local/bin is owned by dot_zshrc.tmpl PATH; export it here so the
-# installer's PATH/rc edit is a no-op and command -v resolves in-script.
-export PATH="$HOME/.local/bin:$PATH"
-if brew list --cask coderabbit &>/dev/null; then
-    info "Migrating CodeRabbit off the Homebrew cask..."
-    # No --zap: preserve ~/.coderabbit auth/config.
-    brew uninstall --cask coderabbit || error "Failed to uninstall coderabbit cask"
-    hash -r
-fi
-if [ -x "$HOME/.local/bin/coderabbit" ]; then
-    info "  coderabbit — already installed via official script, updating..."
-    coderabbit update || warn "coderabbit update failed (network issue?)"
-else
-    info "  Installing CodeRabbit via official script..."
-    # CI=1 on the installer (sh) skips its interactive login prompt; auth is
-    # deferred to first interactive use.
-    if ! curl -fsSL https://cli.coderabbit.ai/install.sh | CI=1 sh; then
-        error "Failed to install CodeRabbit"
+# Pre-scan: a tool is "pending" if it still needs installing or migrating off
+# brew. Skip the prompt entirely when both are already on the official install.
+OC_PENDING=0
+[ -x "$OPENCODE_BIN_DIR/opencode" ] || OC_PENDING=1
+brew list opencode &>/dev/null && OC_PENDING=1
+CR_PENDING=0
+[ -x "$HOME/.local/bin/coderabbit" ] || CR_PENDING=1
+brew list --cask coderabbit &>/dev/null && CR_PENDING=1
+
+if [ "$((OC_PENDING + CR_PENDING))" -eq 0 ]; then
+    info "opencode + CodeRabbit: installed via official scripts"
+elif confirm "Install/migrate opencode + CodeRabbit to official installers ($((OC_PENDING + CR_PENDING)) pending)?"; then
+    # --- opencode → ~/.opencode/bin ---
+    # Install via the official script first (with --no-modify-path so it does
+    # not edit the chezmoi-managed ~/.zshrc), then migrate off brew ONLY after
+    # the new binary is verified present — a failed install must not strand the
+    # user with neither copy.
+    if [ -x "$OPENCODE_BIN_DIR/opencode" ]; then
+        info "  opencode — already installed via official script, skipping"
+    else
+        info "  Installing opencode via official script..."
+        if ! curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path; then
+            error "Failed to install opencode"
+        fi
+        hash -r
     fi
-    hash -r
+    if [ -x "$OPENCODE_BIN_DIR/opencode" ] && brew list opencode &>/dev/null; then
+        info "  Migrating opencode off Homebrew..."
+        brew uninstall opencode || error "Failed to uninstall brew opencode"
+        brew untap anomalyco/tap &>/dev/null || true  # tap no longer needed
+        hash -r
+    fi
+
+    # --- CodeRabbit → ~/.local/bin (non-interactive) ---
+    # Same install-then-migrate ordering. No `coderabbit update` on re-runs:
+    # the CLI self-updates on its own, so forcing it on every apply only adds
+    # surprise version drift. Migrate off the cask without --zap to keep
+    # ~/.coderabbit auth/config.
+    if [ -x "$HOME/.local/bin/coderabbit" ]; then
+        info "  coderabbit — already installed via official script, skipping"
+    else
+        info "  Installing CodeRabbit via official script..."
+        # CI=1 on the installer (sh) skips its interactive login prompt; auth is
+        # deferred to first interactive use.
+        if ! curl -fsSL https://cli.coderabbit.ai/install.sh | CI=1 sh; then
+            error "Failed to install CodeRabbit"
+        fi
+        hash -r
+    fi
+    if [ -x "$HOME/.local/bin/coderabbit" ] && brew list --cask coderabbit &>/dev/null; then
+        info "  Migrating CodeRabbit off the Homebrew cask..."
+        brew uninstall --cask coderabbit || error "Failed to uninstall coderabbit cask"
+        hash -r
+    fi
+else
+    info "Skipping opencode + CodeRabbit official-installer setup."
 fi
 
 # ------------------------------------------------------------------
@@ -1120,6 +1140,7 @@ info "    - tickrs: cargo install tickrs (or brew tap tarkah/tickrs && brew inst
 info "    - ticker: download a release binary from https://github.com/achannarasappa/ticker/releases (or use your distro's package manager)"
 info "    - age: brew install age (or use your distro's package manager, e.g. apt install age)"
 info "    - opencode: curl -fsSL https://opencode.ai/install | bash  (official installer; installs to ~/.opencode/bin — add it to PATH)"
+info "    - CodeRabbit: curl -fsSL https://cli.coderabbit.ai/install.sh | sh  (official installer; installs to ~/.local/bin — auth on first use)"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: oh-my-zsh (https://ohmyz.sh/)"
 info "  Zsh plugins:"
