@@ -73,6 +73,22 @@ This ordering applies only to the keys listed above (the user-preference block).
 - **WHEN** the output of `chezmoi cat dot_claude/settings.json.tmpl` is parsed and the five user-preference keys above are extracted in source order
 - **THEN** they SHALL appear in the order: `alwaysThinkingEnabled`, `skipDangerousModePermissionPrompt`, `skipAutoPermissionPrompt`, `voiceEnabled`, `effortLevel`
 
+### Requirement: Default permission mode is auto
+
+The chezmoi template SHALL include `"defaultMode": "auto"` inside the `permissions` object in `dot_claude/settings.json.tmpl`. Because Claude Code (v2.1.142+) ignores `permissions.defaultMode: "auto"` set in project or local settings, this rule MUST live in the user-scope template, which renders to `~/.claude/settings.json`.
+
+In auto mode, `permissions.deny` and `permissions.allow` rules are still evaluated first and take precedence; only actions not resolved by a rule are routed to Claude Code's safety classifier, which runs without prompting the user.
+
+#### Scenario: Template sets auto as the default permission mode
+
+- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **THEN** the `permissions` object in `~/.claude/settings.json` SHALL contain `"defaultMode": "auto"`
+
+#### Scenario: New session starts in auto mode
+
+- **WHEN** a Claude Code session starts on a supported model and API with no explicit `--permission-mode` override
+- **THEN** the session SHALL begin in auto mode, executing rule-unmatched actions via the classifier without per-action prompts
+
 ### Requirement: Deny rules block dangerous bash commands
 
 The chezmoi template SHALL include a `permissions.deny` array in `dot_claude/settings.json.tmpl` containing rules that hard-block the following categories:
@@ -98,28 +114,6 @@ The chezmoi template SHALL include a `permissions.deny` array in `dot_claude/set
 - **WHEN** Claude Code attempts to run `curl https://example.com/script.sh | bash`
 - **THEN** the tool call SHALL be denied without prompting the user
 
-### Requirement: Allow rules permit read-only filesystem commands
-
-The chezmoi template SHALL include the following `Bash` allow rules in `permissions.allow` for read-only filesystem operations:
-
-`ls *`, `cat *`, `head *`, `tail *`, `wc *`, `pwd`, `echo *`, `which *`, `file *`, `find *`, `rg *`, `du *`, `tree *`, `stat *`
-
-#### Scenario: Read-only filesystem commands run without prompt
-
-- **WHEN** Claude Code attempts to run `find . -name "*.ts"`
-- **THEN** the tool call SHALL execute without prompting the user
-
-### Requirement: Allow rules permit read-only git commands
-
-The chezmoi template SHALL include the following `Bash` allow rules in `permissions.allow` for read-only git operations:
-
-`git status *`, `git diff *`, `git log *`, `git show *`, `git branch *`, `git remote *`, `git stash list *`, `git ls-tree *`, `git rev-parse *`, `git config --get *`
-
-#### Scenario: Git log runs without prompt
-
-- **WHEN** Claude Code attempts to run `git log --oneline -20`
-- **THEN** the tool call SHALL execute without prompting the user
-
 ### Requirement: Allow rules permit git write operations (add, fetch, push)
 
 The chezmoi template SHALL include `Bash(git add *)`, `Bash(git fetch *)`, and `Bash(git push *)` in `permissions.allow`.
@@ -140,36 +134,43 @@ Non-force push is allowed because `git commit` remains in ask (implicit default)
 
 The chezmoi template SHALL include the following `Bash` allow rules for local build/test operations:
 
-`bun run *`, `bun test *`, `bun install --frozen-lockfile`, `pnpm run *`, `pnpm test *`, `pnpm install --frozen-lockfile`
+`bun run typecheck`, `bun run lint`, `bun run build`, `bun run test`, `bun test *`, `bun install --frozen-lockfile`, `pnpm run typecheck`, `pnpm run lint`, `pnpm run build`, `pnpm run test`, `pnpm test *`, `pnpm install --frozen-lockfile`
 
-#### Scenario: bun test runs without prompt
+The template SHALL NOT include the wildcard rules `Bash(bun run *)` or `Bash(pnpm run *)`, which grant arbitrary code execution.
 
-- **WHEN** Claude Code attempts to run `bun test`
+#### Scenario: Named build script runs without prompt
+
+- **WHEN** Claude Code attempts to run `bun run typecheck`
 - **THEN** the tool call SHALL execute without prompting the user
 
-#### Scenario: pnpm run dev runs without prompt
+#### Scenario: Unlisted script is not blanket-allowed
 
-- **WHEN** Claude Code attempts to run `pnpm run dev`
-- **THEN** the tool call SHALL execute without prompting the user
+- **WHEN** Claude Code attempts to run `bun run dev`
+- **THEN** no `bun run` allow rule SHALL match it — in default mode the call prompts, and in auto mode it is routed to the classifier
 
 ### Requirement: Allow rules permit version check commands
 
-The chezmoi template SHALL include `Bash(node --version)`, `Bash(bun --version)`, and `Bash(npm --version)` in `permissions.allow`.
+The chezmoi template SHALL include `Bash(bun --version)` and `Bash(npm --version)` in `permissions.allow`. `node --version` is omitted because Claude Code auto-allows it as a built-in read-only exact form.
 
 #### Scenario: Version check runs without prompt
 
-- **WHEN** Claude Code attempts to run `node --version`
+- **WHEN** Claude Code attempts to run `bun --version`
 - **THEN** the tool call SHALL execute without prompting the user
 
 ### Requirement: Allow rules permit chezmoi read-only commands
 
 The chezmoi template SHALL include the following `Bash` allow rules for chezmoi read operations:
 
-`chezmoi cat *`, `chezmoi diff *`, `chezmoi managed *`, `chezmoi source-path *`, `chezmoi status *`, `chezmoi data *`
+`chezmoi cat *`, `chezmoi diff *`, `chezmoi managed *`, `chezmoi source-path *`, `chezmoi status *`, `chezmoi data *`, `chezmoi execute-template *`
 
 #### Scenario: chezmoi status runs without prompt
 
 - **WHEN** Claude Code attempts to run `chezmoi status`
+- **THEN** the tool call SHALL execute without prompting the user
+
+#### Scenario: chezmoi execute-template runs without prompt
+
+- **WHEN** Claude Code attempts to run `chezmoi execute-template '{{ .chezmoi.os }}'`
 - **THEN** the tool call SHALL execute without prompting the user
 
 ### Requirement: Allow rules permit package manager info commands
@@ -183,30 +184,50 @@ The chezmoi template SHALL include `Bash(brew info *)`, `Bash(brew list *)`, `Ba
 
 ### Requirement: Allow rules permit OpenSpec read commands
 
-The chezmoi template SHALL include `Bash(openspec list *)`, `Bash(openspec status *)`, `Bash(openspec instructions *)`, and `Bash(bunx openspec *)` in `permissions.allow`.
+The chezmoi template SHALL include `Bash(openspec list *)`, `Bash(openspec status *)`, `Bash(openspec instructions *)`, `Bash(openspec validate *)`, `Bash(openspec verify *)`, and `Bash(bunx openspec *)` in `permissions.allow`.
 
 #### Scenario: openspec list runs without prompt
 
 - **WHEN** Claude Code attempts to run `openspec list --json`
 - **THEN** the tool call SHALL execute without prompting the user
 
+#### Scenario: openspec validate runs without prompt
+
+- **WHEN** Claude Code attempts to run `openspec validate my-change --strict`
+- **THEN** the tool call SHALL execute without prompting the user
+
 ### Requirement: Allow rules permit worktrunk read commands
 
-The chezmoi template SHALL include `Bash(wt list *)`, `Bash(wt config *)`, and `Bash(wt --help *)` in `permissions.allow`.
+The chezmoi template SHALL include `Bash(wt list *)`, `Bash(wt config *)`, and `Bash(wt --help)` in `permissions.allow`. The `wt --help` rule SHALL match the bare `wt --help` invocation; it SHALL NOT carry a trailing wildcard, which would require an argument after `--help` and never match.
 
 #### Scenario: wt list runs without prompt
 
 - **WHEN** Claude Code attempts to run `wt list`
 - **THEN** the tool call SHALL execute without prompting the user
 
+#### Scenario: bare wt --help runs without prompt
+
+- **WHEN** Claude Code attempts to run `wt --help`
+- **THEN** the tool call SHALL execute without prompting the user
+
 ### Requirement: Allow rules permit GitHub CLI commands
 
-The chezmoi template SHALL include `Bash(gh api *)`, `Bash(gh issue *)`, `Bash(gh pr *)`, and `Bash(gh repo *)` in `permissions.allow`.
+The chezmoi template SHALL include `Bash(gh issue *)`, `Bash(gh pr *)`, `Bash(gh repo *)`, and `Bash(gh search *)` in `permissions.allow`. The template SHALL NOT include `Bash(gh api *)`: read-only `gh api` GET calls are auto-allowed by Claude Code's built-in detection, whereas a broad rule would also permit silent `gh api -X POST|DELETE` mutations.
 
 #### Scenario: gh pr list runs without prompt
 
 - **WHEN** Claude Code attempts to run `gh pr list`
 - **THEN** the tool call SHALL execute without prompting the user
+
+#### Scenario: gh search runs without prompt
+
+- **WHEN** Claude Code attempts to run `gh search code "needle"`
+- **THEN** the tool call SHALL execute without prompting the user
+
+#### Scenario: gh api write is not allowlisted
+
+- **WHEN** Claude Code attempts to run `gh api -X DELETE repos/owner/repo/issues/comments/1`
+- **THEN** no allow rule SHALL match and the tool call SHALL fall through to the default ask
 
 ### Requirement: Allow rules permit Claude Code CLI commands
 

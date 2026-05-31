@@ -14,18 +14,18 @@ symbols:
     - CMG
     - CPNG
     - CPRT
-    - CRM
     - CRTO
+    - CTAS
     - DOCS
     - DPZ
     - DT
     - DUOL
     - FISV
-    - HLI
     - HLNE
     - HRL
     - INTU
     - IPAR
+    - ISRG
     - LULU
     - MCD
     - MORN
@@ -43,5 +43,6 @@ symbols:
     - RMD
     - SMPL
     - TYL
+    - UHS
     - VEEV
     - VITL

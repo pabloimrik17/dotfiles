@@ -8,16 +8,25 @@ TBD - created by archiving change mac-dev-setup. Update Purpose after archive.
 
 ### Requirement: BREW_PACKAGES array includes all actively used CLI tools
 
-The `BREW_PACKAGES` array SHALL contain the following 26 packages (25 existing + 1 new):
+The `BREW_PACKAGES` array SHALL contain the following 25 packages:
 
-Existing: `git`, `git-delta`, `starship`, `eza`, `bat`, `zoxide`, `atuin`, `fzf`, `ripgrep`, `lazygit`, `worktrunk`, `terminal-notifier`, `fd`, `direnv`, `beads`, `gh`, `tmux`, `uv`, `mas`, `wget`, `opencode`, `television`, `tickrs`, `ticker`, `age`
+`git`, `git-delta`, `starship`, `eza`, `bat`, `zoxide`, `atuin`, `fzf`, `ripgrep`,
+`lazygit`, `worktrunk`, `terminal-notifier`, `fd`, `direnv`, `beads`, `gh`, `tmux`,
+`uv`, `mas`, `wget`, `television`, `tickrs`, `ticker`, `age`, `mole`
 
-New additions: `mole`
+`opencode` SHALL NOT appear in `BREW_PACKAGES`; it is installed via its official script
+(see the `opencode-install` capability). Removing it also makes the `anomalyco/tap` tap
+unnecessary for this array.
 
 #### Scenario: All packages listed in array
 
 - **WHEN** the install script is loaded
-- **THEN** the `BREW_PACKAGES` array contains exactly 26 entries
+- **THEN** the `BREW_PACKAGES` array contains exactly 25 entries
+
+#### Scenario: opencode absent from array
+
+- **WHEN** the install script is loaded
+- **THEN** the `BREW_PACKAGES` array does NOT contain `opencode`
 
 #### Scenario: television listed in array
 
@@ -121,12 +130,14 @@ After brew packages are installed, the script SHALL check if atuin has zero hist
 
 ### Requirement: Non-macOS fallback includes all new packages
 
-The non-macOS branch of the install script SHALL list all 17 brew packages in its manual installation instructions, including the 9 newly added ones.
+The non-macOS branch of the install script SHALL list its brew packages in the manual
+installation instructions. opencode SHALL be listed under the official-script install
+instructions (not the brew package list), consistent with the macOS branch.
 
 #### Scenario: Non-macOS instructions are complete
 
 - **WHEN** the script runs on a non-macOS system
-- **THEN** the printed instructions include `fd`, `gh`, `git-delta`, `git`, `tmux`, `uv`, `wget`, and `opencode` alongside the original 8 packages (excluding `mas`, which is macOS-only)
+- **THEN** the printed instructions include `fd`, `gh`, `git-delta`, `git`, `tmux`, `uv`, and `wget` alongside the original packages (excluding `mas`, which is macOS-only), and opencode appears under the official-installer instructions (`curl -fsSL https://opencode.ai/install | bash`) rather than the brew package list
 
 ### Requirement: tv update-channels runs after brew packages group
 

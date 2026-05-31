@@ -89,7 +89,6 @@ export OPENCODE_EXPERIMENTAL_LSP_TOOL=true
 export OPENCODE_ENABLE_EXA=true
 export OPENCODE_EXPERIMENTAL_OXFMT=true
 export OPENCODE_EXPERIMENTAL_FILEWATCHER=true
-export OPENCODE_EXPERIMENTAL_MARKDOWN=true
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
@@ -295,6 +294,9 @@ command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 
 # User-local binaries (Claude Code, plannotator, etc.)
 export PATH="$HOME/.local/bin:$PATH"
+
+# opencode (installed via its official script to ~/.opencode/bin, not brew)
+export PATH="$HOME/.opencode/bin:$PATH"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
