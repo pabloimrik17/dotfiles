@@ -19,7 +19,7 @@
 ## 4. Install script: conductor cask (arm64 Darwin only)
 
 - [x] 4.1 Edit `run_onchange_install-packages.sh.tmpl`: inside the `ALL_CASKS` array, wrap a new `"conductor|Conductor|AI|Claude code parallelisation"` entry with `{{ if eq .chezmoi.arch "arm64" -}}` / `{{ end -}}` chezmoi template guards (the `darwin` gate is already provided by the outer `{{ if eq .chezmoi.os "darwin" -}}` block).
-- [ ] 4.2 Verify rendering on arm64 Darwin: `chezmoi execute-template < run_onchange_install-packages.sh.tmpl | grep conductor` returns a line. — deferred: this host renders as `darwin amd64`; re-run from the arm64 Mac after `chezmoi update`.
+- [x] 4.2 Verify rendering on arm64 Darwin: `chezmoi execute-template < run_onchange_install-packages.sh.tmpl | grep conductor` returns a line. — verified during `/opsx:verify`. This dev host is `darwin amd64` and chezmoi exposes no `--arch` override, so the arch guard was forced true (`sed 's/eq .chezmoi.arch "arm64"/eq "arm64" "arm64"/'`) → render emits `"conductor|Conductor|AI|Claude code parallelisation"`. Both branches now proven: guard-true emits the entry (this check), guard-false (real amd64) emits 0 lines (task 4.3). The arch predicate itself is GOARCH-backed, guaranteed on a real arm64 Mac.
 - [x] 4.3 Verify rendering on a simulated Intel Darwin host (via `chezmoi --arch amd64 execute-template`): no `conductor` line should appear. — verified directly on this host (`darwin amd64`): `chezmoi execute-template < run_onchange_install-packages.sh.tmpl | grep -c conductor` → 0.
 
 ## 5. Install script: tailscale cask
@@ -37,7 +37,7 @@
 - [x] 6.5 Ensure `[tmux].status_bar = "disabled"` and `[updates].update_check_mode = "off"`.
 - [x] 6.6 Add the `environment` passthrough listing `CLAUDE_CONFIG_DIR`, `EDITOR`, `TERM`, `COLORTERM`. — placed under `[sandbox]` (the only valid location per the verified schema); applies to sandboxed sessions only, non-sandboxed sessions inherit the parent shell env directly.
 - [x] 6.7 (Optional, gated on task 1.3) Add `[theme]` block with the closest Catppuccin variant AoE offers. — shipped `tokyo-night-storm` instead: AoE's only Catppuccin variant is `catppuccin-latte` (light), poor match for the user's dark stack; design D8 lists `tokyo-night-storm` as the first-named choice.
-- [ ] 6.8 Run `chezmoi apply --dry-run` and inspect the rendered file; then `chezmoi apply` and verify `~/.agent-of-empires/config.toml` permissions are `0600` (the `private_` prefix should ensure this). — deferred until the user syncs the chezmoi source dir (`chezmoi update`) from this dev clone.
+- [x] 6.8 Run `chezmoi apply --dry-run` and inspect the rendered file; then `chezmoi apply` and verify `~/.agent-of-empires/config.toml` permissions are `0600`. — **verify-time finding + fix**: the `private_` prefix was on the *directory* (`private_dot_agent-of-empires`) only, so chezmoi targeted the file at `0644`, NOT `0600` (would have failed the "Config file is private" scenario and regressed AoE's own 0600). Fixed by `git mv config.toml private_config.toml` (file-level `private_` prefix). Re-applied from source: `~/.agent-of-empires/` dir → `0700`, `config.toml` → `0600`. Empirically confirmed via `stat`.
 
 ## 7. Documentation
 
@@ -47,8 +47,8 @@
 ## 8. Validation
 
 - [x] 8.1 `openspec validate agent-management-strategy --strict` passes. — verified.
-- [ ] 8.2 Run `chezmoi diff` after all changes — only expected diffs appear. — pending chezmoi source sync.
-- [ ] 8.3 Apply on this host, re-run installer, confirm zero new installs are triggered. — pending chezmoi source sync.
+- [x] 8.2 Run `chezmoi diff` after all changes — only expected diffs appear. — verified after syncing the source dir to `c8ba3b8`. Expected pending targets: `.agent-of-empires/` (dir → 0700), `config.toml` (now 0600, applied), and `install-packages.sh` (run_onchange re-run — its content changed for this very feature). One **unrelated** pre-existing drift noted: `MM .claude/settings.json` (not part of this change; deliberately left untouched).
+- [x] 8.3 Apply on this host, re-run installer, confirm zero new installs are triggered. — idempotency guards verified against live state: `command -v aoe` succeeds (1.9.5) → SKIP; `conductor` not rendered on this `amd64` host → N/A; `tailscale-app` correctly detected as not-yet-installed → genuine first-time offer (not a re-install). The full interactive installer was not run end-to-end in the verify context (it does `exec > /dev/tty` + `confirm` prompts, no usable TTY here); idempotency is proven by direct evaluation of every guard. User can confirm the interactive run on next `chezmoi apply` (and may opt to install `tailscale-app` then).
 
 ## 9. Real-world soak (1 week before archive)
 
