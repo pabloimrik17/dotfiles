@@ -77,7 +77,7 @@ fi
 # Group 1: Brew packages
 # ------------------------------------------------------------------
 BREW_TAPS=(tarkah/tickrs achannarasappa/tap)
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget opencode television tickrs ticker age mole)
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tickrs ticker age mole)
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -139,6 +139,80 @@ elif confirm "Install brew packages ($BREW_PENDING/${#BREW_PACKAGES[@]} pending)
     done
 else
     info "Skipping brew packages."
+fi
+
+# ------------------------------------------------------------------
+# Group 1.5: opencode + CodeRabbit (official installers, self-updating)
+# ------------------------------------------------------------------
+# Installed via official scripts instead of brew/cask so their built-in
+# auto-update works — a package-manager install disables it. Ordered right
+# after brew packages so opencode is on PATH before the OpenCode plugins
+# group (Group 7) probes for it.
+
+# ~/.opencode/bin and ~/.local/bin hold the official-install binaries. Put them
+# on PATH for this run regardless of the prompt below: later groups probe
+# `command -v opencode`, and the CodeRabbit installer treats its rc-edit as a
+# no-op when ~/.local/bin is already on PATH. PATH edits are non-destructive.
+OPENCODE_BIN_DIR="$HOME/.opencode/bin"
+export PATH="$OPENCODE_BIN_DIR:$HOME/.local/bin:$PATH"
+hash -r
+
+# Pre-scan: a tool is "pending" if it still needs installing or migrating off
+# brew. Skip the prompt entirely when both are already on the official install.
+OC_PENDING=0
+[ -x "$OPENCODE_BIN_DIR/opencode" ] || OC_PENDING=1
+brew list opencode &>/dev/null && OC_PENDING=1
+CR_PENDING=0
+[ -x "$HOME/.local/bin/coderabbit" ] || CR_PENDING=1
+brew list --cask coderabbit &>/dev/null && CR_PENDING=1
+
+if [ "$((OC_PENDING + CR_PENDING))" -eq 0 ]; then
+    info "opencode + CodeRabbit: installed via official scripts"
+elif confirm "Install/migrate opencode + CodeRabbit to official installers ($((OC_PENDING + CR_PENDING)) pending)?"; then
+    # --- opencode → ~/.opencode/bin ---
+    # Install via the official script first (with --no-modify-path so it does
+    # not edit the chezmoi-managed ~/.zshrc), then migrate off brew ONLY after
+    # the new binary is verified present — a failed install must not strand the
+    # user with neither copy.
+    if [ -x "$OPENCODE_BIN_DIR/opencode" ]; then
+        info "  opencode — already installed via official script, skipping"
+    else
+        info "  Installing opencode via official script..."
+        if ! curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path; then
+            error "Failed to install opencode"
+        fi
+        hash -r
+    fi
+    if [ -x "$OPENCODE_BIN_DIR/opencode" ] && brew list opencode &>/dev/null; then
+        info "  Migrating opencode off Homebrew..."
+        brew uninstall opencode || error "Failed to uninstall brew opencode"
+        brew untap anomalyco/tap &>/dev/null || true  # tap no longer needed
+        hash -r
+    fi
+
+    # --- CodeRabbit → ~/.local/bin (non-interactive) ---
+    # Same install-then-migrate ordering. No `coderabbit update` on re-runs:
+    # the CLI self-updates on its own, so forcing it on every apply only adds
+    # surprise version drift. Migrate off the cask without --zap to keep
+    # ~/.coderabbit auth/config.
+    if [ -x "$HOME/.local/bin/coderabbit" ]; then
+        info "  coderabbit — already installed via official script, skipping"
+    else
+        info "  Installing CodeRabbit via official script..."
+        # CI=1 on the installer (sh) skips its interactive login prompt; auth is
+        # deferred to first interactive use.
+        if ! curl -fsSL https://cli.coderabbit.ai/install.sh | CI=1 sh; then
+            error "Failed to install CodeRabbit"
+        fi
+        hash -r
+    fi
+    if [ -x "$HOME/.local/bin/coderabbit" ] && brew list --cask coderabbit &>/dev/null; then
+        info "  Migrating CodeRabbit off the Homebrew cask..."
+        brew uninstall --cask coderabbit || error "Failed to uninstall coderabbit cask"
+        hash -r
+    fi
+else
+    info "Skipping opencode + CodeRabbit official-installer setup."
 fi
 
 # ------------------------------------------------------------------
@@ -388,7 +462,6 @@ ALL_CASKS=(
     "1password|1Password|Security|Password manager"
     "iina|IINA|Media|Modern media player"
     "superwhisper|superwhisper|AI|Voice-to-text via Whisper"
-    "coderabbit|CodeRabbit|AI|AI code review CLI"
     "adobe-acrobat-reader|Adobe Acrobat Reader|Productivity|PDF reader"
     "telegram|Telegram|Optional|Messaging"
     "whatsapp|WhatsApp|Optional|Messaging"
@@ -1042,7 +1115,8 @@ info "  - Last.fm Scrobbler: https://last.fm/about/trackmymusic"
 info "  - CleanMyMac: requires license — install from https://cleanmymac.com"
 info "  - Adobe Creative Cloud: requires Adobe login — install from https://creativecloud.adobe.com"
 info "  - 1Password for Safari: install from the Mac App Store (Safari extension)"
-info "  - CodeRabbit: coderabbit auth login (opens browser for authentication)"
+info "  - CodeRabbit: authenticates on first use; sign in explicitly with 'coderabbit auth login' (browser sign-in also selects your org; 'coderabbit auth org' switches orgs)"
+info "  - CodeRabbit setup check: run 'coderabbit doctor' to verify auth, network, git state, and config"
 info "  - Atlassian MCP: requires OAuth authentication — run 'claude mcp get atlassian' or use on first invocation"
 info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma' or use on first invocation"
 info "  - Linear MCP: requires OAuth authentication — run 'claude mcp get linear' or use on first invocation"
@@ -1058,13 +1132,15 @@ info "This system is not macOS. Automatic installation is not supported."
 info ""
 info "Please install the following packages manually:"
 info ""
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age"
 info "    - terminal-notifier: macOS-only (skip on Linux)"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
 info "    - tickrs: cargo install tickrs (or brew tap tarkah/tickrs && brew install tickrs)"
 info "    - ticker: download a release binary from https://github.com/achannarasappa/ticker/releases (or use your distro's package manager)"
 info "    - age: brew install age (or use your distro's package manager, e.g. apt install age)"
+info "    - opencode: curl -fsSL https://opencode.ai/install | bash  (official installer; installs to ~/.opencode/bin — add it to PATH)"
+info "    - CodeRabbit: curl -fsSL https://cli.coderabbit.ai/install.sh | sh  (official installer; installs to ~/.local/bin — auth on first use)"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: oh-my-zsh (https://ohmyz.sh/)"
 info "  Zsh plugins:"
