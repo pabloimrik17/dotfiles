@@ -15,10 +15,10 @@
 
 - [x] 2.1 `chezmoi diff dot_claude/settings.json.tmpl` shows only the intended allow-rule changes
 - [x] 2.2 Render the template (`chezmoi cat ~/.claude/settings.json`) and confirm valid JSON
-- [ ] 2.3 Confirm a removed read still runs without prompt (`find . -name '*.ts'`, `git status`); if `git ls-tree HEAD` prompts, re-add `Bash(git ls-tree *)` and amend the spec
-- [ ] 2.4 Confirm `bun run typecheck` runs without prompt and `bun run dev` now prompts
-- [ ] 2.5 Confirm `gh api repos/...` (GET) runs without prompt and `gh api -X DELETE ...` prompts
-- [ ] 2.6 After `chezmoi apply`, start a fresh session and confirm it begins in auto mode (mode indicator shows auto; a rule-unmatched action runs via the classifier with no prompt)
+- [x] 2.3 Confirm a removed read still runs without prompt (`find . -name '*.ts'`, `git status`); if `git ls-tree HEAD` prompts, re-add `Bash(git ls-tree *)` and amend the spec
+- [x] 2.4 Confirm `bun run typecheck` runs without prompt and `bun run dev` now prompts
+- [x] 2.5 Confirm `gh api repos/...` (GET) runs without prompt and `gh api -X DELETE ...` prompts
+- [x] 2.6 After `chezmoi apply`, start a fresh session and confirm it begins in auto mode (mode indicator shows auto; a rule-unmatched action runs via the classifier with no prompt)
 
 ## 3. Prune project-local allowlist (operational — `.claude/settings.local.json` is gitignored)
 
