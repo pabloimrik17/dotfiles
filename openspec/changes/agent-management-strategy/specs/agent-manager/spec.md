@@ -101,7 +101,7 @@ The `~/.agent-of-empires/config.toml` managed by chezmoi SHALL contain the follo
 
 - `[session]` with `default_tool = "claude"` and `agent_status_hooks = true`.
 - `[status_hooks]` with `on_waiting` and `on_idle` commands that invoke `terminal-notifier` (already provided by `cli-tool-expansion`).
-- `[worktree]` with `init_submodules = false` and a `path_template` value aligned with worktrunk's `[paths] worktree` template.
+- `[worktree]` with `init_submodules = false`.
 - `[tmux]` with `status_bar = "disabled"` (user owns `~/.tmux.conf`).
 - `[updates]` with `update_check_mode = "off"` (updates flow through brew + chezmoi).
 - An `environment` passthrough list including `CLAUDE_CONFIG_DIR`, `EDITOR`, `TERM`, and `COLORTERM`.
@@ -143,49 +143,14 @@ The config MAY include a `[theme]` block matching the rest of the dotfiles' Catp
 - **WHEN** the config file is rendered by chezmoi
 - **THEN** the rendered file contains an `environment` list (or table) that names `CLAUDE_CONFIG_DIR`, `EDITOR`, `TERM`, and `COLORTERM`
 
-### Requirement: `wt-aoe` wrapper script delegates worktree creation to worktrunk
-
-The dotfiles source tree SHALL contain `dot_local/bin/executable_wt-aoe` targeting `~/.local/bin/wt-aoe`. The script SHALL accept a branch name as its first positional argument, invoke `wt switch --create <branch>` to delegate worktree creation to worktrunk (firing all configured worktrunk hooks), resolve the resulting worktree path via `wt list --json` (parsed with `jq`), and `exec` `aoe add <path> -w <branch>` (attach mode, no `-b` flag) so AoE reuses the worktrunk-owned worktree without creating its own. Additional positional arguments after the branch name SHALL be forwarded to `aoe add`. The script SHALL use `set -euo pipefail` and SHALL exit non-zero if any step fails.
-
-#### Scenario: Script present and executable after chezmoi apply
-
-- **WHEN** the user runs `chezmoi apply`
-- **THEN** `~/.local/bin/wt-aoe` SHALL exist with mode `0755`
-
-#### Scenario: Worktrunk creation precedes AoE attach
-
-- **WHEN** the user runs `wt-aoe my-branch`
-- **THEN** the script SHALL invoke `wt switch --create my-branch` before invoking `aoe add`
-- **AND** all configured worktrunk hooks (`pre-start`, `post-start`) SHALL execute before AoE is launched
-
-#### Scenario: AoE attaches in attach mode (no `-b`)
-
-- **WHEN** the script resolves the worktree path from `wt list --json`
-- **THEN** the final command SHALL be `aoe add <resolved-path> -w my-branch [extra-args...]` with NO `-b` flag, so AoE detects the existing worktree and sets `managed_by_aoe: false`
-
-#### Scenario: Extra args are forwarded to `aoe add`
-
-- **WHEN** the user runs `wt-aoe my-branch --tool opencode`
-- **THEN** the final `aoe add` invocation SHALL include `--tool opencode` after the `-w my-branch` argument
-
-#### Scenario: Branch argument missing exits with error
-
-- **WHEN** the user runs `wt-aoe` with no arguments
-- **THEN** the script SHALL exit with a non-zero status (because of `set -u` on an unset positional)
-
-#### Scenario: Worktrunk failure aborts before AoE launch
-
-- **WHEN** `wt switch --create` exits non-zero
-- **THEN** `set -euo pipefail` SHALL cause `wt-aoe` to exit immediately and `aoe add` SHALL NOT be invoked
-
 ### Requirement: No automated invocations of `aoe` from any chezmoi-managed script
 
-The dotfiles SHALL NOT invoke `aoe` from any chezmoi `run_*` script, git hook, shell startup file, alias, or other automated entry point. Because `aoe` opens an interactive TUI, every invocation MUST be initiated explicitly by the user typing `aoe` (or `wt-aoe` as the worktrunk-aware entrypoint).
+The dotfiles SHALL NOT invoke `aoe` from any chezmoi `run_*` script, git hook, shell startup file, alias, or other automated entry point. Because `aoe` opens an interactive TUI, every invocation MUST be initiated explicitly by the user typing `aoe`.
 
 #### Scenario: No automated aoe invocation
 
 - **WHEN** any file in the dotfiles source tree is searched for `aoe` as a command invocation (not as a string in `BREW_PACKAGES`, an `info` line, a manual-instruction line, or a comment)
-- **THEN** the only matches are within `dot_local/bin/executable_wt-aoe` (where `aoe` is invoked at the user's explicit command via `wt-aoe`)
+- **THEN** zero matches are found — `aoe` appears only in install-script package lists, the closing summary, manual-instruction lines, and user-facing docs
 
 ### Requirement: AoE config path is verified at first install
 

@@ -13,11 +13,9 @@ Currently using `claude agents` (Claude Code v2.1.150) ad-hoc to manage parallel
 - Integrate via chezmoi:
     - `aoe` → `BREW_PACKAGES` with `command -v` idempotency. No tap (homebrew-core).
     - `conductor` cask → added to the existing `ALL_CASKS` list, gated to `{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }}`.
+    - `tailscale-app` cask → added to `ALL_CASKS`. Installed as-is, no further config managed by chezmoi (per user direction).
     - AoE config → `private_dot_agent-of-empires/config.toml` with deliberately chosen knobs (theme alignment, default tool, status hooks via `terminal-notifier`, tmux integration disabled, update check off).
-- **Worktrunk integration (mandatory, not optional):**
-    - AoE has no native worktree-delegation hook (verified — `agent-override` only swaps the agent command, not worktree creation).
-    - Ship `dot_local/bin/executable_wt-aoe`: wrapper that pre-creates the worktree via `wt switch --create` (firing every `worktrunk` hook: `pre-start.save-base`, `post-start.install-deps`, etc.) and then `aoe add <path>` in attach-mode so AoE reuses the worktrunk-owned worktree without duplicating it.
-    - Discipline note: bypassing `wt-aoe` and using bare `aoe add -b` falls back to AoE's native worktree path. Documented as a known limitation.
+- **Worktrunk integration: out of scope.** AoE has no native worktree-delegation hook (verified — `agent-override` only swaps the agent command). A wrapper-script workaround was considered and rejected: requires discipline (must always use the wrapper, easy to bypass) and adds maintenance overhead. AoE creates its own worktrees; worktrunk hooks do NOT fire for AoE-managed sessions. Acceptable for now; reopen if a native delegation hook lands upstream.
 - Cleanup of trial leftovers: uninstall `claude-squad` from the current machine (not chezmoi-managed). Conductor stays on this machine (arm64 macOS → chezmoi reinstalls it anyway).
 - Re-evaluation triggers (D7 in design.md): new mainstream competitor, AoE going low-maintenance, provider-stack shift, worktrunk API changes, recurring real-use pain.
 
@@ -25,7 +23,8 @@ Currently using `claude agents` (Claude Code v2.1.150) ad-hoc to manage parallel
 
 ### New Capabilities
 
-- `agent-manager`: chezmoi-managed install and configuration of parallel-agent session managers. Covers: `aoe` install via `BREW_PACKAGES` with idempotency; `conductor` cask install gated to arm64 Darwin; AoE TOML config under `private_dot_agent-of-empires/`; `wt-aoe` wrapper script under `dot_local/bin/` that delegates worktree lifecycle to `worktrunk`; closing-summary mention; guarantee that no automated AoE invocations exist (interactive-only TUI).
+- `agent-manager`: chezmoi-managed install and configuration of parallel-agent session managers. Covers: `aoe` install via `BREW_PACKAGES` with idempotency; `conductor` cask install gated to arm64 Darwin; AoE TOML config under `private_dot_agent-of-empires/` with deliberate knobs; closing-summary mention; guarantee that no automated AoE invocations exist (interactive-only TUI).
+- `tailscale-install`: chezmoi-managed install of the official Tailscale macOS app via cask. No configuration files managed by chezmoi (Tailscale signs the user in via its own UI flow on first launch).
 
 ### Modified Capabilities
 
@@ -34,10 +33,9 @@ None directly. If the winner needs a new tap, the entry lives inside `agent-mana
 ## Impact
 
 - **Code touched**:
-    - `run_onchange_install-packages.sh.tmpl`: `aoe` added to `BREW_PACKAGES`; closing-summary line updated; `conductor` entry added to `ALL_CASKS` with arm64 Darwin guard.
+    - `run_onchange_install-packages.sh.tmpl`: `aoe` added to `BREW_PACKAGES`; closing-summary line updated; `conductor` and `tailscale-app` entries added to `ALL_CASKS` (Conductor with arm64 Darwin guard, Tailscale unconditional under the macOS branch).
     - `private_dot_agent-of-empires/config.toml`: new chezmoi-managed file (note: AoE breaks the `dot_config/<tool>/` convention — it reads from `~/.agent-of-empires/`, not `~/.config/agent-of-empires/`, on macOS).
-    - `dot_local/bin/executable_wt-aoe`: new wrapper script delegating to `worktrunk`.
-- **New external deps**: `aoe` (homebrew-core, MIT), `conductor` (cask). Both fully transitively depend on `tmux` (already present) and `openssl@3` (already a system dep).
-- **Integrations**: `worktrunk` integration is part of the spec (wrapper script). No native delegation exists in AoE.
-- **No breaking changes**: AoE/Conductor coexist with `claude agents` built-in; `wt-aoe` is opt-in (bare `aoe` still works, just without worktrunk hooks).
+- **New external deps**: `aoe` (homebrew-core, MIT), `conductor` cask, `tailscale-app` cask (requires macOS ≥ 12, kernel extension). `aoe` transitively depends on `tmux` (already present) and `openssl@3` (already a system dep).
+- **Integrations**: none beyond the install script. Worktrunk integration explicitly out of scope (see "What Changes").
+- **No breaking changes**: AoE/Conductor coexist with `claude agents` built-in. AoE manages its own worktrees independently of worktrunk.
 - **Platform notes**: `conductor` gated to `{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }}`. Non-arm64 macOS and non-macOS branches SHALL NOT mention it. `aoe` cross-platform (Linux supported by upstream but install path differs — handled by existing `{{ if eq .chezmoi.os "darwin" -}}` ... `{{ else -}}` pattern in the install script).

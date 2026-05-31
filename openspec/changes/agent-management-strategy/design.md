@@ -139,53 +139,35 @@ To avoid waiting for the trial, document NOW how each candidate would integrate.
 - Closing summary line updated.
 - Docker documented as optional (sandboxing only).
 - Chezmoi-managed `private_dot_agent-of-empires/config.toml` with deliberately chosen knobs (theme, default tool, status hooks via `terminal-notifier`, tmux integration disabled, update check off — see D8 for the full set).
-- Worktrunk integration: see D5 (corrected) — wrapper script `dot_local/bin/executable_wt-aoe`, NOT `agent-override`.
+- Worktrunk integration: see D5 (deferred/out-of-scope).
 
 **Risk**: medium. Web=Beta and Cockpit=Alpha → don't enable them via chezmoi yet; TUI only. Config path on macOS unverified at source-code level (docs claim `~/.agent-of-empires/`); resolve via `aoe init` on a clean state before committing.
 
-### D5: Worktrunk integration via wrapper script (CORRECTED)
+### D5: Worktrunk integration — deferred/out-of-scope
 
-Original claim that AoE's `agent-override` could delegate worktree creation was **wrong**. Verified against AoE source: `agent-override` only swaps the agent command, not the worktree-creation step. AoE always calls `git worktree add` directly from its own code (`src/git/worktree.rs`).
+**Original assumption (wrong)**: AoE's `agent-override` could delegate worktree creation. Verified against AoE source: `agent-override` only swaps the agent command, not the worktree-creation step. AoE always calls `git worktree add` directly from its own code (`src/git/worktree.rs`). No public hook.
 
-Updated viability table:
+**Wrapper-script workaround considered and rejected**. It was technically viable: pre-create the worktree via `wt switch --create`, then call `aoe add <path>` in attach-mode (no `-b`). AoE would detect the existing worktree by branch name and reuse it (`managed_by_aoe: false`), letting worktrunk own the lifecycle.
 
-| Tool             | Native worktree-delegation?                                | Path                                |
-| ---------------- | ---------------------------------------------------------- | ----------------------------------- |
-| `claude agents`  | ❌ No public hook                                          | n/a                                 |
-| Conductor        | ❌ Closed source                                           | n/a                                 |
-| Claude Squad     | ⚠️ No documented hook; would require AGPL fork             | Fork + patch (rejected)             |
-| Agent of Empires | ❌ No native hook either, BUT attach-mode workaround works | Wrapper script `wt-aoe` (see below) |
+Reasons rejected for this change:
 
-**Workaround: attach-mode**. AoE's `aoe add <path>` (without `-b`) detects an existing worktree by branch name and reuses it, setting `managed_by_aoe: false` so AoE won't try to delete it. If `worktrunk` creates the worktree first (firing all its hooks: `pre-start.save-base`, `post-start.install-deps`, `pre-remove.sync-claude`), AoE attaches cleanly.
+1. **Discipline burden** — works only when invoked via the wrapper. Bare `aoe` (and AoE's own UI to create sessions) falls back to native worktree creation; worktrunk hooks silently don't fire. Easy to bypass, hard to enforce.
+2. **Maintenance overhead** — wrapper depends on stable `aoe add` CLI flags (`-w`, attach detection) and `wt list --json` output. Either upstream changes → broken wrapper.
+3. **Scope creep** — solving worktrunk-aware AoE is a project, not a chezmoi entry. Deserves a dedicated change once upstream exposes a hook (e.g., `worktree_command` config knob).
 
-**Wrapper script** at `dot_local/bin/executable_wt-aoe`:
+**Current state**: AoE manages its own worktrees independently of worktrunk. Hooks like `worktrunk-config`'s `[pre-start].save-base` and `[post-start].install-deps` do NOT fire for AoE-created sessions. Acceptable for the trial winner's adoption; reopen as a follow-up change if:
 
-```bash
-#!/usr/bin/env bash
-# wt-aoe <branch> [aoe add args...]
-set -euo pipefail
-branch="$1"; shift
-wt switch --create "$branch"              # fires all worktrunk hooks
-wt_path="$(wt list --json | jq -r --arg b "$branch" '.[] | select(.branch==$b) | .path')"
-exec aoe add "$wt_path" -w "$branch" "$@"  # attach mode, no -b
-```
+- Upstream AoE adds a native delegation hook, OR
+- The user reports recurring pain from worktrunk hooks not firing (e.g., missing `install-deps` on every new AoE session is felt enough times).
 
-**Decision**: AoE wins, so worktrunk integration ships as part of this change. Wrapper-based, not native — known limitation: bypassing `wt-aoe` and running bare `aoe add -b` falls back to AoE's own worktree creation (no worktrunk hooks). Documented in `agent-manager` spec, not enforced.
+Viability snapshot for traceability:
 
-**Path-template alignment** (so a bare `aoe add` lands where worktrunk would):
-
-```toml
-# In AoE config — match whatever `wt config` resolves for [paths] worktree
-[worktree]
-path_template = "../{repo-name}-worktrees/{branch}"
-```
-
-**Risks/assumptions** documented for the spec:
-
-- AoE matches by branch name, not path. Worktrunk preserves the branch name even if it sanitizes the directory → attach works.
-- `aoe remove --delete-worktree` is a no-op when `managed_by_aoe: false`. Use `wt remove` for cleanup.
-- AoE only runs `git fetch` when it creates the worktree. In attach-mode, no fetch — rely on a worktrunk `pre-start` hook if fetching matters.
-- `init_submodules` only fires on creation; explicitly set to `false` in config to make this clear.
+| Tool             | Native worktree-delegation hook?                             |
+| ---------------- | ------------------------------------------------------------ |
+| `claude agents`  | ❌ No public hook                                            |
+| Conductor        | ❌ Closed source                                             |
+| Claude Squad     | ⚠️ Would require AGPL fork                                   |
+| Agent of Empires | ❌ No native hook; wrapper-workaround deferred (this change) |
 
 ### D6: Specs and tasks are written POST-trial
 
@@ -225,7 +207,7 @@ path_template = "../{repo-name}-worktrees/{branch}"
 2. **Trial**: run the 5 probes against each candidate. Fill the DX matrix. Capture in `temp.txt` or a side note (not in OpenSpec yet).
 3. **Decision**: apply D3 with weights. Break ties via D5 + D3 tiebreakers.
 4. **Specs**: write `specs/agent-manager/spec.md` per the matching D4 pattern.
-5. **Tasks**: write `tasks.md` covering: (a) update proposal if scope drifted, (b) edit `run_onchange_install-packages.sh.tmpl`, (c) optional `dot_config` files, (d) optional worktrunk override.
+5. **Tasks**: write `tasks.md` covering: (a) update proposal if scope drifted, (b) edit `run_onchange_install-packages.sh.tmpl`, (c) `private_dot_agent-of-empires/config.toml`.
 6. **Implementation**: execute tasks.
 7. **Validation**: `openspec validate agent-management-strategy --strict` must now pass (deltas exist).
 8. **Verification**: re-run install script idempotently → confirm `command -v <winner>` no longer triggers install.
@@ -256,7 +238,6 @@ Set deliberately in `private_dot_agent-of-empires/config.toml`:
 | `[status_hooks].on_waiting`    | `terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "needs input" -sound Glass` | Native notification — `terminal-notifier` already in `BREW_PACKAGES` |
 | `[status_hooks].on_idle`       | `terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "done"`                     | Idle notification                                                    |
 | `[worktree].init_submodules`   | `false`                                                                                  | User doesn't use submodules; saves seconds per create                |
-| `[worktree].path_template`     | aligned with worktrunk's `[paths] worktree`                                              | Bare `aoe add` falls in the right directory                          |
 | `[tmux].status_bar`            | `disabled`                                                                               | User owns `~/.tmux.conf` with Catppuccin                             |
 | `[updates].update_check_mode`  | `off`                                                                                    | Updates flow through brew + chezmoi                                  |
 | `environment`                  | passthrough `CLAUDE_CONFIG_DIR`, `EDITOR`, `TERM`, `COLORTERM`                           | Agents need them                                                     |
