@@ -77,7 +77,7 @@ fi
 # Group 1: Brew packages
 # ------------------------------------------------------------------
 BREW_TAPS=(tarkah/tickrs achannarasappa/tap)
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tickrs ticker age mole)
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tickrs ticker age mole aoe)
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -459,6 +459,10 @@ ALL_CASKS=(
     "claude|Claude|AI|Claude desktop app"
     "chatgpt|ChatGPT|AI|ChatGPT desktop app"
     "ollama|Ollama|AI|Local LLM runner"
+{{ if eq .chezmoi.arch "arm64" -}}
+    "conductor|Conductor|AI|Claude code parallelisation"
+{{ end -}}
+    "tailscale-app|Tailscale|Productivity|Mesh VPN based on WireGuard"
     "1password|1Password|Security|Password manager"
     "iina|IINA|Media|Modern media player"
     "superwhisper|superwhisper|AI|Voice-to-text via Whisper"
@@ -1132,7 +1136,7 @@ info "This system is not macOS. Automatic installation is not supported."
 info ""
 info "Please install the following packages manually:"
 info ""
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe"
 info "    - terminal-notifier: macOS-only (skip on Linux)"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
@@ -1141,6 +1145,7 @@ info "    - ticker: download a release binary from https://github.com/achannaras
 info "    - age: brew install age (or use your distro's package manager, e.g. apt install age)"
 info "    - opencode: curl -fsSL https://opencode.ai/install | bash  (official installer; installs to ~/.opencode/bin — add it to PATH)"
 info "    - CodeRabbit: curl -fsSL https://cli.coderabbit.ai/install.sh | sh  (official installer; installs to ~/.local/bin — auth on first use)"
+info "    - aoe: cargo install aoe (Linux supported by upstream; brew is macOS-only)"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: oh-my-zsh (https://ohmyz.sh/)"
 info "  Zsh plugins:"
@@ -1181,7 +1186,7 @@ fi
 
 info "Installation complete!"
 {{ if eq .chezmoi.os "darwin" -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age, mole"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age, mole, aoe"
 {{ else -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age, aoe"
 {{ end -}}
