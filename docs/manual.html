@@ -461,6 +461,7 @@
             <a href="#macos">10. macOS Integration</a>
             <a href="#claude">11. Claude Code</a>
             <a href="#opencode">12. OpenCode</a>
+            <a href="#agents">13. Agent Sessions</a>
         </nav>
 
         <!-- ── Main content ─────────────────────────────────────────── -->
@@ -2329,6 +2330,105 @@
                                 <td>
                                     <code>zsh</code> &mdash; ensures interactive features in
                                     OpenCode shell tool
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <details
+                id="agents"
+                open
+            >
+                <summary>13. Agent Sessions (Agent of Empires)</summary>
+                <div class="section-content">
+                    <h3>Config highlights</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Setting</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Launch</td>
+                                <td>
+                                    <code>aoe</code> &mdash; interactive TUI (no alias;
+                                    user-initiated only)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Config</td>
+                                <td>
+                                    <code>~/.agent-of-empires/config.toml</code> &mdash;
+                                    chezmoi-managed (<code>0600</code>)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Theme</td>
+                                <td><code>tokyo-night-storm</code>, <code>truecolor</code></td>
+                            </tr>
+                            <tr>
+                                <td>Default tool</td>
+                                <td><code>claude</code></td>
+                            </tr>
+                            <tr>
+                                <td>Status hooks</td>
+                                <td>
+                                    <code>terminal-notifier</code> on waiting/idle
+                                    (<code>$AOE_SESSION_TITLE</code>)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>tmux status bar</td>
+                                <td>
+                                    <code>disabled</code> &mdash; own <code>~/.tmux.conf</code>
+                                    owns it
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Worktree submodules</td>
+                                <td><code>init_submodules = false</code></td>
+                            </tr>
+                            <tr>
+                                <td>Update check</td>
+                                <td><code>off</code> &mdash; updates via brew + chezmoi</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Notes</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Topic</th>
+                                <th>Detail</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Worktrees</td>
+                                <td>
+                                    aoe manages its <strong>own</strong> git worktrees &mdash;
+                                    independent of worktrunk; worktrunk hooks do
+                                    <strong>not</strong> fire for aoe sessions
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Config drift</td>
+                                <td>
+                                    aoe rewrites the config to full canonical form on launch
+                                    &mdash; expect <code>chezmoi diff</code> drift (your overrides
+                                    are preserved)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Conductor</td>
+                                <td>
+                                    GUI alternative on Apple-Silicon Macs (cask, arm64-only)
+                                    &mdash; see README
                                 </td>
                             </tr>
                         </tbody>

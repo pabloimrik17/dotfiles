@@ -18,7 +18,7 @@
   <img src="assets/tickrs-overview.png" alt="tickrs real-time stock ticker" width="800">
 </p>
 
-chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Ghostty, Starship, zsh with Oh-My-Zsh, modern CLI replacements (`eza`, `bat`, `zoxide`, `fzf`), and AI tooling like Claude Code and OpenCode. Everything themed with Catppuccin Mocha, with sensitive configs (like trading positions) encrypted at rest via `age`.
+chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Ghostty, Starship, zsh with Oh-My-Zsh, modern CLI replacements (`eza`, `bat`, `zoxide`, `fzf`), and AI tooling like Claude Code, OpenCode, and Agent of Empires. Everything themed with Catppuccin Mocha, with sensitive configs (like trading positions) encrypted at rest via `age`.
 
 ## What's Included
 
@@ -50,7 +50,9 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **Git**        | [Worktrunk](https://github.com/max-sixty/worktrunk)                             | Git worktree manager for parallel AI agent workflows                                       |
 | **AI Tooling** | [Claude Code](https://code.claude.com/)                                         | AI coding assistant CLI with plugins                                                       |
 | **AI Tooling** | [OpenCode](https://github.com/anomalyco/opencode)                               | AI code editor                                                                             |
+| **AI Tooling** | [Agent of Empires](https://github.com/njbrake/agent-of-empires)                 | tmux-native TUI for managing parallel AI agent sessions (`aoe`)                            |
 | **AI Tooling** | [CodeRabbit](https://www.coderabbit.ai/)                                        | AI code review CLI                                                                         |
+| **Network**    | [Tailscale](https://tailscale.com/)                                             | Mesh VPN (WireGuard-based) for secure device-to-device networking                          |
 
 ## Setup
 
