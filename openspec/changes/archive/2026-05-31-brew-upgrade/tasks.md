@@ -14,17 +14,17 @@
 
 ## 3. Apply + brew upgrade + operational sequencing
 
-- [ ] 3.1 Run `chezmoi diff` to confirm intended changes, then `chezmoi apply` (the `run_onchange` script re-runs and migrates opencode/CodeRabbit off brew)
-- [ ] 3.2 Run `brew upgrade` for the remaining tools
-- [ ] 3.3 Upgrade beads + dolt together; confirm `beads` stays unpinned; coordinate across every machine sharing a `.beads` DB/remote within one window (beads 1.0.5 migrations are irreversible + schema-skew-guarded)
-- [ ] 3.4 Start a new shell; confirm no worktrunk directive-file deprecation warning (0.54 split wrapper auto-adopted)
+- [x] 3.1 Run `chezmoi diff` to confirm intended changes, then `chezmoi apply` (the `run_onchange` script re-runs and migrates opencode/CodeRabbit off brew)
+- [x] 3.2 Run `brew upgrade` for the remaining tools
+- [x] 3.3 Upgrade beads + dolt together; confirm `beads` stays unpinned; coordinate across every machine sharing a `.beads` DB/remote within one window (beads 1.0.5 migrations are irreversible + schema-skew-guarded)
+- [x] 3.4 Start a new shell; confirm no worktrunk directive-file deprecation warning (0.54 split wrapper auto-adopted)
 
 ## 4. Verification
 
-- [ ] 4.1 `command -v opencode` resolves to `~/.opencode/bin/opencode`; `command -v coderabbit` resolves to `~/.local/bin/coderabbit`; `cr` symlink present
-- [ ] 4.2 `BREW_PACKAGES` no longer contains `opencode`; `ALL_CASKS` no longer contains `coderabbit`; `brew list opencode` and `brew list --cask coderabbit` both fail
+- [x] 4.1 `command -v opencode` resolves to `~/.opencode/bin/opencode`; `command -v coderabbit` resolves to `~/.local/bin/coderabbit`; `cr` symlink present
+- [x] 4.2 `BREW_PACKAGES` no longer contains `opencode`; `ALL_CASKS` no longer contains `coderabbit`; `brew list opencode` and `brew list --cask coderabbit` both fail
 - [x] 4.3 `grep OPENCODE_EXPERIMENTAL_MARKDOWN dot_zshrc.tmpl` returns nothing; the other four flags still present; `~/.opencode/bin` PATH line present
-- [ ] 4.4 opencode launches and self-update is active (config `autoupdate` default true, not a brew install); `coderabbit doctor` passes; `bd prime` works after the beads/dolt bump
+- [x] 4.4 opencode launches and self-update is active (config `autoupdate` default true, not a brew install); `coderabbit doctor` passes; `bd prime` works after the beads/dolt bump
 - [x] 4.5 `openspec validate brew-upgrade` passes
 
 ## 5. Docs sync
