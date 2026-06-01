@@ -80,39 +80,39 @@ The install script registers 13 global MCP servers to `~/.claude.json` (the stdi
 
 1. Install [chezmoi](https://www.chezmoi.io/install/):
 
-    ```sh
-    brew install chezmoi
-    ```
+   ```sh
+   brew install chezmoi
+   ```
 
 2. Bootstrap encryption (per machine, one-time):
 
-    The repo carries encrypted secrets that `chezmoi apply` decrypts on the fly with [age](https://age-encryption.org/). Each machine needs your private key at `~/.config/chezmoi/key.txt`.
+   The repo carries encrypted secrets that `chezmoi apply` decrypts on the fly with [age](https://age-encryption.org/). Each machine needs your private key at `~/.config/chezmoi/key.txt`.
 
-    **First machine ever:**
+   **First machine ever:**
 
-    ```sh
-    brew install age
-    mkdir -p ~/.config/chezmoi
-    age-keygen -o ~/.config/chezmoi/key.txt
-    chmod 600 ~/.config/chezmoi/key.txt
-    ```
+   ```sh
+   brew install age
+   mkdir -p ~/.config/chezmoi
+   age-keygen -o ~/.config/chezmoi/key.txt
+   chmod 600 ~/.config/chezmoi/key.txt
+   ```
 
-    Then save the file's full contents (public + private lines) to your password manager. The matching `recipient` is already committed in `.chezmoi.toml.tmpl`.
+   Then save the file's full contents (public + private lines) to your password manager. The matching `recipient` is already committed in `.chezmoi.toml.tmpl`.
 
-    **Every additional machine:**
+   **Every additional machine:**
 
-    Restore `~/.config/chezmoi/key.txt` from your password manager (`chmod 600`).
+   Restore `~/.config/chezmoi/key.txt` from your password manager (`chmod 600`).
 
-    > ⚠️ Lose this file without a backup and the encrypted artifacts in the repo (e.g. `encrypted_dot_ticker.yaml.age`) become **irrecoverable**.
+   > ⚠️ Lose this file without a backup and the encrypted artifacts in the repo (e.g. `encrypted_dot_ticker.yaml.age`) become **irrecoverable**.
 
 3. Initialize and apply:
 
-    ```sh
-    chezmoi init pabloimrik17/dotfiles
-    chezmoi apply
-    ```
+   ```sh
+   chezmoi init pabloimrik17/dotfiles
+   chezmoi apply
+   ```
 
-    `chezmoi apply` triggers an interactive install script that sets up Homebrew packages, fonts, and CLI tools.
+   `chezmoi apply` triggers an interactive install script that sets up Homebrew packages, fonts, and CLI tools.
 
 ## Daily Workflows
 
