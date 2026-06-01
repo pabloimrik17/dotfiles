@@ -54,6 +54,26 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **AI Tooling** | [CodeRabbit](https://www.coderabbit.ai/)                                        | AI code review CLI                                                                         |
 | **Network**    | [Tailscale](https://tailscale.com/)                                             | Mesh VPN (WireGuard-based) for secure device-to-device networking                          |
 
+## MCP Servers
+
+The install script registers 13 global MCP servers to `~/.claude.json` (the stdio set is shared with OpenCode). Atlassian, Figma, Linear, and Notion authenticate via OAuth on first use; stdio servers run pinned versions managed by Renovate.
+
+| Server          | Transport | Description                                | Auth / Setup                                                            |
+| --------------- | --------- | ------------------------------------------ | ----------------------------------------------------------------------- |
+| eslint          | stdio     | Lint files on demand                       | —                                                                       |
+| context7        | stdio     | Fetch up-to-date library docs              | —                                                                       |
+| knip            | stdio     | Detect unused code/exports                 | —                                                                       |
+| memory          | stdio     | Persistent knowledge graph across sessions | —                                                                       |
+| playwright      | stdio     | Browser automation and testing             | —                                                                       |
+| chrome-devtools | stdio     | Inspect/control browser sessions           | —                                                                       |
+| expect          | stdio     | Visual testing and accessibility audits    | —                                                                       |
+| gh_grep         | http      | Search across GitHub repos                 | —                                                                       |
+| atlassian       | http      | Jira & Confluence integration              | OAuth on first use                                                      |
+| figma           | http      | Figma design context (Dev Mode)            | OAuth on first use                                                      |
+| linear          | http      | Linear issues & projects                   | OAuth on first use                                                      |
+| notion          | http      | Notion pages & databases                   | OAuth on first use                                                      |
+| storybook       | http      | Local Storybook component context          | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
+
 ## Setup
 
 **Prerequisite:** [Homebrew](https://brew.sh/) installed.

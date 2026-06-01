@@ -1249,7 +1249,8 @@
                             <tr>
                                 <td><code>wt step &lt;alias&gt;</code></td>
                                 <td>
-                                    Run a custom step alias (e.g. <code>wt step copy-ignored</code>)
+                                    Run a custom step alias (e.g.
+                                    <code>wt step copy-ignored</code>)
                                 </td>
                             </tr>
                             <tr>
@@ -1964,10 +1965,11 @@
                     <h3>Mac cleanup (mole)</h3>
                     <p class="note">
                         macOS-only TUI cleaner installed via Homebrew. Every invocation is
-                        user-initiated &mdash; the dotfiles never call <code>mole</code> from any
-                        script, hook, or alias. Destructive actions require explicit confirmation
-                        inside the TUI; non-destructive commands (e.g. <code>mole analyze</code> and
-                        <code>--dry-run</code>) only inspect or simulate changes.
+                        user-initiated &mdash; the dotfiles never call
+                        <code>mole</code> from any script, hook, or alias. Destructive actions
+                        require explicit confirmation inside the TUI; non-destructive commands (e.g.
+                        <code>mole analyze</code> and <code>--dry-run</code>) only inspect or
+                        simulate changes.
                     </p>
                     <table>
                         <thead>
@@ -2147,36 +2149,77 @@
                             <tr>
                                 <th>Server</th>
                                 <th>Description</th>
+                                <th>Auth / setup</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>eslint</td>
                                 <td>Lint files on demand</td>
+                                <td>&mdash;</td>
                             </tr>
                             <tr>
                                 <td>context7</td>
                                 <td>Fetch up-to-date library docs</td>
+                                <td>&mdash;</td>
                             </tr>
                             <tr>
                                 <td>knip</td>
                                 <td>Detect unused code/exports</td>
+                                <td>&mdash;</td>
                             </tr>
                             <tr>
                                 <td>memory</td>
                                 <td>Persistent knowledge graph across sessions</td>
+                                <td>&mdash;</td>
                             </tr>
                             <tr>
                                 <td>playwright</td>
                                 <td>Browser automation and testing</td>
+                                <td>&mdash;</td>
                             </tr>
                             <tr>
                                 <td>chrome-devtools</td>
                                 <td>Inspect/control browser sessions</td>
+                                <td>&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>expect</td>
+                                <td>Visual testing and accessibility audits</td>
+                                <td>&mdash;</td>
                             </tr>
                             <tr>
                                 <td>gh_grep</td>
                                 <td>Search across GitHub repos</td>
+                                <td>&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>atlassian</td>
+                                <td>Jira &amp; Confluence integration</td>
+                                <td>OAuth on first use</td>
+                            </tr>
+                            <tr>
+                                <td>figma</td>
+                                <td>Figma design context (Dev Mode)</td>
+                                <td>OAuth on first use</td>
+                            </tr>
+                            <tr>
+                                <td>linear</td>
+                                <td>Linear issues &amp; projects</td>
+                                <td>OAuth on first use</td>
+                            </tr>
+                            <tr>
+                                <td>notion</td>
+                                <td>Notion pages &amp; databases</td>
+                                <td>OAuth on first use</td>
+                            </tr>
+                            <tr>
+                                <td>storybook</td>
+                                <td>Local Storybook component context</td>
+                                <td>
+                                    Needs <code>@storybook/addon-mcp</code> in each project +
+                                    <code>storybook dev</code> on :6006
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -2419,16 +2462,16 @@
                             <tr>
                                 <td>Config drift</td>
                                 <td>
-                                    aoe rewrites the config to full canonical form on launch
-                                    &mdash; expect <code>chezmoi diff</code> drift (your overrides
-                                    are preserved)
+                                    aoe rewrites the config to full canonical form on launch &mdash;
+                                    expect <code>chezmoi diff</code> drift (your overrides are
+                                    preserved)
                                 </td>
                             </tr>
                             <tr>
                                 <td>Conductor</td>
                                 <td>
-                                    GUI alternative on Apple-Silicon Macs (cask, arm64-only)
-                                    &mdash; see README
+                                    GUI alternative on Apple-Silicon Macs (cask, arm64-only) &mdash;
+                                    see README
                                 </td>
                             </tr>
                         </tbody>
