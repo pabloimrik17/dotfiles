@@ -56,23 +56,23 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 
 ## MCP Servers
 
-The install script registers 13 global MCP servers to `~/.claude.json` (the stdio set is shared with OpenCode). HTTP servers authenticate via OAuth on first use; stdio servers run pinned versions managed by Renovate.
+The install script registers 13 global MCP servers to `~/.claude.json` (the stdio set is shared with OpenCode). Atlassian, Figma, Linear, and Notion authenticate via OAuth on first use; stdio servers run pinned versions managed by Renovate.
 
-| Server          | Transport | Description                                | Auth / Setup                   |
-| --------------- | --------- | ------------------------------------------ | ------------------------------ |
-| eslint          | stdio     | Lint files on demand                       | —                              |
-| context7        | stdio     | Fetch up-to-date library docs              | —                              |
-| knip            | stdio     | Detect unused code/exports                 | —                              |
-| memory          | stdio     | Persistent knowledge graph across sessions | —                              |
-| playwright      | stdio     | Browser automation and testing             | —                              |
-| chrome-devtools | stdio     | Inspect/control browser sessions           | —                              |
-| expect          | stdio     | Visual testing and accessibility audits    | —                              |
-| gh_grep         | http      | Search across GitHub repos                 | —                              |
-| atlassian       | http      | Jira & Confluence integration              | OAuth on first use             |
-| figma           | http      | Figma design context (Dev Mode)            | OAuth on first use             |
-| linear          | http      | Linear issues & projects                   | OAuth on first use             |
-| notion          | http      | Notion pages & databases                   | OAuth on first use             |
-| storybook       | http      | Local Storybook component context          | Needs `storybook dev` on :6006 |
+| Server          | Transport | Description                                | Auth / Setup                                                            |
+| --------------- | --------- | ------------------------------------------ | ----------------------------------------------------------------------- |
+| eslint          | stdio     | Lint files on demand                       | —                                                                       |
+| context7        | stdio     | Fetch up-to-date library docs              | —                                                                       |
+| knip            | stdio     | Detect unused code/exports                 | —                                                                       |
+| memory          | stdio     | Persistent knowledge graph across sessions | —                                                                       |
+| playwright      | stdio     | Browser automation and testing             | —                                                                       |
+| chrome-devtools | stdio     | Inspect/control browser sessions           | —                                                                       |
+| expect          | stdio     | Visual testing and accessibility audits    | —                                                                       |
+| gh_grep         | http      | Search across GitHub repos                 | —                                                                       |
+| atlassian       | http      | Jira & Confluence integration              | OAuth on first use                                                      |
+| figma           | http      | Figma design context (Dev Mode)            | OAuth on first use                                                      |
+| linear          | http      | Linear issues & projects                   | OAuth on first use                                                      |
+| notion          | http      | Notion pages & databases                   | OAuth on first use                                                      |
+| storybook       | http      | Local Storybook component context          | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
 
 ## Setup
 
@@ -80,39 +80,39 @@ The install script registers 13 global MCP servers to `~/.claude.json` (the stdi
 
 1. Install [chezmoi](https://www.chezmoi.io/install/):
 
-   ```sh
-   brew install chezmoi
-   ```
+    ```sh
+    brew install chezmoi
+    ```
 
 2. Bootstrap encryption (per machine, one-time):
 
-   The repo carries encrypted secrets that `chezmoi apply` decrypts on the fly with [age](https://age-encryption.org/). Each machine needs your private key at `~/.config/chezmoi/key.txt`.
+    The repo carries encrypted secrets that `chezmoi apply` decrypts on the fly with [age](https://age-encryption.org/). Each machine needs your private key at `~/.config/chezmoi/key.txt`.
 
-   **First machine ever:**
+    **First machine ever:**
 
-   ```sh
-   brew install age
-   mkdir -p ~/.config/chezmoi
-   age-keygen -o ~/.config/chezmoi/key.txt
-   chmod 600 ~/.config/chezmoi/key.txt
-   ```
+    ```sh
+    brew install age
+    mkdir -p ~/.config/chezmoi
+    age-keygen -o ~/.config/chezmoi/key.txt
+    chmod 600 ~/.config/chezmoi/key.txt
+    ```
 
-   Then save the file's full contents (public + private lines) to your password manager. The matching `recipient` is already committed in `.chezmoi.toml.tmpl`.
+    Then save the file's full contents (public + private lines) to your password manager. The matching `recipient` is already committed in `.chezmoi.toml.tmpl`.
 
-   **Every additional machine:**
+    **Every additional machine:**
 
-   Restore `~/.config/chezmoi/key.txt` from your password manager (`chmod 600`).
+    Restore `~/.config/chezmoi/key.txt` from your password manager (`chmod 600`).
 
-   > ⚠️ Lose this file without a backup and the encrypted artifacts in the repo (e.g. `encrypted_dot_ticker.yaml.age`) become **irrecoverable**.
+    > ⚠️ Lose this file without a backup and the encrypted artifacts in the repo (e.g. `encrypted_dot_ticker.yaml.age`) become **irrecoverable**.
 
 3. Initialize and apply:
 
-   ```sh
-   chezmoi init pabloimrik17/dotfiles
-   chezmoi apply
-   ```
+    ```sh
+    chezmoi init pabloimrik17/dotfiles
+    chezmoi apply
+    ```
 
-   `chezmoi apply` triggers an interactive install script that sets up Homebrew packages, fonts, and CLI tools.
+    `chezmoi apply` triggers an interactive install script that sets up Homebrew packages, fonts, and CLI tools.
 
 ## Daily Workflows
 
