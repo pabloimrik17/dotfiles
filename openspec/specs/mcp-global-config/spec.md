@@ -8,7 +8,7 @@ Global MCP server configuration managed by chezmoi — defines which MCP servers
 
 ### Requirement: Global MCP servers are registered via Claude CLI in install script
 
-`run_onchange_install-packages.sh.tmpl` SHALL register the following 12 MCP servers via `claude mcp add --scope user`, which writes to `~/.claude.json`:
+`run_onchange_install-packages.sh.tmpl` SHALL register the following 13 MCP servers via `claude mcp add --scope user`, which writes to `~/.claude.json`:
 
 | Name            | Type  | Command/URL                                            |
 | --------------- | ----- | ------------------------------------------------------ |
@@ -23,15 +23,16 @@ Global MCP server configuration managed by chezmoi — defines which MCP servers
 | atlassian       | http  | `https://mcp.atlassian.com/v1/mcp`                     |
 | figma           | http  | `https://mcp.figma.com/mcp`                            |
 | linear          | http  | `https://mcp.linear.app/mcp`                           |
+| notion          | http  | `https://mcp.notion.com/mcp`                           |
 | storybook       | http  | `http://localhost:6006/mcp`                            |
 
 `dot_claude/settings.json.tmpl` SHALL NOT contain an `mcpServers` key.
 
-#### Scenario: All 12 servers registered after install script runs
+#### Scenario: All 13 servers registered after install script runs
 
 - **WHEN** `chezmoi apply` runs the install script on a machine with `claude` CLI available
 - **AND** the user confirms the MCP servers install group
-- **THEN** `claude mcp list --scope user` SHALL list all 12 servers above
+- **THEN** `claude mcp list --scope user` SHALL list all 13 servers above
 
 #### Scenario: Servers registered to correct file
 
@@ -74,19 +75,19 @@ The MCP server registration group SHALL use the existing `run_claude_step` helpe
 - **WHEN** `claude` is not in PATH during `chezmoi apply`
 - **THEN** the MCP registration group SHALL be skipped with a warning (same guard as CC plugins group)
 
-### Requirement: Atlassian, Figma, Linear, and Storybook included as HTTP servers with auth/setup notes
+### Requirement: Atlassian, Figma, Linear, Notion, and Storybook included as HTTP servers with auth/setup notes
 
-The install script SHALL register `atlassian`, `figma`, `linear`, and `storybook` as HTTP MCP servers. The manual instructions section SHALL note authentication and setup requirements for each.
+The install script SHALL register `atlassian`, `figma`, `linear`, `notion`, and `storybook` as HTTP MCP servers. The manual instructions section SHALL note authentication and setup requirements for each.
 
 #### Scenario: HTTP servers registered with correct transport
 
-- **WHEN** the install script registers `atlassian`, `figma`, `linear`, and `storybook`
+- **WHEN** the install script registers `atlassian`, `figma`, `linear`, `notion`, and `storybook`
 - **THEN** it SHALL use `claude mcp add --scope user --transport http <name> <url>`
 
 #### Scenario: Manual auth instructions printed for OAuth servers
 
 - **WHEN** the install script reaches the manual instructions section
-- **THEN** it SHALL include a line noting that `atlassian`, `figma`, and `linear` MCP servers require OAuth authentication via `/mcp` or first use
+- **THEN** it SHALL include a line noting that `atlassian`, `figma`, `linear`, and `notion` MCP servers require OAuth authentication via `/mcp` or first use
 
 #### Scenario: Manual setup instructions printed for Storybook
 
@@ -101,7 +102,7 @@ The install script SHALL register `atlassian`, `figma`, `linear`, and `storybook
 
 ### Requirement: Template uses no machine-specific conditionals for MCP
 
-The MCP server list in `run_onchange_install-packages.sh.tmpl` SHALL be plain bash arrays without chezmoi template conditionals (`{{ if }}`, `{{ else }}`). All 12 servers are registered identically on every machine.
+The MCP server list in `run_onchange_install-packages.sh.tmpl` SHALL be plain bash arrays without chezmoi template conditionals (`{{ if }}`, `{{ else }}`). All 13 servers are registered identically on every machine.
 
 #### Scenario: No conditional logic in MCP server arrays
 
