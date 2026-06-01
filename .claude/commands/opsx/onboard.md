@@ -21,7 +21,6 @@ openspec --version 2>&1 || echo "CLI_NOT_INSTALLED"
 ```
 
 **If CLI not installed:**
-
 > OpenSpec CLI is not installed. Install it first, then come back to `/opsx:onboard`.
 
 Stop here if not installed.
@@ -66,7 +65,6 @@ Scan the codebase for small improvement opportunities. Look for:
 6. **Missing validation** - User input handlers without validation
 
 Also check recent git activity:
-
 ```bash
 # Unix/macOS
 git log --oneline -10 2>/dev/null || echo "No git history"
@@ -105,7 +103,6 @@ Which task interests you? (Pick a number or describe your own)
 ```
 
 **If nothing found:** Fall back to asking what the user wants to build:
-
 > I didn't find obvious quick wins in your codebase. What's something small you've been meaning to add or fix?
 
 ### Scope Guardrail
@@ -138,7 +135,6 @@ Before we create a change, let me quickly show you **explore mode**—it's how y
 ```
 
 Spend 1-2 minutes investigating the relevant code:
-
 - Read the file(s) involved
 - Draw a quick ASCII diagram if it helps
 - Note any considerations
@@ -164,35 +160,30 @@ Now let's create a change to hold our work.
 ## Phase 4: Create the Change
 
 **EXPLAIN:**
-
 ```
 ## Creating a Change
 
-A "change" in OpenSpec is a container for all the thinking and planning around a piece of work. It lives in `openspec/changes/<name>/` and holds your artifacts—proposal, specs, design, tasks.
+A "change" in OpenSpec is a container for all the thinking and planning around a piece of work. It lives at the `changeRoot` reported by `openspec status --change "<name>" --json` and holds your artifacts—proposal, specs, design, tasks.
 
 Let me create one for our task.
 ```
 
 **DO:** Create the change with a derived kebab-case name:
-
 ```bash
 openspec new change "<derived-name>"
 ```
 
 **SHOW:**
-
 ```
-Created: `openspec/changes/<name>/`
+Created: <changeRoot from status JSON>
 
 The folder structure:
 ```
-
-openspec/changes/<name>/
-├── proposal.md ← Why we're doing this (empty, we'll fill it)
-├── design.md ← How we'll build it (empty)
-├── specs/ ← Detailed requirements (empty)
-└── tasks.md ← Implementation checklist (empty)
-
+<changeRoot>/
+├── proposal.md    ← Why we're doing this (empty, we'll fill it)
+├── design.md      ← How we'll build it (empty)
+├── specs/         ← Detailed requirements (empty)
+└── tasks.md       ← Implementation checklist (empty)
 ```
 
 Now let's fill in the first artifact—the proposal.
@@ -203,7 +194,6 @@ Now let's fill in the first artifact—the proposal.
 ## Phase 5: Proposal
 
 **EXPLAIN:**
-
 ```
 ## The Proposal
 
@@ -248,12 +238,10 @@ Does this capture the intent? I can adjust before we save it.
 **PAUSE** - Wait for user approval/feedback.
 
 After approval, save the proposal:
-
 ```bash
 openspec instructions proposal --change "<name>" --json
 ```
-
-Then write the content to `openspec/changes/<name>/proposal.md`.
+Then write the content to the `resolvedOutputPath` from `openspec instructions proposal --change "<name>" --json`.
 
 ```
 Proposal saved. This is your "why" document—you can always come back and refine it as understanding evolves.
@@ -266,7 +254,6 @@ Next up: specs.
 ## Phase 6: Specs
 
 **EXPLAIN:**
-
 ```
 ## Specs
 
@@ -275,13 +262,10 @@ Specs define **what** we're building in precise, testable terms. They use a requ
 For a small task like this, we might only need one spec file.
 ```
 
-**DO:** Create the spec file:
-
+**DO:** Resolve where the spec file should be created:
 ```bash
-# Unix/macOS
-mkdir -p openspec/changes/<name>/specs/<capability-name>
-# Windows (PowerShell)
-# New-Item -ItemType Directory -Force -Path "openspec/changes/<name>/specs/<capability-name>"
+openspec instructions specs --change "<name>" --json
+# Use resolvedOutputPath from the JSON. If it is a glob, choose the concrete file path using the schema instruction and workspace planning context.
 ```
 
 Draft the spec content:
@@ -308,14 +292,13 @@ Here's the spec:
 This format—WHEN/THEN/AND—makes requirements testable. You can literally read them as test cases.
 ```
 
-Save to `openspec/changes/<name>/specs/<capability>/spec.md`.
+Save to the concrete file path chosen from `resolvedOutputPath`.
 
 ---
 
 ## Phase 7: Design
 
 **EXPLAIN:**
-
 ```
 ## Design
 
@@ -354,14 +337,13 @@ Here's the design:
 For a small task, this captures the key decisions without over-engineering.
 ```
 
-Save to `openspec/changes/<name>/design.md`.
+Save to the `resolvedOutputPath` from `openspec instructions design --change "<name>" --json`.
 
 ---
 
 ## Phase 8: Tasks
 
 **EXPLAIN:**
-
 ```
 ## Tasks
 
@@ -393,14 +375,13 @@ Each checkbox becomes a unit of work in the apply phase. Ready to implement?
 
 **PAUSE** - Wait for user to confirm they're ready to implement.
 
-Save to `openspec/changes/<name>/tasks.md`.
+Save to the `resolvedOutputPath` from `openspec instructions tasks --change "<name>" --json`.
 
 ---
 
 ## Phase 9: Apply (Implementation)
 
 **EXPLAIN:**
-
 ```
 ## Implementation
 
@@ -435,25 +416,22 @@ The change is implemented! One more step—let's archive it.
 ## Phase 10: Archive
 
 **EXPLAIN:**
-
 ```
 ## Archiving
 
-When a change is complete, we archive it. This moves it from `openspec/changes/` to `openspec/changes/archive/YYYY-MM-DD-<name>/`.
+When a change is complete, we archive it. The archive path is derived from `planningHome.changesDir` and the date.
 
 Archived changes become your project's decision history—you can always find them later to understand why something was built a certain way.
 ```
 
 **DO:**
-
 ```bash
 openspec archive "<name>"
 ```
 
 **SHOW:**
-
 ```
-Archived to: `openspec/changes/archive/YYYY-MM-DD-<name>/`
+Archived to: `<planningHome.changesDir>/archive/YYYY-MM-DD-<name>/`
 
 The change is now part of your project's history. The code is in your codebase, the decision record is preserved.
 ```
@@ -516,7 +494,7 @@ Try `/opsx:propose` on something you actually want to build. You've got the rhyt
 If the user says they need to stop, want to pause, or seem disengaged:
 
 ```
-No problem! Your change is saved at `openspec/changes/<name>/`.
+No problem! Your change is saved at the `changeRoot` reported by `openspec status --change "<name>" --json`.
 
 To pick up where we left off later:
 - `/opsx:continue <name>` - Resume artifact creation
