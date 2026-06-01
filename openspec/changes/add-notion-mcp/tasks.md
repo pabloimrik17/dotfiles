@@ -15,4 +15,4 @@
 
 - [x] 4.1 Run `chezmoi execute-template` against the install script to confirm it renders without errors
 - [x] 4.2 Run `chezmoi diff` to verify only expected files changed
-- [ ] 4.3 After `chezmoi apply`, verify `claude mcp list --scope user` shows `notion` (13 servers total) and authenticate on first use — deferred: needs the branch merged + `chezmoi update` to sync the installed source (`~/.local/share/chezmoi`)
+- [x] 4.3 After `chezmoi apply`, verify `claude mcp list --scope user` shows `notion` (13 servers total) and authenticate on first use — verified during `/opsx:verify`: synced installed source to `1e3f097` (`chezmoi git pull`), user ran `chezmoi apply`, and `~/.claude.json` now has `notion` → `{"type":"http","url":"https://mcp.notion.com/mcp"}`. 13 managed servers present (14 with the IDE-added `jetbrains`). OAuth authenticates lazily on first Notion tool use (or `/mcp`).
