@@ -42,7 +42,7 @@ None. All work modifies existing capabilities.
 
 ## Impact
 
-- **Code touched**: `private_dot_agent-of-empires/config.toml` (SHIP knobs; TRIAL may convert it to a `modify_` script), `dot_claude/settings.json.tmpl` (AoE status hooks), `dot_config/gh-dash/config.yml` (keybindings `a`/`r`), and a new `private_dot_agent-of-empires/themes/catppuccin-mocha.toml` if the theme trial ships.
+- **Code touched**: `private_dot_agent-of-empires/private_config.toml` (SHIP knobs; TRIAL may convert it to a `modify_` script), `dot_claude/settings.json.tmpl` (AoE status hooks), `dot_config/gh-dash/config.yml` (keybindings `a`/`r`), and a new `private_dot_agent-of-empires/themes/catppuccin-mocha.toml` if the theme trial ships.
 - **Sequencing**: builds on `agent-management-strategy`; the `agent-manager` delta cannot validate until that change is archived (or the two are co-sequenced). The `claude-hooks` and `gh-dash-keybindings` deltas have no such dependency.
 - **External deps**: none for SHIP. TRIAL `modify_` strategy needs a TOML-aware merge tool (`dasel`/`yq`/python `tomllib`) — confirm one is already present before depending on it. TRIAL `[sound]` fetches CC0 assets via `aoe sounds install` into a non-committable `sounds/` dir (must be `.chezmoiignore`d).
 - **Security**: `gh-dash` `r` reviews untrusted PRs → `--trust-hooks` is deliberately omitted (auto-trusting a repo's `.agent-of-empires/` hooks would run unreviewed code). `[tmux].clipboard = "enabled"` enables `allow-passthrough` (local terminal only; no network) and leaves ghostty's `clipboard-read = ask` untouched.

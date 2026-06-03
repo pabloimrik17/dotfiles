@@ -1,0 +1,36 @@
+# Catppuccin Mocha for Agent of Empires.
+# AoE ships no built-in Catppuccin dark theme (only catppuccin-latte, light), so
+# this custom theme aligns AoE with the rest of the Mocha stack (ghostty, tmux,
+# gh-dash). Scaffolded from `aoe theme export tokyo-night-storm`, roles remapped
+# to the standard Catppuccin Mocha palette. Referenced by [theme].name in config.
+# Palette: https://catppuccin.com/palette (Mocha)
+
+background = "#1e1e2e"        # base
+border = "#45475a"            # surface1
+terminal_border = "#89b4fa"   # blue (active)
+selection = "#313244"         # surface0
+session_selection = "#45475a" # surface1
+title = "#89b4fa"             # blue
+text = "#cdd6f4"              # text
+dimmed = "#6c7086"            # overlay0
+hint = "#89b4fa"              # blue
+running = "#a6e3a1"           # green
+waiting = "#f9e2af"           # yellow
+fresh_idle = "#fab387"        # peach
+idle = "#6c7086"              # overlay0
+error = "#f38ba8"             # red
+terminal_active = "#89b4fa"   # blue
+group = "#89dceb"             # sky
+search = "#cba6f7"            # mauve
+accent = "#89b4fa"            # blue
+diff_add = "#a6e3a1"          # green
+diff_delete = "#f38ba8"       # red
+diff_modified = "#f9e2af"     # yellow
+diff_header = "#89dceb"       # sky
+help_key = "#f9e2af"          # yellow
+branch = "#89dceb"            # sky
+sandbox = "#cba6f7"           # mauve
+appearance = "dark"
+
+[syntax]
+shiki_theme = "catppuccin-mocha"

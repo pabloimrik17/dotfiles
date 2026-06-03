@@ -88,6 +88,18 @@ keybindings:
         - key: T
           name: CI checks (tmux)
           command: tmux split-window -h 'ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}'
+        # AoE queue bindings: create the worktree via worktrunk and register it as
+        # an Agent of Empires session WITHOUT launching (fill the fleet, open later).
+        # `aoe add` returns immediately, so there's no interactive tmux variant.
+        - key: f
+          name: Queue in AoE
+          command: wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x 'aoe add . -t "{{.Title}}"'
+        - key: F
+          name: Queue AoE review team
+          # Folded block scalar: the review prompt contains ": " and nested quotes
+          # that would break a plain YAML scalar; ">-" keeps them literal, one line.
+          command: >-
+            wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x 'aoe add . -t "review {{.RepoName}}#{{.PrNumber}}" -g "reviews/{{.RepoName}}" --extra-args' -- "Spin up a team of three agents to review this PR in parallel. None of them may post anything on the PR; every agent reports its findings back to me here. Agent 1: run /code-review:code-review. Agent 2: run /code-review. Agent 3: run /verify to confirm the changes actually work. When all three finish, consolidate everything into one summary here."
 
 pager:
     diff: delta
