@@ -18,7 +18,7 @@ The Agent of Empires config shipped by `agent-management-strategy` is deliberate
 - `[sound]` state-transition audio (`aoe sounds install`) for parallel-session awareness.
 - `[tools.lazygit]` tool-session bound to `Alt+g` (lazygit already installed; audit the chord against ghostty/tmux/AoE built-ins first).
 - Two `gh-dash` keybindings, both worktrunk-first (`wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x 'aoe add . …'`, registering the worktree as an AoE session **without launching** so the fleet fills up for later):
-  - `a` — queue the PR as an AoE session (`-t "{{.Title}}"`).
+  - `a` — queue the PR as an AoE session (`-t "pr {{.RepoName}}#{{.PrNumber}}"` — a deterministic token, not the free-text `{{.Title}}`, which is a shell-injection vector).
   - `r` — queue a PR **review team**: the session's initial prompt spins up three agents (Claude Code agent teams, already enabled via `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`) running `/code-review:code-review`, `/code-review`, and `/verify`, none posting to the PR, all reporting back in-session; grouped under `reviews/{{.RepoName}}`.
 
 **REJECT (documented, with re-evaluation triggers):**

@@ -2,12 +2,17 @@
 
 ### Requirement: AoE session queue keybinding
 
-The PR keybindings SHALL include an `f` key that creates the PR's worktree via worktrunk and registers it as an Agent of Empires session WITHOUT launching it (queued for later in the AoE TUI), using direct execution. The command SHALL use `aoe add` without `-l/--launch` so control returns to gh-dash immediately.
+The PR keybindings SHALL include an `f` key that creates the PR's worktree via worktrunk and registers it as an Agent of Empires session WITHOUT launching it (queued for later in the AoE TUI), using direct execution. The command SHALL use `aoe add` without `-l/--launch` so control returns to gh-dash immediately. The session title SHALL use a deterministic token (`pr {{.RepoName}}#{{.PrNumber}}`), NOT the free-text `{{.Title}}`: gh-dash renders the template before invoking the shell, so a PR title containing a single quote could break out of the single-quoted `-x` payload and inject commands.
 
 #### Scenario: PR queued as an AoE session
 
 - **WHEN** user presses `f` on a PR
-- **THEN** gh-dash suspends TUI and runs `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x 'aoe add . -t "{{.Title}}"'`, then resumes TUI without an interactive agent taking the terminal
+- **THEN** gh-dash suspends TUI and runs `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x 'aoe add . -t "pr {{.RepoName}}#{{.PrNumber}}"'`, then resumes TUI without an interactive agent taking the terminal
+
+#### Scenario: Session title is not user-controlled free text
+
+- **WHEN** a PR's title contains a single quote (e.g. `fix don't crash`)
+- **THEN** the rendered `f` command does NOT embed `{{.Title}}`, so the title cannot break out of the `-x` shell payload
 
 ### Requirement: AoE review-team queue keybinding
 
