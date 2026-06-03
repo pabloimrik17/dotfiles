@@ -1,1 +1,1 @@
-bunx lint-staged --config lint-staged.config.ts
+bunx --bun lint-staged --config lint-staged.config.ts
