@@ -1,219 +1,197 @@
 {
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash -c 'export COLUMNS=200; plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); exec \"{{ .chezmoi.homeDir }}/.bun/bin/bun\" --env-file /dev/null \"${plugin_dir}src/index.ts\"'"
-  },
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "xhigh",
   "enabledPlugins": {
-    "claude-hud@claude-hud": true,
-    "typescript-lsp@claude-plugins-official": true,
-    "expo@expo-plugins": true,
+    "beads@beads-marketplace": true,
+    "claude-code-setup@claude-plugins-official": true,
     "claude-code-wakatime@wakatime": true,
-    "expo-developer@monolab": true,
+    "claude-hud@claude-hud": true,
+    "claude-md-management@claude-plugins-official": true,
+    "claude-session-driver@superpowers-marketplace": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
     "commander@monolab": true,
+    "commit-commands@claude-plugins-official": true,
     "double-shot-latte@superpowers-marketplace": true,
     "elements-of-style@superpowers-marketplace": true,
     "episodic-memory@superpowers-marketplace": true,
-    "superpowers@superpowers-marketplace": true,
+    "experiments@monolab": true,
+    "expo-developer@monolab": true,
+    "expo@expo-plugins": true,
+    "frontend-design@claude-plugins-official": true,
+    "plannotator@plannotator": true,
+    "plugin-dev@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
     "superpowers-chrome@superpowers-marketplace": true,
     "superpowers-developing-for-claude-code@superpowers-marketplace": true,
     "superpowers-lab@superpowers-marketplace": true,
-    "experiments@monolab": true,
-    "frontend-design@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
-    "commit-commands@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true,
-    "plugin-dev@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "plannotator@plannotator": true,
-    "worktrunk@worktrunk": true,
-    "claude-session-driver@superpowers-marketplace": true,
-    "claude-code-setup@claude-plugins-official": true,
-    "beads@beads-marketplace": true,
-    "code-simplifier@claude-plugins-official": true{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }},
-    "superwhisper@superwhisper": true{{ end }}
+    "superpowers@superpowers-marketplace": true,
+{{- if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }}
+    "superwhisper@superwhisper": true,
+{{- end }}
+    "typescript-lsp@claude-plugins-official": true,
+    "worktrunk@worktrunk": true
+  },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "extraKnownMarketplaces": {
-    "claude-plugins-official": {
+    "beads-marketplace": {
+      "autoUpdate": true,
       "source": {
-        "source": "github",
-        "repo": "anthropics/claude-plugins-official"
-      },
-      "autoUpdate": true
+        "repo": "steveyegge/beads",
+        "source": "github"
+      }
     },
     "claude-hud": {
+      "autoUpdate": true,
       "source": {
-        "source": "github",
-        "repo": "jarrodwatts/claude-hud"
-      },
-      "autoUpdate": true
+        "repo": "jarrodwatts/claude-hud",
+        "source": "github"
+      }
+    },
+    "claude-plugins-official": {
+      "autoUpdate": true,
+      "source": {
+        "repo": "anthropics/claude-plugins-official",
+        "source": "github"
+      }
     },
     "expo-plugins": {
+      "autoUpdate": true,
       "source": {
-        "source": "github",
-        "repo": "expo/skills"
-      },
-      "autoUpdate": true
+        "repo": "expo/skills",
+        "source": "github"
+      }
     },
     "monolab": {
+      "autoUpdate": true,
       "source": {
-        "source": "github",
-        "repo": "pabloimrik17/monolab"
-      },
-      "autoUpdate": true
+        "repo": "pabloimrik17/monolab",
+        "source": "github"
+      }
+    },
+    "nx-claude-plugins": {
+      "autoUpdate": true,
+      "source": {
+        "repo": "nrwl/nx-ai-agents-config",
+        "source": "github"
+      }
+    },
+    "plannotator": {
+      "autoUpdate": true,
+      "source": {
+        "repo": "backnotprop/plannotator",
+        "source": "github"
+      }
     },
     "superpowers-marketplace": {
+      "autoUpdate": true,
       "source": {
-        "source": "github",
-        "repo": "obra/superpowers-marketplace"
-      },
-      "autoUpdate": true
+        "repo": "obra/superpowers-marketplace",
+        "source": "github"
+      }
     },
+{{- if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }}
+    "superwhisper": {
+      "autoUpdate": true,
+      "source": {
+        "repo": "superultrainc/superwhisper-claude-code",
+        "source": "github"
+      }
+    },
+{{- end }}
     "wakatime": {
+      "autoUpdate": true,
       "source": {
         "source": "git",
         "url": "https://github.com/wakatime/claude-code-wakatime.git"
-      },
-      "autoUpdate": true
-    },
-    "nx-claude-plugins": {
-      "source": {
-        "source": "github",
-        "repo": "nrwl/nx-ai-agents-config"
-      },
-      "autoUpdate": true
-    },
-    "plannotator": {
-      "source": {
-        "source": "github",
-        "repo": "backnotprop/plannotator"
-      },
-      "autoUpdate": true
+      }
     },
     "worktrunk": {
+      "autoUpdate": true,
       "source": {
-        "source": "github",
-        "repo": "max-sixty/worktrunk"
-      },
-      "autoUpdate": true
-    },
-    "beads-marketplace": {
-      "source": {
-        "source": "github",
-        "repo": "steveyegge/beads"
-      },
-      "autoUpdate": true
-    }{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }},
-    "superwhisper": {
-      "source": {
-        "source": "github",
-        "repo": "superultrainc/superwhisper-claude-code"
-      },
-      "autoUpdate": true
-    }{{ end }}
+        "repo": "max-sixty/worktrunk",
+        "source": "github"
+      }
+    }
   },
-  "alwaysThinkingEnabled": true,
-  "skipDangerousModePermissionPrompt": true,
-  "skipAutoPermissionPrompt": true,
-  "voiceEnabled": true,
-  "effortLevel": "xhigh",
   "hooks": {
-    "PreCompact": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bd prime"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bd prime"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh -c '[ -n \"$AOE_INSTANCE_ID\" ] || exit 0; mkdir -p /tmp/aoe-hooks/$AOE_INSTANCE_ID 2>/dev/null; printf running > /tmp/aoe-hooks/$AOE_INSTANCE_ID/status 2>/dev/null; exit 0'"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh -c '[ -n \"$AOE_INSTANCE_ID\" ] || exit 0; mkdir -p /tmp/aoe-hooks/$AOE_INSTANCE_ID 2>/dev/null; printf running > /tmp/aoe-hooks/$AOE_INSTANCE_ID/status 2>/dev/null; exit 0'"
-          }
-        ]
-      }
-    ],
     "ElicitationResult": [
       {
-        "matcher": "",
         "hooks": [
           {
-            "type": "command",
-            "command": "sh -c '[ -n \"$AOE_INSTANCE_ID\" ] || exit 0; mkdir -p /tmp/aoe-hooks/$AOE_INSTANCE_ID 2>/dev/null; printf running > /tmp/aoe-hooks/$AOE_INSTANCE_ID/status 2>/dev/null; exit 0'"
+            "command": "sh -c '[ -n \"$AOE_INSTANCE_ID\" ] || exit 0; mkdir -p /tmp/aoe-hooks/$AOE_INSTANCE_ID 2>/dev/null; printf running > /tmp/aoe-hooks/$AOE_INSTANCE_ID/status 2>/dev/null; exit 0'",
+            "type": "command"
           }
         ]
       }
     ],
     "Notification": [
       {
-        "matcher": "permission_prompt|elicitation_dialog",
         "hooks": [
           {
-            "type": "command",
-            "command": "sh -c '[ -n \"$AOE_INSTANCE_ID\" ] || exit 0; mkdir -p /tmp/aoe-hooks/$AOE_INSTANCE_ID 2>/dev/null; printf waiting > /tmp/aoe-hooks/$AOE_INSTANCE_ID/status 2>/dev/null; exit 0'"
+            "command": "sh -c '[ -n \"$AOE_INSTANCE_ID\" ] || exit 0; mkdir -p /tmp/aoe-hooks/$AOE_INSTANCE_ID 2>/dev/null; printf waiting > /tmp/aoe-hooks/$AOE_INSTANCE_ID/status 2>/dev/null; exit 0'",
+            "type": "command"
+          }
+        ],
+        "matcher": "permission_prompt|elicitation_dialog"
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "command": "bd prime",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "sh -c '[ -n \"$AOE_INSTANCE_ID\" ] || exit 0; mkdir -p /tmp/aoe-hooks/$AOE_INSTANCE_ID 2>/dev/null; printf running > /tmp/aoe-hooks/$AOE_INSTANCE_ID/status 2>/dev/null; exit 0'",
+            "type": "command"
           }
         ]
       }
     ],
-    "Stop": [
+    "SessionStart": [
       {
-        "matcher": "",
         "hooks": [
           {
-            "type": "command",
-            "command": "sh -c '[ -n \"$AOE_INSTANCE_ID\" ] || exit 0; mkdir -p /tmp/aoe-hooks/$AOE_INSTANCE_ID 2>/dev/null; printf idle > /tmp/aoe-hooks/$AOE_INSTANCE_ID/status 2>/dev/null; exit 0'"
+            "command": "bd prime",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "sh -c '[ -n \"$AOE_INSTANCE_ID\" ] || exit 0; mkdir -p /tmp/aoe-hooks/$AOE_INSTANCE_ID 2>/dev/null; printf idle > /tmp/aoe-hooks/$AOE_INSTANCE_ID/status 2>/dev/null; exit 0'",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "sh -c '[ -n \"$AOE_INSTANCE_ID\" ] || exit 0; mkdir -p /tmp/aoe-hooks/$AOE_INSTANCE_ID 2>/dev/null; printf running > /tmp/aoe-hooks/$AOE_INSTANCE_ID/status 2>/dev/null; exit 0'",
+            "type": "command"
           }
         ]
       }
     ]
   },
   "permissions": {
-    "defaultMode": "auto",
-    "deny": [
-      "Bash(sudo *)",
-      "Bash(curl * | bash)",
-      "Bash(curl * | sh)",
-      "Bash(wget * | bash)",
-      "Bash(wget * | sh)",
-      "Bash(git push --force *)",
-      "Bash(git push * --force)",
-      "Bash(git push -f *)",
-      "Bash(git push * -f)",
-      "Bash(npm publish *)",
-      "Bash(bun publish *)",
-      "Bash(chmod -R 777 *)"
-    ],
     "allow": [
       "Bash(git add *)",
       "Bash(git fetch *)",
@@ -281,6 +259,28 @@
       "mcp__memory__search_nodes",
       "mcp__memory__open_nodes",
       "mcp__gh_grep__searchGitHub"
+    ],
+    "defaultMode": "auto",
+    "deny": [
+      "Bash(sudo *)",
+      "Bash(curl * | bash)",
+      "Bash(curl * | sh)",
+      "Bash(wget * | bash)",
+      "Bash(wget * | sh)",
+      "Bash(git push --force *)",
+      "Bash(git push * --force)",
+      "Bash(git push -f *)",
+      "Bash(git push * -f)",
+      "Bash(npm publish *)",
+      "Bash(bun publish *)",
+      "Bash(chmod -R 777 *)"
     ]
-  }
+  },
+  "skipAutoPermissionPrompt": true,
+  "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "command": "bash -c 'export COLUMNS=200; plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); exec \"{{ .chezmoi.homeDir }}/.bun/bin/bun\" --env-file /dev/null \"${plugin_dir}src/index.ts\"'",
+    "type": "command"
+  },
+  "voiceEnabled": true
 }
