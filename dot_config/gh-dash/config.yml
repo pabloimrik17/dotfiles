@@ -99,10 +99,15 @@ keybindings:
           command: wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x 'aoe add . -t "pr {{.RepoName}}#{{.PrNumber}}"'
         - key: F
           name: Queue AoE review team
-          # Folded block scalar: the review prompt contains ": " and nested quotes
-          # that would break a plain YAML scalar; ">-" keeps them literal, one line.
-          command: >-
-              wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x 'aoe add . -t "review {{.RepoName}}#{{.PrNumber}}" -g "reviews/{{.RepoName}}" --extra-args' -- "Spin up a team of three agents to review this PR in parallel. None of them may post anything on the PR; every agent reports its findings back to me here. Agent 1: run /code-review:code-review. Agent 2: run /code-review. Agent 3: run /verify to confirm the changes actually work. When all three finish, consolidate everything into one summary here."
+          # Auto-launches (-l): the review runs in background immediately and
+          # control returns to gh-dash (aoe add -l does a background start, no
+          # attach). The review prompt lives in a versioned slash command
+          # (~/.claude/commands/review-team.md) passed as a single token via
+          # --extra-args, because aoe whitespace-splits --extra-args (it's built
+          # for flags like "--port 8080"), so an inline multi-word prompt
+          # truncates to its first word. {{.RepoName}}#{{.PrNumber}} is the
+          # command's $ARGUMENTS.
+          command: wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x 'aoe add . -t "review {{.RepoName}}#{{.PrNumber}}" -g "reviews/{{.RepoName}}" -l --extra-args "/review-team {{.RepoName}}#{{.PrNumber}}"'
 
 pager:
     diff: delta
