@@ -87,4 +87,9 @@ for path, value, literal in MANAGED:
 sys.stdout.write(tomlkit.dumps(doc))
 PYEOF
 
-uv run --quiet --with tomlkit python "$prog" <"$infile"
+if ! uv run --quiet --with tomlkit python "$prog" <"$infile"; then
+  # uv present but `uv run` failed (offline cold cache, dep-resolution error):
+  # pass the live config through unchanged so `chezmoi apply` never hard-fails;
+  # the next apply self-heals once uv can fetch tomlkit.
+  cat "$infile"
+fi
