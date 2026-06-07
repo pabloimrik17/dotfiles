@@ -78,6 +78,12 @@ quick-terminal-animation-duration = 0.2
 quick-terminal-space-behavior = move
 quick-terminal-autohide = true
 
+# Keyboard
+# Right Option acts as Alt so terminal apps receive Alt+<key> bindings (aoe
+# lazygit Alt+g, readline word-motion, etc.). Left Option is left untouched so
+# the Spanish/ISO layout can still type @ # [ ] { } \ | and accented chars.
+macos-option-as-alt = right
+
 # Keybindings (macOS friendly)
 keybind = super+t=new_tab
 keybind = super+w=close_surface
