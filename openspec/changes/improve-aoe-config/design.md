@@ -34,11 +34,19 @@ Rationale: they self-gate on `$AOE_INSTANCE_ID` (no-op outside aoe sessions → 
 
 Alternatives rejected: (a) let AoE keep re-injecting — fragile, breaks on every apply, perpetual diff noise; (b) `.chezmoiignore` the hooks — can't partially ignore keys inside a managed template. This is a delta on `claude-hooks`.
 
-### D3: `config.toml` writeback — `modify_` merge (TRIAL) vs accept thrash
+### D3: `config.toml` writeback — `modify_` merge via tomlkit (style-preserving)
 
 The settings.json and config.toml writeback problems are **opposite**: settings.json hooks are deterministic and wanted → bake them in (D2); config.toml writeback (`[app_state]`/`[web]`/`[cockpit]`/`[logging]` + default-expanded tables, ~76 extra lines) is runtime state we do NOT want to version → preserve it.
 
-Decision (TRIAL): convert `private_dot_agent-of-empires/private_config.toml` to a `modify_private_dot_agent-of-empires/private_config.toml` script that reads the existing on-disk TOML and writes back only the deliberately-managed keys (`[theme]`/`[session]`/`[worktree]`/`[tmux]`/`[updates]`/`[status_hooks]`/`[sandbox]`), leaving AoE's writeback tables untouched. Merge tool: prefer python `tomllib`+`tomli_w` or `dasel`/`yq` — **confirm one is already on PATH before depending on it** (no new brew dep just for this). Must be idempotent and preserve 0600. Interim fallback if the merge proves fragile: keep the static file and accept the `chezmoi diff` noise (current documented stance). This is part of the `agent-manager` delta.
+Decision: replace the static `private_dot_agent-of-empires/private_config.toml` with a chezmoi `modify_` script (`private_dot_agent-of-empires/modify_private_config.toml`). chezmoi pipes the live `~/.agent-of-empires/config.toml` to the script's stdin; the script overlays only the deliberately-managed keys and emits the merged file to stdout. The `modify_private_` prefix keeps the target `0600`.
+
+- **Engine: `uv run --with tomlkit python`.** `uv` is already in `BREW_PACKAGES` (zero new brew dep); it fetches/caches `tomlkit` ephemerally. tomlkit is **style-preserving**: `dumps(parse(x)) == x` byte-for-byte, verified against the real live config. This is what delivers the explicit "`chezmoi diff` is quiet" goal — after AoE rewrites the file (new `app_state`, etc.) the merge round-trips every untouched table identically, so only genuinely-changed managed keys ever diff. (Re-evaluated and rejected: `dasel`/`yq` and any full-reserialize engine re-canonicalize formatting → recurring diff on every AoE rewrite; that defeated the goal. The original 1.5 verdict "no TOML tool on PATH → static fallback" is superseded: tomlkit-via-uv needs no new dep.)
+- **Overlay-by-key + check-then-set.** A `MANAGED` list of `(table-path → value)` — the full set the old static file declared (`[theme]`/`[session]`/`[worktree]`/`[tmux]`/`[updates]`/`[status_hooks]`/`[sandbox]`/`[sound]`/`[tools.lazygit]`). Each key is set **only if its current value differs** — skip-if-equal preserves AoE's exact byte formatting (no churn). `[status_hooks]` commands are written as literal (single-quote) strings to match AoE. Everything else (`[app_state]`/`[web]`/`[cockpit]`/`[logging]` + default-expansions) passes through untouched.
+- **No key loss on conversion.** `MANAGED` is a verified superset of the deleted static file's keys (17/17 captured, values identical). It becomes the single source of truth for managed values; changing a managed key means editing `MANAGED`.
+- **Fallback.** Empty stdin (fresh machine, no live file) → emit a baseline of just the managed keys (AoE expands the rest on first launch). `uv` absent (cold start before the brew bootstrap) → pass stdin through unchanged (or baseline if empty); the next `chezmoi apply` self-heals.
+- **Idempotent**, preserves `0600`. Verified on the real live config: A (1:1 round-trip), B (`merge(merge(x)) == merge(x)`), C (`[app_state]`/`[web]`/`[cockpit]`/`[logging]` preserved).
+
+This is part of the `agent-manager` delta — its "preserves runtime writeback" requirement is now **built**, not deferred.
 
 ### D4: gh-dash bindings — worktrunk-first, queue-without-open
 
@@ -65,7 +73,7 @@ Mirror the parent change's soak model. SHIP items (D1, D2) commit immediately. T
 ## Risks / Trade-offs
 
 - **[Risk] AoE re-serializes `settings.json` (sorts keys, reformats) after the baked hooks, reintroducing diff noise.** → Mitigation: align the template's key order to AoE's serialized output, or accept the one-time reformat and let it settle. Verify behavior after first `aoe` launch.
-- **[Risk] `modify_` merge bug corrupts the live config.** → Mitigation: idempotent merge, preserve 0600, prefer an already-present TOML tool; interim fallback = static file + accept thrash.
+- **[Risk] `modify_` merge bug corrupts the live config or drops a managed key.** → Mitigation: tomlkit style-preserving round-trip + check-then-set (skip-if-equal); `MANAGED` verified as a superset of the prior static file (no key loss); idempotent; preserves 0600; fallback to passthrough/baseline when `uv` is absent. Acceptance gated on tests A (1:1 round-trip), B (idempotent re-apply), C (runtime tables preserved).
 - **[Risk] Nested shell quoting in the gh-dash commands is fragile.** → Mitigation: pass the review prompt via worktrunk's `--` execute-args (auto POSIX-escaped); keep titles/groups short and quote-free; verify rendered command in trial.
 - **[Risk] Review-team teammates can't invoke `/code-review:code-review` / `/code-review` / `/verify` in their context.** → Mitigation: verify skill availability for teammates; fallback to a single agent running the three sequentially.
 - **[Risk] `aoe add` without `-l` still fires `on_create` hooks or the trust prompt blocks the non-interactive `-x`.** → Mitigation: verify with a repo that has hooks; `--trust-hooks` only on the trusted `a` binding if needed, never on `r`.
@@ -88,4 +96,4 @@ Mirror the parent change's soak model. SHIP items (D1, D2) commit immediately. T
 - Does AoE rewrite/reorder the whole `settings.json` after the baked hooks, and if so what key order minimizes diff? (D2 mitigation)
 - `Alt+g` collision audit for `[tools.lazygit]` against ghostty + tmux + AoE built-in bindings.
 - Exact gh-dash PR template variable names beyond the proven `{{.PrNumber}}`/`{{.RepoName}}`/`{{.RepoPath}}` — confirm `{{.Title}}` (and any repo-only var for `reviews/<repo>` vs `reviews/<owner>/<repo>` group depth).
-- Which TOML-merge tool is already on PATH for the `modify_` script (python `tomllib`/`dasel`/`yq`).
+- ~~Which TOML-merge tool is already on PATH for the `modify_` script~~ → RESOLVED (D3): `tomlkit` via `uv run --with tomlkit` (uv already in `BREW_PACKAGES`); chosen over `dasel`/`yq` because only a style-preserving round-trip keeps `chezmoi diff` quiet across AoE rewrites.

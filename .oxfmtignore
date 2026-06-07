@@ -3,3 +3,6 @@ openspec/
 .codex/
 .opencode/
 .husky/_/
+# chezmoi modify_ script: a POSIX shell script that carries its target's .toml
+# extension (chezmoi naming). oxfmt would parse it as TOML and corrupt it.
+private_dot_agent-of-empires/modify_private_config.toml

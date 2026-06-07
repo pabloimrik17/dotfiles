@@ -33,13 +33,18 @@ The AoE config `[status_hooks]` table SHALL include an `on_error` command that i
 
 ### Requirement: AoE config preserves runtime writeback under chezmoi
 
-The chezmoi management of `~/.agent-of-empires/config.toml` SHALL preserve AoE's runtime writeback tables (`[app_state]`, `[web]`, `[cockpit]`, `[logging]`, and default-expanded keys) rather than clobbering them on `chezmoi apply`, while still enforcing the deliberately-managed keys (`[theme]`, `[session]`, `[worktree]`, `[tmux]`, `[updates]`, `[status_hooks]`, `[sandbox]`). The chezmoi target file SHALL remain mode `0600`.
+The chezmoi management of `~/.agent-of-empires/config.toml` SHALL preserve AoE's runtime writeback tables (`[app_state]`, `[web]`, `[cockpit]`, `[logging]`, and default-expanded keys) rather than clobbering them on `chezmoi apply`, while still enforcing the deliberately-managed keys (`[theme]`, `[session]`, `[worktree]`, `[tmux]`, `[updates]`, `[status_hooks]`, `[sandbox]`, `[sound]`, `[tools.lazygit]`). The chezmoi target file SHALL remain mode `0600`.
 
 #### Scenario: Apply does not drop AoE runtime state
 
 - **WHEN** AoE has written runtime tables (e.g. `[app_state]`, `[web]`) into the live config and the user runs `chezmoi apply`
 - **THEN** those runtime tables remain present in `~/.agent-of-empires/config.toml`
 - **AND** the deliberately-managed keys reflect the chezmoi-managed values
+
+#### Scenario: Re-apply is quiet (no churn)
+
+- **WHEN** the deliberately-managed keys already hold the chezmoi-managed values and `chezmoi apply` / `chezmoi diff` runs again (including after AoE has only rewritten its own runtime tables)
+- **THEN** the management reproduces the on-disk file with no formatting churn and `chezmoi diff` reports no changes to any non-managed table
 
 #### Scenario: Managed config stays private
 
