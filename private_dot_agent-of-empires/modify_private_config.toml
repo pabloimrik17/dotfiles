@@ -1,0 +1,95 @@
+#!/bin/sh
+# chezmoi modify_ script for ~/.agent-of-empires/config.toml (mode 0600 via the
+# `private_` attribute). chezmoi pipes the live on-disk config to stdin; we overlay
+# ONLY the deliberately-managed keys (MANAGED below) and emit the merged file to
+# stdout, leaving AoE's runtime writeback (`[app_state]`/`[web]`/`[cockpit]`/
+# `[logging]` + default-expanded tables) untouched. See improve-aoe-config design D3.
+#
+# Engine: `uv run --with tomlkit python` (uv is in BREW_PACKAGES; no new brew dep).
+# tomlkit is style-preserving — `dumps(parse(x)) == x` — so after AoE rewrites the
+# file the merge round-trips every untouched table byte-for-byte and only genuinely
+# changed managed keys ever show in `chezmoi diff`.
+#
+# Fallbacks: empty stdin (fresh machine) -> managed-only baseline; `uv` absent (cold
+# start before the brew bootstrap) -> pass the live config through unchanged (the
+# next `chezmoi apply` self-heals).
+set -eu
+
+work="$(mktemp -d)"
+trap 'rm -rf "$work"' EXIT
+infile="$work/config.toml"
+
+# Capture stdin verbatim (byte-exact: no $(cat) trailing-newline stripping).
+cat >"$infile"
+
+# uv absent: pass the live config through unchanged and bail.
+if ! command -v uv >/dev/null 2>&1; then
+  cat "$infile"
+  exit 0
+fi
+
+prog="$work/merge.py"
+cat >"$prog" <<'PYEOF'
+import sys
+import tomlkit
+
+# (table-path tuple, value, is_literal_string)
+# is_literal_string=True -> emit a single-quoted TOML literal to match AoE's own
+# serialization of the status_hooks commands (no double-quote escaping churn).
+MANAGED = [
+    (("theme", "name"), "catppuccin-mocha", False),
+    (("theme", "color_mode"), "truecolor", False),
+    (("session", "default_tool"), "claude", False),
+    (("session", "agent_status_hooks"), True, False),
+    (("worktree", "init_submodules"), False, False),
+    (("tmux", "status_bar"), "disabled", False),
+    (("tmux", "clipboard"), "enabled", False),
+    (("tmux", "mouse"), "disabled", False),
+    (("updates", "update_check_mode"), "off", False),
+    (("sound", "enabled"), True, False),
+    (("status_hooks", "enabled"), True, False),
+    (("status_hooks", "on_waiting"),
+     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "needs input" -sound Glass', True),
+    (("status_hooks", "on_idle"),
+     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "done"', True),
+    (("status_hooks", "on_error"),
+     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "errored" -sound Basso', True),
+    (("sandbox", "environment"),
+     ["CLAUDE_CONFIG_DIR", "EDITOR", "TERM", "COLORTERM"], False),
+    (("tools", "lazygit", "command"), "lazygit", False),
+    (("tools", "lazygit", "hotkey"), "Alt+g", False),
+]
+
+data = sys.stdin.read()
+doc = tomlkit.parse(data) if data.strip() else tomlkit.document()
+
+for path, value, literal in MANAGED:
+    node = doc
+    # Walk/create intermediate tables. A table that only holds a subtable (any
+    # intermediate before the leaf's parent) is a super table so it renders as
+    # `[tools.lazygit]` rather than an empty `[tools]` + `[tools.lazygit]`.
+    for i, key in enumerate(path[:-1]):
+        if key not in node:
+            is_super = i < len(path) - 2
+            node[key] = tomlkit.table(is_super_table=True) if is_super else tomlkit.table()
+        node = node[key]
+    leaf = path[-1]
+    # check-then-set: skip if the on-disk value already matches (preserves AoE's
+    # exact byte formatting -> quiet diff / idempotent re-apply).
+    current = node.get(leaf)
+    if current is not None and current == value:
+        continue
+    if literal and isinstance(value, str):
+        node[leaf] = tomlkit.string(value, literal=True)
+    else:
+        node[leaf] = value
+
+sys.stdout.write(tomlkit.dumps(doc))
+PYEOF
+
+if ! uv run --quiet --with tomlkit python "$prog" <"$infile"; then
+  # uv present but `uv run` failed (offline cold cache, dep-resolution error):
+  # pass the live config through unchanged so `chezmoi apply` never hard-fails;
+  # the next apply self-heals once uv can fetch tomlkit.
+  cat "$infile"
+fi
