@@ -8,6 +8,7 @@ symbols:
     - ACM
     - ADBE
     - AVTR
+    - AWI
     - BAH
     - BMI
     - BSX
@@ -17,22 +18,20 @@ symbols:
     - CRTO
     - DOCS
     - DPZ
-    - DT
     - DUOL
     - FISV
-    - HCA
     - HLNE
     - HRL
     - INTU
     - IPAR
     - ISRG
+    - JKHY
     - LULU
     - MA
     - MCD
     - MORN
     - MSFT
     - NKE
-    - NOC
     - NOMD
     - ODD
     - PAYX
@@ -46,5 +45,6 @@ symbols:
     - SMPL
     - TYL
     - UHS
+    - ULTA
     - VEEV
     - VITL
