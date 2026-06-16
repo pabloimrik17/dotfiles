@@ -2,7 +2,7 @@
 
 ### Requirement: Renovate extends the best-practices baseline
 
-`renovate.json` SHALL extend `config:best-practices` as its base preset and SHALL NOT extend `config:recommended` directly. Presets transitively enabled by `config:best-practices` (such as `:dependencyDashboard`) SHALL NOT be listed explicitly in `extends`. Presets that `config:best-practices` does NOT enable and that the repo still requires — `:semanticCommits` and `:enableVulnerabilityAlertsWithLabel(security)` — SHALL remain in `extends`.
+`renovate.json` SHALL extend `config:best-practices` as its base preset and SHALL NOT extend `config:recommended` directly. Presets transitively enabled by `config:best-practices` (such as `:dependencyDashboard`) SHALL NOT be listed explicitly in `extends`, with one deliberate exception: `:maintainLockFilesWeekly` MAY be listed explicitly for cross-repo parity with the monolab migration — it is bundled by `config:best-practices` in renovate@43, so re-listing it is idempotent and validator-clean. Presets that `config:best-practices` does NOT enable and that the repo still requires — `:semanticCommits` and `:enableVulnerabilityAlertsWithLabel(security)` — SHALL remain in `extends`.
 
 #### Scenario: Base preset is best-practices
 
@@ -13,7 +13,7 @@
 #### Scenario: Subsumed presets are not duplicated
 
 - **WHEN** `renovate.json` `extends` is inspected
-- **THEN** presets already enabled by `config:best-practices` are not listed again
+- **THEN** presets already enabled by `config:best-practices` are not listed again, except `:maintainLockFilesWeekly` which is kept explicit for cross-repo parity
 
 #### Scenario: Required non-bundled presets are preserved
 
