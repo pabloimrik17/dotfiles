@@ -1,10 +1,14 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "extends": [
-        "config:recommended",
-        ":dependencyDashboard",
+        "config:best-practices",
         ":semanticCommits",
-        ":enableVulnerabilityAlertsWithLabel(security)"
+        ":enableVulnerabilityAlertsWithLabel(security)",
+        ":enablePreCommit",
+        "security:openssf-scorecard",
+        "docker:enableMajor",
+        "customManagers:githubActionsVersions",
+        "customManagers:dockerfileVersions"
     ],
     "timezone": "Europe/Madrid",
     "reviewers": ["pabloimrik17"],
@@ -13,9 +17,12 @@
     "dependencyDashboardTitle": "📦 Dependency Dashboard",
     "prConcurrentLimit": 10,
     "prHourlyLimit": 2,
-    "configMigration": true,
     "minimumReleaseAge": "7 days",
     "rangeStrategy": "pin",
+    "vulnerabilityAlerts": {
+        "prHourlyLimit": 0,
+        "prConcurrentLimit": 0
+    },
     "packageRules": [
         {
             "matchUpdateTypes": ["patch"],
@@ -34,21 +41,21 @@
         {
             "customType": "regex",
             "description": "Update pinned MCP server versions in opencode.json",
-            "fileMatch": ["^opencode\\.json$"],
+            "managerFilePatterns": ["/^opencode\\.json$/"],
             "matchStrings": ["\"(?<depName>@?[^\"@]+)@(?<currentValue>[^\"]+)\""],
             "datasourceTemplate": "npm"
         },
         {
             "customType": "regex",
             "description": "Update pinned MCP server versions in .mcp.json",
-            "fileMatch": ["^\\.mcp\\.json$"],
+            "managerFilePatterns": ["/^\\.mcp\\.json$/"],
             "matchStrings": ["\"(?<depName>@?[^\"@]+)@(?<currentValue>[^\"]+)\""],
             "datasourceTemplate": "npm"
         },
         {
             "customType": "regex",
             "description": "Update pinned CLI tool versions in CI workflows (pnpm dlx/bunx/npx)",
-            "fileMatch": ["^\\.github/workflows/.+\\.ya?ml$"],
+            "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
             "matchStrings": [
                 "(?:pnpm dlx|bunx|npx) (?<depName>(?:@[^/\\s]+/)?[^@\\s]+)@(?<currentValue>[^\\s]+)"
             ],
@@ -56,8 +63,20 @@
         },
         {
             "customType": "regex",
+            "description": "Update pinned 'bunx --package <pkg>@<ver>' versions (renovate-config-validator and similar)",
+            "managerFilePatterns": [
+                "/^\\.github/workflows/.+\\.ya?ml$/",
+                "/^lint-staged\\.config\\.ts$/"
+            ],
+            "matchStrings": [
+                "bunx (?:--package|-p) (?<depName>(?:@[^/\\s]+/)?[^@\\s]+)@(?<currentValue>[^\\s]+)"
+            ],
+            "datasourceTemplate": "npm"
+        },
+        {
+            "customType": "regex",
             "description": "Update pinned MCP server versions in install script",
-            "fileMatch": ["^run_onchange_install-packages\\.sh\\.tmpl$"],
+            "managerFilePatterns": ["/^run_onchange_install-packages\\.sh\\.tmpl$/"],
             "matchStrings": [":(?<depName>(?:@[^@:]+/)?[^@:]+)@(?<currentValue>[^\":]+)"],
             "datasourceTemplate": "npm"
         }

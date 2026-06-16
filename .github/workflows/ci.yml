@@ -24,3 +24,6 @@ jobs:
 
             - name: 🔍 Validate OpenSpec change proposals
               run: bunx @fission-ai/openspec@1.2.0 validate --changes --no-interactive
+
+            - name: 🔍 Validate Renovate config
+              run: bunx --package renovate@43.227.0 renovate-config-validator --strict

@@ -15,7 +15,8 @@ GitHub issue #140 asks to move to `config:best-practices`, add hardening presets
 
 **Non-Goals:**
 
-- No change to `rangeStrategy: pin`, the monthly `packageRules` schedules, `minimumReleaseAge`, reviewers/labels, or the existing MCP/CLI/install-script customManagers.
+- No change to `rangeStrategy: pin`, the monthly `packageRules` schedules, `minimumReleaseAge`, or reviewers/labels.
+- No change to the *matching logic* (`matchStrings`/`datasourceTemplate`) of the existing MCP/CLI/install-script customManagers. Their `fileMatch` keys ARE migrated to `managerFilePatterns` — see Decision 7.
 - No introduction of prek or any second pre-commit framework.
 - No addition of `renovate` to `package.json` devDependencies.
 
@@ -37,10 +38,14 @@ Add `"renovate.json": "bunx --package renovate@<ver> renovate-config-validator"`
 A `Validate Renovate config` step runs `bunx --package renovate@<ver> renovate-config-validator --strict` after the existing steps. Runs on every PR (not path-filtered) — the validator is fast and the simpler single-workflow shape was chosen over a dedicated path-filtered workflow.
 
 **5. Additive `bunx -p` customManager.**
-The existing `(?:pnpm dlx|bunx|npx) <pkg>@<ver>` regex does not match the `bunx -p <pkg>@<ver> <bin>` shape (version sits after the `-p` token, before the binary name). Add a complementary regex customManager matching `bunx (?:--package|-p) <pkg>@<ver>` with `datasourceTemplate: npm`, covering `.github/workflows/*.yml` and `lint-staged.config.ts`. The existing four customManagers are untouched.
+The existing `(?:pnpm dlx|bunx|npx) <pkg>@<ver>` regex does not match the `bunx -p <pkg>@<ver> <bin>` shape (version sits after the `-p` token, before the binary name). Add a complementary regex customManager matching `bunx (?:--package|-p) <pkg>@<ver>` with `datasourceTemplate: npm`, covering `.github/workflows/*.yml` and `lint-staged.config.ts`. The existing customManagers' matching logic is untouched.
 
 **6. Pinned version chosen at implementation time.**
-Pin to the current `renovate` release when implementing (the issue's `40.0.0` is illustrative). The customManager keeps it current thereafter.
+Pin to the current `renovate` release when implementing — resolved to **`renovate@43.227.0`** (the issue's `40.0.0` was illustrative). The `bunx -p` customManager keeps it current thereafter.
+
+**7. Migrate `fileMatch` → `managerFilePatterns` on all customManagers (forced by `--strict`).**
+`renovate-config-validator --strict` exits non-zero on the current config with "Config migration necessary" because Renovate renamed `fileMatch` to `managerFilePatterns` (regex values wrapped as `/…/`). Since the validator must pass `--strict` (CI + lint-staged), the four existing customManagers' `fileMatch` keys are migrated to `managerFilePatterns` alongside the new one. This is precisely the migration `:configMigration` (bundled in `config:best-practices`) would auto-PR, so it is in-scope for this change rather than incidental churn. Only the key name changes; every `matchStrings`/`datasourceTemplate` is byte-identical.
+*Alternative rejected:* drop `--strict` to silence the migration warning — defeats the validator's purpose and contradicts the spec.
 
 ## Risks / Trade-offs
 
