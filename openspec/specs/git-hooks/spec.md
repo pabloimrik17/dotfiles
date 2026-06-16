@@ -3,9 +3,7 @@
 ## Purpose
 
 Git hook management — Husky setup, pre-commit formatting via lint-staged, and commit-msg validation via commitlint.
-
 ## Requirements
-
 ### Requirement: Husky manages git hooks
 
 The repo SHALL use Husky 9 for git hook management. The `.husky/` directory SHALL contain hook scripts.
@@ -32,7 +30,7 @@ The pre-commit hook SHALL execute lint-staged to format staged files using oxfmt
 
 ### Requirement: lint-staged configuration
 
-The repo SHALL have a `lint-staged.config.ts` file that wires oxfmt to all staged files.
+The repo SHALL have a `lint-staged.config.ts` file that wires oxfmt to all staged files and validates the Renovate config when it is staged.
 
 #### Scenario: All files pass through oxfmt
 
@@ -43,6 +41,17 @@ The repo SHALL have a `lint-staged.config.ts` file that wires oxfmt to all stage
 
 - **WHEN** `lint-staged.config.ts` is inspected
 - **THEN** it exports a configuration object using the `Configuration` type from `lint-staged` and the `satisfies` keyword
+
+#### Scenario: Renovate config is validated when staged
+
+- **WHEN** `renovate.json` is among the staged files and lint-staged runs
+- **THEN** `renovate-config-validator` (pinned `renovate@<ver>`, via `bunx`) runs against `renovate.json`
+- **AND** the commit is aborted if validation fails
+
+#### Scenario: Renovate validation is scoped to renovate.json
+
+- **WHEN** a commit stages files but does not touch `renovate.json`
+- **THEN** the `renovate-config-validator` entry does not run
 
 ### Requirement: Commit-msg hook runs commitlint
 
@@ -66,3 +75,4 @@ All hook scripts SHALL use `bunx` to invoke tools, consistent with Bun as the pr
 
 - **WHEN** `.husky/pre-commit` and `.husky/commit-msg` are inspected
 - **THEN** they use `bunx` (not `npx`, `pnpm exec`, or `node`)
+
