@@ -1,0 +1,30 @@
+name: Validate Renovate config
+
+on:
+    pull_request:
+        paths:
+            - "renovate.json"
+            - "renovate.json5"
+            - ".renovaterc"
+            - ".renovaterc.json"
+            - ".renovaterc.json5"
+            - ".github/renovate.json"
+            - ".github/renovate.json5"
+
+permissions:
+    contents: read
+
+jobs:
+    validate:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  persist-credentials: false
+
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+
+            - name: 🔍 Validate Renovate config
+              run: bunx --package renovate@43.227.0 renovate-config-validator --strict renovate.json
