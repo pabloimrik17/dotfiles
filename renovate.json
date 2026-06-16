@@ -4,7 +4,7 @@
         "config:best-practices",
         ":semanticCommits",
         ":enableVulnerabilityAlertsWithLabel(security)",
-        ":enablePreCommit",
+        ":maintainLockFilesWeekly",
         "security:openssf-scorecard",
         "docker:enableMajor",
         "customManagers:githubActionsVersions",
@@ -17,7 +17,7 @@
     "dependencyDashboardTitle": "📦 Dependency Dashboard",
     "prConcurrentLimit": 10,
     "prHourlyLimit": 2,
-    "minimumReleaseAge": "7 days",
+    "minimumReleaseAge": "14 days",
     "rangeStrategy": "pin",
     "vulnerabilityAlerts": {
         "prHourlyLimit": 0,
@@ -35,6 +35,11 @@
         {
             "matchUpdateTypes": ["major"],
             "schedule": ["on the first day of the month every 3 months"]
+        },
+        {
+            "description": "Re-assert the 14-day npm minimum release age; config:best-practices brings security:minimumReleaseAgeNpm with a shorter 3-day window that would otherwise override the top-level value for npm packages",
+            "matchDatasources": ["npm"],
+            "minimumReleaseAge": "14 days"
         }
     ],
     "customManagers": [

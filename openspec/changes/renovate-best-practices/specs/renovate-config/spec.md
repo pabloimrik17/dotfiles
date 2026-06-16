@@ -22,12 +22,17 @@
 
 ### Requirement: Renovate enables hardening presets
 
-`renovate.json` `extends` SHALL include the hardening presets `:enablePreCommit`, `security:openssf-scorecard`, `docker:enableMajor`, `customManagers:githubActionsVersions`, and `customManagers:dockerfileVersions`. These presets are no-ops when their target files are absent and SHALL NOT cause validation errors.
+`renovate.json` `extends` SHALL include the hardening presets `security:openssf-scorecard`, `docker:enableMajor`, `customManagers:githubActionsVersions`, `customManagers:dockerfileVersions`, and `:maintainLockFilesWeekly`. These presets are no-ops when their target files are absent and SHALL NOT cause validation errors. `renovate.json` SHALL NOT include `:enablePreCommit` while the repo has no `.pre-commit-config.yaml` (the preset is inert under the husky + lint-staged setup).
 
 #### Scenario: Hardening presets are listed
 
 - **WHEN** `renovate.json` `extends` is inspected
-- **THEN** it includes `:enablePreCommit`, `security:openssf-scorecard`, `docker:enableMajor`, `customManagers:githubActionsVersions`, and `customManagers:dockerfileVersions`
+- **THEN** it includes `security:openssf-scorecard`, `docker:enableMajor`, `customManagers:githubActionsVersions`, `customManagers:dockerfileVersions`, and `:maintainLockFilesWeekly`
+
+#### Scenario: enablePreCommit is omitted
+
+- **WHEN** the repo contains no `.pre-commit-config.yaml`
+- **THEN** `renovate.json` `extends` does NOT contain `:enablePreCommit`
 
 #### Scenario: Hardening presets validate cleanly
 
@@ -64,22 +69,42 @@
 - **WHEN** `renovate.json` `customManagers` is inspected
 - **THEN** the existing managers for `opencode.json`, `.mcp.json`, CI `pnpm dlx|bunx|npx`, and the install script are still present
 
+### Requirement: npm release-age floor is preserved
+
+`renovate.json` SHALL keep an effective `minimumReleaseAge` of at least `14 days` for npm packages. Because `config:best-practices` bundles `security:minimumReleaseAgeNpm` (a 3-day npm `packageRule`) that overrides the top-level value for npm, `renovate.json` SHALL re-assert the floor with a trailing npm `packageRule` ordered after the preset's rule.
+
+#### Scenario: Top-level floor raised
+
+- **WHEN** `renovate.json` is inspected
+- **THEN** the top-level `minimumReleaseAge` is `"14 days"`
+
+#### Scenario: npm window re-asserted
+
+- **WHEN** `renovate.json` `packageRules` is inspected
+- **THEN** a rule with `matchDatasources: ["npm"]` sets `minimumReleaseAge` to `"14 days"`
+- **AND** it appears after any preset-provided npm release-age rule so it takes precedence
+
 ### Requirement: CI validates the Renovate config
 
-The CI workflow `.github/workflows/ci.yml` SHALL run `renovate-config-validator` in `--strict` mode against the repo's Renovate config, invoked via `bunx` against a pinned `renovate@<ver>`. A config validation failure SHALL fail the CI job.
+A standalone, path-filtered GitHub Actions workflow (`.github/workflows/renovate-config-validator.yml`) SHALL run `renovate-config-validator` in `--strict` mode against the repo's Renovate config, invoked via `bunx` against a pinned `renovate@<ver>`. The workflow SHALL trigger only when a Renovate config file changes (a `pull_request` `paths` filter). A config validation failure SHALL fail the job.
 
 #### Scenario: Valid config passes CI
 
-- **WHEN** CI runs on a PR with a valid `renovate.json`
+- **WHEN** the workflow runs on a PR with a valid `renovate.json`
 - **THEN** the validation step exits successfully
+
+#### Scenario: Workflow is path-filtered
+
+- **WHEN** a PR changes no Renovate config file
+- **THEN** the validator workflow does not run
 
 #### Scenario: Invalid config fails CI
 
-- **WHEN** CI runs on a PR with a malformed `renovate.json`
+- **WHEN** the workflow runs on a PR with a malformed `renovate.json`
 - **THEN** the `renovate-config-validator --strict` step exits non-zero
-- **AND** the CI job fails
+- **AND** the job fails
 
 #### Scenario: Validator version is pinned
 
-- **WHEN** the CI validation step is inspected
+- **WHEN** the workflow validation step is inspected
 - **THEN** it invokes a fixed `renovate@<ver>` rather than a floating/unpinned version
