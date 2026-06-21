@@ -7,8 +7,9 @@ show_volumes: true
 symbols:
     - ACM
     - ADBE
+    - ADSK
+    - AMT
     - AVTR
-    - AWI
     - BAH
     - BMI
     - BSX
@@ -16,33 +17,37 @@ symbols:
     - CPNG
     - CPRT
     - CRTO
+    - CTAS
     - DOCS
     - DPZ
     - DUOL
-    - FISV
+    - EXLS
     - HLNE
     - HRL
     - INTU
     - IPAR
     - ISRG
     - JKHY
+    - LDOS
     - LULU
     - MA
     - MCD
     - MORN
     - MSFT
     - NKE
+    - NOC
     - NOMD
     - ODD
     - PAYX
     - PCTY
     - PLNT
-    - PNR
     - PODD
     - QLYS
     - RACE
     - RMD
+    - ROL
     - SMPL
+    - TTEK
     - TYL
     - UHS
     - ULTA
