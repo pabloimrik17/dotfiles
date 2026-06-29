@@ -84,6 +84,15 @@ if [ -n "$nvmrc" ]; then
       if command -v nvm >/dev/null 2>&1; then
         nvm use "$ver" >/dev/null 2>&1 || nvm install "$ver" >/dev/null 2>&1 || :
       fi
+    else
+      # A version is pinned but unsatisfiable: no installed match AND no nvm.sh
+      # to install/resolve it (broken or nvm-less machine). Warn — don't fall
+      # through silently — but still launch: refusing to start would brick every
+      # claude invocation here, including worktrunk's `claude -p` commit-message
+      # generation. claude itself is Node-independent; only its subprocesses are
+      # affected, and the warning surfaces the misconfiguration.
+      printf 'claude shim: cannot activate %s (no installed match, missing %s); launching under ambient Node\n' \
+        "$ver" "$NVM_DIR/nvm.sh" >&2
     fi
   fi
 fi
