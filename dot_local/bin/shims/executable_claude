@@ -1,0 +1,98 @@
+#!/bin/sh
+# claude-node-launch — PATH shim for `claude` (OpenSpec: nvm-aware-claude-launch).
+#
+# Installed at ~/.local/bin/shims/claude, AHEAD of the real ~/.local/bin/claude
+# on PATH (see dot_zshrc.tmpl), so every launcher — the `wsc`/`wsh` aliases,
+# gh-dash `-x claude`, AoE, or a typed `claude` — flows through it unchanged.
+# It resolves the project's Node version from .nvmrc, activates it, then execs
+# the real claude by absolute path. claude's child processes (the Bash tool,
+# hooks, node/npm/bun) then inherit the project's Node via the prepended PATH.
+#
+# Why a shim and not a chpwd/worktrunk hook: launchers use `wt switch -x claude`
+# (chdir+exec, not a shell `cd`), so no `chpwd` autoload fires; a post-start hook
+# runs in a throwaway subprocess that never touches claude's env. The only point
+# that runs *in the process that becomes claude* is the launch command itself.
+#
+# Performance: steady state NEVER sources nvm.sh (~0.8s); it only PATH-prepends
+# the resolved version's bin/ dir (~0.4ms). nvm.sh is sourced ONLY in the cold/
+# alias fallback (version not installed yet, or an alias like lts/*) — one-time.
+
+set -u
+
+REAL_CLAUDE="$HOME/.local/bin/claude"
+NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+NODES="$NVM_DIR/versions/node"
+
+# 1) Locate .nvmrc: walk UP from $PWD (builtin path manipulation, no `dirname`
+#    forks), then, if nothing above, a bounded search DOWN.
+nvmrc=""
+d=$PWD
+while :; do
+  [ -f "$d/.nvmrc" ] && { nvmrc="$d/.nvmrc"; break; }
+  [ -z "$d" ] && break # just tested "/.nvmrc" (d="" => "$d/.nvmrc" == "/.nvmrc")
+  d=${d%/*}
+done
+
+if [ -z "$nvmrc" ]; then
+  # Bounded walk-down, skipping node_modules/ and .git/.
+  found=$(find "$PWD" -maxdepth 4 \( -name node_modules -o -name .git \) -prune \
+    -o -type f -name .nvmrc -print 2>/dev/null)
+  if [ -n "$found" ]; then
+    # Shallowest wins (fewest path separators); warn if more than one matched.
+    nvmrc=$(printf '%s\n' "$found" | awk '{ print gsub(/\//, "/") "\t" $0 }' \
+      | sort -n | head -n1 | cut -f2-)
+    if [ "$(printf '%s\n' "$found" | grep -c .)" -gt 1 ]; then
+      printf 'claude shim: multiple .nvmrc below %s; using %s\n' "$PWD" "$nvmrc" >&2
+    fi
+  fi
+fi
+
+# 2) With a .nvmrc in hand, resolve and activate the version. No .nvmrc => skip
+#    straight to delegation (near-zero-cost passthrough, no PATH change).
+if [ -n "$nvmrc" ]; then
+  ver=""
+  IFS= read -r ver <"$nvmrc" || : # keep ver even when the file lacks a trailing \n
+  ver=${ver#"${ver%%[![:space:]]*}"} # ltrim whitespace/CR
+  ver=${ver%"${ver##*[![:space:]]}"} # rtrim whitespace/CR
+
+  if [ -n "$ver" ]; then
+    matched=""
+    case "$ver" in
+      v[0-9]* | [0-9]*)
+        want=${ver#v}
+        if [ -d "$NODES/v$want/bin" ]; then
+          matched="v$want" # exact pin: 24.12.0 / v24.12.0
+        elif [ -d "$NODES" ]; then
+          # Major/minor prefix: 24 -> highest v24.* ; 24.12 -> highest v24.12.*
+          matched=$(for cand in "$NODES/v$want".*/; do
+            [ -d "$cand" ] && { cand=${cand%/}; printf '%s\n' "${cand##*/}"; }
+          done | sort -V | tail -n1)
+        fi
+        ;;
+    esac
+
+    if [ -n "$matched" ] && [ -d "$NODES/$matched/bin" ]; then
+      # Fast path: PATH-prepend only, never source nvm.sh.
+      PATH="$NODES/$matched/bin:$PATH"
+      export PATH
+    elif [ -s "$NVM_DIR/nvm.sh" ]; then
+      # Cold/alias fallback: a numeric pin not installed yet, or an alias form
+      # (lts/*, node, stable, ...) that can't be resolved from the filesystem.
+      # Source nvm + install/use (one-time); steady state returns to the fast path.
+      # shellcheck disable=SC1090,SC1091
+      . "$NVM_DIR/nvm.sh" >/dev/null 2>&1 || :
+      if command -v nvm >/dev/null 2>&1; then
+        nvm use "$ver" >/dev/null 2>&1 || nvm install "$ver" >/dev/null 2>&1 || :
+      fi
+    fi
+  fi
+fi
+
+# 3) Delegate to the real claude by absolute path — never via PATH (that would
+#    re-enter this shim). exec replaces the process, so the exit status passes
+#    through unchanged.
+if [ ! -x "$REAL_CLAUDE" ]; then
+  printf 'claude shim: real claude not found at %s\n' "$REAL_CLAUDE" >&2
+  exit 127
+fi
+exec "$REAL_CLAUDE" "$@"
