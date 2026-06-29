@@ -2263,6 +2263,67 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <h3>Node version on launch (nvm-aware shim)</h3>
+                    <p>
+                        A shim named <code>claude</code> at
+                        <code>~/.local/bin/shims/claude</code> sits ahead of the real
+                        <code>~/.local/bin/claude</code> on <code>PATH</code>. It reads the
+                        project's <code>.nvmrc</code> (walking up from the launch dir, then a
+                        bounded search down), activates that Node by prepending its
+                        <code>bin/</code> to <code>PATH</code>, then <code>exec</code>s the real
+                        binary. So claude and its subprocesses (Bash tool, hooks,
+                        <code>node</code>/<code>bun</code>/<code>npm</code>) run under the project's
+                        Node &mdash; through every launcher (<code>wsc</code>, <code>wsh</code>,
+                        gh-dash, AoE) with nothing new to type.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Behavior</th>
+                                <th>Detail</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>PATH ordering</td>
+                                <td>
+                                    <code>~/.local/bin/shims</code> must precede
+                                    <code>~/.local/bin</code> (set in <code>.zshrc</code>). If
+                                    bypassed, the shim is skipped and the real claude runs unchanged
+                                    &mdash; no breakage, just no Node selection.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Fast path</td>
+                                <td>
+                                    Installed version &rarr; <code>PATH</code>-prepend only
+                                    (~0.4&nbsp;ms). Never sources <code>nvm.sh</code>
+                                    (~0.8&nbsp;s).
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Cold / alias fallback</td>
+                                <td>
+                                    Version not installed yet, or an alias (<code>lts/*</code>,
+                                    <code>node</code>) &rarr; one-time <code>nvm install</code>/
+                                    <code>use</code>, then back to the fast path.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>No <code>.nvmrc</code></td>
+                                <td>Near-zero-cost passthrough; <code>PATH</code> untouched.</td>
+                            </tr>
+                            <tr>
+                                <td>AoE sandbox</td>
+                                <td>
+                                    <code>NVM_DIR</code> is in AoE's
+                                    <code>[sandbox].environment</code> passthrough so the shim
+                                    resolves versions from the filesystem inside the sandbox.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </details>
 

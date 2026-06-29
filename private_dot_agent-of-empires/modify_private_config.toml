@@ -54,8 +54,13 @@ MANAGED = [
      'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "done"', True),
     (("status_hooks", "on_error"),
      'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "errored" -sound Basso', True),
+    # NVM_DIR lets the claude-node-launch shim resolve the project's Node from
+    # $NVM_DIR/versions/node/ when AoE runs claude inside the sandbox (the shim
+    # needs the dir, not the nvm shell function). Outside the sandbox (the
+    # default — sandbox.enabled_by_default = false) claude inherits the launch
+    # shell's PATH and hits the shim regardless. See nvm-aware-claude-launch.
     (("sandbox", "environment"),
-     ["CLAUDE_CONFIG_DIR", "EDITOR", "TERM", "COLORTERM"], False),
+     ["CLAUDE_CONFIG_DIR", "EDITOR", "TERM", "COLORTERM", "NVM_DIR"], False),
     (("tools", "lazygit", "command"), "lazygit", False),
     (("tools", "lazygit", "hotkey"), "Alt+g", False),
 ]

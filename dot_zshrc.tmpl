@@ -295,6 +295,15 @@ command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 # User-local binaries (Claude Code, plannotator, etc.)
 export PATH="$HOME/.local/bin:$PATH"
 
+# claude-node-launch shim — MUST sit ahead of ~/.local/bin so `command -v claude`
+# resolves ~/.local/bin/shims/claude (the nvm-aware launcher) before the real
+# ~/.local/bin/claude. Prepended AFTER the line above precisely so it lands in
+# front of it. Every launcher (wsc/wsh, gh-dash -x claude, AoE) then runs claude
+# under the project's .nvmrc Node. If this ordering is ever bypassed the shim is
+# simply skipped and the real claude runs unchanged — no breakage, just no nvm
+# selection. See openspec change nvm-aware-claude-launch.
+export PATH="$HOME/.local/bin/shims:$PATH"
+
 # opencode (installed via its official script to ~/.opencode/bin, not brew)
 export PATH="$HOME/.opencode/bin:$PATH"
 
