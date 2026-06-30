@@ -255,6 +255,10 @@ mdview() {
     glow -p "$@"
   fi
 }
+# oh-my-zsh's lib/directories.zsh (sourced above) aliases `md='mkdir -p'`. zsh
+# refuses to define a function whose name is an active alias and aborts the rest
+# of this file — drop the alias first so `md()` parses.
+unalias md 2>/dev/null
 md() {
   # No args → glow's directory-browsing TUI; with args → the mdview dispatcher.
   if [ "$#" -eq 0 ]; then glow; else mdview "$@"; fi
