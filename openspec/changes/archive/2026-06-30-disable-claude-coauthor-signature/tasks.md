@@ -11,6 +11,6 @@
 
 ## 3. Aplicación y verificación end-to-end
 
-- [ ] 3.1 Sincronizar la fuente y aplicar (`chezmoi update` / `chezmoi apply`); confirmar que `~/.claude/settings.json` contiene el bloque `attribution` con `commit` y `pr` vacíos.
-- [ ] 3.2 En una sesión nueva de Claude Code, crear un commit de prueba y verificar que el mensaje NO incluye el trailer `Co-Authored-By: Claude` ni la línea `🤖 Generated with [Claude Code]`.
-- [ ] 3.3 Verificar que el cuerpo de una PR creada por Claude Code NO incluye la línea `🤖 Generated with [Claude Code]`.
+- [x] 3.1 Sincronizar la fuente y aplicar (`chezmoi update` / `chezmoi apply`); confirmar que `~/.claude/settings.json` contiene el bloque `attribution` con `commit` y `pr` vacíos.
+- [x] 3.2 En una sesión nueva de Claude Code, crear un commit de prueba y verificar que el mensaje NO incluye el trailer `Co-Authored-By: Claude` ni la línea `🤖 Generated with [Claude Code]`.
+- [x] 3.3 Verificar que el cuerpo de una PR creada por Claude Code NO incluye la línea `🤖 Generated with [Claude Code]`.
