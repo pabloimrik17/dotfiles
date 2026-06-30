@@ -1,0 +1,19 @@
+# glow configuration — terminal Markdown viewer
+# Managed by chezmoi; lands at ~/.config/glow/glow.yml
+
+# Rendering style. "dark" auto-fits a dark background and is close to the
+# repo's Catppuccin Mocha palette (a bespoke glamour JSON stylesheet is
+# deferred until the built-in style proves insufficient).
+style: "dark"
+
+# Word-wrap column. Keeps long prose readable on wide terminals.
+width: 120
+
+# Page rendered output through a less-style pager instead of dumping it.
+pager: true
+
+# Mouse-wheel scrolling in the TUI / pager.
+mouse: true
+
+# In the browse TUI, do NOT descend into hidden/ignored files by default.
+all: false

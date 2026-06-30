@@ -1,0 +1,21 @@
+[metadata]
+name = "markdown"
+description = "Browse Markdown files; preview rendered with glow, open via mdview"
+requirements = ["fd", "glow"]
+
+[source]
+command = "fd -e md -e markdown --type f"
+
+[preview]
+command = "glow -s auto '{}'"
+
+[ui]
+preview_panel = { size = 60 }
+
+[keybindings]
+enter = "actions:open"
+
+[actions.open]
+description = "Open in mdview (glow / mdfried)"
+command = "mdview '{}'"
+mode = "execute"

@@ -847,6 +847,75 @@
                         <code>lt</code> for structure &rarr; <code>lcode</code> for source tree
                         &rarr; <code>cat README.md</code>
                     </div>
+
+                    <h3>Markdown (glow / mdfried)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>md</code></td>
+                                <td>
+                                    No args &rarr; glow directory-browse TUI;
+                                    <code>md &lt;file&gt;</code> &rarr;
+                                    <code>mdview</code> dispatcher
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>mdview &lt;file&gt;</code></td>
+                                <td>
+                                    Central viewer dispatcher &mdash; piped/non-TTY &rarr; glow to
+                                    stdout; auto picks <code>mdfried</code> for docs with images or
+                                    a <code>mermaid</code> fence in a graphics-capable terminal,
+                                    else
+                                    <code>glow -p</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>MD_VIEWER</code></td>
+                                <td>
+                                    Override &mdash; <code>glow</code> or
+                                    <code>mdfried</code> forces that viewer unconditionally;
+                                    <code>auto</code>/unset = auto-select
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>glow</code></td>
+                                <td>
+                                    Default renderer &mdash; <code>glow &lt;file&gt;</code> renders
+                                    styled, <code>glow</code> (no args) browses the directory, also
+                                    reads stdin / remote URLs. The only viewer usable in preview
+                                    panes
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>mdfried &lt;file&gt;</code></td>
+                                <td>
+                                    Graphics-rich companion &mdash; inline images, mermaid diagrams,
+                                    Big Headers (needs a graphics-capable terminal &mdash; Kitty /
+                                    iTerm2 / Sixel &mdash; and tmux
+                                    <code>allow-passthrough on</code>)
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p class="note">
+                        <code>.md</code>/<code>.markdown</code> previews in <code>fzf</code> and the
+                        <code>television</code> <code>markdown</code> channel render with
+                        <code>glow</code>; the channel's <kbd>Enter</kbd> opens the file via
+                        <code>mdview</code>.
+                    </p>
+
+                    <div class="flow-only">
+                        <strong>Flow: Read a doc without leaving the terminal</strong><br />
+                        <code>tv markdown</code> &rarr; browse <code>.md</code> files, preview with
+                        glow &rarr; <kbd>Enter</kbd> opens via <code>mdview</code>
+                    </div>
                 </div>
             </details>
 
@@ -1140,7 +1209,9 @@
                                     lazygit &mdash; full TUI git interface with file view filtering,
                                     worktree branch visibility, and PR badges from
                                     <code>gh</code> (lazygit 0.61, requires
-                                    <code>showIcons: true</code> + <code>nerdFontsVersion</code>)
+                                    <code>showIcons: true</code> + <code>nerdFontsVersion</code>).
+                                    Custom <kbd>g</kbd> in the Files panel opens the selected file
+                                    rendered via <code>mdview</code>; diffs stay <code>delta</code>
                                 </td>
                             </tr>
                             <tr>

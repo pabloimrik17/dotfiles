@@ -42,6 +42,8 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **CLI Tools**  | [ticker](https://github.com/achannarasappa/ticker)                              | Terminal stock tracker with cost-basis positions and sector groups                         |
 | **CLI Tools**  | [age](https://age-encryption.org/)                                              | Modern encryption tool backing the chezmoi-managed secrets workflow                        |
 | **CLI Tools**  | [mole](https://github.com/tw93/mole)                                            | Deep clean and optimize your Mac — caches, logs, app remnants, `node_modules` (macOS only) |
+| **CLI Tools**  | [glow](https://github.com/charmbracelet/glow)                                   | Terminal Markdown viewer — TUI browse + CLI render                                         |
+| **CLI Tools**  | [mdfried](https://github.com/benjajaja/mdfried)                                 | Markdown viewer with inline images, mermaid diagrams, and Big Headers (graphics terminal)  |
 | **Git**        | [git-delta](https://github.com/dandavison/delta)                                | Syntax-highlighted diff viewer                                                             |
 | **Git**        | [lazygit](https://github.com/jesseduffield/lazygit)                             | TUI for git operations                                                                     |
 | **Git**        | [GitHub CLI](https://cli.github.com/)                                           | GitHub from the terminal                                                                   |
