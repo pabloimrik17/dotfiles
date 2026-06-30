@@ -589,6 +589,14 @@
                                 <td>clipboard, paste protection on</td>
                             </tr>
                             <tr>
+                                <td>Option key</td>
+                                <td>
+                                    Right <kbd>⌥</kbd> = Alt (lazygit <kbd>Alt</kbd>+<kbd>g</kbd>,
+                                    word-motion); left <kbd>⌥</kbd> kept for ISO chars
+                                    <code>@ # [ ] { } \ |</code>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Notify on finish</td>
                                 <td>After 10s when unfocused</td>
                             </tr>
@@ -1261,6 +1269,20 @@
                             <tr>
                                 <td><kbd>T</kbd></td>
                                 <td>CI checks via gh-enhance (tmux split)</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>f</kbd></td>
+                                <td>
+                                    Queue PR as AoE session &mdash; worktrunk creates the worktree,
+                                    <code>aoe add</code> registers it (no launch; opens later)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>F</kbd></td>
+                                <td>
+                                    Queue AoE review team &mdash; auto-launches a background
+                                    <code>/review-team</code> (3 agents; none post to the PR)
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -2543,7 +2565,9 @@
                             </tr>
                             <tr>
                                 <td>Theme</td>
-                                <td><code>tokyo-night-storm</code>, <code>truecolor</code></td>
+                                <td>
+                                    <code>catppuccin-mocha</code> (custom), <code>truecolor</code>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Default tool</td>
@@ -2552,8 +2576,25 @@
                             <tr>
                                 <td>Status hooks</td>
                                 <td>
-                                    <code>terminal-notifier</code> on waiting/idle
-                                    (<code>$AOE_SESSION_TITLE</code>)
+                                    <code>terminal-notifier</code> on waiting/idle/error &mdash;
+                                    distinct sounds (Glass / &mdash; / Basso),
+                                    <code>$AOE_SESSION_TITLE</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Sound</td>
+                                <td>
+                                    <code>enabled = true</code> &mdash; state-transition audio
+                                    (assets via <code>aoe sounds install</code>,
+                                    <code>.chezmoiignore</code>d)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>lazygit tool-session</td>
+                                <td>
+                                    <kbd>Alt</kbd>+<kbd>g</kbd> &mdash;
+                                    <code>[tools.lazygit]</code>, git UI scoped to the session
+                                    worktree (home view)
                                 </td>
                             </tr>
                             <tr>
@@ -2562,6 +2603,17 @@
                                     <code>disabled</code> &mdash; own <code>~/.tmux.conf</code>
                                     owns it
                                 </td>
+                            </tr>
+                            <tr>
+                                <td>tmux clipboard</td>
+                                <td>
+                                    <code>enabled</code> &mdash; OSC 52 passthrough so wrapped
+                                    agents can copy to the system clipboard
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>tmux mouse</td>
+                                <td><code>disabled</code> &mdash; deterministic; user owns it</td>
                             </tr>
                             <tr>
                                 <td>Worktree submodules</td>
@@ -2594,9 +2646,19 @@
                             <tr>
                                 <td>Config drift</td>
                                 <td>
-                                    aoe rewrites the config to full canonical form on launch &mdash;
-                                    expect <code>chezmoi diff</code> drift (your overrides are
-                                    preserved)
+                                    aoe rewrites the config to canonical form on launch, but a
+                                    chezmoi <code>modify_</code> script (tomlkit via
+                                    <code>uv</code>) merges only the managed keys and preserves
+                                    AoE's runtime tables &mdash; <code>chezmoi diff</code> stays
+                                    quiet
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Status column</td>
+                                <td>
+                                    five self-gating session-status hooks baked into
+                                    <code>~/.claude/settings.json</code> report Claude state to AoE
+                                    (no-op when <code>$AOE_INSTANCE_ID</code> is unset)
                                 </td>
                             </tr>
                             <tr>
