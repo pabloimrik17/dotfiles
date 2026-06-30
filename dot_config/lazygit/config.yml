@@ -37,11 +37,13 @@ gui:
         "*": "#b4befe"
 
 # Open the selected file rendered via the mdview dispatcher (glow / mdfried).
-# subprocess: true hands the terminal to the viewer and resumes lazygit on exit.
+# `output: terminal` hands the terminal to the viewer and resumes lazygit on exit
+# (the modern, non-deprecated form of `subprocess: true` — using the deprecated
+# key makes lazygit migrate + rewrite this whole file, which drifts from chezmoi).
 # This views a whole document; diffs remain delta's job (unchanged).
 customCommands:
     - key: "g"
       context: "files"
       command: "mdview {{.SelectedFile.Name | quote}}"
-      subprocess: true
+      output: terminal
       description: "Open file rendered (mdview: glow/mdfried)"
