@@ -42,6 +42,6 @@ gui:
 customCommands:
     - key: "g"
       context: "files"
-      command: "mdview {{.SelectedFile.Name}}"
+      command: "mdview {{.SelectedFile.Name | quote}}"
       subprocess: true
       description: "Open file rendered (mdview: glow/mdfried)"

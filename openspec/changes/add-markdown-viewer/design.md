@@ -72,8 +72,11 @@ place and is reconfigurable via `MD_VIEWER`.
 **6. Heuristics: content sniff + terminal/tmux detection.**
 Content: a cheap grep for an image (`![…](…)`) or a ```` ```mermaid ```` fence decides whether
 mdfried *adds value*. Terminal: detect a graphics-capable terminal (Ghostty/Kitty/iTerm) and treat
-tmux as capable only with passthrough on. The exact detection expressions are an implementation
-detail for tasks; the spec fixes the behavior.
+tmux as capable only with passthrough on **and** a surviving graphics-terminal marker
+(`GHOSTTY_RESOURCES_DIR`/`KITTY_WINDOW_ID`) — passthrough alone is not proof of graphics support,
+since tmux masks the outer terminal's `$TERM`/`$TERM_PROGRAM`, so a passthrough-on session under a
+non-graphics terminal must still fall back to glow. The exact detection expressions are an
+implementation detail for tasks; the spec fixes the behavior.
 *Trade-off:* the sniff can occasionally "guess wrong" (a doc with one trivial image opens mdfried).
 The `MD_VIEWER` override and a sensible default absorb this.
 

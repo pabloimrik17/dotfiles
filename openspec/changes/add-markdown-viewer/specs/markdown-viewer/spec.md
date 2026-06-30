@@ -56,8 +56,9 @@ Its behavior SHALL be:
 - When the `MD_VIEWER` environment variable is set to `glow` or `mdfried`, it SHALL use that tool
   unconditionally; the default (`auto` or unset) selects automatically.
 - In auto mode it SHALL use `mdfried` only when the document contains embedded images or a
-  `mermaid` code fence AND the terminal supports a graphics protocol (Kitty/iTerm2/Sixel, including
-  inside tmux when passthrough is enabled); otherwise it SHALL use `glow`'s pager.
+  `mermaid` code fence AND the terminal supports a graphics protocol (Kitty/iTerm2/Sixel) — inside
+  tmux this means passthrough is enabled AND a graphics-capable terminal is detected (passthrough
+  alone is insufficient); otherwise it SHALL use `glow`'s pager.
 
 #### Scenario: Piped output renders to stdout
 

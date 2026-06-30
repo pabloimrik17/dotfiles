@@ -141,7 +141,7 @@ export FZF_DEFAULT_OPTS="
   --height 40%
   --layout=reverse
   --border
-  --preview 'case {} in *.md|*.markdown) glow -s auto {};; *) bat --color=always --style=numbers --line-range=:500 {};; esac'
+  --preview 'case {} in *.md|*.markdown) glow -s auto -- {};; *) bat --color=always --style=numbers --line-range=:500 -- {};; esac'
   --preview-window=right:60%
   --bind='ctrl-/:toggle-preview'
   --color=bg+:#313244,bg:#1E1E2E,spinner:#F5E0DC,hl:#F38BA8
@@ -149,7 +149,7 @@ export FZF_DEFAULT_OPTS="
   --color=marker:#B4BEFE,fg+:#CDD6F4,prompt:#CBA6F7,hl+:#F38BA8
   --color=selected-bg:#45475A,border:#6C7086,label:#CDD6F4
 "
-export FZF_CTRL_T_OPTS="--preview 'case {} in *.md|*.markdown) glow -s auto {};; *) bat --color=always --style=numbers --line-range=:500 {};; esac'"
+export FZF_CTRL_T_OPTS="--preview 'case {} in *.md|*.markdown) glow -s auto -- {};; *) bat --color=always --style=numbers --line-range=:500 -- {};; esac'"
 export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
 
 # television - Smart fuzzy finder with context-aware autocomplete
@@ -223,12 +223,17 @@ __md_has_visuals() {
   grep -qE '^[[:space:]]*```mermaid' "$1" 2>/dev/null
 }
 __md_graphics_capable() {
-  # tmux strips terminal graphics escapes unless passthrough is enabled.
   if [ -n "${TMUX:-}" ]; then
+    # Inside tmux, graphics escapes only pass through with passthrough on, AND
+    # tmux masks the outer terminal's $TERM/$TERM_PROGRAM — so passthrough alone
+    # is not proof of graphics support. Require a marker that survives into the
+    # pane (Ghostty/Kitty export these); otherwise assume no graphics → glow.
     [ "$(tmux show -gv allow-passthrough 2>/dev/null)" = "on" ] || return 1
-    return 0  # tmux masks the outer terminal; trust the deliberate passthrough opt-in.
+    [ -n "${KITTY_WINDOW_ID:-}" ] && return 0
+    [ -n "${GHOSTTY_RESOURCES_DIR:-}" ] && return 0
+    return 1
   fi
-  # Terminals that speak a graphics protocol (Kitty graphics / iTerm2 / Sixel).
+  # Outside tmux: terminals that speak a graphics protocol (Kitty / iTerm2 / Sixel).
   if [ -n "${KITTY_WINDOW_ID:-}" ] || [ -n "${GHOSTTY_RESOURCES_DIR:-}" ]; then return 0; fi
   case "${TERM_PROGRAM:-}" in ghostty|iTerm.app|WezTerm) return 0 ;; esac
   [ "${LC_TERMINAL:-}" = "iTerm2" ] && return 0
