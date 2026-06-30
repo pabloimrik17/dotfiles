@@ -48,9 +48,11 @@ chezmoi-managed config.
 
 ### Requirement: mdview dispatcher selects the viewer when opening a document
 
-`dot_zshrc.tmpl` SHALL define an `mdview` shell function that centralizes the choice of viewer when
-*opening* a Markdown document, so every surface in the stack delegates the decision to one place.
-Its behavior SHALL be:
+An `mdview` dispatcher SHALL centralize the choice of viewer when *opening* a Markdown document, so
+every surface in the stack delegates the decision to one place. It SHALL be provided as an
+executable on `PATH` (not merely a shell function), because surfaces such as lazygit `customCommands`
+and the television channel invoke it from a non-interactive subprocess that does not source the
+interactive shell config — a shell function would be undefined there. Its behavior SHALL be:
 
 - When stdout is not a TTY (piped), it SHALL render to stdout with `glow` (no full-screen TUI).
 - When the `MD_VIEWER` environment variable is set to `glow` or `mdfried`, it SHALL use that tool

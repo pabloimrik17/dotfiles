@@ -7,7 +7,10 @@ requirements = ["fd", "glow"]
 command = "fd -e md -e markdown --type f"
 
 [preview]
-command = "glow -s auto '{}'"
+# CLICOLOR_FORCE + an explicit style: the preview pane has no TTY, so `-s auto`
+# falls back to glow's colorless "notty" profile and renders raw-looking. Forcing
+# color + the dark style gives a real rendered preview.
+command = "CLICOLOR_FORCE=1 glow -s dark '{}'"
 
 [ui]
 preview_panel = { size = 60 }

@@ -141,7 +141,7 @@ export FZF_DEFAULT_OPTS="
   --height 40%
   --layout=reverse
   --border
-  --preview 'case {} in *.md|*.markdown) glow -s auto -- {};; *) bat --color=always --style=numbers --line-range=:500 -- {};; esac'
+  --preview 'case {} in *.md|*.markdown) CLICOLOR_FORCE=1 glow -s dark -- {};; *) bat --color=always --style=numbers --line-range=:500 -- {};; esac'
   --preview-window=right:60%
   --bind='ctrl-/:toggle-preview'
   --color=bg+:#313244,bg:#1E1E2E,spinner:#F5E0DC,hl:#F38BA8
@@ -149,7 +149,7 @@ export FZF_DEFAULT_OPTS="
   --color=marker:#B4BEFE,fg+:#CDD6F4,prompt:#CBA6F7,hl+:#F38BA8
   --color=selected-bg:#45475A,border:#6C7086,label:#CDD6F4
 "
-export FZF_CTRL_T_OPTS="--preview 'case {} in *.md|*.markdown) glow -s auto -- {};; *) bat --color=always --style=numbers --line-range=:500 -- {};; esac'"
+export FZF_CTRL_T_OPTS="--preview 'case {} in *.md|*.markdown) CLICOLOR_FORCE=1 glow -s dark -- {};; *) bat --color=always --style=numbers --line-range=:500 -- {};; esac'"
 export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
 
 # television - Smart fuzzy finder with context-aware autocomplete
@@ -214,47 +214,12 @@ alias cat="bat --style=auto"
 alias catp="bat --style=plain"  # No line numbers or decorations
 
 # Markdown viewing — glow (default renderer) + mdfried (graphics-rich companion).
-# `mdview` is the single dispatcher every surface (md, television, lazygit) calls,
-# so the glow-vs-mdfried policy lives in one place. `cat`→`bat` (source highlight)
-# is a different job and stays untouched.
-__md_has_visuals() {
-  # True when the doc has an embedded image or a mermaid fence (where mdfried adds value).
-  grep -qE '!\[.*\]\(.*\)' "$1" 2>/dev/null && return 0
-  grep -qE '^[[:space:]]*```mermaid' "$1" 2>/dev/null
-}
-__md_graphics_capable() {
-  if [ -n "${TMUX:-}" ]; then
-    # Inside tmux, graphics escapes only pass through with passthrough on, AND
-    # tmux masks the outer terminal's $TERM/$TERM_PROGRAM — so passthrough alone
-    # is not proof of graphics support. Require a marker that survives into the
-    # pane (Ghostty/Kitty export these); otherwise assume no graphics → glow.
-    [ "$(tmux show -gv allow-passthrough 2>/dev/null)" = "on" ] || return 1
-    [ -n "${KITTY_WINDOW_ID:-}" ] && return 0
-    [ -n "${GHOSTTY_RESOURCES_DIR:-}" ] && return 0
-    return 1
-  fi
-  # Outside tmux: terminals that speak a graphics protocol (Kitty / iTerm2 / Sixel).
-  if [ -n "${KITTY_WINDOW_ID:-}" ] || [ -n "${GHOSTTY_RESOURCES_DIR:-}" ]; then return 0; fi
-  case "${TERM_PROGRAM:-}" in ghostty|iTerm.app|WezTerm) return 0 ;; esac
-  [ "${LC_TERMINAL:-}" = "iTerm2" ] && return 0
-  case "${TERM:-}" in xterm-kitty|xterm-ghostty|*-sixel) return 0 ;; esac
-  return 1
-}
-mdview() {
-  # Non-TTY (piped): render to stdout with glow, never a full-screen TUI.
-  [ -t 1 ] || { glow "$@"; return; }
-  # Explicit override wins, unconditionally.
-  case "${MD_VIEWER:-auto}" in
-    glow)    glow -p "$@"; return ;;
-    mdfried) mdfried "$@"; return ;;
-  esac
-  # Auto: mdfried only for graphics-rich docs in a graphics-capable terminal; else glow's pager.
-  if [ -f "${1:-}" ] && __md_has_visuals "$1" && __md_graphics_capable; then
-    mdfried "$@"
-  else
-    glow -p "$@"
-  fi
-}
+# The glow-vs-mdfried policy lives in the `mdview` dispatcher, which ships as a
+# PATH executable (~/.local/bin/mdview, source dot_local/bin/executable_mdview)
+# rather than a shell function — lazygit and television invoke it from a
+# non-interactive subprocess that never sources this file, where a function
+# would be "command not found". `cat`→`bat` (source highlight) stays untouched.
+#
 # oh-my-zsh's lib/directories.zsh (sourced above) aliases `md='mkdir -p'`. zsh
 # refuses to define a function whose name is an active alias and aborts the rest
 # of this file — drop the alias first so `md()` parses.

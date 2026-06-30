@@ -126,6 +126,24 @@ empirically: with it set, glow loads `~/.config/glow/glow.yml`; unset, the same 
 *Alternative rejected:* per-tool relocation to macOS-native paths (e.g. glow → `~/Library/
 Preferences`) — fixes only glow, breaks the `~/.config` convention, and needs OS-templating for Linux.
 
+**14. `mdview` is a PATH executable, not a shell function.**
+Discovered during post-merge testing: as a `dot_zshrc.tmpl` function, `mdview` was invisible to the
+surfaces that call it. lazygit and television run their commands via a non-interactive `sh -c`/`zsh
+-c` that does not source `~/.zshrc`, so lazygit's `g` errored with `command not found: mdview` (and
+the television Enter action would have too). This contradicts Decisions 5/11, which require those
+surfaces to delegate *to* `mdview`. Resolved by shipping the dispatcher as
+`dot_local/bin/executable_mdview` → `~/.local/bin/mdview` (already on `PATH`); the helpers move into
+the script and `dot_zshrc.tmpl` keeps only the thin interactive `md` wrapper.
+*Alternative rejected:* having each surface call `zsh -ic 'mdview …'` — fragile, slow, and re-couples
+the policy to the interactive shell the executable was meant to decouple it from.
+
+**15. Preview panes force color + an explicit glow style.**
+Discovered during post-merge testing: `glow -s auto` in the fzf/television preview rendered
+raw-looking (literal `#`/`**`, no color). A preview pane has no TTY, so glow's `auto` style resolves
+to the colorless `notty` profile and its color profile downgrades to ASCII. The preview commands
+therefore use `CLICOLOR_FORCE=1 glow -s dark` to force a real rendered, colored preview regardless of
+TTY. (The foreground open path is unaffected — it runs under a TTY.)
+
 ## Risks / Trade-offs
 
 - **`mdfried` maintenance/abandonment risk** → mitigated by it being secondary; glow alone satisfies

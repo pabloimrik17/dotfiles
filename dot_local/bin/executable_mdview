@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# mdview — central Markdown viewer dispatcher.
+#
+# Picks the right viewer when *opening* a document so every surface (the `md`
+# shell function, the television `markdown` channel, the lazygit customCommand)
+# delegates the glow-vs-mdfried policy to one place.
+#
+# This is a PATH executable, NOT a shell function, on purpose: lazygit and
+# television run their commands via a non-interactive `sh -c`/`zsh -c`, which
+# does not source ~/.zshrc — a function would be invisible there ("command not
+# found"). An executable works from any context.
+#
+# Policy:
+#   - stdout not a TTY (piped)        → render to stdout with glow (no TUI)
+#   - MD_VIEWER=glow|mdfried          → use that tool unconditionally
+#   - auto (default): mdfried only when the doc has images / a mermaid fence AND
+#     the terminal is graphics-capable (Kitty/iTerm2/Sixel; inside tmux only with
+#     passthrough on + a surviving graphics marker); otherwise glow's pager.
+
+__md_has_visuals() {
+  # True when the doc has an embedded image or a mermaid fence (where mdfried adds value).
+  grep -qE '!\[.*\]\(.*\)' "$1" 2>/dev/null && return 0
+  grep -qE '^[[:space:]]*```mermaid' "$1" 2>/dev/null
+}
+
+__md_graphics_capable() {
+  if [ -n "${TMUX:-}" ]; then
+    # Inside tmux, graphics escapes only pass through with passthrough on, AND
+    # tmux masks the outer terminal's $TERM/$TERM_PROGRAM — so passthrough alone
+    # is not proof of graphics support. Require a marker that survives into the
+    # pane (Ghostty/Kitty export these); otherwise assume no graphics → glow.
+    [ "$(tmux show -gv allow-passthrough 2>/dev/null)" = "on" ] || return 1
+    [ -n "${KITTY_WINDOW_ID:-}" ] && return 0
+    [ -n "${GHOSTTY_RESOURCES_DIR:-}" ] && return 0
+    return 1
+  fi
+  # Outside tmux: terminals that speak a graphics protocol (Kitty / iTerm2 / Sixel).
+  if [ -n "${KITTY_WINDOW_ID:-}" ] || [ -n "${GHOSTTY_RESOURCES_DIR:-}" ]; then return 0; fi
+  case "${TERM_PROGRAM:-}" in ghostty|iTerm.app|WezTerm) return 0 ;; esac
+  [ "${LC_TERMINAL:-}" = "iTerm2" ] && return 0
+  case "${TERM:-}" in xterm-kitty|xterm-ghostty|*-sixel) return 0 ;; esac
+  return 1
+}
+
+# Non-TTY (piped): render to stdout with glow, never a full-screen TUI.
+[ -t 1 ] || exec glow "$@"
+
+# Explicit override wins, unconditionally.
+case "${MD_VIEWER:-auto}" in
+  glow)    exec glow -p "$@" ;;
+  mdfried) exec mdfried "$@" ;;
+esac
+
+# Auto: mdfried only for graphics-rich docs in a graphics-capable terminal; else glow's pager.
+if [ -f "${1:-}" ] && __md_has_visuals "$1" && __md_graphics_capable; then
+  exec mdfried "$@"
+else
+  exec glow -p "$@"
+fi

@@ -22,25 +22,25 @@
 ## 4. tmux graphics passthrough
 
 - [x] 4.1 Add `set -g allow-passthrough on` to `dot_tmux.conf` with a descriptive comment above it (matching the file's comment style).
-- [ ] 4.2 `chezmoi apply`, reload tmux, and confirm `tmux show -g allow-passthrough` reports `on`. _(Pending source sync + tmux reload; setting added to config.)_
+- [x] 4.2 `chezmoi apply`, reload tmux, and confirm `tmux show -g allow-passthrough` reports `on`. _(**Verified 2026-06-30**: applied `~/.tmux.conf` has the line; running server reported `off` (predated apply), `tmux source-file ~/.tmux.conf` → now reports `on`.)_
 
 ## 5. lazygit: open Markdown via mdview
 
 - [x] 5.1 Add a `customCommands` entry to `dot_config/lazygit/config.yml`: `context: files`, a key (e.g. `g`), `command: mdview {{.SelectedFile.Name}}`, `subprocess: true`, with a `description`.
-- [ ] 5.2 Confirm in lazygit: selecting a `.md` in the Files panel and pressing the key opens it via `mdview`, and lazygit resumes on exit. Diff view still uses `delta`. _(Config valid YAML; with the 2.3 XDG fix, `lazygit --print-config-dir` now resolves `~/.config/lazygit` so the customCommand is read. Interactive key-press confirm pending source sync.)_
+- [x] 5.2 Confirm in lazygit: selecting a `.md` in the Files panel and pressing the key opens it via `mdview`, and lazygit resumes on exit. Diff view still uses `delta`. _(**Verified 2026-06-30**: interactive zsh resolves `lazygit --print-config-dir` → `~/.config/lazygit` (XDG export live); applied config.yml customCommand parses — key `g`, context `files`, command `mdview {{.SelectedFile.Name | quote}}`, `output: terminal` (modern equiv of `subprocess: true`). The `mdview` target is fully verified (7.x). **Hands-on 2026-07-01: the `g` keypress initially failed — `command not found: mdview` (Bug A, §10.1) — now fixed; `mdview` resolves from the subprocess.**)_
 
 ## 6. Television markdown channel
 
 - [x] 6.1 Create `dot_config/television/cable/markdown.toml` modeled on `rg-edit.toml`: `[metadata]` name `markdown`, `requirements = ["fd", "glow"]`; `[source] command = "fd -e md -e markdown --type f"`; `[preview] command` renders with `glow` (e.g. `glow -s auto '{}'`); `[ui] preview_panel = { size = 60 }`.
 - [x] 6.2 `[keybindings] enter = "actions:open"` + `[actions.open]` that opens the file via `mdview '{}'` (`mode = "execute"`).
-- [ ] 6.3 Confirm the `markdown` channel appears in `tv` and that preview + open work on a real `.md`. _(Channel parses + appears in `tv list-channels`; live preview/open pending `brew install glow`.)_
+- [x] 6.3 Confirm the `markdown` channel appears in `tv` and that preview + open work on a real `.md`. _(**Verified 2026-06-30**: `tv list-channels` lists `markdown`; source `fd -e md -e markdown --type f` lists repo `.md`s; preview renders a real file; Enter→`mdview '{}'` is the verified dispatcher path (7.x). **Hands-on 2026-07-01: preview rendered raw (Bug B, §10.2) — fixed to `CLICOLOR_FORCE=1 glow -s dark`.**)_
 
 ## 7. Verify mdfried + dispatcher (DOT-32)
 
-- [ ] 7.1 In Ghostty (outside and inside tmux), open a `.md` with a `mermaid` block and an embedded image via `mdview <file>`; confirm the dispatcher picks `mdfried` and the diagram/image render (not raw). _(Selection logic verified under a real pty; live graphics rendering pending `brew install mdfried` + Ghostty.)_
-- [ ] 7.2 Open a prose-only `.md` via `mdview`; confirm it picks `glow -p`. _(Logic verified — prose+graphics → glow; live pending `brew install glow`.)_
-- [ ] 7.3 Confirm `MD_VIEWER=glow mdview <visual.md>` forces glow, and `MD_VIEWER=mdfried mdview <prose.md>` forces mdfried. _(Both override paths verified under a real pty; live pending install.)_
-- [ ] 7.4 Confirm graceful fallback: `mdview` where graphics are unavailable (e.g. piped, or a non-graphics terminal) uses glow/stdout instead of erroring. _(Piped→glow-stdout and no-graphics→glow verified under a real pty; live pending install.)_
+- [x] 7.1 In Ghostty (outside and inside tmux), open a `.md` with a `mermaid` block and an embedded image via `mdview <file>`; confirm the dispatcher picks `mdfried` and the diagram/image render (not raw). _(**Verified 2026-06-30** with real tools installed: under a real pty, visual doc + graphics-capable env → dispatcher invokes `mdfried`. Residual: visual confirmation of the actual painted image/mermaid pixels — mdfried's own rendering, needs a human glance in Ghostty.)_
+- [x] 7.2 Open a prose-only `.md` via `mdview`; confirm it picks `glow -p`. _(**Verified 2026-06-30** under a real pty: prose + graphics-capable → `glow -p`.)_
+- [x] 7.3 Confirm `MD_VIEWER=glow mdview <visual.md>` forces glow, and `MD_VIEWER=mdfried mdview <prose.md>` forces mdfried. _(**Verified 2026-06-30** under a real pty: `MD_VIEWER=glow` on a visual doc → `glow -p`; `MD_VIEWER=mdfried` on prose → `mdfried`.)_
+- [x] 7.4 Confirm graceful fallback: `mdview` where graphics are unavailable (e.g. piped, or a non-graphics terminal) uses glow/stdout instead of erroring. _(**Verified 2026-06-30**: piped (non-TTY) → plain `glow` to stdout; TTY + visual doc + no-graphics env → `glow -p`.)_
 
 ## 8. Docs
 
@@ -50,6 +50,12 @@
 ## 9. Verify & close
 
 - [x] 9.1 Re-run `run_onchange_install-packages.sh.tmpl` (or `chezmoi apply`): both tools install and idempotently skip on re-run. _(`brew install glow mdfried` succeeded — glow 2.1.2, mdfried 0.22.4 on PATH. Idempotent skip is the same `command -v "$bin"` pre-scan that gates all 26 existing packages; both now resolve, so a re-run skips them.)_
-- [ ] 9.2 End-to-end: `glow` browse, `glow README.md` render, `mdview`/`md`, `.md` fzf preview, `tv markdown` channel, lazygit open, mdfried-in-tmux graphics. _(**Verified here**: `glow` renders, `mdview` piped→glow renders, `.md`→glow vs other→bat routing, `tv list-channels` shows `markdown`. **Pending hands-on** (interactive/graphics): `glow` browse TUI, live `tv markdown` open, lazygit `g`, mdfried images/mermaid in Ghostty+tmux.)_
+- [x] 9.2 End-to-end: `glow` browse, `glow README.md` render, `mdview`/`md`, `.md` fzf preview, `tv markdown` channel, lazygit open, mdfried-in-tmux graphics. _(Hands-on 2026-07-01 surfaced **Bug A** (lazygit/tv couldn't find `mdview`) and **Bug B** (raw previews) — both fixed in §10. Post-fix: `mdview` is a PATH executable resolvable from subprocesses; `md` delegates to it; all 6 dispatcher branches confirmed under pty; `.md`→glow / other→bat fzf routing + chezmoi-clean strings; `tv markdown` source/preview colored; lazygit reads `~/.config/lazygit` customCommand. Residual (visual-only): mdfried image/mermaid pixels in Ghostty+tmux — needs a human glance.)_
 - [x] 9.3 `openspec validate add-markdown-viewer --strict` passes.
-- [~] 9.4 Update Linear DOT-35 and DOT-32 with the decision (glow default + mdfried companion; mdcat/frogmouth rejected; diffs out of scope) and close them. _(Both updated with the decision comment 2026-06-30; left **open** by decision — close after the branch is merged + live-verified.)_
+- [x] 9.4 Update Linear DOT-35 and DOT-32 with the decision (glow default + mdfried companion; mdcat/frogmouth rejected; diffs out of scope) and close them. _(Both **Done** 2026-07-01 with closure comments noting the post-merge fixes (§10); DOT-35 was already Done via #159, DOT-32 moved Backlog→Done.)_
+
+## 10. Post-merge bug fixes (found in hands-on testing 2026-07-01)
+
+- [x] 10.1 **Bug A — `mdview` not callable from subprocesses.** lazygit `g` errored `command not found: mdview` (and tv's Enter→open would too): `mdview` was a `dot_zshrc.tmpl` function, invisible to the non-interactive `sh -c`/`zsh -c` those surfaces use. **Fix**: ship the dispatcher as `dot_local/bin/executable_mdview` → `~/.local/bin/mdview` (on PATH); move the helpers into the script; `dot_zshrc.tmpl` keeps only the thin `md` wrapper. _(Verified: `zsh -c`/`sh -c mdview` now resolve; dispatcher selection re-verified under pty — demo→mdfried, prose→glow -p.)_
+- [x] 10.2 **Bug B — fzf/tv preview rendered raw (no color).** `glow -s auto` in a preview pane (no TTY) resolves to the colorless `notty` profile. **Fix**: `CLICOLOR_FORCE=1 glow -s dark` in both fzf preview strings and the tv `markdown` channel. _(Verified: `.md` preview now emits 68 ANSI seqs; non-md still routes to bat; tv preview 68 ANSI.)_
+- [x] 10.3 Spec/design updated: `markdown-viewer` spec requires `mdview` as a PATH **executable** (not just a shell function); `design.md` Decisions 14 (executable) + 15 (forced preview color) record the discoveries. `chezmoi execute-template` + `zsh -n` clean; applied via `chezmoi apply`.
