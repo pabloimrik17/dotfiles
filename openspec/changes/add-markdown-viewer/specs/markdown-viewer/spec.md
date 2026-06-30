@@ -31,10 +31,20 @@ A chezmoi-managed `glow.yml` SHALL be provided at `dot_config/glow/glow.yml`, la
 Catppuccin Mocha palette, a word-wrap width, the pager enabled, and mouse support enabled. Each
 setting SHALL carry an explanatory comment.
 
+Because on macOS glow resolves its config under `~/Library/Preferences/glow/` when `XDG_CONFIG_HOME`
+is unset, `dot_zshrc.tmpl` SHALL export `XDG_CONFIG_HOME="$HOME/.config"` (before any tool init) so
+glow — and other XDG-respecting tools the repo configures under `~/.config` — honor the
+chezmoi-managed config.
+
 #### Scenario: Config applied
 
 - **WHEN** `chezmoi apply` runs
 - **THEN** `~/.config/glow/glow.yml` exists and glow uses its style, width, pager, and mouse settings
+
+#### Scenario: glow honors the XDG config location on macOS
+
+- **WHEN** a shell with `XDG_CONFIG_HOME` exported to `~/.config` runs glow
+- **THEN** glow loads `~/.config/glow/glow.yml` rather than the macOS-default `~/Library/Preferences/glow/glow.yml`
 
 ### Requirement: mdview dispatcher selects the viewer when opening a document
 

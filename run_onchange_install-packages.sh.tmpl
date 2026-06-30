@@ -77,7 +77,7 @@ fi
 # Group 1: Brew packages
 # ------------------------------------------------------------------
 BREW_TAPS=(tarkah/tickrs achannarasappa/tap)
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tickrs ticker age mole aoe)
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tickrs ticker age mole aoe glow mdfried)
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -1138,7 +1138,7 @@ info "This system is not macOS. Automatic installation is not supported."
 info ""
 info "Please install the following packages manually:"
 info ""
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe, glow, mdfried"
 info "    - terminal-notifier: macOS-only (skip on Linux)"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
@@ -1148,6 +1148,8 @@ info "    - age: brew install age (or use your distro's package manager, e.g. ap
 info "    - opencode: curl -fsSL https://opencode.ai/install | bash  (official installer; installs to ~/.opencode/bin — add it to PATH)"
 info "    - CodeRabbit: curl -fsSL https://cli.coderabbit.ai/install.sh | sh  (official installer; installs to ~/.local/bin — auth on first use)"
 info "    - aoe: cargo install aoe (Linux supported by upstream; brew is macOS-only)"
+info "    - glow: brew install glow (or use your distro's package manager / go install)"
+info "    - mdfried: brew install mdfried (or cargo install mdfried); its image / mermaid / Big-Header rendering needs a terminal with a graphics protocol (Kitty, iTerm2, or Sixel) and otherwise degrades to character rendering"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: oh-my-zsh (https://ohmyz.sh/)"
 info "  Zsh plugins:"
@@ -1188,7 +1190,7 @@ fi
 
 info "Installation complete!"
 {{ if eq .chezmoi.os "darwin" -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age, mole, aoe"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age, mole, aoe, glow, mdfried"
 {{ else -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age, aoe"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age, aoe, glow, mdfried"
 {{ end -}}

@@ -35,3 +35,13 @@ gui:
             - "#cdd6f4"
     authorColors:
         "*": "#b4befe"
+
+# Open the selected file rendered via the mdview dispatcher (glow / mdfried).
+# subprocess: true hands the terminal to the viewer and resumes lazygit on exit.
+# This views a whole document; diffs remain delta's job (unchanged).
+customCommands:
+    - key: "g"
+      context: "files"
+      command: "mdview {{.SelectedFile.Name}}"
+      subprocess: true
+      description: "Open file rendered (mdview: glow/mdfried)"

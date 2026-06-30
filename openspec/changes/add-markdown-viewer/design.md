@@ -111,6 +111,18 @@ The spec's `BREW_PACKAGES` requirement said "25 packages" and omitted `aoe`, alr
 (real count 26). The delta lists the true target — 26 + `glow` + `mdfried` = **28** — and adds the
 matching per-package scenarios. Spec hygiene, not new behavior.
 
+**13. Export `XDG_CONFIG_HOME=$HOME/.config` so macOS honors `~/.config`.**
+Discovered during implementation: with `XDG_CONFIG_HOME` unset (verified — login shell *and* every
+system/user zsh startup file), macOS tools fall back to their native dirs — glow reads
+`~/Library/Preferences/glow/glow.yml`, lazygit reads `~/Library/Application Support/lazygit/` (per
+`lazygit --print-config-dir`) — bypassing the chezmoi-managed `~/.config/*` this repo standardizes
+on. So the `glow.yml` (Decision 8) and the lazygit `customCommand` (Decision 11) would silently not
+load. `dot_zshrc.tmpl` therefore exports `XDG_CONFIG_HOME="$HOME/.config"` before any tool init,
+aligning every XDG-respecting tool (glow, lazygit, television, …) on `~/.config`. Confirmed
+empirically: with it set, glow loads `~/.config/glow/glow.yml`; unset, the same file is ignored.
+*Alternative rejected:* per-tool relocation to macOS-native paths (e.g. glow → `~/Library/
+Preferences`) — fixes only glow, breaks the `~/.config` convention, and needs OS-templating for Linux.
+
 ## Risks / Trade-offs
 
 - **`mdfried` maintenance/abandonment risk** → mitigated by it being secondary; glow alone satisfies
@@ -125,6 +137,11 @@ matching per-package scenarios. Spec hygiene, not new behavior.
   follow if it grates.
 - **`allow-passthrough on` broadens what apps can emit through tmux** → minor; it is the standard,
   documented way to enable graphics passthrough and is widely used.
+- **`XDG_CONFIG_HOME` export shifts config resolution repo-wide on macOS** → intended (aligns every
+  tool on `~/.config`, where this repo already places config). A tool whose config lived *only* under
+  `~/Library/*` would revert to defaults; mitigated because the repo configures everything under
+  `~/.config`. Only `XDG_CONFIG_HOME` is set — `XDG_DATA_HOME`/`XDG_CACHE_HOME` are left at defaults,
+  so data/cache locations (e.g. atuin history) are unaffected.
 
 ## Migration Plan
 
