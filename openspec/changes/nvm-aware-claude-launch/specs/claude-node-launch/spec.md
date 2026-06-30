@@ -37,7 +37,7 @@ When a version file resolves to an already-installed Node version, the shim SHAL
 
 ### Requirement: Version file discovery walks up then down
 
-The shim SHALL read the project's Node version from a `.nvmrc` file only. It SHALL first walk **up** from the launch directory to the filesystem root (covering the worktree root and any ancestor). If no `.nvmrc` is found above, it SHALL search **down** (bounded depth, skipping `node_modules/` and `.git/`) for a `.nvmrc`. Discovery SHALL use shell builtin path manipulation, not per-level `dirname` subprocesses.
+The shim SHALL read the project's Node version from a `.nvmrc` file only. It SHALL first walk **up** from the launch directory to the filesystem root (covering the worktree root and any ancestor), using shell builtin path manipulation, not per-level `dirname` subprocesses. If no `.nvmrc` is found above, it SHALL search **down** for a `.nvmrc`, anchored at the **repository root** (`git rev-parse --show-toplevel`) — never at the launch directory — at bounded depth and skipping `node_modules/` and `.git/`. The downward search SHALL run only when the launch directory is inside a git repository; outside a repository the shim SHALL NOT search down. Exactly one match below the repository root SHALL be selected; zero or more than one SHALL fall through to passthrough.
 
 #### Scenario: `.nvmrc` at the worktree root
 
@@ -46,22 +46,27 @@ The shim SHALL read the project's Node version from a `.nvmrc` file only. It SHA
 
 #### Scenario: `.nvmrc` in a single subdirectory
 
-- **WHEN** the worktree root has no `.nvmrc` but exactly one exists in a subdirectory (e.g. `apps/web/.nvmrc`)
-- **THEN** the downward search finds that single file and selects its version
+- **WHEN** the launch directory is inside a git repository whose root has no `.nvmrc` but exactly one exists in a subdirectory (e.g. `apps/web/.nvmrc`)
+- **THEN** the downward search from the repository root finds that single file and selects its version
 
-#### Scenario: Multiple `.nvmrc` below the root
+#### Scenario: Multiple `.nvmrc` below the repository root
 
-- **WHEN** the worktree root has no `.nvmrc` but more than one exists in subdirectories
-- **THEN** the shim selects the shallowest one and prints a disambiguation warning to stderr
+- **WHEN** the repository root has no `.nvmrc` but more than one exists in subdirectories
+- **THEN** the shim SHALL NOT select any of them; it prints a disambiguation warning to stderr and delegates under the ambient Node (passthrough)
 
 ### Requirement: Absent `.nvmrc` is a near-zero-cost passthrough
 
-When no `.nvmrc` is discovered, the shim SHALL `exec` the real claude binary unchanged without touching `$PATH`. The discovery probe SHALL add negligible overhead (benchmarked at ~+1.6 ms over the bare-process floor; the dirname-fork form added ~+29 ms and SHALL NOT be used).
+When no `.nvmrc` is discovered, the shim SHALL `exec` the real claude binary unchanged without touching `$PATH`. The upward probe SHALL add negligible overhead (benchmarked at ~+1.6 ms over the bare-process floor; the dirname-fork form added ~+29 ms and SHALL NOT be used). The downward search SHALL run only after the upward walk misses and only inside a git repository, so a launch directory that is not inside a repository (e.g. a directory that merely holds sibling project checkouts) SHALL passthrough after a single `git rev-parse` probe without scanning the tree.
 
 #### Scenario: Non-Node directory
 
-- **WHEN** the shim launches where neither the directory tree above nor a bounded search below contains a `.nvmrc`
+- **WHEN** the shim launches where the directory tree above has no `.nvmrc`, and either the launch directory is not inside a git repository or its repository contains no `.nvmrc`
 - **THEN** it execs the real claude binary without modifying `$PATH`
+
+#### Scenario: Directory above sibling projects
+
+- **WHEN** the shim launches from a directory that is not itself inside a git repository but contains subdirectories that are separate repositories, each with its own `.nvmrc`
+- **THEN** the shim SHALL NOT activate any of those versions; it execs the real claude binary under the ambient Node without scanning the subtree
 
 ### Requirement: Cold and alias cases fall back to nvm install/use
 

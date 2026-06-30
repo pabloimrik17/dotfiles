@@ -23,8 +23,8 @@ REAL_CLAUDE="$HOME/.local/bin/claude"
 NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 NODES="$NVM_DIR/versions/node"
 
-# 1) Locate .nvmrc: walk UP from $PWD (builtin path manipulation, no `dirname`
-#    forks), then, if nothing above, a bounded search DOWN.
+# 1) Locate .nvmrc. First walk UP from $PWD (builtin path manipulation, no
+#    `dirname` forks), covering the launch dir, the worktree root, and ancestors.
 nvmrc=""
 d=$PWD
 while :; do
@@ -33,16 +33,26 @@ while :; do
   d=${d%/*}
 done
 
+# Nothing above: the polyglot-monorepo case — the Node app lives in a subdir
+# (e.g. apps/web/) so the single .nvmrc isn't at the root. Search DOWN, anchored
+# at the *repo root*, never at $PWD. Anchoring at $PWD would, when launched from
+# a dir that merely holds sibling project checkouts (e.g. ~/WebstormProjects),
+# scan them all and activate an unrelated project's Node. The git-root probe also
+# answers "are we even in a repo?" — outside one, we skip the search entirely.
+# A single match is the supported case; zero or >1 fall through to passthrough.
 if [ -z "$nvmrc" ]; then
-  # Bounded walk-down, skipping node_modules/ and .git/.
-  found=$(find "$PWD" -maxdepth 4 \( -name node_modules -o -name .git \) -prune \
-    -o -type f -name .nvmrc -print 2>/dev/null)
-  if [ -n "$found" ]; then
-    # Shallowest wins (fewest path separators); warn if more than one matched.
-    nvmrc=$(printf '%s\n' "$found" | awk '{ print gsub(/\//, "/") "\t" $0 }' \
-      | sort -n | head -n1 | cut -f2-)
-    if [ "$(printf '%s\n' "$found" | grep -c .)" -gt 1 ]; then
-      printf 'claude shim: multiple .nvmrc below %s; using %s\n' "$PWD" "$nvmrc" >&2
+  repo=$(git rev-parse --show-toplevel 2>/dev/null) || repo=""
+  if [ -n "$repo" ]; then
+    found=$(find "$repo" -maxdepth 4 \( -name node_modules -o -name .git \) -prune \
+      -o -type f -name .nvmrc -print 2>/dev/null)
+    n=$(printf '%s\n' "$found" | grep -c .)
+    if [ "$n" -eq 1 ]; then
+      nvmrc=$found
+    elif [ "$n" -gt 1 ]; then
+      # >1 is ambiguous for this case (the invariant is one .nvmrc per repo).
+      # Don't guess — guessing once activated an unrelated project's Node.
+      printf 'claude shim: %s .nvmrc found under %s; ambiguous, launching under ambient Node\n' \
+        "$n" "$repo" >&2
     fi
   fi
 fi
