@@ -3,25 +3,27 @@
 ## Purpose
 
 TBD - created by archiving change mac-dev-setup. Update Purpose after archive.
-
 ## Requirements
-
 ### Requirement: BREW_PACKAGES array includes all actively used CLI tools
 
-The `BREW_PACKAGES` array SHALL contain the following 25 packages:
+The `BREW_PACKAGES` array SHALL contain the following 28 packages:
 
 `git`, `git-delta`, `starship`, `eza`, `bat`, `zoxide`, `atuin`, `fzf`, `ripgrep`,
 `lazygit`, `worktrunk`, `terminal-notifier`, `fd`, `direnv`, `beads`, `gh`, `tmux`,
-`uv`, `mas`, `wget`, `television`, `tickrs`, `ticker`, `age`, `mole`
+`uv`, `mas`, `wget`, `television`, `tickrs`, `ticker`, `age`, `mole`, `aoe`,
+`glow`, `mdfried`
 
 `opencode` SHALL NOT appear in `BREW_PACKAGES`; it is installed via its official script
 (see the `opencode-install` capability). Removing it also makes the `anomalyco/tap` tap
 unnecessary for this array.
 
+`glow` and `mdfried` are both in `homebrew/core`, so they require no `BREW_TAPS` entry, and both
+use the identity `pkg_bin` mapping (binary name equals package name).
+
 #### Scenario: All packages listed in array
 
 - **WHEN** the install script is loaded
-- **THEN** the `BREW_PACKAGES` array contains exactly 25 entries
+- **THEN** the `BREW_PACKAGES` array contains exactly 28 entries
 
 #### Scenario: opencode absent from array
 
@@ -77,6 +79,36 @@ unnecessary for this array.
 
 - **WHEN** `pkg_bin "mole"` is called
 - **THEN** the function returns `mole` (via the default identity mapping)
+
+#### Scenario: aoe listed in array
+
+- **WHEN** the install script is loaded
+- **THEN** the `BREW_PACKAGES` array contains `aoe`
+
+#### Scenario: aoe maps to its own binary name
+
+- **WHEN** `pkg_bin "aoe"` is called
+- **THEN** the function returns `aoe` (via the default identity mapping)
+
+#### Scenario: glow listed in array
+
+- **WHEN** the install script is loaded
+- **THEN** the `BREW_PACKAGES` array contains `glow`
+
+#### Scenario: glow maps to its own binary name
+
+- **WHEN** `pkg_bin "glow"` is called
+- **THEN** the function returns `glow` (via the default identity mapping)
+
+#### Scenario: mdfried listed in array
+
+- **WHEN** the install script is loaded
+- **THEN** the `BREW_PACKAGES` array contains `mdfried`
+
+#### Scenario: mdfried maps to its own binary name
+
+- **WHEN** `pkg_bin "mdfried"` is called
+- **THEN** the function returns `mdfried` (via the default identity mapping)
 
 ### Requirement: pkg_bin function maps all packages to their binary names
 
@@ -134,10 +166,19 @@ The non-macOS branch of the install script SHALL list its brew packages in the m
 installation instructions. opencode SHALL be listed under the official-script install
 instructions (not the brew package list), consistent with the macOS branch.
 
+The CLI-tools list in the non-macOS branch SHALL include `glow` and `mdfried`. The `mdfried` entry
+SHALL note that its image / `mermaid` / Big-Header rendering requires a terminal that supports a
+graphics protocol (Kitty, iTerm2, or Sixel) and otherwise degrades to character rendering.
+
 #### Scenario: Non-macOS instructions are complete
 
 - **WHEN** the script runs on a non-macOS system
 - **THEN** the printed instructions include `fd`, `gh`, `git-delta`, `git`, `tmux`, `uv`, and `wget` alongside the original packages (excluding `mas`, which is macOS-only), and opencode appears under the official-installer instructions (`curl -fsSL https://opencode.ai/install | bash`) rather than the brew package list
+
+#### Scenario: New Markdown viewers listed in non-macOS instructions
+
+- **WHEN** the script runs on a non-macOS system
+- **THEN** the printed CLI-tools instructions include `glow` and `mdfried`, with `mdfried` annotated as requiring a graphics-capable terminal
 
 ### Requirement: tv update-channels runs after brew packages group
 
@@ -178,3 +219,4 @@ The value of `BREW_TAPS` SHALL be `(tarkah/tickrs achannarasappa/tap)` — the t
 
 - **WHEN** the install script runs on a host where every entry in `BREW_TAPS` is already tapped
 - **THEN** each `brew tap "$tap"` exits successfully without printing a warning and the script continues
+
