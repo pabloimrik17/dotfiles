@@ -1900,6 +1900,32 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <h3>Extra Updates (non-brew tools)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>update-extra</code></td>
+                                <td>
+                                    Update tools that are neither brew-managed nor self-updating: gh
+                                    extensions, you-should-use, skills.sh globals, plannotator,
+                                    Catppuccin themes, tv channels &mdash; a failing step reports
+                                    and continues; summary at the end
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flow-only">
+                        <strong>Flow: Full tool maintenance</strong><br />
+                        <code>bubu</code> &rarr; <code>update-extra</code> &rarr; everything current
+                        (self-updating tools handle themselves; pinned tools via Renovate)
+                    </div>
                 </div>
             </details>
 

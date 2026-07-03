@@ -311,6 +311,49 @@ alias jqless="jq -C . | less -R"
 alias pretty-json="jq ."
 alias check-json="jq empty"
 
+# update-extra: single entry point for tools that are neither brew-managed,
+# self-updating, nor repo-pinned (those have their own update paths). Step list
+# is maintained by the classify-tool-updates skill (repo .claude/skills/).
+# A failing step reports and continues; exit is non-zero if any step failed.
+_update_extra_step() {
+  local label="$1"; shift
+  echo "\n→ $label"
+  if "$@"; then
+    echo "✓ $label"
+    (( _ue_ok += 1 ))
+  else
+    echo "✗ $label" >&2
+    (( _ue_failed += 1 ))
+  fi
+}
+
+# Catppuccin Mocha assets — same URLs as run_onchange_install-packages.sh.tmpl.
+_update_extra_catppuccin() {
+  local base="https://raw.githubusercontent.com/catppuccin"
+  curl -fsSLo "$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme" \
+    "$base/bat/main/themes/Catppuccin%20Mocha.tmTheme" &&
+  curl -fsSLo "$HOME/.config/delta/catppuccin.gitconfig" \
+    "$base/delta/main/catppuccin.gitconfig" &&
+  curl -fsSLo "$HOME/.zsh/catppuccin_mocha-zsh-syntax-highlighting.zsh" \
+    "$base/zsh-syntax-highlighting/main/themes/catppuccin_mocha-zsh-syntax-highlighting.zsh" &&
+  curl -fsSLo "$HOME/.config/atuin/themes/catppuccin-mocha-blue.toml" \
+    "$base/atuin/main/themes/mocha/catppuccin-mocha-blue.toml" &&
+  bat cache --build
+}
+
+unalias update-extra 2>/dev/null
+update-extra() {
+  local _ue_ok=0 _ue_failed=0
+  _update_extra_step "gh extensions" gh extension upgrade --all
+  _update_extra_step "you-should-use" git -C "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/you-should-use" pull --ff-only
+  _update_extra_step "skills.sh globals" npx -y skills update -g -y
+  _update_extra_step "plannotator" sh -c 'curl -fsSL https://plannotator.ai/install.sh | bash'
+  _update_extra_step "Catppuccin themes" _update_extra_catppuccin
+  _update_extra_step "television channels" tv update-channels
+  echo "\nupdate-extra: $_ue_ok ok, $_ue_failed failed"
+  (( _ue_failed == 0 ))
+}
+
 # Tool environment
 command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 
