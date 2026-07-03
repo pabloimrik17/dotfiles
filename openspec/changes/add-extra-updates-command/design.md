@@ -40,7 +40,7 @@ Private helper `_update_extra_step <label> <command...>` prints the label, runs 
 | gh extensions | `gh extension upgrade --all` | installs at `run_onchange_install-packages.sh.tmpl:328-352` |
 | you-should-use | `git -C "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/you-should-use" pull --ff-only` | clone at `:417-425` |
 | skills.sh globals | `npx -y skills update -g -y` | subcommand verified in `skills --help` (alias `upgrade`) |
-| plannotator | `curl -fsSL https://plannotator.ai/install.sh \| bash` | CLI has no update subcommand (v0.19.26); UI banner only notifies; installer is the official upgrade path and removes the old binary |
+| plannotator | fetch `https://plannotator.ai/install.sh` to a temp file, then `bash` it | CLI has no update subcommand (v0.19.26); UI banner only notifies; installer is the official upgrade path and removes the old binary. Not `curl \| bash`: that exits 0 on a failed download (bash reads empty stdin), masking the failure |
 | Catppuccin themes | re-curl the 4 assets (bat `:247-248` + `bat cache --build`, delta `:267`, zsh-syntax-highlighting `:284`, atuin `:301`) | same URLs as the install script |
 | tv channels | `tv update-channels` | `:221-224`; also runs when the onchange install script re-fires (content change), so `update-extra` is the only on-demand path |
 

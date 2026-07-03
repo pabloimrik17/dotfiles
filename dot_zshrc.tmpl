@@ -341,13 +341,24 @@ _update_extra_catppuccin() {
   bat cache --build
 }
 
+# Download-then-run so a failed download reports ✗ (curl | bash exits 0 when
+# the download fails: bash reads empty stdin).
+_update_extra_plannotator() {
+  local tmp rc
+  tmp="$(mktemp)" || return 1
+  curl -fsSL https://plannotator.ai/install.sh -o "$tmp" && bash "$tmp"
+  rc=$?
+  rm -f "$tmp"
+  return $rc
+}
+
 unalias update-extra 2>/dev/null
 update-extra() {
   local _ue_ok=0 _ue_failed=0
   _update_extra_step "gh extensions" gh extension upgrade --all
   _update_extra_step "you-should-use" git -C "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/you-should-use" pull --ff-only
   _update_extra_step "skills.sh globals" npx -y skills update -g -y
-  _update_extra_step "plannotator" sh -c 'curl -fsSL https://plannotator.ai/install.sh | bash'
+  _update_extra_step "plannotator" _update_extra_plannotator
   _update_extra_step "Catppuccin themes" _update_extra_catppuccin
   _update_extra_step "television channels" tv update-channels
   echo "\nupdate-extra: $_ue_ok ok, $_ue_failed failed"

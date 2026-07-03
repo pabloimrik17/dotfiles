@@ -174,7 +174,7 @@ chezmoi git push
 
 ```sh
 bubu            # brew packages: update + upgrade + cleanup
-update-extra    # the rest: gh extensions, omz plugins, skills, themes, tv channels
+update-extra    # the rest: gh extensions, omz plugins, skills, plannotator, themes, tv channels
 ```
 
 Self-updating tools (Claude Code, OpenCode, CodeRabbit) and repo-pinned versions (Renovate-managed) take care of themselves.
