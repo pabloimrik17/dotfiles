@@ -326,7 +326,7 @@ fi
 # Group: gh CLI extensions
 # ------------------------------------------------------------------
 if command -v gh &>/dev/null; then
-    if confirm "Install gh CLI extensions (gh-dash, gh-enhance)?"; then
+    if confirm "Install gh CLI extensions (gh-dash, gh-enhance) + gh agent skill?"; then
         if gh extension list 2>/dev/null | grep -q "dlvhdr/gh-dash"; then
             info "  gh-dash — already installed, skipping"
         else
@@ -342,6 +342,17 @@ if command -v gh &>/dev/null; then
             info "  Installing gh-enhance..."
             if ! gh extension install dlvhdr/gh-enhance; then
                 error "Failed to install gh-enhance"
+            fi
+        fi
+
+        # Official gh agent skill for Claude Code (gh 2.94+). Structured
+        # detection via --json instead of grepping human-readable output.
+        if gh skill list --agent claude-code --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "gh"; then
+            info "  gh agent skill — already installed, skipping"
+        else
+            info "  Installing gh agent skill (Claude Code, user scope)..."
+            if ! gh skill install cli/cli gh --agent claude-code --scope user; then
+                error "Failed to install gh agent skill"
             fi
         fi
     else

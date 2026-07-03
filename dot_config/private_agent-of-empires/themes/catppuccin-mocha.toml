@@ -18,6 +18,7 @@ running = "#a6e3a1" # green
 waiting = "#f9e2af" # yellow
 fresh_idle = "#fab387" # peach
 idle = "#6c7086" # overlay0
+unread = "#94e2d5" # teal — distinct from accent blue; luminance waiting > unread > idle
 error = "#f38ba8" # red
 terminal_active = "#89b4fa" # blue
 group = "#89dceb" # sky

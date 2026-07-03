@@ -20,5 +20,7 @@ enter = "actions:open"
 
 [actions.open]
 description = "Open in mdview (glow / mdfried)"
-command = "mdview '{}'"
+# Bare {} — tv auto-quotes it in action commands; explicit '{}' double-quotes
+# and breaks filenames with spaces. Preview commands are NOT auto-quoted.
+command = "mdview {}"
 mode = "execute"
