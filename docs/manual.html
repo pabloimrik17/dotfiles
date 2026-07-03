@@ -964,7 +964,10 @@
                             <tr>
                                 <td><code>gl</code></td>
                                 <td>
-                                    <code>git log --oneline --graph --decorate --all</code>
+                                    <code
+                                        >git log --oneline --graph --graph-lane-limit=8 --decorate
+                                        --all</code
+                                    >
                                     (overrides OMZ)
                                 </td>
                             </tr>
@@ -1014,7 +1017,7 @@
                             </tr>
                             <tr>
                                 <td><code>git lg</code></td>
-                                <td>Pretty graph log with colors and author</td>
+                                <td>Pretty graph log with colors and author (max 8 graph lanes)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1187,6 +1190,14 @@
                                     (Catppuccin theme)
                                 </td>
                             </tr>
+                            <tr>
+                                <td><code>gh skill</code></td>
+                                <td>
+                                    Official <code>gh</code> agent skill for Claude Code &mdash;
+                                    installed by the install script (<code>cli/cli</code>, user
+                                    scope)
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
 
@@ -1329,7 +1340,10 @@
                             </tr>
                             <tr>
                                 <td><code>wt list</code></td>
-                                <td>List all worktrees</td>
+                                <td>
+                                    List all worktrees &mdash; pinned columns: branch, HEAD&plusmn;,
+                                    main&hellip;&plusmn;, CI, summary
+                                </td>
                             </tr>
                             <tr>
                                 <td><code>wt commit</code></td>
@@ -1349,6 +1363,35 @@
                             <tr>
                                 <td><code>wt merge --no-ff</code></td>
                                 <td>Merge with semi-linear history (no fast-forward)</td>
+                            </tr>
+                            <tr>
+                                <td><code>wt wtpr</code></td>
+                                <td>
+                                    <code>wt switch --prs</code> &mdash; picker over open PRs with
+                                    live CI/review state
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>wt wtci</code></td>
+                                <td>
+                                    <code>wt list --full --branches</code> &mdash; quick CI +
+                                    branches snapshot
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>wt wtlog &lt;id&gt;</code></td>
+                                <td>
+                                    Tail a hook log by
+                                    <code>&lt;source:hook_type:name&gt;</code> (e.g.
+                                    <code>user:post-start:install-deps</code>)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>wt mc</code></td>
+                                <td>
+                                    <code>wt merge</code> with the squash message handwritten in
+                                    <code>$EDITOR</code> instead of Claude haiku
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -2585,19 +2628,34 @@
                             <tr>
                                 <td>Config</td>
                                 <td>
-                                    <code>~/.agent-of-empires/config.toml</code> &mdash;
-                                    chezmoi-managed (<code>0600</code>)
+                                    <code>~/.config/agent-of-empires/config.toml</code> &mdash;
+                                    chezmoi-managed (<code>0600</code>), XDG path (aoe &ge;1.10.1)
                                 </td>
                             </tr>
                             <tr>
                                 <td>Theme</td>
                                 <td>
-                                    <code>catppuccin-mocha</code> (custom), <code>truecolor</code>
+                                    <code>catppuccin-mocha</code> (custom), <code>truecolor</code>,
+                                    unread sessions in teal
                                 </td>
                             </tr>
                             <tr>
                                 <td>Default tool</td>
                                 <td><code>claude</code></td>
+                            </tr>
+                            <tr>
+                                <td>Delete guard</td>
+                                <td>
+                                    <code>confirm_delete = true</code> &mdash; confirmation before
+                                    deleting a session from the TUI
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Rate-limit auto-resume</td>
+                                <td>
+                                    <code>[acp] rate_limit_auto_resume = true</code> &mdash; ACP
+                                    sessions respawn automatically once the rate-limit reset passes
+                                </td>
                             </tr>
                             <tr>
                                 <td>Status hooks</td>

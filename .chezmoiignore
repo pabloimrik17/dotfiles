@@ -2,5 +2,5 @@
 
 # Agent of Empires installs CC0 sound assets here via `aoe sounds install`.
 # They are machine-local, non-committable binaries — never let chezmoi track them.
-.agent-of-empires/sounds
-.agent-of-empires/sounds/**
+.config/agent-of-empires/sounds
+.config/agent-of-empires/sounds/**

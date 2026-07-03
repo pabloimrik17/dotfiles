@@ -1,5 +1,5 @@
 #!/bin/sh
-# chezmoi modify_ script for ~/.agent-of-empires/config.toml (mode 0600 via the
+# chezmoi modify_ script for ~/.config/agent-of-empires/config.toml (mode 0600 via the
 # `private_` attribute). chezmoi pipes the live on-disk config to stdin; we overlay
 # ONLY the deliberately-managed keys (MANAGED below) and emit the merged file to
 # stdout, leaving AoE's runtime writeback (`[app_state]`/`[web]`/`[cockpit]`/
@@ -41,6 +41,12 @@ MANAGED = [
     (("theme", "color_mode"), "truecolor", False),
     (("session", "default_tool"), "claude", False),
     (("session", "agent_status_hooks"), True, False),
+    # Confirmation guard before deleting a session from the TUI (aoe 1.12.0).
+    (("session", "confirm_delete"), True, False),
+    # Auto-resume ACP sessions once the adapter-reported rate-limit reset
+    # passes (aoe 1.10.1, opt-in; +15s default grace). Terminal/tmux-view
+    # sessions are unaffected; status_hooks below still notify.
+    (("acp", "rate_limit_auto_resume"), True, False),
     (("worktree", "init_submodules"), False, False),
     (("tmux", "status_bar"), "disabled", False),
     (("tmux", "clipboard"), "enabled", False),

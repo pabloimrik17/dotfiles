@@ -2,11 +2,11 @@
 # Managed by chezmoi — edit the source, not ~/.config/worktrunk/config.toml
 
 [list]
-# `summary` requires `full` (or the `--full` flag) to render — see worktrunk
-# list docs. Defaulting to full ensures plain `wt list` shows the LLM summary,
-# CI status, and main…± diffstat without needing `wt list --full` every time.
-full = true
-summary = true
+# Pin the exact layout (0.62+). Column names ≠ display headers: working-diff
+# renders "HEAD±", branch-diff renders "main…±". Since 0.63 an explicit
+# `columns` list overrides the full/summary presets, so full/summary keys are
+# redundant here; the summary column still uses [commit.generation] below.
+columns = ["branch", "working-diff", "branch-diff", "ci", "summary"]
 
 [switch.picker]
 pager = "delta --paging=never"
@@ -143,7 +143,7 @@ BRANCH: {{ branch }}
 TARGET: {{ target_branch }}
 
 SQUASHED COMMITS:
-{{ commits }}
+{{ commit_details }}
 
 DIFF STAT:
 {{ git_diff_stat }}
@@ -158,6 +158,9 @@ wtlog = '''id={{ args[0] }}; [ -n "$id" ] || { echo "usage: wt wtlog <source:hoo
 
 # Quick CI + branches snapshot.
 wtci = "wt list --full --branches"
+
+# Picker over open PRs with live CI/review state (0.63+).
+wtpr = "wt switch --prs"
 
 # wt merge with a one-shot WORKTRUNK_COMMIT__GENERATION__COMMAND override that
 # opens $EDITOR (fallback: vi) so the user handwrites the squash message instead
