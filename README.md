@@ -169,3 +169,12 @@ chezmoi git add .
 chezmoi git -- commit -m "your message"
 chezmoi git push
 ```
+
+### Updating Tools
+
+```sh
+bubu            # brew packages: update + upgrade + cleanup
+update-extra    # the rest: gh extensions, omz plugins, skills, plannotator, themes, tv channels
+```
+
+Self-updating tools (Claude Code, OpenCode, CodeRabbit) and repo-pinned versions (Renovate-managed) take care of themselves.
