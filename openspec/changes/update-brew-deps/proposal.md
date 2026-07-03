@@ -53,4 +53,5 @@
 - **Files**: `dot_config/worktrunk/config.toml`, `dot_config/television/cable/markdown.toml`, `dot_tmux.conf`, `dot_zshrc.tmpl`, `dot_gitconfig.tmpl`, `run_onchange_install-packages.sh.tmpl`, `private_dot_agent-of-empires/` → `dot_config/private_agent-of-empires/` (git mv), `.oxfmtignore`, `.chezmoiignore`
 - **Specs**: `gh-skill-install` (new); deltas for `agent-manager`, `worktrunk-config`, `television-markdown-channel`, `tmux-catppuccin`, `git-config`
 - **Systems**: Homebrew (18 formulae), live `~/.agent-of-empires` state relocation (aoe must be closed; sqlite WAL), tmux server restart to load 3.7b + new conf (coordinate with aoe shutdown), `chezmoi apply` re-runs the onchange install script (installs the gh skill interactively)
-- **Out of scope**: gl/squash-template zshrc details not covered by specs need no delta; README/manual sync handled post-implementation via `/docs:manual` + `/docs:readme`
+- **Out of scope**: gl/squash-template zshrc details not covered by specs need no delta
+- **Docs (in scope)**: README/manual sync via `/docs:manual` + `/docs:readme` post-implementation (tasks 6.1–6.2)

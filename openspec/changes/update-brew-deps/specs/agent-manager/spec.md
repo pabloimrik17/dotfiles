@@ -11,7 +11,7 @@
 
 ### Requirement: AoE configuration is chezmoi-managed at `~/.config/agent-of-empires/config.toml`
 
-The dotfiles source tree SHALL contain a `dot_config/private_agent-of-empires/config.toml` management (modify_ script) targeting `~/.config/agent-of-empires/config.toml` (AoE ≥1.10.1 reads `$XDG_CONFIG_HOME/agent-of-empires/` on macOS when that directory exists, preferring it over the legacy `~/.agent-of-empires/`). The file SHALL be applied unconditionally on `chezmoi apply` (no per-host gating). No `~/.agent-of-empires/` directory SHALL remain after migration (its presence alongside the XDG dir would strand legacy state).
+The dotfiles source tree SHALL contain `dot_config/private_agent-of-empires/modify_private_config.toml`, which targets `~/.config/agent-of-empires/config.toml` (AoE ≥1.10.1 reads `$XDG_CONFIG_HOME/agent-of-empires/` on macOS when that directory exists, preferring it over the legacy `~/.agent-of-empires/`). The file SHALL be applied unconditionally on `chezmoi apply` (no per-host gating). No `~/.agent-of-empires/` directory SHALL remain after migration (its presence alongside the XDG dir would strand legacy state).
 
 #### Scenario: Config file present after chezmoi apply
 
