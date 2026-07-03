@@ -13,6 +13,7 @@
 - [x] 2.5 `dot_zshrc.tmpl`: add `--graph-lane-limit=8` after `--graph` in the `gl` alias
 - [x] 2.6 `dot_gitconfig.tmpl`: add `--graph-lane-limit=8` after `--graph` in the `lg` alias
 - [x] 2.7 `run_onchange_install-packages.sh.tmpl`: add the idempotent gh agent skill stanza (structured `--json` detection, `gh skill install cli/cli gh --agent claude-code --scope user`) after the gh-enhance stanza inside the gh extensions group
+- [x] 2.8 `dot_claude/settings.json.tmpl`: sync the aoe hook set to what aoe 1.12 writes (hardened `/tmp/aoe-hooks-{{ .chezmoi.uid }}` commands, idle_prompt/StopFailure, `__extract-session-id`) — post-upgrade `chezmoi diff` churn fix
 
 ## 3. aoe XDG relocation (source side)
 
@@ -24,16 +25,16 @@
 ## 4. Upgrade + live migration (operational)
 
 - [x] 4.1 `brew upgrade` the 18 outdated packages; confirm `brew outdated` is clean
-- [ ] 4.2 Quit aoe (no `tui.active`), `tmux kill-server`
-- [ ] 4.3 `mv ~/.agent-of-empires ~/.config/agent-of-empires` (BEFORE any apply of the renamed source)
-- [ ] 4.4 Sync chezmoi source (dual-dir) and run `chezmoi diff`, then `chezmoi apply` (onchange script re-runs; confirm gh extensions group to install the gh skill)
+- [x] 4.2 Quit aoe (no `tui.active`), `tmux kill-server`
+- [x] 4.3 `mv ~/.agent-of-empires ~/.config/agent-of-empires` (BEFORE any apply of the renamed source)
+- [x] 4.4 Sync chezmoi source (dual-dir) and run `chezmoi diff`, then `chezmoi apply` (onchange script re-runs; confirm gh extensions group to install the gh skill)
 
 ## 5. Verification
 
-- [ ] 5.1 aoe launches reading `~/.config/agent-of-empires/config.toml`; no legacy dir; theme loads with unread teal; `[acp]`/`confirm_delete` keys present in live config; re-run `chezmoi diff` is clean
+- [x] 5.1 aoe launches reading `~/.config/agent-of-empires/config.toml`; no legacy dir; theme loads with unread teal; `[acp]`/`confirm_delete` keys present in live config; re-run `chezmoi diff` is clean
 - [x] 5.2 `wt config update` finds nothing to migrate; `wt list` shows the 5 pinned columns; `wt wtpr` opens the PR picker
 - [x] 5.3 `tv` markdown channel opens a file with spaces in its name via mdview
-- [ ] 5.4 New tmux server on 3.7b: `prefix :` prompt fills the whole status bar with overlay background; mdfried passthrough still works
+- [x] 5.4 New tmux server on 3.7b: `prefix :` prompt fills the whole status bar with overlay background; mdfried passthrough still works
 - [x] 5.5 `git lg` and zshrc `gl` run with `--graph-lane-limit=8`; `gh skill list --agent claude-code` includes `gh`; re-running the install script skips it
 - [x] 5.6 `openspec validate update-brew-deps` passes
 

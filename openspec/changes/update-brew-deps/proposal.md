@@ -25,6 +25,7 @@
 - gh: new idempotent install step for the official `gh` agent skill (`gh skill install cli/cli gh --agent claude-code --scope user`, 2.94/2.95)
 - worktrunk `[aliases]`: add `wtpr = "wt switch --prs"` (0.63 PR picker with live CI/review state)
 - worktrunk `[list]`: replace `full = true` / `summary = true` with `columns = ["branch", "working-diff", "branch-diff", "ci", "summary"]` (0.62+; since 0.63 explicit columns override the presets)
+- Claude settings template: sync the aoe-injected hook set to what aoe 1.12 writes (hardened `/tmp/aoe-hooks-<uid>` commands with perm checks, `idle_prompt`/`StopFailure` coverage, `__extract-session-id` hooks; uid via `{{ .chezmoi.uid }}`) — found post-upgrade as `chezmoi diff` churn where apply would downgrade the live hooks
 
 ### Audited and rejected (documented, no action)
 
@@ -43,6 +44,7 @@
 - `agent-manager`: config path moves to `~/.config/agent-of-empires/` (source `dot_config/private_agent-of-empires/`); knob set gains `[acp].rate_limit_auto_resume` and `[session].confirm_delete`; theme gains `unread`; first-install path verification updated to the XDG location.
 - `worktrunk-config`: `[list]` requirement changes from `full`/`summary` flags to an explicit `columns` pin; `[aliases]` grows `wtpr`.
 - `television-markdown-channel`: Enter action requirement now mandates bare `{}` (auto-quoted) in the open command.
+- `claude-hooks`: AoE session-status hook requirement updated to the aoe 1.12 hardened hook set (uid-suffixed base dir, new matchers/events, session-id extraction).
 - `tmux-catppuccin`: plugin-load requirement extended to restore full-width message/prompt styling under tmux ≥3.7.
 - `git-config`: `lg` alias requirement gains `--graph-lane-limit=8`.
 
