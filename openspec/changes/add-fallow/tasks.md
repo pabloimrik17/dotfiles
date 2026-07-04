@@ -27,4 +27,4 @@
 - [ ] 4.1 Sync chezmoi source and run the install script end-to-end on this machine (`chezmoi update` + apply flow); confirm the fallow group, MCP registration, and plugin install behave idempotently on a second run
 - [ ] 4.2 Smoke-test the global layer: `fallow --version`, `claude mcp list` shows `fallow` connected, fallow skill visible in Claude Code
 - [ ] 4.3 Run `update-extra` and confirm the fallow step succeeds
-- [ ] 4.4 Open a PR and confirm `fallow.yml` runs, posts the compact sticky comment, and passes on a no-findings diff
+- [x] 4.4 Open a PR and confirm `fallow.yml` runs, posts the compact sticky comment, and passes on a no-findings diff — PR #164: run passed (verdict `pass`, 0 issues); comment step ran but skips posting on a clean run with no prior sticky comment (`clean_no_existing_comment`), by design
