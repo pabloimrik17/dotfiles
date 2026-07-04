@@ -1,0 +1,23 @@
+{
+    "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+    // commitlint + lint-staged configs are auto-detected by built-in plugins;
+    // oxfmt has no fallow plugin, so its config must be an explicit entry
+    "entry": ["oxfmt.config.ts"],
+    "ignorePatterns": [
+        "**/*.tmpl",
+        "dot_config/**",
+        "dot_claude/**",
+        "dot_local/**",
+        "Library/**",
+        "assets/**",
+        "docs/**",
+        "openspec/**",
+    ],
+    "ignoreDependencies": ["@types/bun"],
+    "rules": {
+        // the repo's only exports are tool-config default exports consumed by
+        // the tools themselves, not by imports
+        "unused-exports": "off",
+        "unused-types": "off",
+    },
+}

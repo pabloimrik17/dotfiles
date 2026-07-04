@@ -361,6 +361,7 @@ update-extra() {
   _update_extra_step "plannotator" _update_extra_plannotator
   _update_extra_step "Catppuccin themes" _update_extra_catppuccin
   _update_extra_step "television channels" tv update-channels
+  _update_extra_step "fallow" npm install -g fallow@latest
   echo "\nupdate-extra: $_ue_ok ok, $_ue_failed failed"
   (( _ue_failed == 0 ))
 }

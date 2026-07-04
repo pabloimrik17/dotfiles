@@ -1,0 +1,26 @@
+name: Fallow
+
+on:
+    pull_request: {}
+
+permissions:
+    contents: read
+    checks: write
+    pull-requests: write
+
+jobs:
+    audit:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: 🔍 Fallow audit
+              uses: fallow-rs/fallow@v3
+              with:
+                  command: audit
+                  gate: new-only
+                  comment: true
+                  comment-layout: compact

@@ -44,6 +44,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **CLI Tools**  | [mole](https://github.com/tw93/mole)                                            | Deep clean and optimize your Mac — caches, logs, app remnants, `node_modules` (macOS only) |
 | **CLI Tools**  | [glow](https://github.com/charmbracelet/glow)                                   | Terminal Markdown viewer — TUI browse + CLI render                                         |
 | **CLI Tools**  | [mdfried](https://github.com/benjajaja/mdfried)                                 | Markdown viewer with inline images, mermaid diagrams, and Big Headers (graphics terminal)  |
+| **CLI Tools**  | [fallow](https://fallow.tools/)                                                 | Codebase intelligence for TS/JS — dead code, duplication, complexity (CLI + MCP + skill)   |
 | **Git**        | [git-delta](https://github.com/dandavison/delta)                                | Syntax-highlighted diff viewer                                                             |
 | **Git**        | [lazygit](https://github.com/jesseduffield/lazygit)                             | TUI for git operations                                                                     |
 | **Git**        | [GitHub CLI](https://cli.github.com/)                                           | GitHub from the terminal                                                                   |
@@ -58,7 +59,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 
 ## MCP Servers
 
-The install script registers 13 global MCP servers to `~/.claude.json` (the stdio set is shared with OpenCode). Atlassian, Figma, Linear, and Notion authenticate via OAuth on first use; stdio servers run pinned versions managed by Renovate.
+The install script registers 14 global MCP servers to `~/.claude.json` (the stdio set is shared with OpenCode). Atlassian, Figma, Linear, and Notion authenticate via OAuth on first use; stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead).
 
 | Server          | Transport | Description                                | Auth / Setup                                                            |
 | --------------- | --------- | ------------------------------------------ | ----------------------------------------------------------------------- |
@@ -69,6 +70,7 @@ The install script registers 13 global MCP servers to `~/.claude.json` (the stdi
 | playwright      | stdio     | Browser automation and testing             | —                                                                       |
 | chrome-devtools | stdio     | Inspect/control browser sessions           | —                                                                       |
 | expect          | stdio     | Visual testing and accessibility audits    | —                                                                       |
+| fallow          | stdio     | Codebase intelligence: dead code, dupes    | Runs the global `fallow-mcp` binary (npm)                               |
 | gh_grep         | http      | Search across GitHub repos                 | —                                                                       |
 | atlassian       | http      | Jira & Confluence integration              | OAuth on first use                                                      |
 | figma           | http      | Figma design context (Dev Mode)            | OAuth on first use                                                      |

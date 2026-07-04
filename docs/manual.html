@@ -1558,6 +1558,53 @@
                         </tbody>
                     </table>
 
+                    <h3>fallow (codebase intelligence)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>bunx fallow</code></td>
+                                <td>
+                                    Combined analysis &mdash; dead code, duplication, complexity
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>bunx fallow dead-code</code></td>
+                                <td>Unused files, exports and dependencies</td>
+                            </tr>
+                            <tr>
+                                <td><code>bunx fallow dupes</code></td>
+                                <td>Code duplication detection</td>
+                            </tr>
+                            <tr>
+                                <td><code>bunx fallow health</code></td>
+                                <td>Complexity hotspots (cyclomatic / cognitive / CRAP)</td>
+                            </tr>
+                            <tr>
+                                <td><code>bunx fallow audit</code></td>
+                                <td>
+                                    Changed-file quality gate vs merge-base &mdash; also
+                                    <code>bun run lint:fallow</code>; CI runs it on PRs
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>bunx fallow fix --dry-run</code></td>
+                                <td>Preview auto-removal of unused code</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        Installed globally via npm (<code>fallow</code>,
+                        <code>fallow-lsp</code>, <code>fallow-mcp</code>) and pinned as a repo
+                        devDependency. Free static tier only &mdash; the paid Fallow Runtime layer
+                        (license, coverage, cloud) is not configured.
+                    </p>
+
                     <h3>jq helpers</h3>
                     <table>
                         <thead>
@@ -1958,8 +2005,8 @@
                                 <td>
                                     Update tools that are neither brew-managed nor self-updating: gh
                                     extensions, you-should-use, skills.sh globals, plannotator,
-                                    Catppuccin themes, tv channels &mdash; a failing step reports
-                                    and continues; summary at the end
+                                    Catppuccin themes, tv channels, fallow &mdash; a failing step
+                                    reports and continues; summary at the end
                                 </td>
                             </tr>
                         </tbody>
@@ -2302,6 +2349,10 @@
                                 <td>elements-of-style</td>
                                 <td>Strunk's writing rules for prose</td>
                             </tr>
+                            <tr>
+                                <td>fallow</td>
+                                <td>Dead code / duplication / complexity analysis via fallow</td>
+                            </tr>
                         </tbody>
                     </table>
 
@@ -2349,6 +2400,11 @@
                                 <td>expect</td>
                                 <td>Visual testing and accessibility audits</td>
                                 <td>&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>fallow</td>
+                                <td>Codebase intelligence: dead code, duplication, complexity</td>
+                                <td>Runs the global <code>fallow-mcp</code> binary (npm)</td>
                             </tr>
                             <tr>
                                 <td>gh_grep</td>
