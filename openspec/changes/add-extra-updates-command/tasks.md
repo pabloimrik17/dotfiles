@@ -17,5 +17,5 @@
 
 ## 4. Sync and validation
 
-- [ ] 4.1 `chezmoi update` on the live machine (dev clone ≠ chezmoi source dir) and confirm `update-extra` is available in a new shell
-- [ ] 4.2 `openspec validate add-extra-updates-command` passes; run `/opsx:verify` before archiving
+- [x] 4.1 `chezmoi update` on the live machine (dev clone ≠ chezmoi source dir) and confirm `update-extra` is available in a new shell
+- [x] 4.2 `openspec validate add-extra-updates-command` passes; run `/opsx:verify` before archiving
