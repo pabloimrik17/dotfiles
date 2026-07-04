@@ -16,6 +16,7 @@ jobs:
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
+                  persist-credentials: false
 
             - name: 🔍 Fallow audit
               uses: fallow-rs/fallow@v3

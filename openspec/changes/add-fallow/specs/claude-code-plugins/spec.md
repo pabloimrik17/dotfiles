@@ -4,7 +4,7 @@
 
 ### Requirement: Fallow-skills marketplace and plugin are registered in install script
 
-The install script SHALL include `fallow-rs/fallow-skills` in the `CC_MARKETPLACES` array and the fallow-skills plugin in the `CC_PLUGINS` array, installed via the existing marketplace/plugin loops (`claude plugin marketplace add`, `claude plugin install fallow-skills@<marketplace-name>`), with the same pre-scan skip-if-installed behavior as the other entries.
+The install script SHALL include `fallow-rs/fallow-skills` in the `CC_MARKETPLACES` array and the fallow-skills plugin in the `CC_PLUGINS` array, installed via the existing marketplace/plugin loops (`claude plugin marketplace add`, `claude plugin install fallow@fallow-skills`), with the same pre-scan skip-if-installed behavior as the other entries.
 
 #### Scenario: Fresh machine setup
 
@@ -18,7 +18,7 @@ The install script SHALL include `fallow-rs/fallow-skills` in the `CC_MARKETPLAC
 
 ### Requirement: Fallow-skills plugin is enabled by default
 
-`dot_claude/settings.json.tmpl` SHALL include the fallow-skills plugin entry (`"fallow-skills@<marketplace-name>": true`, exact key as reported by `claude plugin list --json`) in the `enabledPlugins` object.
+`dot_claude/settings.json.tmpl` SHALL include the fallow-skills plugin entry (`"fallow@fallow-skills": true`, exact key as reported by `claude plugin list --json`) in the `enabledPlugins` object.
 
 #### Scenario: Fresh machine setup
 
