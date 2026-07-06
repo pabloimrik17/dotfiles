@@ -35,6 +35,20 @@ The repo SHALL contain a `.fallowrc.jsonc` at the root with: a local `$schema` (
 - **WHEN** fallow runs locally and creates its `.fallow/` cache directory
 - **THEN** `git status` does not report it (covered by `.gitignore`)
 
+### Requirement: Pre-commit audit via lint-staged
+
+`lint-staged.config.ts` SHALL run `bunx fallow audit` as a global function task keyed on `*.{ts,js,json,jsonc}`, so the audit runs once per commit that stages JS-surface files and is skipped entirely for commits that do not.
+
+#### Scenario: Commit touching JS surface
+
+- **WHEN** a commit stages a `.ts`, `.js`, `.json`, or `.jsonc` file
+- **THEN** the pre-commit hook runs `fallow audit` once and blocks the commit on introduced findings
+
+#### Scenario: Docs-only commit
+
+- **WHEN** a commit stages only non-JS files (markdown, templates, HTML)
+- **THEN** the fallow audit task does not run
+
 ### Requirement: lint:fallow package script
 
 `package.json` SHALL provide a `lint:fallow` script that runs `fallow audit`, mirroring the `lint:oxfmt` naming convention.

@@ -92,6 +92,8 @@ Complementary push gate in `ci.yml` (adopted from monolab's setup): `bunx fallow
 
 Matches the `lint:oxfmt` naming. Runs the same analysis CI runs (local invocation resolves the devDep via bun's script PATH). Full-repo one-shots stay ad-hoc (`bunx fallow`, `bunx fallow dead-code`, …) and are documented in the manual instead of multiplying scripts.
 
+The same audit also runs at pre-commit via lint-staged, as a global function task (`"*.{ts,js,json,jsonc}": () => "bunx fallow audit"`): the function form ignores the file list so fallow runs once per commit, and only for commits touching JS surface — doc/template commits pay nothing. This is the per-project opt-in the Non-Goals reserve; fallow's native `fallow hooks install` stays out.
+
 ## Risks / Trade-offs
 
 - [Global/local version skew: user-scope `fallow-mcp` always runs the global CLI, even inside this repo where the devDep pin may differ] → Accepted. Both tracks stay current (update-extra / Renovate); docs document no incompatibility. Escape hatch if it ever bites: project `.mcp.json` entry `{"command": "bunx", "args": ["fallow-mcp"]}` shadowing the user-scope name.
