@@ -755,6 +755,22 @@ else
 fi
 
 # ------------------------------------------------------------------
+# Group 6.5: fallow (global npm install: fallow, fallow-lsp, fallow-mcp)
+# ------------------------------------------------------------------
+if command -v fallow &>/dev/null; then
+    info "fallow — already installed ($(fallow --version 2>/dev/null | head -n1)), skipping"
+elif ! command -v node &>/dev/null || ! command -v npm &>/dev/null; then
+    warn "node/npm is not available — skipping fallow install"
+elif confirm "Install fallow globally via npm (fallow, fallow-lsp, fallow-mcp)?"; then
+    info "  Installing fallow..."
+    if ! npm install -g fallow; then
+        error "Failed to install fallow"
+    fi
+else
+    info "Skipping fallow."
+fi
+
+# ------------------------------------------------------------------
 # Group 7: OpenCode plugins
 # ------------------------------------------------------------------
 if confirm "Install OpenCode plugin dependencies (plannotator, superpowers)?"; then
@@ -808,6 +824,7 @@ CC_MARKETPLACES=(
     "backnotprop/plannotator"
     "max-sixty/worktrunk"
     "steveyegge/beads"
+    "fallow-rs/fallow-skills"
 )
 
 CC_PLUGINS=(
@@ -836,6 +853,7 @@ CC_PLUGINS=(
     "worktrunk@worktrunk"
     "beads@beads-marketplace"
     "code-simplifier@claude-plugins-official"
+    "fallow@fallow-skills"
 )
 
 if command -v claude &>/dev/null; then
@@ -957,6 +975,9 @@ MCP_STDIO_SERVERS=(
     "playwright:npx:-y:@playwright/mcp@0.0.68"
     "chrome-devtools:npx:-y:chrome-devtools-mcp@0.18.1"
     "expect:npx:-y:expect-cli@0.1.3:mcp"
+    # PATH binary from the global npm install — no npx, no pin (version owned
+    # by the global install / update-extra), so presence-checked only
+    "fallow:fallow-mcp"
 )
 
 MCP_HTTP_SERVERS=(
