@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+    "$schema": "./node_modules/fallow/schema.json",
     // commitlint + lint-staged configs are auto-detected by built-in plugins;
     // oxfmt has no fallow plugin, so its config must be an explicit entry
     "entry": ["oxfmt.config.ts"],
@@ -19,5 +19,7 @@
         // the tools themselves, not by imports
         "unused-exports": "off",
         "unused-types": "off",
+        // suppression comments must carry a reason
+        "require-suppression-reason": "warn",
     },
 }

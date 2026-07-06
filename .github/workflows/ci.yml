@@ -26,3 +26,9 @@ jobs:
 
             - name: 🔍 Validate OpenSpec change proposals
               run: bunx @fission-ai/openspec@1.2.0 validate --changes --no-interactive
+
+            # PRs are gated by fallow.yml (audit, new-only ratchet); this catches
+            # dead code landing on main via direct pushes
+            - name: 🔍 Fallow dead-code gate (full repo)
+              run: bunx fallow dead-code --fail-on-issues
+              if: ${{ github.event_name == 'push' }}

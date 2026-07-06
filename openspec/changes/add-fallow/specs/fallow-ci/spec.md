@@ -21,6 +21,20 @@ The repo SHALL contain `.github/workflows/fallow.yml`, separate from `ci.yml`, t
 - **WHEN** reading `.github/workflows/ci.yml`
 - **THEN** it retains its default read-only permissions (fallow's write permissions live only in `fallow.yml`)
 
+### Requirement: Push-time dead-code gate in main CI
+
+`ci.yml` SHALL run `bunx fallow dead-code --fail-on-issues` on `push` events only (not on `pull_request`), so dead code cannot land on `main` via direct pushes that bypass the PR audit. The step SHALL NOT alter `ci.yml` permissions and PR runs SHALL keep the `fallow.yml` new-only ratchet as their sole fallow gate.
+
+#### Scenario: Direct push to main with dead code
+
+- **WHEN** a commit pushed directly to `main` introduces an unused file, export, or dependency
+- **THEN** the CI `main` job fails at the fallow dead-code step
+
+#### Scenario: PR runs unaffected
+
+- **WHEN** the CI workflow runs for a `pull_request` event
+- **THEN** the dead-code step is skipped (fallow gating comes from `fallow.yml` only)
+
 ### Requirement: CI version follows the devDependency pin
 
 The workflow SHALL omit the action's `version` input so the action resolves the fallow version from the `package.json` devDependency — a single Renovate-managed version source for the project layer.

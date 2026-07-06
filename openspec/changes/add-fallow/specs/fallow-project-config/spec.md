@@ -13,7 +13,7 @@
 
 ### Requirement: Repo-tuned fallow configuration
 
-The repo SHALL contain a `.fallowrc.jsonc` at the root with: `oxfmt.config.ts` declared as an `entry` (no built-in fallow plugin covers oxfmt, unlike commitlint/lint-staged), `ignorePatterns` covering the non-JS chezmoi surface (`**/*.tmpl`, `dot_config/**`, `dot_claude/**`, `dot_local/**`, `Library/**`, `assets/**`, `docs/**`, `openspec/**`), `ignoreDependencies` for `@types/bun`, and `unused-exports`/`unused-types` set to `off`.
+The repo SHALL contain a `.fallowrc.jsonc` at the root with: a local `$schema` (`./node_modules/fallow/schema.json`, version-matched to the pinned devDep), `oxfmt.config.ts` declared as an `entry` (no built-in fallow plugin covers oxfmt, unlike commitlint/lint-staged), `ignorePatterns` covering the non-JS chezmoi surface (`**/*.tmpl`, `dot_config/**`, `dot_claude/**`, `dot_local/**`, `Library/**`, `assets/**`, `docs/**`, `openspec/**`), `ignoreDependencies` for `@types/bun`, `unused-exports`/`unused-types` set to `off`, and `require-suppression-reason` set to `warn`. The `.fallow/` analysis cache SHALL be gitignored.
 
 #### Scenario: Clean analysis on untouched repo
 
@@ -29,6 +29,11 @@ The repo SHALL contain a `.fallowrc.jsonc` at the root with: `oxfmt.config.ts` d
 
 - **WHEN** lint-staged runs oxfmt over a commit touching `.fallowrc.jsonc`
 - **THEN** the file remains valid JSONC (via oxfmt handling it correctly or an `.oxfmtignore` entry)
+
+#### Scenario: Analysis cache stays out of git
+
+- **WHEN** fallow runs locally and creates its `.fallow/` cache directory
+- **THEN** `git status` does not report it (covered by `.gitignore`)
 
 ### Requirement: lint:fallow package script
 

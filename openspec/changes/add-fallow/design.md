@@ -52,7 +52,8 @@ Per the classify-tool-updates taxonomy the global install is manual-class (not b
 
 ```jsonc
 {
-    "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+    // local schema: always matches the pinned devDep version, works offline
+    "$schema": "./node_modules/fallow/schema.json",
     // commitlint + lint-staged configs are auto-detected by built-in plugins;
     // oxfmt has no fallow plugin, so its config must be an explicit entry
     "entry": ["oxfmt.config.ts"],
@@ -62,10 +63,14 @@ Per the classify-tool-updates taxonomy the global install is manual-class (not b
         // the repo's only exports are tool-config default exports consumed by
         // the tools themselves, not by imports
         "unused-exports": "off",
-        "unused-types": "off"
+        "unused-types": "off",
+        // suppression comments must carry a reason
+        "require-suppression-reason": "warn"
     }
 }
 ```
+
+The `.fallow/` analysis cache is gitignored.
 
 `.jsonc` extension over `.fallowrc.json` (both parsed as JSONC, lookup positions 1–2): the extension signals comments to editors and to oxfmt via lint-staged, which formats `"*"`. If oxfmt still mishandles it, the file goes into `.oxfmtignore` (established pattern). Discovery is verified at implementation with `bunx fallow list` (expected: commitlint/lint-staged plugins active, `oxfmt.config.ts` an entry, zero unused-file findings).
 
@@ -80,6 +85,8 @@ steps:
 ```
 
 Separate file rather than a job in `ci.yml`: the action needs write permissions (`checks`, `pull-requests`) that the existing workflow doesn't have and shouldn't gain. No setup-bun/`bun install` in this job — the action is self-contained. `@v3` (tag exists; npm 3.0.0 matches; the `@v2` in doc examples is lag) — Renovate's `config:best-practices` pins it to a digest and manages bumps. `gate: new-only` is ratchet semantics: only findings introduced by the PR fail (exit 1 / verdict `fail`); pre-existing findings report but pass. `fallow review` is never used as a gate (always exits 0). SARIF upload stays off (action default).
+
+Complementary push gate in `ci.yml` (adopted from monolab's setup): `bunx fallow dead-code --fail-on-issues` on `push` events only — direct-to-main commits (the repo's chore flow) bypass PRs and thus `fallow.yml`; PR runs keep the new-only ratchet untouched.
 
 ### D8: package.json script `lint:fallow` = `fallow audit`
 
