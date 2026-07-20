@@ -7,7 +7,6 @@ show_volumes: true
 symbols:
     - ACM
     - ADBE
-    - ADSK
     - AMT
     - AVTR
     - AWI
@@ -17,11 +16,15 @@ symbols:
     - CMG
     - CPNG
     - CPRT
+    - CRTO
     - DOCS
     - DPZ
     - DUOL
     - EXLS
+    - GPOR
+    - HCA
     - HLNE
+    - HRL
     - INTU
     - IPAR
     - ISRG
@@ -31,8 +34,8 @@ symbols:
     - MCD
     - MORN
     - MSFT
-    - NFLX
     - NKE
+    - NOC
     - NOMD
     - ODD
     - OLED
@@ -40,10 +43,11 @@ symbols:
     - PCTY
     - PEP
     - PLNT
+    - PNR
     - QLYS
     - RACE
+    - RMD
     - ROL
-    - TYL
-    - ULTA
+    - UHS
     - VEEV
     - VITL
