@@ -14,6 +14,7 @@ The file SHALL contain:
 
 - A `$schema` reference to `https://opencode.ai/config.json`
 - `model` set to `anthropic/claude-opus-4-6`
+- `autoupdate` set to `true`
 - `tui.scroll_acceleration.enabled` set to `true`
 - A `plugin` array with curated OpenCode plugins (DCP, Plannotator, WakaTime, websearch-cited)
 - A `formatter` section registering `oxfmt` as a custom formatter
@@ -36,12 +37,14 @@ The file SHALL contain:
         - **Allow rules** for Claude Code CLI: `claude mcp *`, `claude plugin *`, `claude skill *`, `claude skills *`
         - **Allow rules** for npm info: `npm info *`
 
-The file SHALL NOT contain MCP server configuration (these stay per-project) or settings where OpenCode's default is sufficient (e.g., `autoupdate`).
+The file SHALL NOT omit `autoupdate` in favor of OpenCode's implicit default. Explicit `true` keeps auto-update intent versioned alongside the rest of the config and matches the official-script install path (see `opencode-install`).
+
+The file's `mcp` block is owned by `mcp-global-config`, which requires the global `expect` entry. This requirement SHALL NOT forbid MCP server configuration in the file.
 
 #### Scenario: Fresh machine setup
 
 - **WHEN** `chezmoi apply` is run on a machine without OpenCode config
-- **THEN** `~/.config/opencode/opencode.jsonc` is created with the full permission set including deny, allow, and ask rules
+- **THEN** `~/.config/opencode/opencode.jsonc` is created with the full permission set including deny, allow, and ask rules, and with `"autoupdate": true` at the top level
 
 #### Scenario: Dangerous command is denied
 
@@ -72,6 +75,11 @@ The file SHALL NOT contain MCP server configuration (these stay per-project) or 
 
 - **WHEN** a project has its own `opencode.json` with a different `model` value
 - **THEN** the project-level model takes precedence over the global config
+
+#### Scenario: Autoupdate is explicit after apply
+
+- **WHEN** `chezmoi apply` deploys OpenCode config
+- **THEN** the deployed `~/.config/opencode/opencode.jsonc` contains `"autoupdate": true` at the top level
 
 ### Requirement: chezmoi manages OpenCode TUI config
 
