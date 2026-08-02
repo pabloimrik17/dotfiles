@@ -53,7 +53,9 @@ MANAGED = [
     (("worktree", "init_submodules"), False, False),
     (("tmux", "status_bar"), "disabled", False),
     (("tmux", "clipboard"), "enabled", False),
-    (("tmux", "mouse"), "disabled", False),
+    # "auto" mirrors ~/.tmux.conf into each session; "disabled" applies `mouse
+    # off`, shadowing it. Pinned so `chezmoi apply` reverts a stray value.
+    (("tmux", "mouse"), "auto", False),
     (("updates", "update_check_mode"), "off", False),
     (("sound", "enabled"), True, False),
     (("status_hooks", "enabled"), True, False),
