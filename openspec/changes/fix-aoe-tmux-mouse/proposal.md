@@ -15,7 +15,7 @@ Not a breaking change to any interface, but it **does change daily mouse behavio
 Explicitly **not** changing:
 
 - Not `"enabled"`. It fixes the symptom but restores a second source of truth for the mouse, with AoE silently outranking `dot_tmux.conf` — structurally the same arrangement that produced this bug. See design D1.
-- No custom `WheelUpPane`/`WheelDownPane` bindings. tmux 3.7b's default root table already implements the policy DOT-40 asks for (wheel → pane scrollback unless the app is in alternate-screen or requested mouse reporting). See design D2.
+- No custom `WheelUpPane`/`WheelDownPane` bindings. tmux's default root table already implements the policy DOT-40 asks for: `WheelUpPane` → pane scrollback unless the app is in alternate-screen or requested mouse reporting. There is no default `WheelDownPane`; scrolling back down is handled by copy-mode's own table once copy-mode is entered. See design D2.
 - No `default-terminal` change. It sets the TERM *inside* panes; mouse is negotiated against the outer terminal. Unrelated to the symptoms.
 - No `session.click_action` / `*_attach_mode` change, and no `AOE_MOUSE_CAPTURE` change. Those govern the AoE dashboard TUI (clicking a session row, the dashboard's own wheel capture), not pane mouse handling. See design D4.
 
@@ -37,4 +37,4 @@ None.
 - **Interaction with `tmux.clipboard = "enabled"`**: unchanged and load-bearing — it already sets `set-clipboard on` + `allow-passthrough on`, which is what carries tmux copy-mode selections to the system clipboard once tmux owns the drag. Note this key deliberately stays pinned rather than moving to `auto`: unlike the mouse, no setting in `dot_tmux.conf` provides it.
 - **External deps**: none. No new brew packages, no aoe version bump.
 - **Concurrent changes**: `update-brew-deps` also carries an `agent-manager` delta but does not touch the mouse requirement, so the two deltas do not overlap.
-- **Platform**: macOS, same as the parent change. Requires tmux ≥ 3.x for the default wheel binding relied on (verified on 3.7b).
+- **Platform**: macOS, same as the parent change. Requires tmux ≥ 3.6: the default `WheelUpPane` binding only gained the `alternate_on` test in 3.6 (3.5a has just `pane_in_mode`/`mouse_any_flag`). Verified on 3.7b.
