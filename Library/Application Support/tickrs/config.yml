@@ -7,7 +7,6 @@ show_volumes: true
 symbols:
     - ACM
     - ADBE
-    - ADSK
     - AMT
     - BAH
     - BMI
@@ -19,7 +18,7 @@ symbols:
     - DPZ
     - DUOL
     - EXLS
-    - GPOR
+    - HLI
     - HLNE
     - HRL
     - INTU
@@ -37,10 +36,8 @@ symbols:
     - OLED
     - PAYX
     - PCTY
-    - PEP
     - PLNT
     - PNR
-    - RACE
     - RMD
     - ROL
     - TYL
