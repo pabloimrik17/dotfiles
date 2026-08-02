@@ -43,6 +43,9 @@ MANAGED = [
     (("session", "agent_status_hooks"), True, False),
     # Confirmation guard before deleting a session from the TUI (aoe 1.12.0).
     (("session", "confirm_delete"), True, False),
+    # Days a trashed session (transcript + worktree) survives before AoE purges
+    # it. Pinned here so the schema default (30) can't drift back in.
+    (("session", "trash_retention_days"), 10, False),
     # Auto-resume ACP sessions once the adapter-reported rate-limit reset
     # passes (aoe 1.10.1, opt-in; +15s default grace). Terminal/tmux-view
     # sessions are unaffected; status_hooks below still notify.
