@@ -33,6 +33,8 @@ The file SHALL contain:
 
 The file SHALL NOT omit `autoupdate` in favor of OpenCode's implicit default. Explicit `true` keeps auto-update intent versioned alongside the rest of the config and matches the official-script install path (see `opencode-install`).
 
+The file's `mcp` block is owned by `mcp-global-config`, which requires the global `expect` entry. This requirement SHALL NOT forbid MCP server configuration in the file.
+
 #### Scenario: Fresh machine setup
 
 - **WHEN** `chezmoi apply` is run on a machine without OpenCode config
