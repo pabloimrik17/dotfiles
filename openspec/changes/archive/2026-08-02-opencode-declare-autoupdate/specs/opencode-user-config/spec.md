@@ -1,10 +1,4 @@
-# Capability: opencode-user-config
-
-## Purpose
-
-User-level OpenCode configuration managed by chezmoi -- global editor settings, TUI theming, and plugin curation deployed to `~/.config/opencode/`.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: chezmoi manages OpenCode main config
 
@@ -80,45 +74,3 @@ The file's `mcp` block is owned by `mcp-global-config`, which requires the globa
 
 - **WHEN** `chezmoi apply` deploys OpenCode config
 - **THEN** the deployed `~/.config/opencode/opencode.jsonc` contains `"autoupdate": true` at the top level
-
-### Requirement: chezmoi manages OpenCode TUI config
-
-The system SHALL include a `dot_config/opencode/tui.json` file in the chezmoi source tree that deploys to `~/.config/opencode/tui.json`.
-
-The file SHALL contain:
-
-- A `$schema` reference to `https://opencode.ai/tui.json`
-- `theme` set to `catppuccin-macchiato`
-
-#### Scenario: Theme applied on setup
-
-- **WHEN** `chezmoi apply` is run on a machine without OpenCode TUI config
-- **THEN** `~/.config/opencode/tui.json` is created and OpenCode uses the `catppuccin-macchiato` theme
-
-### Requirement: Existing OpenCode state is not affected
-
-chezmoi SHALL NOT manage any files in `~/.local/state/opencode/`, `~/.local/share/opencode/`, or `~/.config/opencode/package.json`.
-
-#### Scenario: Runtime state preserved
-
-- **WHEN** `chezmoi apply` is run on a machine with existing OpenCode runtime state
-- **THEN** `kv.json`, `model.json`, `auth.json`, and `package.json` are untouched
-
-### Requirement: Explicit shell field set to zsh
-
-The `dot_config/opencode/opencode.jsonc` file SHALL contain a top-level `"shell": "zsh"` field. This ensures opencode's agent shell tool resolves to zsh on every machine regardless of OpenCode's per-platform default, so the agent inherits aliases, PATH, and shell functions sourced from `~/.zshrc`.
-
-#### Scenario: Shell field present after fresh setup
-
-- **WHEN** `chezmoi apply` is run on a machine without OpenCode config
-- **THEN** the deployed `~/.config/opencode/opencode.jsonc` contains the `"shell": "zsh"` field at the top level
-
-#### Scenario: Agent shell tool uses zsh
-
-- **WHEN** opencode's agent invokes a shell command via the shell tool
-- **THEN** the command runs under zsh and resolves user-defined aliases (e.g., `lg`, `gco`) without needing fully-qualified paths
-
-#### Scenario: zshrc-sourced functions available
-
-- **WHEN** the agent shell tool runs a function that is defined in the user's zshrc (e.g., `_tv_ctrl_t_wrapper`)
-- **THEN** the function resolves and executes without "command not found" errors
