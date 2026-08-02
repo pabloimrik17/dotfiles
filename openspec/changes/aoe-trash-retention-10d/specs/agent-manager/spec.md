@@ -7,7 +7,7 @@
 
 ### Requirement: AoE trash retention is pinned to 10 days
 
-Descartar una sesión en AoE la mueve a la Trash, no la borra: transcript y worktree sobreviven hasta que expira la retención. Ese plazo SHALL ser una knob gestionada por los dotfiles y fijada a `10`, no heredada del schema default de AoE (`30`), de modo que ni una release de AoE ni el writeback en runtime puedan cambiarlo silenciosamente.
+Descartar una sesión en AoE la mueve a la Trash, no la borra: transcript y worktree sobreviven hasta que expira la retención. Ese plazo SHALL ser una knob gestionada por los dotfiles y fijada a `10`, no heredada del schema default de AoE (`30`). AoE puede reescribir el valor vivo entre aplicaciones; `chezmoi apply` SHALL restablecerlo a `10`.
 
 #### Scenario: Retention pinned in the managed config
 
@@ -44,8 +44,9 @@ El árbol fuente de los dotfiles SHALL contener `dot_config/private_agent-of-emp
 
 #### Scenario: AoE reads the managed file
 
-- **WHEN** el usuario ejecuta `aoe settings explain <clave gestionada>` para cualquier clave de `MANAGED`
+- **WHEN** el usuario ejecuta `aoe settings explain <clave>` para una clave de `MANAGED` cuyo valor difiere del schema default de AoE
 - **THEN** AoE reporta el valor de los dotfiles con `source: user value`, confirmando que la ruta gestionada es la que lee
+- **AND** para una clave de `MANAGED` cuyo valor coincide con el schema default, AoE reporta `source: schema default` sin que eso implique que el fichero no se lea
 
 ## REMOVED Requirements
 

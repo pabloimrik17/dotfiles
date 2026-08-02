@@ -14,7 +14,7 @@
 
 ## 4. Aplicar y verificar en la máquina
 
-- [ ] 4.1 Tras mergear, sincronizar la fuente real (`chezmoi update`) — `chezmoi apply` lee de `~/.local/share/chezmoi`, no de este clon
+- [ ] 4.1 Tras mergear, sincronizar la fuente real **sin aplicar**: `chezmoi update --apply=false` (o `chezmoi git pull -- --autostash --rebase`) — `chezmoi apply` lee de `~/.local/share/chezmoi`, no de este clon. `chezmoi update` a secas aplica por defecto y purgaría la papelera antes de la revisión de 1.1
 - [ ] 4.2 `chezmoi apply` y comprobar que `~/.config/agent-of-empires/config.toml` conserva permisos `0600`
 - [ ] 4.3 `aoe settings explain session.trash_retention_days` → debe devolver `10` con `source: user value`. Si sigue diciendo `schema default`, la conclusión de design.md D3/D4 sobre la ruta es falsa: parar y reabrir la investigación antes de cerrar el cambio
 - [ ] 4.4 Re-ejecutar `chezmoi diff` → debe salir vacío (el check-then-set hace el re-apply idempotente)
