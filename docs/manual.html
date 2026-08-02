@@ -946,10 +946,6 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td><code>gs</code></td>
-                                <td><code>git status</code></td>
-                            </tr>
-                            <tr>
                                 <td><code>ga</code></td>
                                 <td><code>git add</code></td>
                             </tr>
@@ -1191,11 +1187,103 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td><code>gs</code></td>
+                                <td>
+                                    <code>gh stack</code> &mdash; stacked pull requests (see below).
+                                    Interactive shells only; <code>git status</code> is
+                                    <code>gst</code>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td><code>gh skill</code></td>
                                 <td>
-                                    Official <code>gh</code> agent skill for Claude Code &mdash;
-                                    installed by the install script (<code>cli/cli</code>, user
-                                    scope)
+                                    Official <code>gh</code> agent skills for Claude Code &mdash;
+                                    installed by the install script (<code>cli/cli</code> and
+                                    <code>github/gh-stack</code>, user scope)
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>gh stack (stacked PRs)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>gs init</code></td>
+                                <td>
+                                    Initialize a stack &mdash; optionally from existing branches
+                                    (<code>gs init b1 b2 b3</code>). Enables rerere per-repo,
+                                    already a no-op here
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>gs add</code></td>
+                                <td>Add a new branch on top of the current stack</td>
+                            </tr>
+                            <tr>
+                                <td><code>gs view</code></td>
+                                <td>View the current stack</td>
+                            </tr>
+                            <tr>
+                                <td><code>gs up</code> / <code>gs down</code></td>
+                                <td>
+                                    Move one layer away from / toward the trunk &mdash; checks out
+                                    the branch <em>in place</em>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <code>gs top</code> / <code>gs bottom</code> /
+                                    <code>gs trunk</code>
+                                </td>
+                                <td>Jump to the far end of the stack, its base, or the trunk</td>
+                            </tr>
+                            <tr>
+                                <td><code>gs switch</code> / <code>gs checkout</code></td>
+                                <td>
+                                    Interactive branch picker within the stack / check out a stack
+                                    by number, PR number, PR URL, or branch
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>gs submit</code></td>
+                                <td>Create (or update) the stack of PRs on GitHub</td>
+                            </tr>
+                            <tr>
+                                <td><code>gs push</code></td>
+                                <td>Push the stack's active branches without touching PRs</td>
+                            </tr>
+                            <tr>
+                                <td><code>gs sync</code> / <code>gs rebase</code></td>
+                                <td>
+                                    Sync with the remote / rebase the chain &mdash; cascading
+                                    conflict resolutions are remembered via global rerere
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>gs merge</code></td>
+                                <td>Merge the stack of pull requests</td>
+                            </tr>
+                            <tr>
+                                <td><code>gs modify</code> / <code>gs unstack</code></td>
+                                <td>
+                                    Interactively restructure the stack / remove it locally and on
+                                    GitHub
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>gs link</code></td>
+                                <td>
+                                    Link existing PRs into a stack on GitHub with
+                                    <strong>no local tracking state</strong> &mdash; the
+                                    worktree-friendly path, since stack state otherwise lives in the
+                                    per-worktree git dir and dies with <code>wt remove</code>
                                 </td>
                             </tr>
                         </tbody>

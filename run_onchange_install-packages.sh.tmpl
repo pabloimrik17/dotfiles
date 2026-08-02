@@ -326,8 +326,10 @@ fi
 # Group: gh CLI extensions
 # ------------------------------------------------------------------
 if command -v gh &>/dev/null; then
-    if confirm "Install gh CLI extensions (gh-dash, gh-enhance) + gh agent skill?"; then
-        if gh extension list 2>/dev/null | grep -q "dlvhdr/gh-dash"; then
+    if confirm "Install gh CLI extensions (gh-dash, gh-enhance, gh-stack) + gh agent skills?"; then
+        # Match the whole OWNER/REPO token in gh extension list's tab-separated
+        # output; a substring match would treat e.g. gh-dash-extra as gh-dash.
+        if gh extension list 2>/dev/null | grep -qE '(^|[[:space:]])dlvhdr/gh-dash([[:space:]]|$)'; then
             info "  gh-dash — already installed, skipping"
         else
             info "  Installing gh-dash..."
@@ -336,7 +338,7 @@ if command -v gh &>/dev/null; then
             fi
         fi
 
-        if gh extension list 2>/dev/null | grep -q "dlvhdr/gh-enhance"; then
+        if gh extension list 2>/dev/null | grep -qE '(^|[[:space:]])dlvhdr/gh-enhance([[:space:]]|$)'; then
             info "  gh-enhance — already installed, skipping"
         else
             info "  Installing gh-enhance..."
@@ -345,14 +347,34 @@ if command -v gh &>/dev/null; then
             fi
         fi
 
-        # Official gh agent skill for Claude Code (gh 2.94+). Structured
+        if gh extension list 2>/dev/null | grep -qE '(^|[[:space:]])github/gh-stack([[:space:]]|$)'; then
+            info "  gh-stack — already installed, skipping"
+        else
+            info "  Installing gh-stack..."
+            if ! gh extension install github/gh-stack; then
+                error "Failed to install gh-stack"
+            fi
+        fi
+
+        # Official gh agent skill for Claude Code (gh skill: 2.90+). Structured
         # detection via --json instead of grepping human-readable output.
-        if gh skill list --agent claude-code --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "gh"; then
+        # --scope user is required: gh skill list defaults to project + user,
+        # so a project-scoped skill would mask a missing user-scoped one.
+        if gh skill list --agent claude-code --scope user --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "gh"; then
             info "  gh agent skill — already installed, skipping"
         else
             info "  Installing gh agent skill (Claude Code, user scope)..."
             if ! gh skill install cli/cli gh --agent claude-code --scope user; then
                 error "Failed to install gh agent skill"
+            fi
+        fi
+
+        if gh skill list --agent claude-code --scope user --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "gh-stack"; then
+            info "  gh-stack agent skill — already installed, skipping"
+        else
+            info "  Installing gh-stack agent skill (Claude Code, user scope)..."
+            if ! gh skill install github/gh-stack gh-stack --agent claude-code --scope user; then
+                error "Failed to install gh-stack agent skill"
             fi
         fi
     else
@@ -1190,7 +1212,10 @@ info "    - zsh-autosuggestions (via package manager or git clone)"
 info "    - zsh-syntax-highlighting (via package manager or git clone)"
 info "    - zsh-completions: apt install zsh-completions"
 info "      Or: sudo git clone https://github.com/zsh-users/zsh-completions.git /usr/share/zsh-completions"
-info "  gh extensions: gh extension install dlvhdr/gh-dash"
+info "  gh extensions:"
+info "    - gh extension install dlvhdr/gh-dash"
+info "    - gh extension install dlvhdr/gh-enhance"
+info "    - gh extension install github/gh-stack"
 info "  Bat theme: Catppuccin Mocha"
 info "    mkdir -p \"\$(bat --config-dir)/themes\""
 info "    curl -fsSLo \"\$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme\" https://raw.githubusercontent.com/catppuccin/bat/main/themes/Catppuccin%20Mocha.tmTheme"

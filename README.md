@@ -50,6 +50,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **Git**        | [GitHub CLI](https://cli.github.com/)                                           | GitHub from the terminal                                                                   |
 | **Git**        | [gh-dash](https://github.com/dlvhdr/gh-dash)                                    | GitHub dashboard TUI with Catppuccin Mocha theme                                           |
 | **Git**        | [gh-enhance](https://github.com/dlvhdr/gh-enhance)                              | GitHub Actions TUI for workflow runs                                                       |
+| **Git**        | [gh-stack](https://github.com/github/gh-stack)                                  | Stacked pull requests from the terminal (`gs`)                                             |
 | **Git**        | [Worktrunk](https://github.com/max-sixty/worktrunk)                             | Git worktree manager for parallel AI agent workflows                                       |
 | **AI Tooling** | [Claude Code](https://code.claude.com/)                                         | AI coding assistant CLI with plugins                                                       |
 | **AI Tooling** | [OpenCode](https://github.com/anomalyco/opencode)                               | AI code editor                                                                             |

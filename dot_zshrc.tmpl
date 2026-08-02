@@ -230,7 +230,6 @@ md() {
 }
 
 # Git shortcuts
-alias gs="git status"
 alias ga="git add"
 alias gc="git commit"
 alias gp="git push"
@@ -244,6 +243,10 @@ alias ghpv="gh pr view"
 alias ghpl="gh pr list"
 alias ghd="gh dash"
 alias ghe="ENHANCE_THEME=catppuccin_mocha gh enhance"
+# gs: upstream's default alias name for gh-stack. Shell alias only — a `gs`
+# executable in ~/.local/bin would shadow Ghostscript everywhere. git status
+# is `gst` from the OMZ git plugin.
+alias gs="gh stack"
 
 # Worktrunk shortcuts
 alias wsc='wt switch --create --execute=claude'
