@@ -327,7 +327,9 @@ fi
 # ------------------------------------------------------------------
 if command -v gh &>/dev/null; then
     if confirm "Install gh CLI extensions (gh-dash, gh-enhance, gh-stack) + gh agent skills?"; then
-        if gh extension list 2>/dev/null | grep -q "dlvhdr/gh-dash"; then
+        # Match the whole OWNER/REPO token in gh extension list's tab-separated
+        # output; a substring match would treat e.g. gh-dash-extra as gh-dash.
+        if gh extension list 2>/dev/null | grep -qE '(^|[[:space:]])dlvhdr/gh-dash([[:space:]]|$)'; then
             info "  gh-dash — already installed, skipping"
         else
             info "  Installing gh-dash..."
@@ -336,7 +338,7 @@ if command -v gh &>/dev/null; then
             fi
         fi
 
-        if gh extension list 2>/dev/null | grep -q "dlvhdr/gh-enhance"; then
+        if gh extension list 2>/dev/null | grep -qE '(^|[[:space:]])dlvhdr/gh-enhance([[:space:]]|$)'; then
             info "  gh-enhance — already installed, skipping"
         else
             info "  Installing gh-enhance..."
@@ -345,7 +347,7 @@ if command -v gh &>/dev/null; then
             fi
         fi
 
-        if gh extension list 2>/dev/null | grep -q "github/gh-stack"; then
+        if gh extension list 2>/dev/null | grep -qE '(^|[[:space:]])github/gh-stack([[:space:]]|$)'; then
             info "  gh-stack — already installed, skipping"
         else
             info "  Installing gh-stack..."
@@ -354,9 +356,11 @@ if command -v gh &>/dev/null; then
             fi
         fi
 
-        # Official gh agent skill for Claude Code (gh 2.94+). Structured
+        # Official gh agent skill for Claude Code (gh skill: 2.90+). Structured
         # detection via --json instead of grepping human-readable output.
-        if gh skill list --agent claude-code --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "gh"; then
+        # --scope user is required: gh skill list defaults to project + user,
+        # so a project-scoped skill would mask a missing user-scoped one.
+        if gh skill list --agent claude-code --scope user --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "gh"; then
             info "  gh agent skill — already installed, skipping"
         else
             info "  Installing gh agent skill (Claude Code, user scope)..."
@@ -365,7 +369,7 @@ if command -v gh &>/dev/null; then
             fi
         fi
 
-        if gh skill list --agent claude-code --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "gh-stack"; then
+        if gh skill list --agent claude-code --scope user --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "gh-stack"; then
             info "  gh-stack agent skill — already installed, skipping"
         else
             info "  Installing gh-stack agent skill (Claude Code, user scope)..."

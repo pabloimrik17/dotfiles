@@ -104,9 +104,9 @@ The escape hatch is documented upstream and worth recording: `gh stack link` exi
 
 1. `chezmoi apply` → extension and skill install through the confirmable group; the `gs` alias is rewritten.
 2. Open a new shell (or `source ~/.zshrc`) for the alias change to take effect.
-3. Verify: `gh extension list` shows `github/gh-stack`; `gh stack --help` runs; `gh skill list --agent claude-code --json skillName --jq '.[].skillName'` includes `gh-stack`; `alias gs` reports `gh stack`; `gst` still reports `git status`.
+3. Verify: `gh extension list` shows `github/gh-stack`; `gh stack --help` runs; `gh skill list --agent claude-code --scope user --json skillName --jq '.[].skillName'` includes `gh-stack`; `alias gs` reports `gh stack`; `gst` still reports `git status`.
 
-Rollback: restore `alias gs="git status"` in `dot_zshrc.tmpl` and run `gh extension remove github/gh-stack`. No state outside `.git/` is created, so nothing else needs undoing.
+Rollback: restore `alias gs="git status"` in `dot_zshrc.tmpl`, run `gh extension remove github/gh-stack`, and delete the user-scoped skill directory. `gh skill` has no remove command (install, list, preview, publish, search, update), so locate it with `gh skill list --agent claude-code --scope user --json skillName,path` and remove the `gh-stack` entry (`~/.claude/skills/gh-stack`), then confirm the list no longer reports it. Only the *stack tracking state* lives inside `.git/` — the extension and the skill are both installed outside it.
 
 ## Open Questions
 

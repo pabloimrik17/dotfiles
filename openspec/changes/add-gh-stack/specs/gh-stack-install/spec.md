@@ -30,7 +30,7 @@ The chezmoi install script SHALL install `gh-stack` in the existing gh CLI exten
 
 ### Requirement: gh-stack agent skill for Claude Code
 
-The chezmoi install script SHALL install the gh-stack agent skill at user scope for the `claude-code` agent, so Claude Code knows the `gh stack` command surface in every repository. Detection of an existing install SHALL use structured JSON output rather than matching human-readable text.
+The chezmoi install script SHALL install the gh-stack agent skill at user scope for the `claude-code` agent, so Claude Code knows the `gh stack` command surface in every repository. Detection of an existing install SHALL use structured JSON output rather than matching human-readable text, and SHALL be restricted to user scope: `gh skill list` defaults to both project and user scope, so an unscoped check would let a project-scoped skill mask a missing user-scoped one.
 
 #### Scenario: Fresh install of the skill
 
@@ -39,7 +39,7 @@ The chezmoi install script SHALL install the gh-stack agent skill at user scope 
 
 #### Scenario: Skill already installed
 
-- **WHEN** `gh skill list --agent claude-code --json skillName` already reports `gh-stack`
+- **WHEN** `gh skill list --agent claude-code --scope user --json skillName` already reports `gh-stack`
 - **THEN** the script skips installation and reports it as already installed
 
 #### Scenario: Skill is available outside this repository
