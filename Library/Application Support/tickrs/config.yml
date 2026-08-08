@@ -14,7 +14,6 @@ symbols:
     - CMG
     - CPNG
     - CPRT
-    - DOCS
     - DPZ
     - DUOL
     - EXLS
@@ -25,7 +24,6 @@ symbols:
     - IPAR
     - ISRG
     - JKHY
-    - LDOS
     - LULU
     - MCD
     - MORN
@@ -33,14 +31,12 @@ symbols:
     - NKE
     - NOMD
     - ODD
-    - OLED
     - PAYX
     - PCTY
     - PLNT
     - PNR
-    - RMD
+    - PODD
     - ROL
     - TYL
     - UHS
     - VEEV
-    - VITL
