@@ -1,6 +1,7 @@
 openspec/
 .claude/
 .codex/
+.junie/
 .opencode/
 .husky/_/
 # chezmoi modify_ script: a POSIX shell script that carries its target's .toml
