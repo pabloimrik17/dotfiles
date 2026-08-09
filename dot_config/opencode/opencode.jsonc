@@ -21,6 +21,11 @@
             "command": ["npx", "-y", "expect-cli@latest", "mcp"],
             "enabled": true,
         },
+        "sentry": {
+            "type": "remote",
+            "url": "https://mcp.sentry.dev/mcp",
+            "enabled": true,
+        },
     },
     "formatter": {
         "oxfmt": {

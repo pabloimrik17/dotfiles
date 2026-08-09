@@ -847,6 +847,7 @@ CC_MARKETPLACES=(
     "max-sixty/worktrunk"
     "steveyegge/beads"
     "fallow-rs/fallow-skills"
+    "getsentry/sentry-mcp"
 )
 
 CC_PLUGINS=(
@@ -876,6 +877,7 @@ CC_PLUGINS=(
     "beads@beads-marketplace"
     "code-simplifier@claude-plugins-official"
     "fallow@fallow-skills"
+    "sentry-mcp@sentry-mcp"
 )
 
 if command -v claude &>/dev/null; then
@@ -1180,6 +1182,7 @@ info "  - Atlassian MCP: requires OAuth authentication — run 'claude mcp get a
 info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma' or use on first invocation"
 info "  - Linear MCP: requires OAuth authentication — run 'claude mcp get linear' or use on first invocation"
 info "  - Notion MCP: requires OAuth authentication — run 'claude mcp get notion' or use on first invocation"
+info "  - Sentry MCP: provided by the sentry-mcp@sentry-mcp plugin — requires OAuth authentication; run '/mcp' inside Claude Code or use on first invocation"
 info "  - Storybook MCP: requires @storybook/addon-mcp installed in each Storybook project and 'storybook dev' running on port 6006"
 info ""
 
@@ -1224,6 +1227,7 @@ info "  Claude Code plugins:"
 info "    - plannotator: curl -fsSL https://plannotator.ai/install.sh | bash"
 info "    - claude plugin marketplace add backnotprop/plannotator && claude plugin install plannotator@plannotator"
 info "    - claude plugin marketplace add max-sixty/worktrunk && claude plugin install worktrunk@worktrunk"
+info "    - claude plugin marketplace add getsentry/sentry-mcp && claude plugin install sentry-mcp@sentry-mcp"
 info "  Agent skills (requires npx/Node.js):"
 info "    npx -y skills add vercel-labs/skills --skill find-skills -g -y"
 info "    npx -y skills add vercel-labs/agent-skills --skill vercel-react-best-practices -g -y"

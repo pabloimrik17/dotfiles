@@ -26,6 +26,7 @@
     "frontend-design@claude-plugins-official": true,
     "plannotator@plannotator": true,
     "plugin-dev@claude-plugins-official": true,
+    "sentry-mcp@sentry-mcp": true,
     "skill-creator@claude-plugins-official": true,
     "superpowers-chrome@superpowers-marketplace": true,
     "superpowers-developing-for-claude-code@superpowers-marketplace": true,
@@ -87,6 +88,13 @@
       "autoUpdate": true,
       "source": {
         "repo": "backnotprop/plannotator",
+        "source": "github"
+      }
+    },
+    "sentry-mcp": {
+      "autoUpdate": true,
+      "source": {
+        "repo": "getsentry/sentry-mcp",
         "source": "github"
       }
     },
@@ -294,7 +302,13 @@
       "mcp__memory__read_graph",
       "mcp__memory__search_nodes",
       "mcp__memory__open_nodes",
-      "mcp__gh_grep__searchGitHub"
+      "mcp__gh_grep__searchGitHub",
+      "mcp__plugin_sentry-mcp_sentry__find_organizations",
+      "mcp__plugin_sentry-mcp_sentry__find_projects",
+      "mcp__plugin_sentry-mcp_sentry__get_sentry_resource",
+      "mcp__plugin_sentry-mcp_sentry__search_events",
+      "mcp__plugin_sentry-mcp_sentry__search_issues",
+      "mcp__plugin_sentry-mcp_sentry__search_sentry_tools"
     ],
     "defaultMode": "auto",
     "deny": [
