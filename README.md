@@ -41,6 +41,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **CLI Tools**  | [tickrs](https://github.com/tarkah/tickrs)                                      | Real-time stock ticker TUI with curated 42-symbol watchlist                                |
 | **CLI Tools**  | [ticker](https://github.com/achannarasappa/ticker)                              | Terminal stock tracker with cost-basis positions and sector groups                         |
 | **CLI Tools**  | [age](https://age-encryption.org/)                                              | Modern encryption tool backing the chezmoi-managed secrets workflow                        |
+| **CLI Tools**  | zsh secrets                                                                     | age-encrypted `~/.config/zsh/secrets.zsh` sourced at shell start for API tokens            |
 | **CLI Tools**  | [mole](https://github.com/tw93/mole)                                            | Deep clean and optimize your Mac — caches, logs, app remnants, `node_modules` (macOS only) |
 | **CLI Tools**  | [glow](https://github.com/charmbracelet/glow)                                   | Terminal Markdown viewer — TUI browse + CLI render                                         |
 | **CLI Tools**  | [mdfried](https://github.com/benjajaja/mdfried)                                 | Markdown viewer with inline images, mermaid diagrams, and Big Headers (graphics terminal)  |
@@ -56,6 +57,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **AI Tooling** | [OpenCode](https://github.com/anomalyco/opencode)                               | AI code editor                                                                             |
 | **AI Tooling** | [Agent of Empires](https://github.com/njbrake/agent-of-empires)                 | tmux-native TUI for managing parallel AI agent sessions (`aoe`)                            |
 | **AI Tooling** | [CodeRabbit](https://www.coderabbit.ai/)                                        | AI code review CLI                                                                         |
+| **AI Tooling** | [Slack MCP](https://github.com/slackapi/slack-mcp-plugin)                       | Slack search and channel/thread reads in Claude Code and OpenCode (read-only by default)   |
 | **Network**    | [Tailscale](https://tailscale.com/)                                             | Mesh VPN (WireGuard-based) for secure device-to-device networking                          |
 
 ## MCP Servers
@@ -78,6 +80,8 @@ The install script registers 14 global MCP servers to `~/.claude.json` (the stdi
 | linear          | http      | Linear issues & projects                   | OAuth on first use                                                      |
 | notion          | http      | Notion pages & databases                   | OAuth on first use                                                      |
 | storybook       | http      | Local Storybook component context          | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
+
+Slack is deliberately absent from that table. It advertises no `registration_endpoint`, so Dynamic Client Registration — the only OAuth path `claude mcp add --transport http` knows — can never complete. Claude Code gets Slack from the `slack@claude-plugins-official` plugin instead, which ships a pre-registered client and authenticates via OAuth on first use (`/mcp`). OpenCode reaches the same hosted server with a Slack user token exported as `SLACK_MCP_TOKEN` from the age-encrypted `~/.config/zsh/secrets.zsh`. Either way, a workspace admin must have approved the Slack MCP connector first.
 
 ## Setup
 
@@ -108,7 +112,7 @@ The install script registers 14 global MCP servers to `~/.claude.json` (the stdi
 
     Restore `~/.config/chezmoi/key.txt` from your password manager (`chmod 600`).
 
-    > ⚠️ Lose this file without a backup and the encrypted artifacts in the repo (e.g. `encrypted_dot_ticker.yaml.age`) become **irrecoverable**.
+    > ⚠️ Lose this file without a backup and the encrypted artifacts in the repo (e.g. `encrypted_dot_ticker.yaml.age`, `encrypted_private_dot_config/zsh/secrets.zsh.age`) become **irrecoverable**.
 
 3. Initialize and apply:
 

@@ -96,6 +96,13 @@ export OPENCODE_ENABLE_EXA=true
 export OPENCODE_EXPERIMENTAL_OXFMT=true
 export OPENCODE_EXPERIMENTAL_FILEWATCHER=true
 
+# API tokens and other per-user secrets. Deployed by chezmoi from the age
+# ciphertext encrypted_private_dot_config/zsh/secrets.zsh.age at mode 0600 and
+# never committed in plaintext; holds SLACK_MCP_TOKEN for the Slack MCP server
+# in OpenCode. Guarded with the same idiom as the Catppuccin line above, so a
+# host without the file (or without the age key) starts silently.
+[[ -f ~/.config/zsh/secrets.zsh ]] && source ~/.config/zsh/secrets.zsh
+
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 # pnpm

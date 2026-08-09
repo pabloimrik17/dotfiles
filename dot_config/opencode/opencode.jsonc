@@ -21,6 +21,21 @@
             "command": ["npx", "-y", "expect-cli@latest", "mcp"],
             "enabled": true,
         },
+        // oauth: false is load-bearing — Slack advertises no registration_endpoint
+        // (no Dynamic Client Registration) and only client_secret_post on its token
+        // endpoint, so OpenCode's auto-detected flow can never complete. Turning it
+        // off is what makes the Authorization header below the deciding factor.
+        // SLACK_MCP_TOKEN is a Slack user token (xoxp-) exported from
+        // ~/.config/zsh/secrets.zsh; unset, only this server fails to connect.
+        "slack": {
+            "type": "remote",
+            "url": "https://mcp.slack.com/mcp",
+            "enabled": true,
+            "oauth": false,
+            "headers": {
+                "Authorization": "Bearer {env:SLACK_MCP_TOKEN}",
+            },
+        },
     },
     "formatter": {
         "oxfmt": {

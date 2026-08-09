@@ -2015,6 +2015,17 @@
                             </tr>
                             <tr>
                                 <td>
+                                    <code>chezmoi add --encrypt ~/.config/zsh/secrets.zsh</code>
+                                </td>
+                                <td>
+                                    Encrypt the shell secrets file (exports
+                                    <code>SLACK_MCP_TOKEN</code> and any other API token) &mdash;
+                                    deployed at mode 0600 and sourced from <code>.zshrc</code> when
+                                    present
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
                                     <code
                                         >mkdir -p ~/.config/chezmoi &amp;&amp; age-keygen -o
                                         ~/.config/chezmoi/key.txt &amp;&amp; chmod 600
@@ -2033,6 +2044,15 @@
                         <code>$EDITOR ~/.ticker.yaml</code> &rarr;
                         <code>chezmoi re-add --encrypt ~/.ticker.yaml</code> &rarr;
                         <code>chezmoi git add encrypted_dot_ticker.yaml.age</code> &rarr; commit
+                    </div>
+                    <div class="flow-only">
+                        <strong>Flow: Add a new API token</strong><br />
+                        <code>$EDITOR ~/.config/zsh/secrets.zsh</code> &rarr;
+                        <code>chezmoi re-add --encrypt ~/.config/zsh/secrets.zsh</code> &rarr;
+                        <code
+                            >chezmoi git add encrypted_private_dot_config/zsh/secrets.zsh.age</code
+                        >
+                        &rarr; commit
                     </div>
                     <div class="flow-only">
                         <strong>Flow: Bootstrap new machine</strong><br />
@@ -2527,8 +2547,29 @@
                                     <code>storybook dev</code> on :6006
                                 </td>
                             </tr>
+                            <tr>
+                                <td>slack</td>
+                                <td>
+                                    Search public channels; read channels, threads, canvases and
+                                    user profiles
+                                </td>
+                                <td>
+                                    Comes from the
+                                    <code>slack@claude-plugins-official</code> plugin, not from
+                                    <code>claude mcp add</code> &mdash; OAuth on first use via
+                                    <code>/mcp</code>, and a workspace admin must have approved the
+                                    Slack connector
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
+                    <p>
+                        The seven read-only Slack tools are pre-approved in
+                        <code>permissions.allow</code>, so searches and reads run without a prompt.
+                        <code>slack_search_public_and_private</code> and every write tool
+                        (<code>slack_send_message</code>, <code>slack_create_canvas</code> and the
+                        rest) stay out of the allowlist and still ask.
+                    </p>
 
                     <h3>OpenSpec workflow</h3>
                     <table>
@@ -2710,6 +2751,15 @@
                             <tr>
                                 <td>expect</td>
                                 <td>Visual testing and accessibility audits</td>
+                            </tr>
+                            <tr>
+                                <td>slack</td>
+                                <td>
+                                    Slack search and reads through the hosted remote server
+                                    (<code>https://mcp.slack.com/mcp</code>) &mdash; bearer token
+                                    from <code>$SLACK_MCP_TOKEN</code>, OAuth auto-detection turned
+                                    off
+                                </td>
                             </tr>
                         </tbody>
                     </table>
