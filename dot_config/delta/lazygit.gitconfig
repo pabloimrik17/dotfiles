@@ -1,0 +1,21 @@
+# Standalone delta config for lazygit's `git.diffRenderers`, passed via
+# `delta --config`. lazygit does not inherit the git pager, and the only other
+# way to isolate delta from the ambient gitconfig — `--no-gitconfig` — would
+# also discard the Catppuccin theme. `--config` keeps the theme and leaves the
+# terminal `git diff` path (dot_gitconfig.tmpl) completely untouched.
+#
+# Deliberately self-contained: it must not depend on ~/.gitconfig being read,
+# so the theme include and every delta setting lazygit needs are repeated here.
+# Keep the [delta] block in sync with dot_gitconfig.tmpl's, minus the settings
+# that only make sense in a pager (navigate, side-by-side).
+[include]
+	path = ~/.config/delta/catppuccin.gitconfig
+
+[delta]
+	light = false
+	line-numbers = true
+	features = catppuccin-mocha
+	# lazygit hands delta a fixed-width pane and redraws on resize, so let it
+	# use the full width rather than delta's own paging/wrapping decisions.
+	side-by-side = false
+	navigate = false
