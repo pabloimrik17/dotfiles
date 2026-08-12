@@ -1,7 +1,18 @@
 # Worktrunk user configuration
 # Managed by chezmoi — edit the source, not ~/.config/worktrunk/config.toml
 
+# Match AoE's layout (`[worktree].path_template = "../{repo-name}-worktrees/
+# {branch}"`), so wt and AoE stop writing worktrees into two different trees for
+# the same repo. `sanitize` maps `/` to `-`, keeping `feature/x` one level deep.
+# Only affects worktrees created from now on; existing ones are untouched.
+worktree-path = "{{ repo_path }}/../{{ repo }}-worktrees/{{ branch | sanitize }}"
+
 [list]
+# Pin the JSON envelope explicitly: `wt config update` writes this key whenever
+# it is absent, and on a chezmoi-managed file that write is drift. Any explicit
+# value closes the migration loop; 2 is a deliberate opt-in to the envelope
+# format. Nothing here consumes `wt list --format=json`, so blast radius is nil.
+json-schema = 2
 # Pin the exact layout (0.62+). Column names ≠ display headers: working-diff
 # renders "HEAD±", branch-diff renders "main…±". Since 0.63 an explicit
 # `columns` list overrides the full/summary presets, so full/summary keys are
