@@ -170,9 +170,10 @@ if command -v tv &>/dev/null; then
   zle -N tv-smart-autocomplete _tv_ctrl_t_wrapper
 fi
 
-# atuin - Modern shell history (replaces fzf's Ctrl+R)
+# atuin - Modern shell history (replaces fzf's Ctrl+R). The `?` AI widget comes
+# with this init too (gated on `[ai] enabled` in config.toml + ATUIN_NOBIND
+# unset), so no separate `atuin ai init zsh` line is needed.
 eval "$(atuin init zsh --disable-up-arrow)"
-eval "$(atuin ai init zsh)"
 
 # Worktrunk - Git worktree management (cd integration + completions)
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
@@ -394,17 +395,3 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # Zoxide - MUST be last (chpwd hook conflicts if anything comes after)
 # --cmd cd: replaces cd/cdi directly (with proper completions), no aliases needed
 eval "$(zoxide init zsh --cmd cd)"
-# Patch doctor: Claude Code snapshots capture functions but not chpwd_functions,
-# causing a false-positive warning on every cd. Skip check when CLAUDECODE is set.
-__zoxide_doctor() {
-  [[ -z "${CLAUDECODE:-}" ]] || return 0
-  [[ ${_ZO_DOCTOR:-1} -ne 0 ]] || return 0
-  [[ ${chpwd_functions[(Ie)__zoxide_hook]:-} -eq 0 ]] || return 0
-  _ZO_DOCTOR=0
-  \builtin printf '%s\n' \
-    'zoxide: detected a possible configuration issue.' \
-    'Please ensure that zoxide is initialized right at the end of your shell configuration file (usually ~/.zshrc).' \
-    '' 'If the issue persists, consider filing an issue at:' \
-    'https://github.com/ajeetdsouza/zoxide/issues' \
-    '' 'Disable this message by setting _ZO_DOCTOR=0.' '' >&2
-}
