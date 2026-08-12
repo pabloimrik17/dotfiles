@@ -292,6 +292,22 @@
                 color: var(--ctp-green);
             }
 
+            /* ── Hazard blocks ─────────────────────────────────────────── */
+            /* Deliberately NOT hidden in print: a destructive-behaviour warning
+               is exactly the thing a reader needs on paper. */
+            .warn {
+                margin: 0.75rem 0;
+                padding: 0.6rem 0.8rem;
+                background: var(--ctp-surface0);
+                border-left: 3px solid var(--ctp-red);
+                border-radius: 0 6px 6px 0;
+                font-size: 13.5px;
+            }
+
+            .warn strong {
+                color: var(--ctp-red);
+            }
+
             /* ── Hidden helper ─────────────────────────────────────────── */
             .hidden {
                 display: none !important;
@@ -679,6 +695,15 @@
                                 <td><kbd>Ctrl</kbd>+<kbd>/</kbd></td>
                                 <td>Toggle preview panel</td>
                             </tr>
+                            <tr>
+                                <td><kbd>Alt</kbd>+<kbd>&larr;</kbd> / <kbd>Alt</kbd>+<kbd>&rarr;</kbd></td>
+                                <td>
+                                    Move the cursor a word left/right within the fzf query (fzf
+                                    defaults, alongside <kbd>Alt</kbd>+<kbd>B</kbd> /
+                                    <kbd>Alt</kbd>+<kbd>F</kbd>) &mdash; not a shell binding, so it
+                                    only applies inside the finder
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
 
@@ -743,7 +768,11 @@
                         </tbody>
                     </table>
 
-                    <h3>Custom fzf functions</h3>
+                    <h3>Search and process pickers (television)</h3>
+                    <p class="note">
+                        These replace the old <code>frg</code> and <code>fkill</code> shell
+                        functions, which were removed when their job moved to television channels.
+                    </p>
                     <table>
                         <thead>
                             <tr>
@@ -753,13 +782,21 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td><code>frg &lt;pattern&gt;</code></td>
-                                <td>rg + fzf + bat preview &rarr; opens in $EDITOR at line</td>
+                                <td><code>tv rg-edit</code></td>
+                                <td>
+                                    rg across the tree, bat preview with the match line highlighted;
+                                    <kbd>Enter</kbd> opens <code>$EDITOR</code> at
+                                    <code>file:line</code>
+                                </td>
                             </tr>
                             <tr>
-                                <td><code>fkill [signal]</code></td>
+                                <td><code>tv procs</code></td>
                                 <td>
-                                    ps + fzf multi-select &rarr; kill processes (default signal 9)
+                                    Process picker with a <code>ps</code> preview.
+                                    <kbd>Ctrl</kbd>+<kbd>K</kbd> SIGKILL,
+                                    <kbd>F2</kbd> SIGTERM,
+                                    <kbd>Ctrl</kbd>+<kbd>S</kbd> SIGSTOP,
+                                    <kbd>Ctrl</kbd>+<kbd>C</kbd> SIGCONT
                                 </td>
                             </tr>
                         </tbody>
@@ -767,8 +804,8 @@
 
                     <div class="flow-only">
                         <strong>Flow: Find text in code and open</strong><br />
-                        <code>frg pattern</code> &rarr; browse matches with bat preview &rarr;
-                        select &rarr; opens in $EDITOR at line
+                        <code>tv rg-edit</code> &rarr; type the pattern &rarr; browse matches with
+                        bat preview &rarr; <kbd>Enter</kbd> opens <code>$EDITOR</code> at the line
                     </div>
                 </div>
             </details>
@@ -829,6 +866,18 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <p class="note">
+                        No alias ships for eza's code-counting flags; run them ad hoc.
+                        <code>eza --code</code> prints a per-language summary of the tree, and
+                        <code>eza -l --loc=both</code> adds language and lines-of-code columns per
+                        file. <strong>Both need the <code>=</code> form to take a mode</strong>
+                        &mdash; <code>eza --code lines</code> reads <code>lines</code> as a path and
+                        fails; write <code>eza --code=lines</code>. Language detection is by file
+                        extension, so <code>*.tmpl</code> files count as no language and are left
+                        out of the summary entirely &mdash; in this repo that hides most of the shell
+                        configuration.
+                    </p>
 
                     <h3>bat (cat replacement)</h3>
                     <table>
@@ -1315,19 +1364,36 @@
                                 <td>
                                     lazygit &mdash; full TUI git interface with file view filtering,
                                     worktree branch visibility, and PR badges from
-                                    <code>gh</code> (lazygit 0.61, requires
-                                    <code>showIcons: true</code> + <code>nerdFontsVersion</code>).
-                                    Custom <kbd>g</kbd> in the Files panel opens the selected file
-                                    rendered via <code>mdview</code>; diffs stay <code>delta</code>
+                                    <code>gh</code>. Since 0.64.0 an open PR renders its checks
+                                    state as plain Unicode, so no icon font is required;
+                                    <code>nerdFontsVersion: "3"</code> is set for branch and file
+                                    icons, and <code>showIcons</code> is deprecated and inert
+                                    &mdash; do not set it. Custom <kbd>g</kbd> in the Files panel
+                                    opens the selected file rendered via <code>mdview</code>; diffs
+                                    render through <code>delta</code> via
+                                    <code>git.diffRenderers</code>
                                 </td>
                             </tr>
                             <tr>
-                                <td><code>fglog</code></td>
-                                <td>Browse commits with fzf + preview</td>
+                                <td><code>tv git-log</code></td>
+                                <td>
+                                    Browse commits with a <code>git show</code> preview.
+                                    <kbd>Ctrl</kbd>+<kbd>O</kbd> checkout,
+                                    <kbd>Ctrl</kbd>+<kbd>Y</kbd> cherry-pick,
+                                    <kbd>Ctrl</kbd>+<kbd>R</kbd> revert.
+                                    Replaces the removed <code>fglog</code>
+                                </td>
                             </tr>
                             <tr>
-                                <td><code>fgco</code></td>
-                                <td>Switch branch with fzf + log preview</td>
+                                <td><code>tv git-branch</code></td>
+                                <td>
+                                    Switch branch with a <code>git show</code> preview.
+                                    <kbd>Enter</kbd> checkout,
+                                    <kbd>Ctrl</kbd>+<kbd>D</kbd> delete,
+                                    <kbd>Ctrl</kbd>+<kbd>M</kbd> merge,
+                                    <kbd>Ctrl</kbd>+<kbd>R</kbd> rebase.
+                                    Replaces the removed <code>fgco</code>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -1394,8 +1460,8 @@
                     </div>
                     <div class="flow-only">
                         <strong>Flow: Interactive commit review</strong><br />
-                        <code>fglog</code> &rarr; browse commits with preview &rarr; select to
-                        inspect
+                        <code>tv git-log</code> &rarr; browse commits with a <code>git show</code>
+                        preview &rarr; <kbd>Ctrl</kbd>+<kbd>O</kbd> to check one out
                     </div>
                 </div>
             </details>
@@ -2263,11 +2329,32 @@
                     <p class="note">
                         macOS-only TUI cleaner installed via Homebrew. Every invocation is
                         user-initiated &mdash; the dotfiles never call
-                        <code>mole</code> from any script, hook, or alias. Destructive actions
-                        require explicit confirmation inside the TUI; non-destructive commands (e.g.
-                        <code>mole analyze</code> and <code>--dry-run</code>) only inspect or
-                        simulate changes.
+                        <code>mole</code> from any script, hook, or alias. The only commands that
+                        cannot touch your data are <code>mole status</code> and the
+                        <code>--dry-run</code> variants below; everything else can delete, including
+                        <code>mole analyze</code>.
                     </p>
+                    <div class="warn">
+                        <strong>mole analyze can delete.</strong> Despite the name, the disk-usage
+                        explorer lets you select entries and move them to the Trash on
+                        <kbd>Enter</kbd>. Its <code>--help</code> lists only <code>-json</code>, so
+                        the capability is invisible where you would look for it. For a purely
+                        observational view use <code>mole status</code>.
+                    </div>
+                    <div class="warn">
+                        <strong>mole clean empties ~/.Trash.</strong> The Trash is treated as
+                        reclaimable space and is not covered by the built-in whitelist, so a clean
+                        deletes it outright &mdash; no Finder confirmation. That defeats this
+                        machine's deliberate 30-day retention window
+                        (<code>run_once_configure-macos-defaults.sh.tmpl</code>) and destroys the
+                        safety net behind mole's own "safe" deletes, which move files to the Trash
+                        rather than removing them. So one <code>mole clean</code> can make an earlier
+                        <code>mole analyze</code> deletion unrecoverable. To exempt it, run
+                        <code>mole clean --whitelist</code> and add <code>~/.Trash</code>:
+                        <code>clean_trash()</code> checks the whitelist first and returns early.
+                        (An undocumented <code>MOLE_SKIP_TRASH_CLEANUP=1</code> also works, but is
+                        not a supported surface &mdash; prefer the whitelist.)
+                    </div>
                     <table>
                         <thead>
                             <tr>
@@ -2293,7 +2380,20 @@
                             </tr>
                             <tr>
                                 <td><code>mole analyze</code></td>
-                                <td>Explore disk usage (read-only)</td>
+                                <td>
+                                    Explore disk usage &mdash; <strong>can move selected items to
+                                    the Trash</strong> on <kbd>Enter</kbd>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>mole status</code></td>
+                                <td>Monitor system health &mdash; the read-only view</td>
+                            </tr>
+                            <tr>
+                                <td><code>mole clean --whitelist</code></td>
+                                <td>
+                                    Manage protected paths &mdash; add <code>~/.Trash</code> here
+                                </td>
                             </tr>
                         </tbody>
                     </table>
