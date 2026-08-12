@@ -2,13 +2,25 @@
 # chezmoi modify_ script for ~/.config/agent-of-empires/config.toml (mode 0600 via the
 # `private_` attribute). chezmoi pipes the live on-disk config to stdin; we overlay
 # ONLY the deliberately-managed keys (MANAGED below) and emit the merged file to
-# stdout, leaving AoE's runtime writeback (`[app_state]`/`[web]`/`[cockpit]`/
-# `[logging]` + default-expanded tables) untouched. See improve-aoe-config design D3.
+# stdout, leaving AoE's runtime writeback (`[web]`/`[logging]` + default-expanded
+# tables) untouched. See improve-aoe-config design D3.
 #
-# Engine: `uv run --with tomlkit python` (uv is in BREW_PACKAGES; no new brew dep).
-# tomlkit is style-preserving — `dumps(parse(x)) == x` — so after AoE rewrites the
-# file the merge round-trips every untouched table byte-for-byte and only genuinely
-# changed managed keys ever show in `chezmoi diff`.
+# Two tables this comment used to name are gone: `[cockpit]` was renamed `[acp]`
+# in aoe 1.11.0 and is deliberately managed below, not runtime writeback; and
+# `[app_state]` left this file entirely in 1.13.0 for a sibling `state.toml`,
+# which is unmanaged and never touched here.
+#
+# Engine: `uv run --no-project --with tomlkit python` (uv is in BREW_PACKAGES; no
+# new brew dep). tomlkit is style-preserving — `dumps(parse(x)) == x` — so after AoE
+# rewrites the file the merge round-trips every untouched table byte-for-byte and
+# only genuinely changed managed keys ever show in `chezmoi diff`.
+#
+# `--no-project` because `chezmoi apply` inherits the directory it was invoked
+# from, and without it uv walks upward looking for a project to attach to. Both
+# outcomes are bad and both were reproduced on 0.11.26 (pre-existing, not a 0.12.x
+# regression): from a project whose deps do not resolve the merge is skipped while
+# apply still exits 0, so managed keys silently do not land; from a healthy project
+# uv writes `.venv/` and `uv.lock` into that unrelated repo.
 #
 # Fallbacks: empty stdin (fresh machine) -> managed-only baseline; `uv` absent (cold
 # start before the brew bootstrap) -> pass the live config through unchanged (the
@@ -103,7 +115,7 @@ for path, value, literal in MANAGED:
 sys.stdout.write(tomlkit.dumps(doc))
 PYEOF
 
-if ! uv run --quiet --with tomlkit python "$prog" <"$infile"; then
+if ! uv run --no-project --quiet --with tomlkit python "$prog" <"$infile"; then
   # uv present but `uv run` failed (offline cold cache, dep-resolution error):
   # pass the live config through unchanged so `chezmoi apply` never hard-fails;
   # the next apply self-heals once uv can fetch tomlkit.
