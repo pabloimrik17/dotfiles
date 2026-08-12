@@ -1,0 +1,15 @@
+# atuin AI standing permission grants — lands at ~/.config/atuin/permissions.ai.toml
+# Managed by chezmoi; `private_` makes it 0600.
+#
+# These are no-prompt capability grants to the `?` agent (atuin 18.16.1 knows
+# `shell` and `network`). atuin appends here itself as prompts are accepted, so
+# left unmanaged the granted set widens with no record and no review. chezmoi
+# reasserts this file on every apply, which makes the list below the only set
+# that survives — widen it here, in a commit, or not at all.
+#
+# `Shell` is unscoped: the agent may run any command without confirming. Kept as
+# it stands on this machine rather than narrowed silently; narrowing it is a
+# behaviour change and belongs in its own change.
+
+[permissions]
+allow = ["Shell"]
