@@ -3,9 +3,7 @@
 ## Purpose
 
 Claude Code hook configuration managed by chezmoi — hook definitions in the settings template for session lifecycle events.
-
 ## Requirements
-
 ### Requirement: bd CLI is installed via brew
 
 The brew packages list in `run_once_install-packages.sh.tmpl` SHALL include `beads` (the Homebrew formula that provides the `bd` CLI) so that the beads CLI is available on PATH for hooks to function. The `pkg_bin` mapping SHALL resolve `beads` to `bd` for the already-installed check.
@@ -60,22 +58,32 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 
 ### Requirement: AoE session-status hooks are present in the settings template
 
-The chezmoi-managed `dot_claude/settings.json.tmpl` `hooks` block SHALL include Agent of Empires session-status hooks that report Claude Code session state to AoE. `UserPromptSubmit`, `PreToolUse`, and `ElicitationResult` SHALL write `running`; `Notification` (matcher `permission_prompt|elicitation_dialog`) SHALL write `waiting`; `Stop` SHALL write `idle`. Each hook command SHALL write its status word to `/tmp/aoe-hooks/$AOE_INSTANCE_ID/status`. These hooks SHALL coexist with the existing `bd prime` hooks (`SessionStart`, `PreCompact`).
+The chezmoi-managed `dot_claude/settings.json.tmpl` `hooks` block SHALL carry the AoE 1.12 session-status hook set verbatim (as written by `aoe` itself, marked `# aoe-hooks`), so `chezmoi apply` never downgrades hooks that AoE re-injects on session start. Specifically: `UserPromptSubmit`, `PreToolUse`, and `ElicitationResult` SHALL write `running`; `Notification` SHALL write `waiting` (matcher `permission_prompt|elicitation_dialog`) and `idle` (matcher `idle_prompt`); `Stop` and `StopFailure` SHALL write `idle`; `UserPromptSubmit` and `SessionStart` SHALL additionally run `aoe __extract-session-id` (gated on `aoe` being installed). Each status command SHALL use AoE's hardened form: status words written to `/tmp/aoe-hooks-{{ .chezmoi.uid }}/$AOE_INSTANCE_ID/status` with `umask 077`, `$AOE_INSTANCE_ID` character-set validation, and owner/mode (`0700`, own uid) verification of both directories before writing. These hooks SHALL coexist with the existing `bd prime` hooks (`SessionStart`, `PreCompact`).
 
 #### Scenario: Running-status hooks present
 
 - **WHEN** the settings template is rendered by chezmoi
-- **THEN** the `hooks` block contains `UserPromptSubmit`, `PreToolUse`, and `ElicitationResult` entries whose command writes `running` to `/tmp/aoe-hooks/$AOE_INSTANCE_ID/status`
+- **THEN** the `hooks` block contains `UserPromptSubmit`, `PreToolUse`, and `ElicitationResult` entries whose command writes `running` to `/tmp/aoe-hooks-<uid>/$AOE_INSTANCE_ID/status`
 
 #### Scenario: Waiting-status hook present with matcher
 
 - **WHEN** the settings template is rendered by chezmoi
-- **THEN** the `Notification` hook with matcher `permission_prompt|elicitation_dialog` writes `waiting`
+- **THEN** the `Notification` hook with matcher `permission_prompt|elicitation_dialog` writes `waiting` AND the `Notification` hook with matcher `idle_prompt` writes `idle`
 
 #### Scenario: Idle-status hook present
 
 - **WHEN** the settings template is rendered by chezmoi
-- **THEN** the `Stop` hook writes `idle`
+- **THEN** the `Stop` and `StopFailure` hooks write `idle`
+
+#### Scenario: Session-id extraction hooks present
+
+- **WHEN** the settings template is rendered by chezmoi
+- **THEN** `UserPromptSubmit` and `SessionStart` contain a hook running `aoe __extract-session-id`, gated on `$AOE_INSTANCE_ID` and `command -v aoe`
+
+#### Scenario: Render matches what AoE writes (no apply churn)
+
+- **WHEN** AoE has injected its hooks into the live `~/.claude/settings.json` and `chezmoi diff` runs
+- **THEN** the hooks block reports no differences (uid rendered via `{{ .chezmoi.uid }}` matches the live `/tmp/aoe-hooks-<uid>` base)
 
 #### Scenario: AoE hooks do not displace bd prime hooks
 
@@ -90,3 +98,4 @@ Each AoE session-status hook command SHALL begin with a guard equivalent to `[ -
 
 - **WHEN** a Claude Code session runs with `$AOE_INSTANCE_ID` unset
 - **THEN** each AoE status hook exits 0 immediately and writes nothing
+

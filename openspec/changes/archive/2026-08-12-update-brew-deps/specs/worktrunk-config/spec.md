@@ -17,6 +17,11 @@ The user config SHALL pin the `wt list` layout with `[list].columns = ["branch",
 - **WHEN** the user runs `wt list`
 - **THEN** each row SHALL include the working diffstat (HEAD±), the branch diffstat (main…±), and CI status columns
 
+#### Scenario: switch picker shows summaries
+
+- **WHEN** the user runs `wt switch` (interactive picker)
+- **THEN** each candidate branch SHALL include the same LLM-generated summary alongside the branch name
+
 #### Scenario: Config applied on fresh machine
 
 - **WHEN** the user runs `chezmoi apply`
