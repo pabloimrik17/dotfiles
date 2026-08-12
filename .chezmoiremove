@@ -8,9 +8,22 @@
 #
 # Config only. lazygit's state.yml stays — it is state, not config, and deleting
 # it would discard recent-repo history on every apply.
+#
+# lazygit only: once no config file remains at the ~/Library path, lazygit falls
+# back to ~/.config/lazygit and never re-creates the file, so the removal is a
+# permanent fix.
+#
+# glow is deliberately NOT listed. Its default path stays under ~/Library whether
+# or not a file is there, so removal never redirects it to ~/.config — and glow
+# *writes its own default config* at that path on any invocation without
+# XDG_CONFIG_HOME. That makes the removal both ineffective and destructive: after
+# glow re-creates the file, `chezmoi apply` fails with "has changed since chezmoi
+# last wrote it" and refuses to continue until the file is deleted by hand.
+# What actually guarantees glow reads the managed ~/.config/glow/glow.yml is
+# dot_zshrc.tmpl exporting XDG_CONFIG_HOME=$HOME/.config, which covers every real
+# invocation (the fzf previews, `mdview` from lazygit).
 {{- if eq .chezmoi.os "darwin" }}
 Library/Application Support/lazygit/config.yml
-Library/Preferences/glow/glow.yml
 {{- end }}
 
 # Dead on every platform: dot_gitconfig.tmpl sets core.excludesFile, which
