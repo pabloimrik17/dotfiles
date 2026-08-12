@@ -1,0 +1,69 @@
+## MODIFIED Requirements
+
+### Requirement: AoE session-status hooks are present in the settings template
+
+The chezmoi-managed Claude Code settings `hooks` block SHALL include Agent of Empires session-status hooks matching the set AoE 1.14.0 installs. `UserPromptSubmit`, `PreToolUse`, and `ElicitationResult` SHALL write `running`; `Notification` with matcher `permission_prompt|elicitation_dialog|agent_needs_input` SHALL write `waiting`; `Notification` with matcher `idle_prompt|agent_completed`, `Stop`, and `StopFailure` SHALL write `idle`; `PostToolUse` with matcher `AskUserQuestion` SHALL write `running`. Each hook command SHALL write its status word under a per-user, per-instance directory derived from `$AOE_INSTANCE_ID`.
+
+The managed set SHALL track what AoE actually writes. AoE's installer sweeps and regenerates every matcher group in which all commands carry its own sentinel, so a template pinned to an older set is overwritten by AoE and then reimposed by the next `chezmoi apply`.
+
+#### Scenario: Running-status hooks present
+
+- **WHEN** the settings are materialized by chezmoi
+- **THEN** the `hooks` block contains `UserPromptSubmit`, `PreToolUse`, and `ElicitationResult` entries whose command writes `running`
+
+#### Scenario: Waiting-status hook covers agent input requests
+
+- **WHEN** the settings are materialized by chezmoi
+- **THEN** the `Notification` hook whose matcher includes `agent_needs_input` writes `waiting`
+
+#### Scenario: Idle-status hooks cover completion and failure
+
+- **WHEN** the settings are materialized by chezmoi
+- **THEN** `Stop`, `StopFailure`, and the `Notification` hook whose matcher includes `agent_completed` each write `idle`
+
+#### Scenario: Question tool is reported
+
+- **WHEN** the settings are materialized by chezmoi
+- **THEN** a `PostToolUse` hook with matcher `AskUserQuestion` is present
+
+#### Scenario: Re-apply after AoE writes is quiet
+
+- **WHEN** AoE has installed its hooks into the live settings and `chezmoi diff` runs
+- **THEN** no difference SHALL be reported in the AoE hook groups
+
+## REMOVED Requirements
+
+### Requirement: bd prime runs on SessionStart
+
+**Reason**: The enabled `beads` plugin declares an identical `SessionStart` hook of its own, so the hand-written entry made `bd prime` run twice per session start — two store opens, each under its own timeout. Upstream's own setup path deliberately skips writing project hooks when the plugin is present, for exactly this reason.
+
+**Migration**: Remove the hand-written `hooks.SessionStart` `bd prime` entry from the chezmoi-managed settings. The behaviour is preserved by the plugin. This makes the `beads` plugin load-bearing — see the added requirement below.
+
+### Requirement: bd prime runs on PreCompact
+
+**Reason**: As above — the `beads` plugin declares an identical `PreCompact` hook, so the managed entry was a duplicate.
+
+**Migration**: Remove the hand-written `hooks.PreCompact` `bd prime` entry. The plugin supplies it.
+
+## ADDED Requirements
+
+### Requirement: Beads context priming depends on the beads plugin
+
+With the hand-written `bd prime` hooks removed, beads context priming is supplied solely by the `beads` plugin. The plugin SHALL therefore remain enabled for as long as no managed `bd prime` hook exists.
+
+Disabling the plugin without restoring the hooks silently removes context priming. Worse, with the plugin absent the beads CLI's own setup command will write hooks directly into the chezmoi-managed settings file, producing drift that this repo otherwise works hard to avoid.
+
+#### Scenario: Plugin remains enabled
+
+- **WHEN** the managed settings contain no `bd prime` hook
+- **THEN** the `beads` plugin SHALL be listed as enabled
+
+#### Scenario: Removing the plugin restores the hooks
+
+- **WHEN** a future change disables the `beads` plugin
+- **THEN** that change SHALL restore explicit `SessionStart` and `PreCompact` `bd prime` hooks in the same change
+
+#### Scenario: Priming still occurs after the duplicate is removed
+
+- **WHEN** a Claude Code session starts in a directory containing `.beads/`
+- **THEN** `bd prime` SHALL run exactly once
