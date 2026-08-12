@@ -1,0 +1,19 @@
+# chezmoi remove — target paths (relative to $HOME) that chezmoi must delete.
+
+# On macOS, tools built on os.UserConfigDir() resolve a ~/Library path ahead of
+# ~/.config whenever XDG_CONFIG_HOME is unset. A file left at the higher-
+# precedence path wins silently: the managed ~/.config copy is never read, and
+# because the shadowing file is not in the chezmoi source, `chezmoi status` and
+# `chezmoi diff` report nothing wrong.
+#
+# Config only. lazygit's state.yml stays — it is state, not config, and deleting
+# it would discard recent-repo history on every apply.
+{{- if eq .chezmoi.os "darwin" }}
+Library/Application Support/lazygit/config.yml
+Library/Preferences/glow/glow.yml
+{{- end }}
+
+# Dead on every platform: dot_gitconfig.tmpl sets core.excludesFile, which
+# replaces this XDG default rather than stacking with it. Its one rule now lives
+# in dot_gitignore_global.
+.config/git/ignore
