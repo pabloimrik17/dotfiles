@@ -1,3 +1,57 @@
+#!/bin/sh
+# chezmoi modify_ script for ~/.claude/settings.json.
+#
+# THREE writers own this file: chezmoi, Claude Code (`/config` plus its own
+# settings writes) and Agent of Empires (its hook installer). AoE merges
+# correctly and Claude Code edits surgically; only chezmoi ever replaced the
+# whole file, so only chezmoi lost the other two's work. This script overlays
+# ONLY the keys in MANAGED and passes everything else through, so `chezmoi
+# apply` converges instead of ping-ponging. Pinning a source key order was
+# already tried (85992e0, written to match AoE's serialization and cmp-verified
+# byte-identical) and still drifted -- there are three writers, not two.
+# See the claude-settings-merge capability, design D1-D4.
+#
+# Engine: `uv run --no-project python`. `uv` is a declared BREW_PACKAGES entry,
+# so this adds no dependency, and `json` is stdlib -- no `--with`, and no
+# network on a cold cache. `--no-project` stops uv attaching to whatever project
+# `chezmoi apply` happened to be invoked from. Not jq: jq is absent from
+# BREW_PACKAGES, and the binary on PATH here is Apple's /usr/bin/jq, which
+# exists only on macOS 15+ and not at all on the Linux the README supports.
+#
+# FAIL CLOSED (D2). chezmoi writes a modify_ script's stdout to the target
+# VERBATIM; there is no "script failed, keep the old file" fallback, so an
+# engine failure that produced no output would truncate the entire Claude Code
+# configuration. Every failure path therefore re-emits the captured stdin
+# unchanged: `uv` absent, the merge exiting non-zero, or output that does not
+# re-parse as JSON. A silent no-op apply is the deliberate trade. Exactly one
+# `--quiet` -- `-qq` would suppress the stderr diagnostic that is the only signal.
+set -eu
+
+work="$(mktemp -d)"
+trap 'rm -rf "$work"' EXIT
+infile="$work/live.json"
+outfile="$work/merged.json"
+
+# Capture stdin verbatim (byte-exact: no $(cat) trailing-newline stripping).
+cat >"$infile"
+
+# uv absent (cold start, before the brew bootstrap has run): pass the live file
+# through untouched. The next apply self-heals once uv is installed.
+if ! command -v uv >/dev/null 2>&1; then
+  cat "$infile"
+  exit 0
+fi
+
+prog="$work/merge.py"
+cat >"$prog" <<'PYEOF'
+import json
+import sys
+from collections import OrderedDict
+
+# The keys chezmoi owns. Anything absent from this document is passed through
+# with its live value intact -- including keys Claude Code invents on its own
+# (`theme`, `skipWorkflowUsageWarning`) and any table AoE adds to `hooks`.
+MANAGED = json.loads(r'''
 {
   "alwaysThinkingEnabled": true,
   "attribution": {
@@ -5,6 +59,7 @@
     "pr": ""
   },
   "effortLevel": "xhigh",
+  "enableWorkflows": true,
   "enabledPlugins": {
     "beads@beads-marketplace": true,
     "claude-code-setup@claude-plugins-official": true,
@@ -44,7 +99,7 @@
     "beads-marketplace": {
       "autoUpdate": true,
       "source": {
-        "repo": "steveyegge/beads",
+        "repo": "gastownhall/beads",
         "source": "github"
       }
     },
@@ -140,7 +195,7 @@
             "type": "command"
           }
         ],
-        "matcher": "permission_prompt|elicitation_dialog"
+        "matcher": "permission_prompt|elicitation_dialog|agent_needs_input"
       },
       {
         "hooks": [
@@ -149,18 +204,18 @@
             "type": "command"
           }
         ],
-        "matcher": "idle_prompt"
+        "matcher": "idle_prompt|agent_completed"
       }
     ],
-    "PreCompact": [
+    "PostToolUse": [
       {
         "hooks": [
           {
-            "command": "bd prime",
+            "command": "sh -c 'unset IFS; set -f; umask 077; [ -n \"$AOE_INSTANCE_ID\" ] || exit 0; case \"$AOE_INSTANCE_ID\" in *[!0-9a-zA-Z_-]*) exit 0 ;; esac; B=/tmp/aoe-hooks-{{ .chezmoi.uid }}; mkdir -p \"$B\" 2>/dev/null || exit 0; LS=$(LC_ALL=C ls -ldn \"$B\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; ME=$(id -u 2>/dev/null) || exit 0; [ \"$3\" = \"$ME\" ] || exit 0; D=\"$B/$AOE_INSTANCE_ID\"; mkdir -p \"$D\" 2>/dev/null; LS=$(LC_ALL=C ls -ldn \"$D\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; [ \"$3\" = \"$ME\" ] || exit 0; printf running > \"$D/status\" 2>/dev/null; exit 0 # aoe-hooks'",
             "type": "command"
           }
         ],
-        "matcher": ""
+        "matcher": "AskUserQuestion"
       }
     ],
     "PreToolUse": [
@@ -174,15 +229,6 @@
       }
     ],
     "SessionStart": [
-      {
-        "hooks": [
-          {
-            "command": "bd prime",
-            "type": "command"
-          }
-        ],
-        "matcher": ""
-      },
       {
         "hooks": [
           {
@@ -318,5 +364,106 @@
     "command": "bash -c 'export COLUMNS=200; plugin_dir=$(ls -d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | awk -F/ '\"'\"'{ print $(NF-1) \"\\t\" $(0) }'\"'\"' | sort -t. -k1,1n -k2,2n -k3,3n -k4,4n | tail -1 | cut -f2-); exec \"{{ .chezmoi.homeDir }}/.bun/bin/bun\" --env-file /dev/null \"${plugin_dir}src/index.ts\"'",
     "type": "command"
   },
-  "voiceEnabled": true
+  "voiceEnabled": true,
+  "workflowSizeGuideline": "large"
 }
+''', object_pairs_hook=OrderedDict)
+
+# Paths whose children are merged key-by-key rather than replaced wholesale, so
+# a plugin enabled outside chezmoi or a hook event we do not manage survives an
+# apply. The document root is always merged key-by-key; every managed path that
+# is not listed here is a leaf and replaces the live value entirely (so
+# `permissions.allow` stays the curated list in git, and each `hooks.<Event>`
+# array is imposed as a whole -- which is the unit AoE itself regenerates).
+MERGE_CONTAINERS = {
+    ("enabledPlugins",),
+    ("extraKnownMarketplaces",),
+    ("env",),
+    ("hooks",),
+    ("permissions",),
+}
+
+# Paths deleted from the live file. `hooks.PreCompact` held only the duplicate
+# `bd prime` hook that the beads plugin already declares. The rest are the
+# host-conditional entries, emitted as removals on hosts where the condition is
+# false rather than merely omitted -- otherwise a key added on one host would
+# live forever in another host's file.
+REMOVE = [
+    ("hooks", "PreCompact"),
+{{- if not (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64")) }}
+    ("enabledPlugins", "superwhisper@superwhisper"),
+    ("extraKnownMarketplaces", "superwhisper"),
+{{- end }}
+]
+
+
+def overlay(live, managed, path):
+    """Write managed values into `live`, recursing only through MERGE_CONTAINERS.
+
+    Existing keys keep their position and genuinely new keys append, so the
+    merge never reorders a file another writer has already sorted. That is what
+    makes the loop terminate: whatever order the last writer chose survives, so
+    the next `chezmoi diff` is clean.
+    """
+    for key, value in managed.items():
+        child = path + (key,)
+        if child in MERGE_CONTAINERS:
+            node = live.get(key)
+            if not isinstance(node, dict):
+                node = OrderedDict()
+                live[key] = node
+            overlay(node, value, child)
+        elif live.get(key) != value:
+            live[key] = value
+
+
+def drop(doc, path):
+    node = doc
+    for key in path[:-1]:
+        if not isinstance(node, dict) or key not in node:
+            return
+        node = node[key]
+    if isinstance(node, dict):
+        node.pop(path[-1], None)
+
+
+def main():
+    raw = sys.stdin.read()
+    if raw.strip():
+        live = json.loads(raw, object_pairs_hook=OrderedDict)
+        if not isinstance(live, dict):
+            raise ValueError("settings.json is not a JSON object")
+    else:
+        live = OrderedDict()  # fresh machine: the managed keys are the baseline
+
+    overlay(live, MANAGED, ())
+    for path in REMOVE:
+        drop(live, path)
+
+    # Match what the other two writers emit: two-space indent, and whichever
+    # trailing-newline convention the live file already used.
+    out = json.dumps(live, indent=2)
+    if raw.endswith("\n"):
+        out += "\n"
+
+    json.loads(out)  # never emit anything that will not re-parse
+    sys.stdout.write(out)
+
+
+if "--validate" in sys.argv:
+    json.load(sys.stdin)  # gate used by the shell on the merged output
+else:
+    main()
+PYEOF
+
+# Buffer the merge, then gate it: the result reaches the target only if the
+# merge exited zero, wrote something, and that something re-parses as JSON.
+# stderr is deliberately NOT redirected -- chezmoi surfaces it, and it is the
+# only indication that an apply silently changed nothing.
+if uv run --no-project --quiet python "$prog" <"$infile" >"$outfile" \
+  && [ -s "$outfile" ] \
+  && uv run --no-project --quiet python "$prog" --validate <"$outfile"; then
+  cat "$outfile"
+else
+  cat "$infile"
+fi
