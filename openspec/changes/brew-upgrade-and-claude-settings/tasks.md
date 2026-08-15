@@ -43,7 +43,7 @@ Lands as one edit: the hook-set update and the `modify_` conversion touch the sa
 - [x] 5.1 `brew upgrade` the remaining formulae; confirm `brew outdated` is clean afterwards. Do **not** run `gh auth status` beforehand (CVE-2026-64652)
 - [x] 5.2 `brew upgrade --cask font-jetbrains-mono-nerd-font`
 - [x] 5.3 Upgrade AoE, start one session, let it write its hooks into the live settings, then fold its own bytes back into the managed set — do not hand-transcribe the escaped `case` pattern
-- [ ] 5.4 `chezmoi apply`; confirm the install script's interactive `confirm()` prompts still reach the terminal under chezmoi 2.72.0
+- [x] 5.4 `chezmoi apply`; confirm the install script's interactive `confirm()` prompts still reach the terminal under chezmoi 2.72.0 — they do. The first run also exposed a pre-existing bug (from `288b6db`): the `gh` agent-skill pre-check filtered on `--agent claude-code`, never matched, and the resulting overwrite prompt died on the terminal's OSC 11 reply, so the script exited non-zero and chezmoi never recorded its state. Fixed; second run is error-free with a clean diff
 
 ## 6. Docs
 
