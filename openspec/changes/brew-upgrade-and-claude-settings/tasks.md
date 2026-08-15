@@ -65,7 +65,7 @@ Lands as one edit: the hook-set update and the `modify_` conversion touch the sa
 - [x] 7.5 Confirm the `?` widget still binds after removing the atuin AI init line, and that Ctrl+T on an empty prompt still falls back to fzf's file widget
 - [x] 7.6 Launch lazygit 0.64.0 once, then `chezmoi status` — `~/.config/lazygit/config.yml` must be unmodified; confirm diffs render through delta with Catppuccin
 - [x] 7.7 `env -u XDG_CONFIG_HOME lazygit --print-config-dir` must print `~/.config/lazygit`; same check for glow — lazygit passes. glow does not and cannot: its default path stays under `~/Library` regardless, and it re-writes its own default config there, which made `chezmoi apply` fail outright. The glow entry was dropped from `.chezmoiremove` and the spec amended; glow reads the managed config via the `XDG_CONFIG_HOME` export instead
-- [ ] 7.8 `mdview` on a Markdown file containing an image, once in bare Ghostty and once in tmux — the only exercise of the rebuilt pango/fontconfig/harfbuzz/libtiff/jpeg-xl/openjph/dav1d/openexr/chafa stack
+- [x] 7.8 `mdview` on a Markdown file containing an image, once in bare Ghostty and once in tmux — the only exercise of the rebuilt pango/fontconfig/harfbuzz/libtiff/jpeg-xl/openjph/dav1d/openexr/chafa stack
 - [x] 7.9 Smoke-test glow 3.0.0: all five keys in `glow.yml` still honoured, and the non-interactive `glow -s dark` fzf previews still render
 - [x] 7.10 `wt config update` reports nothing to migrate; `wt list` renders; `git diff` and the `wt switch` picker still work after libgit2 1.9.6
 - [x] 7.11 `fc-list ':charset=2801' family | grep -i hack` lists Hack, then eyeball a `tickrs` chart
