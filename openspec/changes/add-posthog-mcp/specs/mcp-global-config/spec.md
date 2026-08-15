@@ -6,7 +6,7 @@
 
 For Claude Code, the PostHog MCP server SHALL reach the machine exclusively through the `posthog@claude-plugins-official` plugin, which ships its own http MCP definition (`https://mcp.posthog.com/mcp`, header `x-posthog-mcp-consumer: plugin`) and exposes it under the plugin scope as `plugin:posthog:posthog`.
 
-The `MCP_HTTP_SERVERS` array in `run_onchange_install-packages.sh.tmpl` SHALL NOT contain a `posthog` entry, and the install script SHALL NOT run `claude mcp add --scope user` for PostHog. Registering it in both places would load the same PostHog tool set twice in every session (`mcp__posthog__*` alongside `mcp__plugin_posthog_posthog__*`), consuming context for no extra capability and requiring two independent OAuth logins against the same account.
+The `MCP_HTTP_SERVERS` array in `run_onchange_install-packages.sh.tmpl` SHALL NOT contain a `posthog` entry, and the install script SHALL NOT run `claude mcp add --scope user` for PostHog. Registering it in both places would connect the same server twice in every session (its single `exec` dispatcher tool as `mcp__posthog__exec` alongside `mcp__plugin_posthog_posthog__exec`) and require two independent OAuth logins against the same account, for no extra capability.
 
 #### Scenario: Install script template has no posthog MCP entry
 

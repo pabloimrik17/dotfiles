@@ -18,7 +18,7 @@ The finding that shapes this design: **the official PostHog plugin is already pu
 }
 ```
 
-So installing the plugin already delivers the MCP server, surfaced as `plugin:posthog:posthog`, plus the `/posthog:flags`, `/posthog:insights`, `/posthog:errors` and `/posthog:experiments` slash commands. The two integration paths are not complementary — they are the same server reached twice.
+So installing the plugin already delivers the MCP server, surfaced as `plugin:posthog:posthog`. The rest of the plugin surface at that sha: ~140 PostHog product skills, an `error-analyzer` agent, three `/posthog:llma-cc-*` commands (LLM Analytics setup/status/ingest), and two hooks — a SessionEnd LLMA uploader that is a no-op unless `POSTHOG_LLMA_CC_ENABLED` and `POSTHOG_API_KEY` are set, and a PreToolUse gate (matcher `__exec$`) that re-prompts on sensitive write `call`s. The two integration paths are not complementary — they are the same server reached twice.
 
 OpenCode is the other consumer. It does not read Claude Code plugins, and `dot_config/opencode/opencode.jsonc` currently declares only `expect` in its `mcp` block. Per `opencode-user-config`, that `mcp` block is owned by the `mcp-global-config` capability.
 
@@ -42,12 +42,12 @@ OpenCode is the other consumer. It does not read Claude Code plugins, and `dot_c
 
 ### D1: In Claude Code, PostHog arrives via the plugin only — never via `MCP_HTTP_SERVERS`
 
-The plugin is the superset: it delivers the same http MCP server *and* the slash commands. Adding a user-scope `posthog` entry on top would expose the same tools twice (`mcp__posthog__*` alongside `mcp__plugin_posthog_posthog__*`), doubling the tool-definition context cost in every session and requiring two separate OAuth logins against the same PostHog account, with no capability gained.
+The plugin is the superset: it delivers the same http MCP server *and* the product skills, which are its real ergonomic win. Adding a user-scope `posthog` entry on top would connect the same server twice — the MCP surfaces a single `exec` dispatcher tool, so the duplicate is `mcp__posthog__exec` alongside `mcp__plugin_posthog_posthog__exec` — and require two separate OAuth logins against the same PostHog account, with no capability gained.
 
 Alternatives rejected:
 
 - **Both registrations** — keeps the "every global MCP lives in `MCP_HTTP_SERVERS`" convention intact, but pays the duplication in context and auth. Convention is not worth that.
-- **MCP entry only, no plugin** — symmetric with OpenCode and the smallest diff, but forfeits the slash commands, which are the main ergonomic win of the official plugin.
+- **MCP entry only, no plugin** — symmetric with OpenCode, the smallest diff, and avoids putting the plugin's ~140 skills in every session. Forfeits those skills and the write-gating hook; kept as the fallback if the skill noise outweighs their value (see Risks).
 
 The exclusion is expressed as a `SHALL NOT` requirement with its own scenarios, so `openspec show mcp-global-config` makes it visible to whoever next edits the MCP arrays.
 
@@ -61,7 +61,7 @@ Renovate's custom manager for the install script matches `pkg@version` strings; 
 
 ### D4: No PostHog tools in `permissions.allow`
 
-The allow-list in `dot_claude/settings.json.tmpl` enumerates read-only MCP tools one by one (`mcp__context7__query-docs`, `mcp__memory__read_graph`, `mcp__gh_grep__searchGitHub`), never by wildcard. The PostHog MCP is write-capable — it can create and update feature flags and insights and resolve issues — and `claude-user-preferences` already states that MCP write tools SHALL NOT be in the allow list and SHALL remain at the default ask level. Leaving every PostHog call to explicit confirmation also blunts the prompt-injection risk PostHog itself documents, where analytics content (event names, error messages, user-supplied properties) enters the agent's context.
+The allow-list in `dot_claude/settings.json.tmpl` enumerates read-only MCP tools one by one (`mcp__context7__query-docs`, `mcp__memory__read_graph`, `mcp__gh_grep__searchGitHub`), never by wildcard. The PostHog MCP is write-capable — it can create and update feature flags and insights and resolve issues — and `claude-user-preferences` already states that MCP write tools SHALL NOT be in the allow list and SHALL remain at the default ask level. Leaving every PostHog call to explicit confirmation also blunts the prompt-injection risk PostHog itself documents, where analytics content (event names, error messages, user-supplied properties) enters the agent's context. The plugin's own PreToolUse hook adds a second layer: it re-prompts on sensitive `exec` write `call`s even if the tool were ever allow-listed.
 
 ### D5: Capability split — plugin lifecycle vs. MCP surface
 
@@ -81,6 +81,8 @@ The `mcp-global-config` delta uses `## ADDED Requirements` exclusively and does 
 - **Asymmetric registration** — Claude Code gets the plugin, OpenCode gets a config entry, so "where is PostHog configured?" has two answers. Accepted, and documented in both the spec delta and the docs row.
 - **README/manual server count** — PostHog must not be counted among the install-script-registered servers, or the documented count drifts from reality.
 - **Prompt injection via analytics data** — PostHog documents this risk for its MCP. Mitigated by D4 (no pre-approved tools), so every call is confirmed by the user.
+- **Skill surface** — enabling the plugin adds ~140 skills to every session's skill listing, a per-session context cost the server-duplication argument does not capture. Accepted; the fallback is D1's rejected alternative (MCP entry only, plugin off).
+- **Plugin hooks run on every session** — the SessionEnd LLMA hook executes python3 at each session end (verified no-op without `POSTHOG_LLMA_CC_ENABLED` + `POSTHOG_API_KEY`), and the PreToolUse gate fires on tools matching `__exec$`. Accepted as inert/benign at the pinned sha.
 - **Spec describes a state that does not exist yet** — this change writes documentation only; nothing is implemented. Mitigated by citing exact paths, array names and keys verified against the repo as it stands today, so the implementation is mechanical.
 
 ## Migration Plan
@@ -96,4 +98,4 @@ Rollback: remove the `CC_PLUGINS` and `enabledPlugins` entries, run `claude plug
 ## Open Questions
 
 - Does `opencode mcp auth` complete the PostHog OAuth flow cleanly on this OpenCode version? To be answered by the verification tasks; the fallback is D2's `enabled: false`.
-- Should PostHog LLM Analytics for Claude Code sessions be revisited later as its own change, now that the plugin is installed and the only blocker is the `phc_…` key handling?
+- Should PostHog LLM Analytics for Claude Code sessions be revisited later as its own change? The plugin already ships the LLMA hook and the `/posthog:llma-cc-*` commands, inert until `POSTHOG_LLMA_CC_ENABLED` and `POSTHOG_API_KEY` are set — the only blocker is the `phc_…` key handling.

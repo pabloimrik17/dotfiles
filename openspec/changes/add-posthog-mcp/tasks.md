@@ -16,8 +16,8 @@
 ## 3. Verification
 
 - [ ] 3.1 Run `chezmoi apply` twice and confirm the second run is a no-op for the plugin install (pre-scan reports "already installed") and for the OpenCode config
-- [ ] 3.2 Confirm `claude plugin list --json` contains `posthog@claude-plugins-official` and the slash commands `/posthog:flags`, `/posthog:insights`, `/posthog:errors`, `/posthog:experiments` are available
+- [ ] 3.2 Confirm `claude plugin list --json` contains `posthog@claude-plugins-official`, the `/posthog:llma-cc-setup`, `/posthog:llma-cc-status` and `/posthog:llma-cc-ingest` commands are registered, and the plugin's skills appear in the session skill listing
 - [ ] 3.3 Complete the OAuth flow from Claude Code via `/mcp` on `plugin:posthog:posthog` and run one real read-only tool call (e.g. list feature flags)
 - [ ] 3.4 Confirm `claude mcp list` shows no user-scoped `posthog` duplicate — PostHog must appear only under the plugin scope
 - [ ] 3.5 Run `opencode mcp auth` for `posthog`, then make one real tool call from OpenCode; if the OAuth flow fails, fall back to `enabled: false` per design D2 and record it here
-- [ ] 3.6 Re-read `run_onchange_install-packages.sh.tmpl` and confirm the MCP arrays still contain no `posthog` entry and the registered-server count is unchanged
+- [x] 3.6 Re-read `run_onchange_install-packages.sh.tmpl` and confirm the MCP arrays still contain no `posthog` entry and the registered-server count is unchanged

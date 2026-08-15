@@ -27,7 +27,7 @@ The `CC_MARKETPLACES` array SHALL NOT gain a new entry: the plugin is published 
 
 ### Requirement: PostHog plugin is enabled by default
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"posthog@claude-plugins-official": true` in the `enabledPlugins` object, placed in alphabetical order between `plugin-dev@claude-plugins-official` and `skill-creator@claude-plugins-official`. Enabling the plugin activates both its PostHog slash commands (`/posthog:flags`, `/posthog:insights`, `/posthog:errors`, `/posthog:experiments`) and the MCP server it bundles.
+The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"posthog@claude-plugins-official": true` in the `enabledPlugins` object, placed in alphabetical order between `plugin-dev@claude-plugins-official` and `skill-creator@claude-plugins-official`. Enabling the plugin activates the MCP server it bundles plus the rest of its surface: the PostHog product skills, the `error-analyzer` agent, the `/posthog:llma-cc-*` commands, and its hooks (the SessionEnd LLMA hook stays a no-op unless `POSTHOG_LLMA_CC_ENABLED` and `POSTHOG_API_KEY` are set).
 
 #### Scenario: Fresh machine setup
 
