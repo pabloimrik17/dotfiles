@@ -363,24 +363,44 @@ if command -v gh &>/dev/null; then
             fi
         fi
 
-        # Official gh agent skill for Claude Code (gh skill: 2.90+). Structured
-        # detection via --json instead of grepping human-readable output.
-        # --scope user is required: gh skill list defaults to project + user,
-        # so a project-scoped skill would mask a missing user-scoped one.
-        if gh skill list --agent claude-code --scope user --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "gh"; then
+        # Official gh agent skills (gh skill: 2.90+). Structured detection via
+        # --json instead of grepping human-readable output. --scope user is
+        # required: gh skill list defaults to project + user, so a project-scoped
+        # skill would mask a missing user-scoped one.
+        #
+        # Do NOT add `--agent claude-code` to the *list* filter, even though the
+        # install side needs it to pick the destination. gh installs these into
+        # ~/.claude/skills but then reports that directory's skills under the
+        # agent hosts `cline, universal, warp` unless the SKILL.md carries a
+        # Claude-specific key such as `allowed-tools`. cli/cli's `gh` skill does
+        # not, so an --agent-filtered check never matched, the script reinstalled
+        # on every run, and `gh skill install` stopped at its "already exists,
+        # overwrite?" prompt — which then died on the terminal's OSC 11 reply
+        # ("could not prompt: unexpected escape sequence from terminal"). That
+        # error made the script exit non-zero, so chezmoi never recorded the
+        # run_onchange state and `chezmoi diff` never came back clean.
+        #
+        # `--force` is the second line of defence: if the check ever misses
+        # again, the install overwrites silently instead of blocking on a prompt
+        # that cannot be answered through chezmoi's stdio.
+        gh_skill_installed() {
+            gh skill list --scope user --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "$1"
+        }
+
+        if gh_skill_installed "gh"; then
             info "  gh agent skill — already installed, skipping"
         else
             info "  Installing gh agent skill (Claude Code, user scope)..."
-            if ! gh skill install cli/cli gh --agent claude-code --scope user; then
+            if ! gh skill install cli/cli gh --agent claude-code --scope user --force; then
                 error "Failed to install gh agent skill"
             fi
         fi
 
-        if gh skill list --agent claude-code --scope user --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "gh-stack"; then
+        if gh_skill_installed "gh-stack"; then
             info "  gh-stack agent skill — already installed, skipping"
         else
             info "  Installing gh-stack agent skill (Claude Code, user scope)..."
-            if ! gh skill install github/gh-stack gh-stack --agent claude-code --scope user; then
+            if ! gh skill install github/gh-stack gh-stack --agent claude-code --scope user --force; then
                 error "Failed to install gh-stack agent skill"
             fi
         fi
