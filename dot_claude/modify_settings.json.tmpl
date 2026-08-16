@@ -402,6 +402,14 @@ REMOVE = [
 ]
 
 
+# Absence sentinel for the leaf comparison below. A bare `live.get(key)` returns
+# None for a key the live file lacks, which serialises to the same `"null"` as a
+# managed value of JSON null -- the key would read as "already equal" and never
+# be written. No MANAGED value is null today; this keeps that from ever becoming
+# a silent no-op.
+_MISSING = object()
+
+
 def overlay(live, managed, path):
     """Write managed values into `live`, recursing only through MERGE_CONTAINERS.
 
@@ -418,7 +426,10 @@ def overlay(live, managed, path):
                 node = OrderedDict()
                 live[key] = node
             overlay(node, value, child)
-        elif json.dumps(live.get(key), sort_keys=True) != json.dumps(value, sort_keys=True):
+        elif (
+            live.get(key, _MISSING) is _MISSING
+            or json.dumps(live[key], sort_keys=True) != json.dumps(value, sort_keys=True)
+        ):
             # Compared order-insensitively on purpose: both sides are
             # OrderedDicts, and OrderedDict equality is order-sensitive, so a
             # plain `!=` would rewrite objects that already hold the managed
