@@ -46,7 +46,7 @@ The consequence to accept: a silent no-op apply is possible. That is strictly be
 
 The script is a `.tmpl`, so chezmoi renders it before execution and `{{ .chezmoi.uid }}`, `{{ .chezmoi.homeDir }}` and the darwin/arm64 conditionals all still work — they are resolved into the program text.
 
-The managed set is declared as an explicit list of key paths and values, mirroring the `MANAGED` tuple list in the AoE script so a reader recognises the shape. Host-conditional entries are emitted as *removals* on hosts where the condition is false, not merely omitted — otherwise a key added on one host would live forever in another host's live file.
+The managed set is declared literally in the script — a JSON document of managed paths and values, plus a `MERGE_CONTAINERS` set and a `REMOVE` list — rather than being computed, so it is reviewable by reading it. Host-conditional entries are emitted as *removals* on hosts where the condition is false, not merely omitted — otherwise a key added on one host would live forever in another host's live file.
 
 ### D4 — Ordering is not asserted anywhere
 
