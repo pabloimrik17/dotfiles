@@ -876,6 +876,10 @@ CC_PLUGINS=(
     "beads@beads-marketplace"
     "code-simplifier@claude-plugins-official"
     "fallow@fallow-skills"
+    # Ships the Slack MCP server definition (http, https://mcp.slack.com/mcp)
+    # with its pre-registered OAuth clientId, plus the Slack skills. Hence no
+    # slack entry in MCP_HTTP_SERVERS below.
+    "slack@claude-plugins-official"
 )
 
 if command -v claude &>/dev/null; then
@@ -1002,6 +1006,12 @@ MCP_STDIO_SERVERS=(
     "fallow:fallow-mcp"
 )
 
+# Slack is deliberately absent here: https://mcp.slack.com/.well-known/oauth-authorization-server
+# advertises no registration_endpoint, so Slack does not support Dynamic Client
+# Registration — the only OAuth path `claude mcp add --transport http` knows.
+# Registering it would report success and then fail to authenticate on every
+# call. Claude Code gets Slack from the slack@claude-plugins-official plugin,
+# which supplies the pre-registered clientId. Do not "fix" this omission.
 MCP_HTTP_SERVERS=(
     "gh_grep:https://mcp.grep.app"
     "atlassian:https://mcp.atlassian.com/v1/mcp"
@@ -1181,6 +1191,7 @@ info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma
 info "  - Linear MCP: requires OAuth authentication — run 'claude mcp get linear' or use on first invocation"
 info "  - Notion MCP: requires OAuth authentication — run 'claude mcp get notion' or use on first invocation"
 info "  - Storybook MCP: requires @storybook/addon-mcp installed in each Storybook project and 'storybook dev' running on port 6006"
+info "  - Slack MCP: Claude Code authenticates via OAuth on first use (run '/mcp' to trigger it); a workspace admin must have approved the Slack MCP connector first, or OAuth fails for every client. OpenCode instead needs a Slack user token (xoxp-) exported as SLACK_MCP_TOKEN from ~/.config/zsh/secrets.zsh"
 info ""
 
 {{ else -}}
