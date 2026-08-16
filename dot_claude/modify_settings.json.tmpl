@@ -227,7 +227,7 @@ MANAGED = json.loads(r'''
       {
         "hooks": [
           {
-            "command": "sh -c 'unset IFS; set -f; umask 077; [ -n \"$AOE_INSTANCE_ID\" ] || exit 0; case \"$AOE_INSTANCE_ID\" in *[!0-9a-zA-Z_-]*) exit 0 ;; esac; B=/tmp/aoe-hooks-{{ .chezmoi.uid }}; mkdir -p \"$B\" 2>/dev/null || exit 0; LS=$(LC_ALL=C ls -ldn \"$B\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; ME=$(id -u 2>/dev/null) || exit 0; [ \"$3\" = \"$ME\" ] || exit 0; D=\"$B/$AOE_INSTANCE_ID\"; mkdir -p \"$D\" 2>/dev/null; LS=$(LC_ALL=C ls -ldn \"$D\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; [ \"$3\" = \"$ME\" ] || exit 0; printf running > \"$D/status\" 2>/dev/null; exit 0 # aoe-hooks'",
+            "command": "sh -c 'unset IFS; set -f; umask 077; [ -n \"$AOE_INSTANCE_ID\" ] || exit 0; case \"$AOE_INSTANCE_ID\" in *[!0-9a-zA-Z_-]*) exit 0 ;; esac; B=/tmp/aoe-hooks-{{ .chezmoi.uid }}; mkdir -p \"$B\" 2>/dev/null || exit 0; LS=$(LC_ALL=C ls -ldn \"$B\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; ME=$(id -u 2>/dev/null) || exit 0; [ \"$3\" = \"$ME\" ] || exit 0; D=\"$B/$AOE_INSTANCE_ID\"; mkdir -p \"$D\" 2>/dev/null; LS=$(LC_ALL=C ls -ldn \"$D\" 2>/dev/null) || exit 0; set -- $LS; M=\"$1\"; case \"$M\" in drwx------|drwx------.|drwx------+|drwx------@) ;; *) exit 0 ;; esac; [ \"$3\" = \"$ME\" ] || exit 0; IN=$(cat 2>/dev/null); S=running; case \"$IN\" in *\\\"tool_name\\\":\\\"AskUserQuestion\\\"*) S=waiting ;; esac; printf %s \"$S\" > \"$D/status\" 2>/dev/null; exit 0 # aoe-hooks'",
             "type": "command"
           }
         ]
@@ -418,7 +418,11 @@ def overlay(live, managed, path):
                 node = OrderedDict()
                 live[key] = node
             overlay(node, value, child)
-        elif live.get(key) != value:
+        elif json.dumps(live.get(key), sort_keys=True) != json.dumps(value, sort_keys=True):
+            # Compared order-insensitively on purpose: both sides are
+            # OrderedDicts, and OrderedDict equality is order-sensitive, so a
+            # plain `!=` would rewrite objects that already hold the managed
+            # value just to impose the source's key order.
             live[key] = value
 
 
@@ -445,9 +449,11 @@ def main():
     for path in REMOVE:
         drop(live, path)
 
-    # Match what the other two writers emit: two-space indent, and whichever
+    # Match what the other two writers emit: two-space indent, literal UTF-8
+    # (ensure_ascii would \u-escape em-dashes in unmanaged keys that Claude
+    # Code writes back raw, so every apply would churn), and whichever
     # trailing-newline convention the live file already used.
-    out = json.dumps(live, indent=2)
+    out = json.dumps(live, indent=2, ensure_ascii=False)
     if raw.endswith("\n"):
         out += "\n"
 

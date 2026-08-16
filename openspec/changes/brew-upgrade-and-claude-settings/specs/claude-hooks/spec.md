@@ -2,14 +2,19 @@
 
 ### Requirement: AoE session-status hooks are present in the settings template
 
-The chezmoi-managed Claude Code settings `hooks` block SHALL include Agent of Empires session-status hooks matching the set AoE 1.14.0 installs. `UserPromptSubmit`, `PreToolUse`, and `ElicitationResult` SHALL write `running`; `Notification` with matcher `permission_prompt|elicitation_dialog|agent_needs_input` SHALL write `waiting`; `Notification` with matcher `idle_prompt|agent_completed`, `Stop`, and `StopFailure` SHALL write `idle`; `PostToolUse` with matcher `AskUserQuestion` SHALL write `running`. Each hook command SHALL write its status word under a per-user, per-instance directory derived from `$AOE_INSTANCE_ID`.
+The chezmoi-managed Claude Code settings `hooks` block SHALL include Agent of Empires session-status hooks matching the set AoE 1.14.0 installs. `UserPromptSubmit` and `ElicitationResult` SHALL write `running`; `PreToolUse` SHALL write `waiting` when the invoked tool is `AskUserQuestion` and `running` for every other tool; `Notification` with matcher `permission_prompt|elicitation_dialog|agent_needs_input` SHALL write `waiting`; `Notification` with matcher `idle_prompt|agent_completed`, `Stop`, and `StopFailure` SHALL write `idle`; `PostToolUse` with matcher `AskUserQuestion` SHALL write `running`. Each hook command SHALL write its status word under a per-user, per-instance directory derived from `$AOE_INSTANCE_ID`.
 
 The managed set SHALL track what AoE actually writes. AoE's installer sweeps and regenerates every matcher group in which all commands carry its own sentinel, so a template pinned to an older set is overwritten by AoE and then reimposed by the next `chezmoi apply`.
 
 #### Scenario: Running-status hooks present
 
 - **WHEN** the settings are materialized by chezmoi
-- **THEN** the `hooks` block contains `UserPromptSubmit`, `PreToolUse`, and `ElicitationResult` entries whose command writes `running`
+- **THEN** the `hooks` block contains `UserPromptSubmit` and `ElicitationResult` entries whose command writes `running`
+
+#### Scenario: PreToolUse branches on the question tool
+
+- **WHEN** the settings are materialized by chezmoi
+- **THEN** the `PreToolUse` hook command writes `waiting` for `AskUserQuestion` and `running` for every other tool
 
 #### Scenario: Waiting-status hook covers agent input requests
 
