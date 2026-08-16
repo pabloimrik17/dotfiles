@@ -37,6 +37,8 @@ Lands as one edit: the hook-set update and the `modify_` conversion touch the sa
 - [x] 4.5 Fold the two rules stranded in the dead `~/.config/git/ignore` into `dot_gitignore_global`, add `.claude/.worktree-base`, then remove the dead file
 - [x] 4.6 Install Hack Nerd Font as a Homebrew cask: remove the manual `~/Library/Fonts/HackNerdFont*.ttf` copies, then `brew install --cask font-hack-nerd-font`
 - [x] 4.7 Make the font pre-scan in `run_onchange_install-packages.sh.tmpl` (~:392, ~:403-406) report a manual installation as needing attention instead of counting it as installed
+- [x] 4.8 Opt out of beads telemetry with a chezmoi-managed `dot_config/bd/private_config.yaml` (`metrics.disabled: true`, plus `metrics.endpoint` so `EnsureUserConfigDefaults()` does not write the file back) — design D7
+- [x] 4.9 Rename `dot_config/lazygit/config.yml` to `.tmpl` and emit `{{ .chezmoi.homeDir }}` in the `diffRenderers` command: lazygit execs the renderer without a shell, and delta given a literal `~` exits 0 with no warning and silently uses its built-in defaults
 
 ## 5. Brew upgrade
 
@@ -55,6 +57,7 @@ Lands as one edit: the hook-set update and the `modify_` conversion touch the sa
 - [x] 6.6 Add `zsh` to the non-macOS manual install list — the oh-my-zsh installer aborts without it
 - [x] 6.7 Fix the false comment at `run_onchange_install-packages.sh.tmpl:9` about chezmoi capturing script stdout
 - [x] 6.8 Run `/docs:readme` in case the font-cask and lazygit-delta changes count as tool-level — verdict: no README change needed (no row claims a manual font install; the delta/lazygit coupling is config-level and went to the manual instead)
+- [x] 6.9 `docs/manual.html`: record the beads telemetry opt-out under Claude Code — what the managed `~/.config/bd/config.yaml` sets and why a project-level `.beads/config.yaml` cannot override it
 
 ## 7. Verification
 
@@ -70,6 +73,8 @@ Lands as one edit: the hook-set update and the `modify_` conversion touch the sa
 - [x] 7.10 `wt config update` reports nothing to migrate; `wt list` renders; `git diff` and the `wt switch` picker still work after libgit2 1.9.6
 - [x] 7.11 `fc-list ':charset=2801' family | grep -i hack` lists Hack, then eyeball a `tickrs` chart
 - [x] 7.12 `bd prime` runs exactly once per session start (plugin only), and `brew info dolt` reports ≥ 2.2.3 before applying
+- [ ] 7.13 After `chezmoi apply`, `~/.config/bd/config.yaml` carries `metrics.disabled: true`; then run any `bd` command and confirm `chezmoi diff` still reports no change to it
+- [x] 7.14 Render `dot_config/lazygit/config.yml.tmpl` and confirm the `diffRenderers` command carries an absolute path and that lazygit's own `{{.SelectedFile.Name}}` survives chezmoi templating verbatim
 
 ## 8. Follow-up
 

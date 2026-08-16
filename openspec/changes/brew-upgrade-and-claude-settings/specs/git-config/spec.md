@@ -6,7 +6,7 @@ The gitignore_global SHALL include safety-net patterns for:
 
 - macOS artifacts (`.DS_Store`, `.AppleDouble`, `.LSOverride`, `._*`)
 - Editor/IDE files (selective `.vscode/` files, `.idea/`, `*.swp`, `*.swo`, `*~`, Sublime files)
-- Environment/secrets (`.env`, `.env.local`, `.env.*.local`)
+- Environment/secrets (`.env*`, with `!.env.example` and `!.env.template` re-included)
 - Node.js (`node_modules/`, debug logs for npm/yarn/pnpm)
 - Logs (`logs/`, `*.log`)
 - Build outputs (`dist/`, `build/`, `*.map`)

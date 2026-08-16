@@ -2677,6 +2677,26 @@
                         </tbody>
                     </table>
 
+                    <h3>beads telemetry (opted out)</h3>
+                    <p>
+                        The <code>beads</code> plugin declares <code>bd prime</code> hooks with an
+                        empty matcher, so <code>bd</code> runs on every session start and compaction
+                        in every directory. beads metrics default to <em>on</em> and
+                        <code>prime</code> is on its suppressed-notice list, so the consent banner
+                        never reaches a hook &mdash; the upload would be silent. Chezmoi ships
+                        <code>~/.config/bd/config.yaml</code> with
+                        <code>metrics.disabled:&nbsp;true</code> to turn it off (equivalent to
+                        <code>bd metrics off</code>, but reproducible on a new machine).
+                    </p>
+                    <p>
+                        That file is the <strong>only</strong> place the switch works: beads reads
+                        consent from the user-global config alone, so a repository&rsquo;s
+                        <code>.beads/config.yaml</code> can neither disable nor re-enable it. It
+                        also carries <code>metrics.endpoint</code> &mdash; unused while disabled,
+                        but bd writes any missing key back on its next run, which would drift the
+                        managed file.
+                    </p>
+
                     <h3>Node version on launch (nvm-aware shim)</h3>
                     <p>
                         A shim named <code>claude</code> at

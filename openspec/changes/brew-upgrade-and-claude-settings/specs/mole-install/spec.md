@@ -8,7 +8,7 @@ The setup SHALL prevent `mole clean` from emptying `~/.Trash`, or, where that ca
 
 #### Scenario: Trash survives a clean
 
-- **WHEN** the user runs `mole clean`
+- **WHEN** the user runs `mole clean` with `~/.Trash` excluded via `mole clean --whitelist`
 - **THEN** items in `~/.Trash` SHALL remain until the configured retention window expires
 
 #### Scenario: Behaviour is documented if not suppressed

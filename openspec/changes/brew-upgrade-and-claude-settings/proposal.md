@@ -76,7 +76,8 @@ Full detail in `-sweep.md`; these are the ones with a concrete edit.
 ### Modified Capabilities
 
 - `claude-user-preferences`: ordering is expressed by the merge contract rather than template source order; `enableWorkflows` and `workflowSizeGuideline` join the managed set.
-- `claude-hooks`: AoE hook set moves to 1.14.0; duplicate `bd prime` requirements retire, with the resulting dependency on the beads plugin stated.
+- `claude-hooks`: AoE hook set moves to 1.14.0; duplicate `bd prime` requirements retire, with the resulting dependency on the beads plugin stated, and beads telemetry is opted out in a managed `~/.config/bd/config.yaml` — leaving the plugin's hooks means `bd` runs on every SessionStart and PreCompact with the consent banner suppressed.
+- `gh-skill-install`: detection stops filtering by `--agent`, which never matched and made every apply reinstall and then hang on an unanswerable overwrite prompt.
 - `agent-manager`: `[cockpit]` → `[acp]`, `state.toml` accounted for, `uv run` gains `--no-project`.
 - `worktrunk-config`: `[list]` pins `json-schema = 2`; a new requirement pins `worktree-path`.
 - `atuin-config`: the separate `atuin ai init zsh` line is no longer mandated; `permissions.ai.toml` becomes managed; the "only non-defaults" invariant gains a stated exception for `[ai] enabled`.
@@ -86,7 +87,7 @@ Full detail in `-sweep.md`; these are the ones with a concrete edit.
 - `git-config`: `dot_gitignore_global` absorbs the two rules stranded in the dead `~/.config/git/ignore`.
 - `mole-install`: the Trash-cleanup hazard is addressed.
 - `television-shell-integration`: the Ctrl+T scenario is restated to match the shipped wrapper's two branches.
-- `manual-web`: mole destructiveness, `mole status`, the dead shell functions, the lazygit PR-badge claim, `eza --code`, and the fzf `alt-left`/`alt-right` bindings.
+- `manual-web`: mole destructiveness, `mole status`, the dead shell functions, the lazygit PR-badge claim, `eza --code`, the fzf `alt-left`/`alt-right` bindings, and the beads telemetry opt-out.
 
 ## Impact
 

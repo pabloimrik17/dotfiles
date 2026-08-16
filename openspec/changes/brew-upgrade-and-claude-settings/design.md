@@ -68,6 +68,12 @@ What survives is the rejection's point (2a): delta renders the read-only preview
 
 Chosen: document the hazard in the manual and recommend `mole clean --whitelist`, which is a supported surface. Revisit if the env var ever gets documented upstream.
 
+### D7 — beads telemetry is opted out in the user-global config
+
+Removing the duplicate `bd prime` hooks leaves the plugin's, which run `bd` on every SessionStart and PreCompact in every directory. beads metrics default to on, and `prime` sits in `firstRunNoticeSuppressedCommands`, so the consent banner never reaches a hook invocation — the collection would be silent. This change therefore lands the opt-out with the hook removal rather than deferring it.
+
+Chosen: a chezmoi-managed `~/.config/bd/config.yaml` (`dot_config/bd/private_config.yaml`) setting `metrics.disabled: true`. Not `BEADS_*` in the environment: hooks and other non-shell `bd` invocations would not inherit it. Not `.beads/config.yaml`: beads resolves consent from the user-global config alone, so a per-project file cannot turn it off — nor back on. `metrics.endpoint` is carried too, because `EnsureUserConfigDefaults()` writes any missing key back on the next `bd` run and would drift the managed file.
+
 ## Risks / Trade-offs
 
 - **A silent no-op apply if `uv` is missing** → accepted deliberately (D2). The alternative is a truncated settings file. Smoke test 7 in `-sweep.md` exercises it.
@@ -93,4 +99,3 @@ Ordered; each step is independently revertible.
 ## Open Questions
 
 - Whether to also bring `~/.claude.json`'s `workflowSizeGuideline` into line, or leave it as the now-shadowed fallback. Deferred safely: the settings-chain value wins either way, so this changes nothing observable.
-- Whether the `beads` telemetry default (surfaced by the sweep, not decided) warrants an opt-out. Independent of this change's specs and tasks.
