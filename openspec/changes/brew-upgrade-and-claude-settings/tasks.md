@@ -74,7 +74,7 @@ Lands as one edit: the hook-set update and the `modify_` conversion touch the sa
 - [x] 7.10 `wt config update` reports nothing to migrate; `wt list` renders; `git diff` and the `wt switch` picker still work after libgit2 1.9.6
 - [x] 7.11 `fc-list ':charset=2801' family | grep -i hack` lists Hack, then eyeball a `tickrs` chart
 - [x] 7.12 `bd prime` runs exactly once per session start (plugin only), and `brew info dolt` reports ≥ 2.2.3 before applying
-- [ ] 7.13 After `chezmoi apply`, `~/.config/bd/config.yaml` carries `metrics.disabled: true`; then run any `bd` command and confirm `chezmoi diff` still reports no change to it
+- [x] 7.13 After `chezmoi apply`, `~/.config/bd/config.yaml` carries `metrics.disabled: true`; then run any `bd` command and confirm `chezmoi diff` still reports no change to it — the file lands `0600` with its comments intact and `bd metrics status` reports OFF; after exercising bd 1.2.1 three times, `chezmoi diff` on it is empty. Carrying `metrics.endpoint` (design D7) holds: `EnsureUserConfigDefaults()` did not rewrite the file, and the 4-space indent survived even though bd writes 2-space. Applied targeted to this one file — a full apply would re-run `run_onchange_install-packages.sh.tmpl`
 - [x] 7.14 Render `dot_config/lazygit/config.yml.tmpl` and confirm the `diffRenderers` command carries an absolute path and that lazygit's own `{{.SelectedFile.Name}}` survives chezmoi templating verbatim
 
 ## 8. Follow-up
