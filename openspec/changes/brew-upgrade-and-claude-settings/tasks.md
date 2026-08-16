@@ -58,6 +58,7 @@ Lands as one edit: the hook-set update and the `modify_` conversion touch the sa
 - [x] 6.7 Fix the false comment at `run_onchange_install-packages.sh.tmpl:9` about chezmoi capturing script stdout
 - [x] 6.8 Run `/docs:readme` in case the font-cask and lazygit-delta changes count as tool-level — verdict: no README change needed (no row claims a manual font install; the delta/lazygit coupling is config-level and went to the manual instead)
 - [x] 6.9 `docs/manual.html`: record the beads telemetry opt-out under Claude Code — what the managed `~/.config/bd/config.yaml` sets and why a project-level `.beads/config.yaml` cannot override it
+- [x] 6.10 Add `lazygit-catppuccin` and `markdown-viewer` delta specs restating their one affected requirement with the source path corrected to `dot_config/lazygit/config.yml.tmpl` — the rename in 4.9 left both main specs naming a file that no longer exists
 
 ## 7. Verification
 

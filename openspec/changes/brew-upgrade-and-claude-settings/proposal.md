@@ -85,6 +85,8 @@ Full detail in `-sweep.md`; these are the ones with a concrete edit.
 - `delta-catppuccin`: a standalone delta config is added for lazygit's `diffRenderers` to `--config`.
 - `ghostty-visual-polish`: the Hack Nerd Font requirement is satisfied by the cask, not a manual install.
 - `git-config`: `dot_gitignore_global` absorbs the two rules stranded in the dead `~/.config/git/ignore`.
+- `lazygit-catppuccin`: the managed source is `dot_config/lazygit/config.yml.tmpl`, renamed so the delta config path is expanded at render time.
+- `markdown-viewer`: the lazygit `customCommands` requirement names that same renamed source.
 - `mole-install`: the Trash-cleanup hazard is addressed.
 - `television-shell-integration`: the Ctrl+T scenario is restated to match the shipped wrapper's two branches.
 - `manual-web`: mole destructiveness, `mole status`, the dead shell functions, the lazygit PR-badge claim, `eza --code`, the fzf `alt-left`/`alt-right` bindings, and the beads telemetry opt-out.
