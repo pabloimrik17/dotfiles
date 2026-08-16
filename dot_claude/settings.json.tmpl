@@ -172,6 +172,15 @@
             "type": "command"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "command": "{{ .chezmoi.homeDir }}/.local/bin/posthog-mcp-gate",
+            "type": "command"
+          }
+        ],
+        "matcher": "^mcp__.*posthog.*__exec$"
       }
     ],
     "SessionStart": [

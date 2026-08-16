@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# posthog-mcp-gate — PreToolUse gate for the PostHog MCP `exec` tool.
+#
+# The PostHog MCP runs in CLI mode, so all ~844 of its tools are reached through
+# a single `exec` tool whose only argument is a CLI-style `command` string
+# ("call feature-flag-get-all {}"). Claude Code permission rules match tool
+# names, never arguments, so allow/ask cannot separate a read from a write here:
+# one rule would cover both. This hook reads the argument instead.
+#
+# Fail-closed. Only a known-safe verb, or `call` naming a tool that matches the
+# read patterns below, passes through; everything else prompts — including
+# unparseable input, a missing jq, and verbs or tool names added upstream after
+# this was written. Passthrough is not an approval: those calls continue through
+# the normal permission flow (the classifier, under defaultMode "auto").
+#
+# Read patterns verified against the 844-tool roster in PostHog's generated
+# reference; the 324 matches are all reads. Reads outside them (query-logs and
+# friends) prompt — the cost of erring closed.
+
+set -u
+
+# Static reason: used when jq is unavailable and cannot escape a dynamic one.
+prompt_static() {
+  printf '%s\n' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"prompt","permissionDecisionReason":"posthog-mcp-gate: cannot classify this call (jq unavailable)"}}'
+  exit 0
+}
+
+prompt() {
+  jq -cn --arg r "posthog-mcp-gate: $1" \
+    '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"prompt",permissionDecisionReason:$r}}'
+  exit 0
+}
+
+command -v jq >/dev/null 2>&1 || prompt_static
+
+cmd=$(jq -r '.tool_input.command // empty' 2>/dev/null) || prompt "malformed hook input"
+[ -n "$cmd" ] || prompt "exec called without a command string"
+
+set -f
+# Intentionally unquoted: split the command string on whitespace.
+# shellcheck disable=SC2086
+set -- $cmd
+set +f
+
+lower() { printf '%s' "${1:-}" | tr '[:upper:]' '[:lower:]'; }
+
+case "$(lower "${1:-}")" in
+  # Metadata only — they describe tools, they do not run them.
+  tools | search | info | schema | learn) exit 0 ;;
+  call) shift ;;
+  *) prompt "unrecognised exec verb '$(lower "${1:-}")'" ;;
+esac
+
+# Drop `call` flags (--json, --confirm) to reach the tool name.
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --*) shift ;;
+    *) break ;;
+  esac
+done
+
+tool=$(lower "${1:-}")
+[ -n "$tool" ] || prompt "call without a tool name"
+
+case "$tool" in
+  list-* | get-* | search-* | query-*) exit 0 ;;
+  *-get | *-get-all | *-list | *-search | *-retrieve | *-count | *-definition) exit 0 ;;
+esac
+
+prompt "'$tool' is not a recognised read-only PostHog tool"
