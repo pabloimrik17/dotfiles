@@ -46,18 +46,25 @@ gui:
 # theme. Only `diffRenderers` is written here: the superseded `git.pagers` key
 # triggers lazygit's migration, which rewrites this whole chezmoi-managed file.
 # A single entry means there is nothing to cycle, so no keybinding is needed.
+#
+# The path is expanded by chezmoi (hence the .tmpl suffix), not left as `~`:
+# lazygit execs the renderer without a shell, and delta given an unexpanded
+# literal `~` exits 0, warns about nothing, and silently falls back to its
+# built-in defaults -- the Catppuccin theme just disappears (delta 0.19.2).
 git:
     diffRenderers:
-        - command: delta --config ~/.config/delta/lazygit.gitconfig --paging=never
+        - command: delta --config {{ .chezmoi.homeDir }}/.config/delta/lazygit.gitconfig --paging=never
 
 # Open the selected file rendered via the mdview dispatcher (glow / mdfried).
 # `output: terminal` hands the terminal to the viewer and resumes lazygit on exit
 # (the modern, non-deprecated form of `subprocess: true` — using the deprecated
 # key makes lazygit migrate + rewrite this whole file, which drifts from chezmoi).
 # This views a whole document; diffs remain delta's job (unchanged).
+# The `{{ "{{" }}...{{ "}}" }}` below is lazygit's own template, quoted so chezmoi
+# emits it literally instead of trying to resolve `.SelectedFile`.
 customCommands:
     - key: "g"
       context: "files"
-      command: "mdview {{.SelectedFile.Name | quote}}"
+      command: "mdview {{ "{{.SelectedFile.Name | quote}}" }}"
       output: terminal
       description: "Open file rendered (mdview: glow/mdfried)"
