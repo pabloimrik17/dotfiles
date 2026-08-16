@@ -23,13 +23,17 @@
 # uv writes `.venv/` and `uv.lock` into that unrelated repo.
 #
 # Fallbacks: empty stdin (fresh machine) -> managed-only baseline; `uv` absent (cold
-# start before the brew bootstrap) -> pass the live config through unchanged (the
-# next `chezmoi apply` self-heals).
+# start before the brew bootstrap), the merge exiting non-zero, or output that does
+# not re-parse as TOML -> pass the live config through unchanged (the next `chezmoi
+# apply` self-heals). The merge is buffered rather than streamed to stdout: chezmoi
+# takes a modify_ script's stdout verbatim, so an engine that dies mid-serialization
+# would otherwise hand it a truncated document with the whole live file appended.
 set -eu
 
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 infile="$work/config.toml"
+outfile="$work/merged.toml"
 
 # Capture stdin verbatim (byte-exact: no $(cat) trailing-newline stripping).
 cat >"$infile"
@@ -88,6 +92,10 @@ MANAGED = [
     (("tools", "lazygit", "hotkey"), "Alt+g", False),
 ]
 
+if "--validate" in sys.argv:
+    tomlkit.parse(sys.stdin.read())  # gate used by the shell on the merged output
+    sys.exit(0)
+
 data = sys.stdin.read()
 doc = tomlkit.parse(data) if data.strip() else tomlkit.document()
 
@@ -115,9 +123,16 @@ for path, value, literal in MANAGED:
 sys.stdout.write(tomlkit.dumps(doc))
 PYEOF
 
-if ! uv run --no-project --quiet --with tomlkit python "$prog" <"$infile"; then
-  # uv present but `uv run` failed (offline cold cache, dep-resolution error):
-  # pass the live config through unchanged so `chezmoi apply` never hard-fails;
-  # the next apply self-heals once uv can fetch tomlkit.
+# Buffer the merge, then gate it: the result reaches the target only if the merge
+# exited zero, wrote something, and that something re-parses as TOML. Every other
+# path emits the live config unchanged, so `chezmoi apply` never hard-fails and the
+# next apply self-heals (offline cold cache, dep-resolution error, engine killed
+# mid-write). stderr is deliberately NOT redirected -- chezmoi surfaces it, and it
+# is the only indication that an apply silently changed nothing.
+if uv run --no-project --quiet --with tomlkit python "$prog" <"$infile" >"$outfile" \
+  && [ -s "$outfile" ] \
+  && uv run --no-project --quiet --with tomlkit python "$prog" --validate <"$outfile"; then
+  cat "$outfile"
+else
   cat "$infile"
 fi
