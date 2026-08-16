@@ -1,6 +1,11 @@
+## RENAMED Requirements
+
+- FROM: `### Requirement: User-preference keys appear in canonical order`
+- TO: `### Requirement: User-preference keys are present with managed values`
+
 ## MODIFIED Requirements
 
-### Requirement: User-preference keys appear in canonical order
+### Requirement: User-preference keys are present with managed values
 
 The chezmoi-managed settings SHALL declare the following user-preference top-level keys:
 
