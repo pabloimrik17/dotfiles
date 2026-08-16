@@ -23,13 +23,14 @@
 # that exits NON-ZERO leaves the target untouched and reports the status, but a
 # script that exits ZERO having written nothing REMOVES the target outright --
 # it does not truncate it. The second case is the dangerous one, so every
-# failure path here re-emits the captured stdin unchanged: `uv` absent, the
-# merge exiting non-zero, or output that does not re-parse as JSON. A silent
-# no-op apply is the deliberate trade. Failures before stdin is captured (a
-# `mktemp` that cannot allocate) are deliberately left to `set -e`: exiting
-# non-zero preserves the live file AND surfaces the error, which a silent
-# pass-through would hide. Exactly one `--quiet` -- `-qq` would suppress the
-# stderr diagnostic that is the only signal.
+# failure path here re-emits the captured stdin unchanged -- `uv` absent, the
+# merge exiting non-zero, or output that does not re-parse as JSON -- through
+# `passthrough`, which is also what stops an empty stdin from BECOMING that
+# second case. A silent no-op apply is the deliberate trade. Failures before
+# stdin is captured (a `mktemp` that cannot allocate) are deliberately left to
+# `set -e`: exiting non-zero preserves the live file AND surfaces the error,
+# which a silent pass-through would hide. Exactly one `--quiet` -- `-qq` would
+# suppress the stderr diagnostic that is the only signal.
 set -eu
 
 work="$(mktemp -d)"
@@ -40,10 +41,26 @@ outfile="$work/merged.json"
 # Capture stdin verbatim (byte-exact: no $(cat) trailing-newline stripping).
 cat >"$infile"
 
+# Every failure path ends here. The `-s` test is what makes it safe on a machine
+# that has no live `~/.claude/settings.json` yet: stdin is then empty, and a bare
+# `cat` would emit ZERO BYTES and exit 0 -- the one output chezmoi reads as "this
+# file has no content", silently (exit 0, nothing on stderr). `{}` is the
+# smallest output that holds the invariant this script must never break: never
+# emit anything that is not valid JSON. The managed keys land on the next apply.
+# Not the managed baseline itself -- that literal lives inside the Python program
+# below, and these are exactly the paths on which nothing validated it.
+passthrough() {
+  if [ -s "$infile" ]; then
+    cat "$infile"
+  else
+    printf '%s\n' '{}'
+  fi
+}
+
 # uv absent (cold start, before the brew bootstrap has run): pass the live file
 # through untouched. The next apply self-heals once uv is installed.
 if ! command -v uv >/dev/null 2>&1; then
-  cat "$infile"
+  passthrough
   exit 0
 fi
 
@@ -487,5 +504,5 @@ if uv run --no-project --quiet python "$prog" <"$infile" >"$outfile" \
   && uv run --no-project --quiet python "$prog" --validate <"$outfile"; then
   cat "$outfile"
 else
-  cat "$infile"
+  passthrough
 fi

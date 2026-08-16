@@ -17,6 +17,7 @@ Lands as one edit: the hook-set update and the `modify_` conversion touch the sa
 - [x] 2.6 Remove the two hand-written `bd prime` hooks (`SessionStart`, `PreCompact`) — the beads plugin declares identical ones
 - [x] 2.7 Repoint the beads marketplace to `gastownhall/beads` in `dot_claude/settings.json.tmpl` and `run_onchange_install-packages.sh.tmpl`
 - [x] 2.8 Verify the rendered script is valid shell (`chezmoi execute-template` + `bash -n`) and that a dry run against a copy of the live settings produces valid JSON containing every managed key
+- [x] 2.9 Fix the cold-start fallback (CodeRabbit): with no live `~/.claude/settings.json` stdin is empty, so `cat "$infile"` wrote 0 bytes on a zero exit — the exact case D2 calls dangerous. Both fallbacks now route through a `passthrough` helper that emits `{}` when there is nothing to pass through. Measured: uv absent + empty stdin 0 → 3 bytes of valid JSON; failing engine + empty stdin 0 → 3 bytes; live passthrough still byte-identical (20946 B); merge vs a copy of the live file 0 changed lines and idempotent; uv-present baseline 14207 B / 14 keys; the `{}` self-heals to the full baseline on the next pass
 
 ## 3. Repo edits — fixes
 

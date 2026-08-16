@@ -29,16 +29,26 @@ Three independent writers touch this file: chezmoi, Claude Code (via `/config` a
 
 ### Requirement: The merge never emits an empty or invalid file
 
-The merge SHALL never replace `~/.claude/settings.json` with empty or malformed content. If the merge engine is unavailable, exits non-zero, or produces output that is not valid JSON, the process SHALL emit the unmodified live file instead.
+The merge SHALL never replace `~/.claude/settings.json` with empty or malformed content. If the merge engine is unavailable, exits non-zero, or produces output that is not valid JSON, the process SHALL emit the unmodified live file instead — and where there is no live file to emit, a valid empty JSON object.
 
 This is a hard requirement rather than a nicety: chezmoi writes a modify-script's standard output to the target verbatim, and a script that exits zero having written nothing causes chezmoi to REMOVE the target — losing the user's entire Claude Code configuration. A script that exits non-zero is the safe case: chezmoi leaves the target untouched and reports the status. The requirement therefore binds on the zero-exit path.
+
+Passing the live file through is only a fallback where a live file exists. On a machine that has none, the modify-script's standard input is empty, so echoing it back is not a no-op — it *is* the zero-byte case the paragraph above forbids, reached silently on a zero exit with nothing on stderr.
 
 #### Scenario: Merge engine is not installed
 
 - **WHEN** the merge engine binary is absent from `PATH`
+- **AND** `~/.claude/settings.json` already exists
 - **AND** `chezmoi apply` runs
 - **THEN** `~/.claude/settings.json` SHALL be left byte-identical to its previous contents
 - **AND** the apply SHALL NOT fail
+
+#### Scenario: A fallback path has no live file to pass through
+
+- **WHEN** any fallback path is taken — the merge engine is absent, exits non-zero, or emits output that is not valid JSON
+- **AND** no `~/.claude/settings.json` exists, so there is nothing to pass through
+- **THEN** the process SHALL emit a valid empty JSON object rather than zero bytes
+- **AND** the managed keys SHALL land on the next apply, once the merge engine is available
 
 #### Scenario: Merge engine exits non-zero
 
@@ -52,13 +62,20 @@ This is a hard requirement rather than a nicety: chezmoi writes a modify-script'
 
 ### Requirement: Fresh machines produce a valid baseline
 
-On a machine where `~/.claude/settings.json` does not yet exist, the merge SHALL produce a valid JSON file containing exactly the managed keys.
+On a machine where `~/.claude/settings.json` does not yet exist, the merge SHALL produce a valid JSON file containing exactly the managed keys. Where the merge engine is not yet installed, the file SHALL still parse as JSON; the managed keys arrive on the next apply.
 
 #### Scenario: No live file exists
 
 - **WHEN** `chezmoi apply` runs on a machine with no `~/.claude/settings.json`
+- **AND** the merge engine is available
 - **THEN** the file SHALL be created and SHALL parse as JSON
 - **AND** it SHALL contain every managed key
+
+#### Scenario: Cold start self-heals
+
+- **WHEN** an apply produced the empty JSON object because no live file existed and the merge engine was absent
+- **AND** a later `chezmoi apply` runs with the merge engine installed
+- **THEN** the resulting file SHALL contain every managed key
 
 ### Requirement: Host-conditional keys are removed as well as added
 
