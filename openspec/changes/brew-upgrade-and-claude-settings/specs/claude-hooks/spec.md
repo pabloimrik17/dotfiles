@@ -2,7 +2,7 @@
 
 ### Requirement: AoE session-status hooks are present in the settings template
 
-The chezmoi-managed Claude Code settings `hooks` block SHALL include Agent of Empires session-status hooks matching the set AoE 1.14.0 installs. `UserPromptSubmit` and `ElicitationResult` SHALL write `running`; `PreToolUse` SHALL write `waiting` when the invoked tool is `AskUserQuestion` and `running` for every other tool; `Notification` with matcher `permission_prompt|elicitation_dialog|agent_needs_input` SHALL write `waiting`; `Notification` with matcher `idle_prompt|agent_completed`, `Stop`, and `StopFailure` SHALL write `idle`; `PostToolUse` with matcher `AskUserQuestion` SHALL write `running`. Each hook command SHALL write its status word under a per-user, per-instance directory derived from `$AOE_INSTANCE_ID`.
+The chezmoi-managed Claude Code settings `hooks` block SHALL include Agent of Empires session-status hooks matching the set AoE 1.14.0 installs. `UserPromptSubmit` and `ElicitationResult` SHALL write `running`; `PreToolUse` SHALL write `waiting` when the invoked tool is `AskUserQuestion` and `running` for every other tool; `Notification` with matcher `permission_prompt|elicitation_dialog|agent_needs_input` SHALL write `waiting`; `Notification` with matcher `idle_prompt|agent_completed`, `Stop`, and `StopFailure` SHALL write `idle`; `PostToolUse` with matcher `AskUserQuestion` SHALL write `running`. `UserPromptSubmit` and `SessionStart` SHALL additionally run `aoe __extract-session-id`, gated on `$AOE_INSTANCE_ID` being set and `command -v aoe`. Each status command SHALL use AoE's hardened form: status words written to `/tmp/aoe-hooks-{{ .chezmoi.uid }}/$AOE_INSTANCE_ID/status` with `umask 077`, `$AOE_INSTANCE_ID` character-set validation, and owner/mode (`0700`, own uid) verification of both directories before writing.
 
 The managed set SHALL track what AoE actually writes. AoE's installer sweeps and regenerates every matcher group in which all commands carry its own sentinel, so a template pinned to an older set is overwritten by AoE and then reimposed by the next `chezmoi apply`.
 
@@ -25,6 +25,11 @@ The managed set SHALL track what AoE actually writes. AoE's installer sweeps and
 
 - **WHEN** the settings are materialized by chezmoi
 - **THEN** `Stop`, `StopFailure`, and the `Notification` hook whose matcher includes `agent_completed` each write `idle`
+
+#### Scenario: Session-id extraction hooks present
+
+- **WHEN** the settings are materialized by chezmoi
+- **THEN** `UserPromptSubmit` and `SessionStart` contain a hook running `aoe __extract-session-id`, gated on `$AOE_INSTANCE_ID` and `command -v aoe`
 
 #### Scenario: Question tool is reported
 

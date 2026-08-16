@@ -2,7 +2,7 @@
 
 ### Requirement: gh agent skill install
 
-The chezmoi install script SHALL install the official `gh` and `gh-stack` agent skills for Claude Code inside the existing gh CLI extensions confirmable group, using `gh skill install cli/cli gh --agent claude-code --scope user --force` and `gh skill install github/gh-stack gh-stack --agent claude-code --scope user --force`.
+The chezmoi install script SHALL install the official `gh` and `gh-stack` agent skills for Claude Code inside the existing gh CLI extensions confirmable group, using `gh skill install cli/cli gh --agent claude-code --scope user --force` and `gh skill install github/gh-stack gh-stack --agent claude-code --scope user --force` (the `gh skill` subcommand is available since gh 2.94).
 
 Detection SHALL be structured — `gh skill list --scope user --json skillName --jq '.[].skillName'` matched exactly against the skill name — not grepping human-readable output.
 
