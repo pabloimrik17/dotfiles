@@ -7,8 +7,6 @@
 - [x] 1.3 Add a `posthog` entry to the `mcp` block of `dot_config/opencode/opencode.jsonc`: `type: "remote"`, `url: "https://mcp.posthog.com/mcp"`, `enabled: true` — same shape as `gh_grep` in the project-level `opencode.json`
 - [x] 1.4 Add a PostHog line to the "Manual Installation Required" section of the install script, matching the existing OAuth lines: `/mcp` → `plugin:posthog:posthog` in Claude Code, `opencode mcp auth` in OpenCode
 - [x] 1.5 Confirm no `posthog` entry is added to `MCP_HTTP_SERVERS` or `MCP_STDIO_SERVERS`, and no `mcp__posthog__*` rule is added to `permissions.allow` (design D1 and D4)
-- [x] 1.6 Add `dot_local/bin/executable_posthog-mcp-gate`, the fail-closed `PreToolUse` gate that parses `exec`'s `command` argument and prompts on anything that is not a recognised read (design D7)
-- [x] 1.7 Register the gate in `dot_claude/settings.json.tmpl` under `hooks.PreToolUse` with matcher `^mcp__.*posthog.*__exec$`, keying the command off `{{ .chezmoi.homeDir }}`
 
 ## 2. Docs
 
@@ -23,5 +21,3 @@
 - [ ] 3.4 Confirm `claude mcp list` shows no user-scoped `posthog` duplicate — PostHog must appear only under the plugin scope
 - [ ] 3.5 Run `opencode mcp auth` for `posthog`, then make one real tool call from OpenCode; if the OAuth flow fails, fall back to `enabled: false` per design D2 and record it here
 - [x] 3.6 Re-read `run_onchange_install-packages.sh.tmpl` and confirm the MCP arrays still contain no `posthog` entry and the registered-server count is unchanged
-- [x] 3.7 Exercise the gate against the full 844-tool roster from PostHog's generated reference: no mutation may pass (324 pass, 520 prompt), and malformed input, unknown verbs and a missing `jq` must all prompt
-- [ ] 3.8 With the plugin authenticated, confirm end to end that a read (`call feature-flag-get-all {}`) runs without a forced prompt and a write (`call create-feature-flag …`) is confirmed by the user — the gate's matcher only proves out once the real tool name is visible in `/mcp`

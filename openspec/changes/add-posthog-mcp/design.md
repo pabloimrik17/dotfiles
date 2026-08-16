@@ -63,9 +63,11 @@ Renovate's custom manager for the install script matches `pkg@version` strings; 
 
 The allow-list in `dot_claude/settings.json.tmpl` enumerates read-only MCP tools one by one (`mcp__context7__query-docs`, `mcp__memory__read_graph`, `mcp__gh_grep__searchGitHub`), never by wildcard. The PostHog MCP is write-capable — it can create and update feature flags and insights and resolve issues — and `claude-user-preferences` already states that MCP write tools SHALL NOT be in the allow list. So no PostHog entry is added there.
 
-Staying out of the allow list is not by itself a confirmation gate, though. `permissions.defaultMode` is `auto`, which routes an unlisted tool to the safety classifier rather than to the user, so "not allow-listed" means "classifier-reviewed", not "user-confirmed". D7 closes that gap.
+Note what that does and does not buy. `permissions.defaultMode` is `auto`, so a tool matching no allow, ask, or deny rule is reviewed by the safety classifier, not confirmed by the user. Staying off the allow list means "classifier-reviewed", not "user-confirmed" — the wording in `claude-user-preferences`, which still says such tools "remain at the default ask level", predates auto mode and is inaccurate for every write-capable MCP in the repo.
 
-Leaving writes on explicit confirmation also blunts the prompt-injection risk PostHog documents, where analytics content (event names, error messages, user-supplied properties) enters the agent's context.
+That residual exposure is accepted here, matching how `mcp__memory__create_entities`, playwright and chrome-devtools already behave. PostHog is not singled out for stricter treatment: it is one more write-capable MCP behind the same classifier, and tightening the class is a broader change than this one.
+
+Also worth recording, because it is the first thing anyone will reach for: **no permission rule can gate PostHog writes selectively.** The MCP runs in CLI mode, reaching all ~844 of its tools through a single `exec` tool whose operation travels inside the `command` argument, and Claude Code rules match tool names, never arguments (`mcp__server__tool(pattern)` is invalid syntax). Putting `exec` in `permissions.ask` would therefore prompt on every read too, and since rules resolve deny → ask → allow with specificity ignored, no allow rule could carve the reads back out. Gating writes specifically would take a `PreToolUse` hook parsing the argument — deliberately out of scope, per the paragraph above.
 
 ### D5: Capability split — plugin lifecycle vs. MCP surface
 
@@ -77,19 +79,6 @@ The `mcp-global-config` delta uses `## ADDED Requirements` exclusively and does 
 
 `readme-content` and `manual-web` specify the *structure* of `README.md` and `docs/manual.html`, not their inventory of MCP servers. `add-fallow` set the precedent of handling README/manual updates as tasks driven by the `update-readme` / `update-manual` skills. The one nuance: PostHog is not registered by the install script, so its row must be marked *plugin-provided* to keep the "registers N global MCP servers" statement true.
 
-### D7: Writes are gated by a PreToolUse hook, because permission rules cannot see them
-
-The obvious reading of D4 — PostHog reads in `permissions.allow`, PostHog writes in `permissions.ask` — is not expressible. Two constraints rule it out:
-
-- **The MCP runs in CLI mode.** All ~844 PostHog tools are reached through one `exec` tool whose operation travels inside a `command` string (`call create-feature-flag {...}`). There is a single tool name to write rules against, and reads and writes share it.
-- **Claude Code permission rules match tool names, never arguments.** `mcp__server__tool(pattern)` is invalid syntax. And rules resolve deny → ask → allow with specificity ignored, so even in the server's `tools` mode a broad ask could not carry allow-listed exceptions for reads.
-
-A `PreToolUse` hook is the only mechanism that sees the argument. `dot_local/bin/executable_posthog-mcp-gate` parses `command` and forces a prompt on anything that is not a recognised read; the matcher `^mcp__.*posthog.*__exec$` catches the tool under plugin scope and under a direct registration alike.
-
-It is fail-closed, which is what makes it maintainable. The passthrough set is an allowlist of read patterns, so an unrecognised verb, an unparseable payload, a missing `jq`, or any tool PostHog adds later all prompt by default. Checked against the full 844-tool roster: 324 pass, 520 prompt, no mutation passes. Two tools named `*-create` that are actually reads (`logs-services-create`, `feature-flags-user-blast-radius-create`) prompt — erring in the harmless direction, and a reminder that no name-based rule can be exact here.
-
-_Alternatives rejected:_ **`exec` in `permissions.ask`** — one line, but prompts on every read too, and `ask` beating `allow` means it cannot be relaxed for reads afterwards. **Switching to the server's `tools` mode** via `MCP_HTTP_SERVERS` with `?mode=tools` — allows literal per-tool rules, but reverses D1, loads hundreds of schemas into every session, and still leaves any unlisted tool on the classifier.
-
 ## Risks / Trade-offs
 
 - **Someone re-adds `posthog` to `MCP_HTTP_SERVERS`** — the most likely regression, since every other global server lives there. Mitigated by the explicit `SHALL NOT` requirement plus a scenario asserting the arrays contain no `posthog` entry.
@@ -97,10 +86,7 @@ _Alternatives rejected:_ **`exec` in `permissions.ask`** — one line, but promp
 - **OpenCode remote OAuth may not work first try** — `opencode mcp auth` is documented, but this change does not verify it. Fallback: ship the OpenCode entry with `enabled: false` until the flow is confirmed; the Claude Code layer is independent and not blocked by it.
 - **Asymmetric registration** — Claude Code gets the plugin, OpenCode gets a config entry, so "where is PostHog configured?" has two answers. Accepted, and documented in both the spec delta and the docs row.
 - **README/manual server count** — PostHog must not be counted among the install-script-registered servers, or the documented count drifts from reality.
-- **Prompt injection via analytics data** — PostHog documents this risk for its MCP. Mitigated by D4 and D7: no pre-approved tools, and every write is confirmed by the user.
-- **The gate classifies by tool name, and names can lie** — `logs-services-create` and `feature-flags-user-blast-radius-create` are reads despite their names, and a future write could be named to match a read pattern. Fail-closed handling covers the first case (they merely prompt); the second is real but bounded, since the patterns key on `get`/`list`/`search`/`query`/`retrieve`/`count` rather than on a write-verb denylist. Re-run task 3.7 when the plugin's pinned sha moves.
-- **Reads outside the patterns prompt** — 69 genuine reads (`query-logs`, `endpoint-versions`, `comment-thread` and similar) are not matched and will ask. Accepted as the price of erring closed; widen the patterns only against the roster check in 3.7.
-- **The gate is bypassed if the tool name changes** — the matcher `^mcp__.*posthog.*__exec$` is broad, but a rename away from `exec` (or a switch to the server's `tools` mode) would silently stop matching, and a non-matching hook fails open. Task 3.8 verifies the live name; the same check belongs in any future change that touches the PostHog registration.
+- **Prompt injection via analytics data** — PostHog documents this risk for its MCP, and it is sharper here than for the repo's other write-capable MCPs: PostHog is the one that puts third-party content (event names, error messages, user-supplied properties) into context *and* can write production config. Partially mitigated by D4 — nothing is pre-approved, so calls reach the safety classifier — but not user-confirmed. Accepted for consistency with the rest of the class; a hook-based write gate is the known escalation if this account ever holds feature flags that matter.
 - **Skill surface** — enabling the plugin adds ~140 skills to every session's skill listing, a per-session context cost the server-duplication argument does not capture. Accepted; the fallback is D1's rejected alternative (MCP entry only, plugin off).
 - **Plugin hooks run on every session** — the SessionEnd LLMA hook executes python3 at each session end (verified no-op without `POSTHOG_LLMA_CC_ENABLED` + `POSTHOG_API_KEY`), and the PreToolUse gate fires on tools matching `__exec$`. Accepted as inert/benign at the pinned sha.
 - **Spec describes a state that does not exist yet** — this change writes documentation only; nothing is implemented. Mitigated by citing exact paths, array names and keys verified against the repo as it stands today, so the implementation is mechanical.
