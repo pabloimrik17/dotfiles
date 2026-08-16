@@ -1,6 +1,11 @@
+## RENAMED Requirements
+
+- FROM: `### Requirement: AoE session-status hooks are present in the settings template`
+- TO: `### Requirement: AoE session-status hooks are present in the managed settings`
+
 ## MODIFIED Requirements
 
-### Requirement: AoE session-status hooks are present in the settings template
+### Requirement: AoE session-status hooks are present in the managed settings
 
 The chezmoi-managed Claude Code settings `hooks` block SHALL include Agent of Empires session-status hooks matching the set AoE 1.14.0 installs. `UserPromptSubmit` and `ElicitationResult` SHALL write `running`; `PreToolUse` SHALL write `waiting` when the invoked tool is `AskUserQuestion` and `running` for every other tool; `Notification` with matcher `permission_prompt|elicitation_dialog|agent_needs_input` SHALL write `waiting`; `Notification` with matcher `idle_prompt|agent_completed`, `Stop`, and `StopFailure` SHALL write `idle`; `PostToolUse` with matcher `AskUserQuestion` SHALL write `running`. `UserPromptSubmit` and `SessionStart` SHALL additionally run `aoe __extract-session-id`, gated on `$AOE_INSTANCE_ID` being set and `command -v aoe`. Each status command SHALL use AoE's hardened form: status words written to `/tmp/aoe-hooks-{{ .chezmoi.uid }}/$AOE_INSTANCE_ID/status` with `umask 077`, `$AOE_INSTANCE_ID` character-set validation, and owner/mode (`0700`, own uid) verification of both directories before writing.
 
