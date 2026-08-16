@@ -19,12 +19,17 @@
 # exists only on macOS 15+ and not at all on the Linux the README supports.
 #
 # FAIL CLOSED (D2). chezmoi writes a modify_ script's stdout to the target
-# VERBATIM; there is no "script failed, keep the old file" fallback, so an
-# engine failure that produced no output would truncate the entire Claude Code
-# configuration. Every failure path therefore re-emits the captured stdin
-# unchanged: `uv` absent, the merge exiting non-zero, or output that does not
-# re-parse as JSON. A silent no-op apply is the deliberate trade. Exactly one
-# `--quiet` -- `-qq` would suppress the stderr diagnostic that is the only signal.
+# VERBATIM, with two escape hatches (verified against chezmoi v2.72.0): a script
+# that exits NON-ZERO leaves the target untouched and reports the status, but a
+# script that exits ZERO having written nothing REMOVES the target outright --
+# it does not truncate it. The second case is the dangerous one, so every
+# failure path here re-emits the captured stdin unchanged: `uv` absent, the
+# merge exiting non-zero, or output that does not re-parse as JSON. A silent
+# no-op apply is the deliberate trade. Failures before stdin is captured (a
+# `mktemp` that cannot allocate) are deliberately left to `set -e`: exiting
+# non-zero preserves the live file AND surfaces the error, which a silent
+# pass-through would hide. Exactly one `--quiet` -- `-qq` would suppress the
+# stderr diagnostic that is the only signal.
 set -eu
 
 work="$(mktemp -d)"

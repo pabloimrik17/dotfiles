@@ -67,3 +67,23 @@ Disabling the plugin without restoring the hooks silently removes context primin
 
 - **WHEN** a Claude Code session starts in a directory containing `.beads/`
 - **THEN** `bd prime` SHALL run exactly once
+
+### Requirement: beads telemetry is opted out user-globally
+
+The beads user-global config (`~/.config/bd/config.yaml`) SHALL be chezmoi-managed and SHALL set `metrics.disabled: true`.
+
+Keeping the plugin's `bd prime` hooks means `bd` runs on every SessionStart and PreCompact in every directory, and beads metrics default to on. `prime` is in beads' `firstRunNoticeSuppressedCommands`, so the consent banner never reaches a hook invocation — the collection would be silent. This repo opts out rather than accepting it.
+
+The opt-out SHALL live in the user-global config rather than an environment variable, so it covers `bd` invocations that do not inherit a shell environment. beads resolves consent from the user-global config alone, so a project's `.beads/config.yaml` cannot re-enable it.
+
+The managed file SHALL also carry `metrics.endpoint`. `EnsureUserConfigDefaults()` writes back any missing key on the next `bd` run; with both keys present it returns without writing, so the chezmoi-managed file does not drift.
+
+#### Scenario: Metrics are disabled on a fresh machine
+
+- **WHEN** `chezmoi apply` runs
+- **THEN** `~/.config/bd/config.yaml` SHALL exist with `metrics.disabled: true`
+
+#### Scenario: Running bd does not drift the managed file
+
+- **WHEN** any `bd` command runs after apply
+- **THEN** `chezmoi diff` SHALL report no change to `~/.config/bd/config.yaml`

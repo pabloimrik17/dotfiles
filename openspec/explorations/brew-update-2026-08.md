@@ -11,7 +11,10 @@ que la alimentará.
 > - [`brew-update-2026-08-claims.md`](./brew-update-2026-08-claims.md) — hueco 7,
 >   apretado de claims flojos (11 adjudicados: 5 corregidos, 5 verificados, 1 dropped).
 >
-> **Los 7 huecos declarados están cerrados.**
+> **Los 7 huecos declarados están cerrados.** *(Instantánea de ese momento, no
+> un estado vigente: el barrido final —`brew-update-2026-08-sweep.md`— abrió
+> huecos posteriores. Léase como registro histórico, no como evidencia de
+> release.)*
 >
 > Este fichero es el resumen narrativo y conserva las correcciones a errores propios.
 
@@ -126,6 +129,13 @@ en este repo con `modify_private_config.toml` (aoe):
 - Motor `jq` en vez de `uv`/tomlkit: ya es dependencia (hook `sync-claude` de
   worktrunk). `jq` conserva el orden de las claves de entrada y sólo añade las nuevas al
   final.
+  > **Corrección (premisa falsa).** `jq` nunca fue dependencia declarada: no está
+  > en `BREW_PACKAGES`, y el único `jq` de esta máquina es `/usr/bin/jq`
+  > (`jq-1.7.1-apple`), que sólo existe en macOS 15+ y no en el Linux que
+  > soporta el README. El hook `sync-claude` de worktrunk lo asume igual, y
+  > degrada a un aviso por stderr si falta. Por esto el diseño final usa `uv`
+  > (declarado en `BREW_PACKAGES`, `json` es stdlib) — ver la cabecera de
+  > `dot_claude/modify_settings.json.tmpl`.
 - Sigue pudiendo ser `.tmpl`, así que `{{ .chezmoi.uid }}`, `{{ .chezmoi.homeDir }}` y
   los condicionales darwin/arm64 se mantienen.
 - Encaja con la parte 1: `enableWorkflows` y `workflowSizeGuideline` pasan a MANAGED;

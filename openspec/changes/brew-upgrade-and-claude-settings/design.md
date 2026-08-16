@@ -58,6 +58,10 @@ lazygit does not inherit the git pager, and `delta --no-gitconfig` would discard
 
 Declared under `git.diffRenderers` only. Writing the superseded `git.pagers` triggers lazygit's migration, which rewrites the managed file — the exact hazard the `output: terminal` comment already documents.
 
+This reverses the REJECT in `openspec/explorations/brew-update-2026-08-adoption.md`, so the evidence that changed the verdict: that rejection weighed only two ways to isolate delta from the ambient gitconfig — inherit the main `[delta]` section (hostile to a one-third-width pane: unoverridable `side-by-side`, plus `navigate`'s `Δ`/`•` glyphs as pure noise) or `--no-gitconfig` (discards the Catppuccin theme the `delta-catppuccin` capability exists to deliver). `--config <file>` is a third way it did not consider, and it dissolves both objections at once: verified on delta 0.19.2, `--config` ignores `~/.gitconfig`'s `[delta]` entirely — side-by-side collapses to unified and the `Δ`/`•` glyphs disappear — while `[include]`ing `catppuccin.gitconfig` keeps the theme. No `dot_gitconfig.tmpl` edit is needed, so the multi-file cost that drove the rejection does not apply.
+
+What survives is the rejection's point (2a): delta renders the read-only previews, and lazygit's builtin still renders hunk staging, which forces `plain=true` and never reaches a pager. That seam is accepted, not closed.
+
 ### D6 — mole's Trash behaviour is documented, not suppressed
 
 `MOLE_SKIP_TRASH_CLEANUP=1` works but is an undocumented environment variable, so it can disappear without notice. Exporting it also means `mole-install`'s current requirement — that `mole` appears nowhere outside the install script and docs — needs amending.

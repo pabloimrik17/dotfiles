@@ -5,6 +5,12 @@
 # {branch}"`), so wt and AoE stop writing worktrees into two different trees for
 # the same repo. `sanitize` maps `/` to `-`, keeping `feature/x` one level deep.
 # Only affects worktrees created from now on; existing ones are untouched.
+#
+# Known limit: `feature/x` and `feature-x` both collapse to `feature-x`, so
+# holding both in one repo aims two worktrees at one path. `sanitize_db` would
+# disambiguate (hash suffix) but AoE's template takes a bare `{branch}` with no
+# filters and is not chezmoi-managed here, so using it would re-split the
+# layouts this setting exists to unify. Alignment wins; avoid the name pair.
 worktree-path = "{{ repo_path }}/../{{ repo }}-worktrees/{{ branch | sanitize }}"
 
 [list]

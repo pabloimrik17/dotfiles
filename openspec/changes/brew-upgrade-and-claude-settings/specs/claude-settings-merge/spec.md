@@ -31,7 +31,7 @@ Three independent writers touch this file: chezmoi, Claude Code (via `/config` a
 
 The merge SHALL never replace `~/.claude/settings.json` with empty or malformed content. If the merge engine is unavailable, exits non-zero, or produces output that is not valid JSON, the process SHALL emit the unmodified live file instead.
 
-This is a hard requirement rather than a nicety: chezmoi writes a modify-script's standard output to the target verbatim, so an engine failure that produces no output would truncate the user's entire Claude Code configuration.
+This is a hard requirement rather than a nicety: chezmoi writes a modify-script's standard output to the target verbatim, and a script that exits zero having written nothing causes chezmoi to REMOVE the target — losing the user's entire Claude Code configuration. A script that exits non-zero is the safe case: chezmoi leaves the target untouched and reports the status. The requirement therefore binds on the zero-exit path.
 
 #### Scenario: Merge engine is not installed
 
