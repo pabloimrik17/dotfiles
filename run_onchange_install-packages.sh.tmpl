@@ -897,7 +897,7 @@ if command -v claude &>/dev/null; then
     plugin_installed() {
         local plugin_id="$1"
         if [ -n "$CC_PLUGIN_JSON" ]; then
-            echo "$CC_PLUGIN_JSON" | grep -q "$plugin_id"
+            echo "$CC_PLUGIN_JSON" | grep -qF "\"$plugin_id\""
         else
             return 1
         fi

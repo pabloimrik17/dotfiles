@@ -57,12 +57,16 @@ OpenCode has no subagent equivalent, so its Sentry toolset does sit in the main 
 
 Allowed: `find_organizations`, `find_projects`, `get_sentry_resource`, `search_events`, `search_issues`, `search_sentry_tools`. All six are pure queries against the Sentry API.
 
-Left on the default `ask`:
+Listed in `permissions.ask`:
 
 - `analyze_issue_with_seer` — starts a Seer run. It is a write in the sense that matters: it consumes account quota and can take minutes.
 - `execute_sentry_tool` — a generic dispatcher. Its permission surface is whatever tool it is asked to dispatch, including assigning and resolving issues, so allowlisting it would allowlist everything by proxy.
 
-This is the same read/write line the existing requirement already draws for `memory` (read/search/open allowed, create/delete not).
+These two need an explicit rule, not just absence from `allow`. This template sets `permissions.defaultMode: "auto"`, and in auto mode a tool that matches no rule is handed to the safety classifier, which runs *without* prompting — so "left on the default `ask`" is not a thing here; there is no default ask to fall back to. Rules are evaluated deny → ask → allow, and a matching `ask` rule forces a prompt even in auto mode (and even when a broader `allow` rule would also match).
+
+Together the eight rules cover exactly the eight tools the plugin exposes — the `allowedTools` list in the subagent's front matter — so no Sentry tool reaches the classifier at all. `execute_sentry_tool` sitting in `ask` also means read-only catalog operations reached through the dispatcher prompt too; that is the intended conservative bias for a tool whose surface is unbounded.
+
+The read/write line matches the one the existing requirement already draws for `memory` (read/search/open allowed, create/delete not). The mechanism differs because `memory`'s write tools predate `defaultMode: "auto"`; bringing those under explicit `ask` rules is a separate concern and belongs to its own change.
 
 ### No version pin, no Renovate entry
 

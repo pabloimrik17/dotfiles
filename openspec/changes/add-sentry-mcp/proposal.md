@@ -9,7 +9,7 @@ Both Claude Code and OpenCode are installed and configured by these dotfiles, so
 - Register the `getsentry/sentry-mcp` marketplace in `CC_MARKETPLACES` and install `sentry-mcp@sentry-mcp` via `CC_PLUGINS`, inside the existing Claude Code plugin group of `run_onchange_install-packages.sh.tmpl` — reusing the group's pre-scan, the `marketplace_installed` / `plugin_installed` guards and `run_claude_step`
 - Enable the plugin by default in `dot_claude/settings.json.tmpl`: `"sentry-mcp@sentry-mcp": true` in `enabledPlugins` and a `sentry-mcp` entry in `extraKnownMarketplaces` with `autoUpdate: true`
 - Add a `sentry` MCP server of `type: "remote"` pointing at `https://mcp.sentry.dev/mcp` to the OpenCode user config (`dot_config/opencode/opencode.jsonc`), which currently declares only `expect`
-- Allow Sentry's read-only tools in `permissions.allow` under the plugin-namespaced prefix `mcp__plugin_sentry-mcp_sentry__…`, leaving the write-capable and quota-consuming tools on the default `ask`
+- Allow Sentry's six read-only tools in `permissions.allow` under the plugin-namespaced prefix `mcp__plugin_sentry-mcp_sentry__…`, and put the two write-capable / quota-consuming tools in `permissions.ask` so they prompt. Omission is not enough: `defaultMode` is `auto`, so an unmatched tool goes to the safety classifier rather than to a prompt
 - Document the server in the README "MCP Servers" table and in both MCP tables of `docs/manual.html` (Claude Code and OpenCode), plus the OAuth notes in the install script's "Manual Installation Required" block and the non-macOS fallback
 
 Deliberately not changing: `sentry` is **not** added to `MCP_STDIO_SERVERS` or `MCP_HTTP_SERVERS`. The plugin already ships its own `.mcp.json` with the same endpoint, so registering it again through `claude mcp add --scope user` would open two connections to `https://mcp.sentry.dev/mcp` and load the toolset twice into context (rationale in design.md). Also out: the bleeding-edge `sentry-mcp-experimental@sentry-mcp` plugin, the `stdio` transport (only needed for self-hosted Sentry), and any entry in this repo's own `opencode.json` / `.mcp.json`.
@@ -24,7 +24,7 @@ None. Everything this change introduces lands inside capabilities that already e
 
 - `claude-code-plugins`: gains requirements for the Sentry marketplace registration (`CC_MARKETPLACES` + `extraKnownMarketplaces`), for the plugin install and default-enable (`CC_PLUGINS` + `enabledPlugins`), and for the non-macOS fallback naming the two manual commands
 - `mcp-global-config`: gains a requirement for the `sentry` remote server in the OpenCode user config, and a second requirement pinning the negative constraint that Sentry is provided by the Claude Code plugin and must **not** appear in the install script's MCP arrays
-- `claude-user-preferences`: the "MCP read-only tools are allowed" requirement grows the six Sentry read-only rules and states that `analyze_issue_with_seer` and `execute_sentry_tool` stay on `ask`
+- `claude-user-preferences`: the "MCP read-only tools are allowed" requirement grows the six Sentry read-only rules, plus explicit `permissions.ask` rules for `analyze_issue_with_seer` and `execute_sentry_tool`. This introduces the first `ask` array in the template — until now the object held only `allow`, `defaultMode` and `deny`
 
 The README and manual requirements describe their tables generically ("all managed tools" / "all registered servers") rather than enumerating entries, so adding rows implements them rather than changing them — same criterion applied in `add-gh-stack`.
 
@@ -32,7 +32,7 @@ The README and manual requirements describe their tables generically ("all manag
 
 - **Files modified**:
     - `run_onchange_install-packages.sh.tmpl` — `CC_MARKETPLACES` (`:838-850`), `CC_PLUGINS` (`:852-879`), the OAuth line in "Manual Installation Required" (`:1168-1184`), and the "Claude Code plugins" section of the non-macOS fallback (`:1223-1226`)
-    - `dot_claude/settings.json.tmpl` — `enabledPlugins` (`:8-39`), `extraKnownMarketplaces` (`:43-123`), `permissions.allow` (`:231-298`)
+    - `dot_claude/settings.json.tmpl` — `enabledPlugins` (`:8-39`), `extraKnownMarketplaces` (`:43-123`), `permissions.allow` (`:231-298`) and a new `permissions.ask` array
     - `dot_config/opencode/opencode.jsonc` — the `mcp` block (`:18-24`)
     - `README.md` — one row in the "MCP Servers" table
     - `docs/manual.html` — one row in the Claude Code "MCP servers" table and one in the OpenCode "MCP servers (shared with Claude Code)" table
