@@ -45,7 +45,7 @@ Confirmed: `aoe settings explain session.trash_retention_days` reports `= 10`, `
 
 ## Risks / Trade-offs
 
-- **The purge is irreversible: on apply, trashed sessions older than 10 days are lost on the next sweep** → this already happened. The change went live in #170 (`e6528ab`), the apply followed, and the live config carries `trash_retention_days = 10` (line 76, mode `0600`, mtime 12 Aug 15:19). The pre-apply Trash review (`tasks.md` 1.1) no longer gates anything.
+- **The purge is irreversible: on apply, trashed sessions older than 10 days are lost on the next sweep** → the window closed without the safeguard being exercised. #170 (`e6528ab`) merged 2 Aug and the value reached disk on 12 Aug 15:19 (live config line 76, mode `0600`), so AoE has been free to purge since then. The pre-apply Trash review (`tasks.md` 1.1) was never performed; whether a sweep actually destroyed a session was deliberately not inspected.
 - **10 days may be too short to recover an abandoned session** → the value is already a managed knob; changing it is editing one line and re-applying.
 - **An AoE release renames or resemanticizes the key** → the merge does not fail (tomlkit writes the key all the same), but an orphan key ignored by AoE would remain. The same `explain` used for verification detects it. Not hypothetical: 1.13.0 moved `[app_state]` out of this file into a sibling `state.toml`, which stays unmanaged.
 - **The `agent-manager` spec was accumulating drift unnoticed** → this correction brings it up to date, but adds no guardrail preventing a recurrence. Purpose is the specific blind spot: `openspec archive` never touches it.
@@ -56,6 +56,6 @@ Confirmed: `aoe settings explain session.trash_retention_days` reports `= 10`, `
 2. Edit `MANAGED`, `chezmoi diff`, and confirm the only change is the `trash_retention_days` line.
 3. `chezmoi apply` and verify with `aoe settings explain`.
 
-Steps 2–3 have landed: the live config carries `trash_retention_days = 10`, `explain` reports `user value` (D4), and `chezmoi diff` on that path is empty from both the real source dir and `--source .`. Step 1's window closed with the apply.
+Steps 2–3 have landed: the live config carries `trash_retention_days = 10`, `explain` reports `user value` (D4), and `chezmoi diff` on that path is empty from both the real source dir and `--source .`. Step 1 was skipped — the value reached disk without the Trash review.
 
 Rollback: removing the entry from `MANAGED` is not enough. The `modify_` only overlays what it declares; delete the entry and the `10` already written stays on disk. Going back means pinning the desired value explicitly in `MANAGED` and re-applying. What has been purged does not come back.
