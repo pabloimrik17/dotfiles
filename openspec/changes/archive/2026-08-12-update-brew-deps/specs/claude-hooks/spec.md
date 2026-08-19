@@ -11,12 +11,12 @@ The chezmoi-managed `dot_claude/settings.json.tmpl` `hooks` block SHALL carry th
 - **WHEN** the settings template is rendered by chezmoi
 - **THEN** the `hooks` block contains `UserPromptSubmit`, `PreToolUse`, and `ElicitationResult` entries whose command writes `running` to `/tmp/aoe-hooks-<uid>/$AOE_INSTANCE_ID/status`
 
-#### Scenario: Waiting- and idle-notification hooks present with matchers
+#### Scenario: Waiting-status hook present with matcher
 
 - **WHEN** the settings template is rendered by chezmoi
 - **THEN** the `Notification` hook with matcher `permission_prompt|elicitation_dialog` writes `waiting` AND the `Notification` hook with matcher `idle_prompt` writes `idle`
 
-#### Scenario: Idle-status hooks present
+#### Scenario: Idle-status hook present
 
 - **WHEN** the settings template is rendered by chezmoi
 - **THEN** the `Stop` and `StopFailure` hooks write `idle`

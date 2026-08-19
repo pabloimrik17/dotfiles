@@ -7,6 +7,12 @@
 **Reason**: AoE 1.10.1 added XDG config support on macOS (upstream PR #1968, designed for dotfile managers); the config relocates to `~/.config/agent-of-empires/`, removing the documented "breaking the `~/.config/` convention" wart.
 **Migration**: Quit aoe, `mv ~/.agent-of-empires ~/.config/agent-of-empires` BEFORE applying the renamed source (an existing XDG dir outranks the legacy dir), `git mv private_dot_agent-of-empires dot_config/private_agent-of-empires`, update `.oxfmtignore` and `.chezmoiignore` paths.
 
+### Requirement: AoE config path is verified at first install
+
+**Reason**: The requirement and its scenario were both anchored on the legacy `~/.agent-of-empires/` path, asserting that `aoe init` creates the config there. That is false once AoE ≥1.10.1 prefers `$XDG_CONFIG_HOME/agent-of-empires/`, so the requirement is restated against the XDG path rather than edited in place — the scenario is renamed, not dropped.
+
+**Migration**: Replaced by "AoE XDG config path is verified at first install" below, which carries the same two scenarios re-anchored on `~/.config/agent-of-empires/`.
+
 ## ADDED Requirements
 
 ### Requirement: AoE configuration is chezmoi-managed at `~/.config/agent-of-empires/config.toml`
@@ -27,6 +33,21 @@ The dotfiles source tree SHALL contain `dot_config/private_agent-of-empires/modi
 
 - **WHEN** the migration has run on a host that previously used `~/.agent-of-empires/`
 - **THEN** `~/.agent-of-empires/` no longer exists and aoe reads (and writes runtime state to) `~/.config/agent-of-empires/`
+
+### Requirement: AoE XDG config path is verified at first install
+
+The implementation tasks SHALL include a manual verification step confirming AoE reads from `~/.config/agent-of-empires/config.toml` on macOS (AoE ≥1.10.1 prefers `$XDG_CONFIG_HOME/agent-of-empires/` when the directory exists; the legacy `~/.agent-of-empires/` is only used when no XDG dir exists). If verification reveals different precedence, the chezmoi target SHALL be relocated accordingly and this spec SHALL be updated via a follow-up delta.
+
+#### Scenario: Verified path is `~/.config/agent-of-empires/`
+
+- **WHEN** the user launches `aoe` on a host where `~/.config/agent-of-empires/` exists and `~/.agent-of-empires/` does not
+- **THEN** AoE reads and writes `~/.config/agent-of-empires/config.toml`
+- **AND** no change to the chezmoi target is required
+
+#### Scenario: Verified path differs from documented expectation
+
+- **WHEN** verification reveals AoE actually reads from a different path
+- **THEN** the chezmoi source path is moved accordingly AND a follow-up change updates this spec to reference the verified path
 
 ## MODIFIED Requirements
 
@@ -88,21 +109,6 @@ The config MAY include a `[theme]` block matching the rest of the dotfiles' Catp
 
 - **WHEN** the config file is rendered by chezmoi
 - **THEN** the rendered file contains an `environment` list (or table) that names `CLAUDE_CONFIG_DIR`, `EDITOR`, `TERM`, and `COLORTERM`
-
-### Requirement: AoE config path is verified at first install
-
-The implementation tasks SHALL include a manual verification step confirming AoE reads from `~/.config/agent-of-empires/config.toml` on macOS (AoE ≥1.10.1 prefers `$XDG_CONFIG_HOME/agent-of-empires/` when the directory exists; the legacy `~/.agent-of-empires/` is only used when no XDG dir exists). If verification reveals different precedence, the chezmoi target SHALL be relocated accordingly and this spec SHALL be updated via a follow-up delta.
-
-#### Scenario: Verified path is `~/.config/agent-of-empires/`
-
-- **WHEN** the user launches `aoe` on a host where `~/.config/agent-of-empires/` exists and `~/.agent-of-empires/` does not
-- **THEN** AoE reads and writes `~/.config/agent-of-empires/config.toml`
-- **AND** no change to the chezmoi target is required
-
-#### Scenario: Verified path differs from documented expectation
-
-- **WHEN** verification reveals AoE actually reads from a different path
-- **THEN** the chezmoi source path is moved accordingly AND a follow-up change updates this spec to reference the verified path
 
 ### Requirement: AoE forces tmux clipboard passthrough
 

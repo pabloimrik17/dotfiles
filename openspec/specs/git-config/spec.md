@@ -1,9 +1,7 @@
 ## Purpose
 
 Specification for chezmoi-managed git configuration files (`~/.gitconfig` and `~/.gitignore_global`), covering modern defaults, delta pager integration, curated aliases, and comprehensive global ignore patterns.
-
 ## Requirements
-
 ### Requirement: Chezmoi-managed gitconfig template
 
 The system SHALL provide a `dot_gitconfig.tmpl` file that chezmoi renders to `~/.gitconfig`. The template SHALL use `{{ .name }}` and `{{ .email }}` from chezmoi data for the `[user]` section.
@@ -99,7 +97,7 @@ The gitconfig SHALL NOT include a `syntax-theme` setting in the `[delta]` sectio
 
 The gitconfig SHALL define exactly these aliases:
 
-- `lg` = graph log with color formatting and abbreviated commits
+- `lg` = graph log with color formatting, abbreviated commits, and `--graph-lane-limit=8` (git ≥2.55) so wide commit graphs are truncated to at most 8 lanes
 - `last` = `log -1 HEAD --stat`
 - `unstage` = `reset HEAD --`
 - `undo` = `reset --soft HEAD~1`
@@ -113,6 +111,11 @@ The gitconfig SHALL NOT include shorthand aliases (`st`, `co`, `ci`, `cm`, `ca`,
 
 - **WHEN** `git lg` is run in a repository with commits
 - **THEN** a colored graph log with abbreviated hashes, branch names, relative dates, and author names is displayed
+
+#### Scenario: Git lg caps graph lanes
+
+- **WHEN** `git lg` is run in a repository whose history would render more than 8 parallel graph lanes
+- **THEN** the graph is truncated to 8 lanes instead of widening unbounded
 
 #### Scenario: Git unstage removes from index
 
@@ -169,3 +172,4 @@ The install script SHALL include `git` in `BREW_PACKAGES` so that Homebrew insta
 
 - **WHEN** brew packages are installed and shell is restarted
 - **THEN** `git --version` reports 2.37 or higher
+
