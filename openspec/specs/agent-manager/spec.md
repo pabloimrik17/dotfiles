@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Install and integrate the Agent of Empires (`aoe`) agent manager and the Conductor cask via the dotfiles' brew groups, ship a deliberate chezmoi-managed AoE config at `~/.agent-of-empires/config.toml`, and guarantee `aoe` is only ever launched on demand by the user (never automatically), since it opens an interactive TUI.
+Install and integrate the Agent of Empires (`aoe`) agent manager and the Conductor cask via the dotfiles' brew groups, ship a deliberate chezmoi-managed AoE config at `~/.config/agent-of-empires/config.toml`, and guarantee `aoe` is only ever launched on demand by the user (never automatically), since it opens an interactive TUI.
 ## Requirements
 ### Requirement: aoe binary is installed via the brew packages group
 
@@ -265,6 +265,12 @@ The dotfiles source tree SHALL contain `dot_config/private_agent-of-empires/modi
 - **WHEN** the migration has run on a host that previously used `~/.agent-of-empires/`
 - **THEN** `~/.agent-of-empires/` no longer exists and aoe reads (and writes runtime state to) `~/.config/agent-of-empires/`
 
+#### Scenario: AoE reads the managed file
+
+- **WHEN** the user runs `aoe settings explain <key>` for a `MANAGED` key whose value differs from AoE's schema default
+- **THEN** AoE reports the dotfiles value with `source: user value`, confirming the managed path is the one it reads
+- **AND** for a `MANAGED` key whose value matches the schema default, AoE reports `source: schema default`, which does not by itself mean the managed file is unread
+
 ### Requirement: AoE XDG config path is verified at first install
 
 The implementation tasks SHALL include a manual verification step confirming AoE reads from `~/.config/agent-of-empires/config.toml` on macOS (AoE ≥1.10.1 prefers `$XDG_CONFIG_HOME/agent-of-empires/` when the directory exists; the legacy `~/.agent-of-empires/` is only used when no XDG dir exists). If verification reveals different precedence, the chezmoi target SHALL be relocated accordingly and this spec SHALL be updated via a follow-up delta.
@@ -279,4 +285,25 @@ The implementation tasks SHALL include a manual verification step confirming AoE
 
 - **WHEN** verification reveals AoE actually reads from a different path
 - **THEN** the chezmoi source path is moved accordingly AND a follow-up change updates this spec to reference the verified path
+
+### Requirement: AoE trash retention is pinned to 10 days
+
+Discarding an AoE session moves it to the trash instead of deleting it: transcript and worktree survive until retention expires. That window SHALL be a dotfiles-managed knob pinned to `10`, not inherited from AoE's schema default (`30`). AoE may rewrite the live value between applies; `chezmoi apply` SHALL restore it to `10`.
+
+#### Scenario: Retention pinned in the managed config
+
+- **WHEN** chezmoi materializes `~/.config/agent-of-empires/config.toml`
+- **THEN** the file contains `trash_retention_days = 10` under the `[session]` table
+
+#### Scenario: AoE resolves the value as a user value
+
+- **WHEN** the user runs `aoe settings explain session.trash_retention_days` after `chezmoi apply`
+- **THEN** the resolved value is `10`
+- **AND** the `source` is `user value`, not `schema default`
+
+#### Scenario: Retention survives AoE runtime writeback
+
+- **WHEN** AoE rewrites the config at runtime and `chezmoi apply` runs afterwards
+- **THEN** `trash_retention_days` is back to `10` if AoE had altered it
+- **AND** the other tables written by AoE are preserved intact
 
