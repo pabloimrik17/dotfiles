@@ -10,10 +10,13 @@
 # `[app_state]` left this file entirely in 1.13.0 for a sibling `state.toml`,
 # which is unmanaged and never touched here.
 #
-# Engine: `uv run --no-project --with tomlkit python` (uv is in BREW_PACKAGES; no
-# new brew dep). tomlkit is style-preserving — `dumps(parse(x)) == x` — so after AoE
+# Engine: `uv run --no-project --with 'tomlkit==0.15.1' python` (uv is in BREW_PACKAGES;
+# no new brew dep). tomlkit is style-preserving — `dumps(parse(x)) == x` — so after AoE
 # rewrites the file the merge round-trips every untouched table byte-for-byte and
-# only genuinely changed managed keys ever show in `chezmoi diff`.
+# only genuinely changed managed keys ever show in `chezmoi diff`. The version is pinned
+# exactly because the ephemeral uv environment carries no lockfile: unpinned, a later
+# apply can resolve a different serializer under a chezmoi-managed file. Both
+# invocations below MUST carry the identical constraint — a split pin is worse than none.
 #
 # `--no-project` because `chezmoi apply` inherits the directory it was invoked
 # from, and without it uv walks upward looking for a project to attach to. Both
@@ -129,9 +132,9 @@ PYEOF
 # next apply self-heals (offline cold cache, dep-resolution error, engine killed
 # mid-write). stderr is deliberately NOT redirected -- chezmoi surfaces it, and it
 # is the only indication that an apply silently changed nothing.
-if uv run --no-project --quiet --with tomlkit python "$prog" <"$infile" >"$outfile" \
+if uv run --no-project --quiet --with 'tomlkit==0.15.1' python "$prog" <"$infile" >"$outfile" \
   && [ -s "$outfile" ] \
-  && uv run --no-project --quiet --with tomlkit python "$prog" --validate <"$outfile"; then
+  && uv run --no-project --quiet --with 'tomlkit==0.15.1' python "$prog" --validate <"$outfile"; then
   cat "$outfile"
 else
   cat "$infile"

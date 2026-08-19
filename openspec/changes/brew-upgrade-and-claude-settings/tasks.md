@@ -28,6 +28,7 @@ Lands as one edit: the hook-set update and the `modify_` conversion touch the sa
 - [x] 3.5 Add `--no-project` to the `uv run` invocation in `modify_private_config.toml` (~line 106); keep one `--quiet`
 - [x] 3.6 Correct the runtime-writeback comment in `modify_private_config.toml`: `[cockpit]` → `[acp]`, and note `[app_state]` moved to `state.toml` in AoE 1.13.0
 - [x] 3.7 Delete the dead `showIcons: true` from `dot_config/lazygit/config.yml` and fix the "Both flags required" comment at `:5-7`
+- [x] 3.8 Pin the AoE merge engine's tomlkit at both `uv run` sites in `modify_private_config.toml` (`--with 'tomlkit==0.15.1'`, the version the ephemeral environment resolves today) and record why in the header comment: an ephemeral uv environment carries no lockfile, so an unpinned `--with` lets a later apply resolve a different serializer under a chezmoi-managed file. Both sites MUST carry the identical constraint — a split pin is worse than none. Re-measured after the pin: merge against a copy of the live config 0 changed lines and idempotent (2570 B in, 2570 B out), byte-identical to the pre-pin output; empty stdin → valid managed-only baseline (822 B, 20 leaf keys, idempotent); all four fallbacks (uv absent, engine non-zero, empty output, output that does not re-parse as TOML) pass the live config through byte-identically at exit 0 with stderr unsuppressed; `sh -n` clean
 
 ## 4. Repo edits — from the uncapped sweep
 
