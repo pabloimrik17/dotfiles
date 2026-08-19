@@ -2,7 +2,7 @@
 
 ### Requirement: Global MCP servers are registered via Claude CLI in install script
 
-`run_onchange_install-packages.sh.tmpl` SHALL register the following 13 MCP servers via `claude mcp add --scope user`, which writes to `~/.claude.json`:
+`run_onchange_install-packages.sh.tmpl` SHALL register the following 14 MCP servers via `claude mcp add --scope user`, which writes to `~/.claude.json`:
 
 | Name            | Type  | Command/URL                                            |
 | --------------- | ----- | ------------------------------------------------------ |
@@ -13,6 +13,7 @@
 | playwright      | stdio | `npx -y @playwright/mcp@0.0.68`                        |
 | chrome-devtools | stdio | `npx -y chrome-devtools-mcp@0.18.1`                    |
 | expect          | stdio | `npx -y expect-cli@0.1.3 mcp`                          |
+| fallow          | stdio | `fallow-mcp` (PATH binary from the global npm install) |
 | gh_grep         | http  | `https://mcp.grep.app`                                 |
 | atlassian       | http  | `https://mcp.atlassian.com/v1/mcp`                     |
 | figma           | http  | `https://mcp.figma.com/mcp`                            |
@@ -22,11 +23,11 @@
 
 `dot_claude/modify_settings.json.tmpl` SHALL NOT contain an `mcpServers` key.
 
-#### Scenario: All 13 servers registered after install script runs
+#### Scenario: All 14 servers registered after install script runs
 
 - **WHEN** `chezmoi apply` runs the install script on a machine with `claude` CLI available
 - **AND** the user confirms the MCP servers install group
-- **THEN** `claude mcp list --scope user` SHALL list all 13 servers above
+- **THEN** `claude mcp list --scope user` SHALL list all 14 servers above
 
 #### Scenario: Servers registered to correct file
 
@@ -42,5 +43,16 @@
 #### Scenario: Stdio servers use pinned versions managed by Renovate
 
 - **WHEN** inspecting registered stdio servers via `claude mcp get <name>`
-- **THEN** all 7 stdio servers SHALL reference pinned versions (not `@latest`)
+- **THEN** the 7 npx-launched stdio servers SHALL reference pinned versions (not `@latest`)
 - **AND** `renovate.json` SHALL contain a custom regex manager for the install script template
+
+#### Scenario: Fallow server runs the global binary without a pin
+
+- **WHEN** inspecting the `fallow` server via `claude mcp get fallow`
+- **THEN** its command SHALL be the bare `fallow-mcp` binary (no npx, no version pin)
+- **AND** its version SHALL be owned by the global npm install (updated via `update-extra`), so the MCP server and the `fallow` CLI it shells out to can never skew from each other
+
+#### Scenario: Fallow entry is presence-checked only
+
+- **WHEN** the install script pre-scans MCP servers for outdated pins
+- **THEN** the `fallow` entry SHALL participate in presence detection only, not in the `pkg@version` outdated-check

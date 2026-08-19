@@ -12,8 +12,8 @@ Dual integration:
 
 - Install `fallow` globally via npm in `run_onchange_install-packages.sh.tmpl` (one package ships the three bins: `fallow`, `fallow-lsp`, `fallow-mcp`).
 - Register `fallow` MCP server user-scope via `claude mcp add --scope user fallow -- fallow-mcp` (stdio, PATH binary — no npx pin; version tracked by the global install).
-- Install the `fallow-skills` Claude Code plugin (marketplace `fallow-rs/fallow-skills`, plugin `fallow-skills@fallow-rs/fallow-skills`) and enable it in `dot_claude/settings.json.tmpl`.
-- Add a `fallow` step to `update-extra` (`npm update -g fallow`).
+- Install the `fallow-skills` Claude Code plugin (marketplace `fallow-rs/fallow-skills`, plugin `fallow@fallow-skills`) and enable it in `dot_claude/settings.json.tmpl`.
+- Add a `fallow` step to `update-extra` (`npm install -g fallow@latest`).
 
 **Project layer** (this repo, same pattern as commitlint/lint-staged/oxfmt):
 
@@ -36,11 +36,11 @@ Docs (README What's Included + manual) updated via the `update-readme`/`update-m
 
 - `mcp-global-config`: MCP server table grows from 13 to 14 — new `fallow` stdio server registered from the PATH binary (first non-npx-pinned stdio entry; update-path requirement must account for it).
 - `claude-code-plugins`: new marketplace (`fallow-rs/fallow-skills`) and plugin (`fallow-skills`) in the install script arrays; `enabledPlugins` entry in `dot_claude/settings.json.tmpl`.
-- `extra-updates-command`: step list gains a `fallow` step (`npm update -g fallow`).
+- `extra-updates-command`: step list gains a `fallow` step (`npm install -g fallow@latest`).
 
 ## Impact
 
 - **Files**: `run_onchange_install-packages.sh.tmpl`, `dot_zshrc.tmpl`, `dot_claude/settings.json.tmpl`, `package.json` + `bun.lock`, new `.fallowrc.jsonc`, new `.github/workflows/fallow.yml`, `README.md`, `docs/manual.html`. Possibly `.oxfmtignore` (verify oxfmt vs JSONC comments before committing `.fallowrc.jsonc`).
-- **Dependencies**: `fallow` 3.0.0 (npm, global + devDep), `fallow-rs/fallow@v3` action, `fallow-rs/fallow-skills` plugin. Renovate manages the devDep and the action natively; the global install updates via `update-extra`.
+- **Dependencies**: `fallow` 3.x (npm, global + devDep), `fallow-rs/fallow@v3` action, `fallow-rs/fallow-skills` plugin. Renovate manages the devDep pin and the action natively; the global install updates via `update-extra`.
 - **Known trade-off**: user-scope `fallow-mcp` always resolves the global `fallow` from PATH; inside this repo the devDep pin may skew from the global version. Accepted — both tracks stay current (Renovate / update-extra), and `.mcp.json` project override via `bunx fallow-mcp` remains available as an escape hatch.
 - **Free tier only**: no `FALLOW_LICENSE`, no cloud/coverage env vars, no `fallow license`/`coverage` usage anywhere.

@@ -37,6 +37,6 @@ None.
 
 - **Code touched**: none. No dotfile, script, or config changes.
 - **Runtime effect**: none. Every restated requirement is already satisfied; a verify pass against the implementation passes before and after.
-- **Ordering**: ships on the `brew-update` branch in the same PR as `brew-upgrade-and-claude-settings`, and MUST be archived after it. The parent creates the `claude-settings-merge` capability these restatements presuppose.
-- **Delta overlap**: none. `claude-user-preferences` and `claude-code-plugins` carry deltas in both changes, but the requirement sets are disjoint — verified by name against both delta files.
+- **Ordering**: ships on the `brew-update` branch in the same PR as `brew-upgrade-and-claude-settings`, and MUST be archived after it. The parent creates the `claude-settings-merge` capability these restatements presuppose. Order against `add-fallow` is free: both restate the `mcp-global-config` requirement identically.
+- **Delta overlap**: `claude-user-preferences` and `claude-code-plugins` carry deltas in both this change and the parent, but the requirement sets are disjoint — verified by name against both delta files. `mcp-global-config` does overlap: `add-fallow` MODIFIES the same requirement, so the restatement here carries add-fallow's 14-server table and both fallow scenarios, making either archive order non-destructive.
 - **Archive risk**: `MODIFIED` replaces the main requirement wholesale, so an incomplete restatement silently deletes content. Each of the 18 was diffed against its exact main-spec line range; the task list records that check as the change's real work.

@@ -23,7 +23,7 @@
 | notion          | http  | `https://mcp.notion.com/mcp`                           |
 | storybook       | http  | `http://localhost:6006/mcp`                            |
 
-`dot_claude/settings.json.tmpl` SHALL NOT contain an `mcpServers` key.
+`dot_claude/modify_settings.json.tmpl` SHALL NOT contain an `mcpServers` key.
 
 #### Scenario: All 14 servers registered after install script runs
 
@@ -39,7 +39,7 @@
 
 #### Scenario: Settings template has no mcpServers block
 
-- **WHEN** reading `dot_claude/settings.json.tmpl`
+- **WHEN** reading `dot_claude/modify_settings.json.tmpl`
 - **THEN** the file SHALL NOT contain an `mcpServers` key at any level
 
 #### Scenario: Stdio servers use pinned versions managed by Renovate

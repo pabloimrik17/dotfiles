@@ -34,7 +34,7 @@ Docs-recommended path; one package delivers all three bins. Requires node, which
 
 ### D2: MCP registered from PATH binary, not an npx pin
 
-`claude mcp add --scope user fallow -- fallow-mcp`. Unlike the other 13 stdio servers (`npx -y pkg@version`), the fallow entry carries no version: `fallow-mcp` and the CLI it shells out to come from the same global install, so they can never skew from each other. An npx-pinned entry (`npx -y -p fallow@3.0.0 fallow-mcp`) would be Renovate-managed but re-downloads a large Rust binary per session start and can skew against the global CLI. Consequence for the install script: the fallow entry participates only in presence detection, not in the `pkg@version` outdated-check loop.
+`claude mcp add --scope user fallow -- fallow-mcp`. Unlike the other 7 npx-launched stdio servers (`npx -y pkg@version`), the fallow entry carries no version: `fallow-mcp` and the CLI it shells out to come from the same global install, so they can never skew from each other. An npx-pinned entry (`npx -y -p fallow@3.0.0 fallow-mcp`) would be Renovate-managed but re-downloads a large Rust binary per session start and can skew against the global CLI. Consequence for the install script: the fallow entry participates only in presence detection, not in the `pkg@version` outdated-check loop.
 
 ### D3: Agent skill via official plugin, enabled in settings template
 
@@ -84,7 +84,7 @@ steps:
     - fallow-rs/fallow@v3 with { command: audit, gate: new-only, comment: true, comment-layout: compact }
 ```
 
-Separate file rather than a job in `ci.yml`: the action needs write permissions (`checks`, `pull-requests`) that the existing workflow doesn't have and shouldn't gain. No setup-bun/`bun install` in this job — the action is self-contained. `@v3` (tag exists; npm 3.0.0 matches; the `@v2` in doc examples is lag) — Renovate's `config:best-practices` pins it to a digest and manages bumps. `gate: new-only` is ratchet semantics: only findings introduced by the PR fail (exit 1 / verdict `fail`); pre-existing findings report but pass. `fallow review` is never used as a gate (always exits 0). SARIF upload stays off (action default).
+Separate file rather than a job in `ci.yml`: the action needs write permissions (`checks`, `pull-requests`) that the existing workflow doesn't have and shouldn't gain. No setup-bun/`bun install` in this job — the action is self-contained. `@v3` (tag exists; npm 3.0.0 matches; the `@v2` in doc examples is lag) — a floating tag, like every action ref in this repo (`actions/checkout@v4`, `oven-sh/setup-bun@v2`); Renovate handles tag bumps. `config:best-practices` does pull in `helpers:pinGitHubActionDigests`, but no ref here is digest-pinned yet, so a `v3` retag changes CI behavior with no PR — repo-wide baseline, out of scope to change for fallow alone. `gate: new-only` is ratchet semantics: only findings introduced by the PR fail (exit 1 / verdict `fail`); pre-existing findings report but pass. `fallow review` is never used as a gate (always exits 0). SARIF upload stays off (action default).
 
 Complementary push gate in `ci.yml` (adopted from monolab's setup): `bunx fallow dead-code --fail-on-issues` on `push` events only — direct-to-main commits (the repo's chore flow) bypass PRs and thus `fallow.yml`; PR runs keep the new-only ratchet untouched.
 

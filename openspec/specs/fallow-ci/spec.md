@@ -1,7 +1,8 @@
-# Delta: fallow-ci
+# fallow-ci Specification
 
-## ADDED Requirements
-
+## Purpose
+TBD - created by archiving change add-fallow. Update Purpose after archive.
+## Requirements
 ### Requirement: PR audit workflow via official action
 
 The repo SHALL contain `.github/workflows/fallow.yml`, separate from `ci.yml`, triggered on `pull_request`, with permissions `contents: read`, `checks: write`, `pull-requests: write`. The job SHALL check out with `fetch-depth: 0` and run the official `fallow-rs/fallow` action (v3 line) with `command: audit`, `gate: new-only`, `comment: true`, `comment-layout: compact`. The job SHALL NOT install bun or node — the action is self-contained.
@@ -16,10 +17,10 @@ The repo SHALL contain `.github/workflows/fallow.yml`, separate from `ci.yml`, t
 - **WHEN** a pull request introduces a finding whose rule severity is `error`
 - **THEN** the audit verdict is `fail` and the workflow fails with a compact sticky PR comment explaining the findings
 
-#### Scenario: Existing CI workflow unchanged in permissions
+#### Scenario: Write permissions confined to the fallow workflow
 
-- **WHEN** reading `.github/workflows/ci.yml`
-- **THEN** it retains its default read-only permissions (fallow's write permissions live only in `fallow.yml`)
+- **WHEN** reading `.github/workflows/ci.yml` and `.github/workflows/fallow.yml`
+- **THEN** `ci.yml` declares no `permissions` block and `checks: write` / `pull-requests: write` appear only in `fallow.yml`
 
 ### Requirement: Push-time dead-code gate in main CI
 
@@ -43,3 +44,4 @@ The workflow SHALL omit the action's `version` input so the action resolves the 
 
 - **WHEN** Renovate merges a fallow devDependency bump
 - **THEN** subsequent workflow runs use the new version with no workflow file change
+

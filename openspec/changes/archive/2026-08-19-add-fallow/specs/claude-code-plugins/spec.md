@@ -18,12 +18,12 @@ The install script SHALL include `fallow-rs/fallow-skills` in the `CC_MARKETPLAC
 
 ### Requirement: Fallow-skills plugin is enabled by default
 
-`dot_claude/settings.json.tmpl` SHALL include the fallow-skills plugin entry (`"fallow@fallow-skills": true`, exact key as reported by `claude plugin list --json`) in the `enabledPlugins` object.
+The managed key set of `dot_claude/modify_settings.json.tmpl` SHALL include the fallow-skills plugin entry (`"fallow@fallow-skills": true`, exact key as reported by `claude plugin list --json`) in the `enabledPlugins` object.
 
 #### Scenario: Fresh machine setup
 
 - **WHEN** `chezmoi apply` runs on a machine without Claude Code settings
-- **THEN** `~/.claude/settings.json` is created with the fallow-skills entry in `enabledPlugins`
+- **THEN** the rendered `~/.claude/settings.json` contains `fallow@fallow-skills` in `enabledPlugins`
 
 #### Scenario: Plugin not installed
 
@@ -34,3 +34,17 @@ The install script SHALL include `fallow-rs/fallow-skills` in the `CC_MARKETPLAC
 
 - **WHEN** the fallow skill runs `npx fallow` inside a project
 - **THEN** it resolves the project-local devDependency if present, else falls back to the npm registry — independent of the global install
+
+### Requirement: Fallow-skills marketplace is registered
+
+The managed key set of `dot_claude/modify_settings.json.tmpl` SHALL include a `fallow-skills` entry in `extraKnownMarketplaces` with source `github` and repo `fallow-rs/fallow-skills`, with `autoUpdate` set to `true`.
+
+#### Scenario: Fresh machine setup
+
+- **WHEN** `chezmoi apply` runs on a machine without Claude Code settings
+- **THEN** the rendered `~/.claude/settings.json` contains `fallow-skills` in `extraKnownMarketplaces` pointing to `fallow-rs/fallow-skills`
+
+#### Scenario: Marketplace auto-updates
+
+- **WHEN** Claude Code checks for plugin updates
+- **THEN** the fallow-skills marketplace is included in the auto-update cycle because `autoUpdate` is `true`
