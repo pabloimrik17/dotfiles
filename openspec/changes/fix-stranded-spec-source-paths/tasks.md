@@ -14,6 +14,7 @@ Extract each requirement from its main spec verbatim, then apply the substitutio
 - [x] 2.4 `specs/mcp-global-config/spec.md` — 1 MODIFIED requirement
 - [x] 2.5 `specs/worktrunk-claude-plugin/spec.md` — 1 MODIFIED requirement
 - [x] 2.6 Match the parent change's delta conventions: no `# <capability> Specification` title, and no `## Purpose` — every capability here already exists
+- [x] 2.7 Correct two clauses that describe the source wrongly instead of restating them verbatim: `claude-code-plugins` :: "SuperWhisper marketplace is registered on Apple Silicon" said *leading* comma where `dot_claude/modify_settings.json.tmpl:184-185` closes the entry with `},` **inside** the guard, i.e. trailing; and `claude-hud-config` :: "Statusline command sets COLUMNS for subprocess mode" said the command *prefixes* the bun invocation where `:386` exports `COLUMNS=200` as the first statement of the same `bash -c`, ahead of the bun `exec`. Both predate the rename, but `MODIFIED` replaces the main requirement wholesale, so restating them verbatim would publish false normative text under this change. 3.1's intended-substitution set admits exactly these two lines and no others. Left alone: the `COLUMNS=200`-before-the-bun-binary-path scenario, which the export satisfies
 
 ## 3. Verify the restatements
 
@@ -21,7 +22,7 @@ Extract each requirement from its main spec verbatim, then apply the substitutio
 
 - [x] 3.1 Diff each delta requirement body against the exact line range of its main-spec block; assert every differing line carries one of the intended substitutions and nothing else. Result: 18/18, zero unintended lines
 - [x] 3.2 Assert added and removed line counts are equal per requirement — a restatement that drops a scenario or a bullet is otherwise invisible in a summary diff
-- [x] 3.3 Assert `#### Scenario:` counts, `- ` bullet counts, and fenced-code-block counts are preserved per requirement, so the dropped-scenario and dropped-parenthetical failures caught in the parent change cannot repeat here
+- [x] 3.3 Assert `#### Scenario:` counts, list-item bullet counts, and fenced-code-block counts are preserved per requirement, so the dropped-scenario and dropped-parenthetical failures caught in the parent change cannot repeat here
 - [x] 3.4 Assert every `### Requirement:` name is byte-identical to its main-spec heading, so each operation resolves as MODIFIED rather than RENAMED or unmatched
 - [x] 3.5 Confirm the delta requirement sets are disjoint from `brew-upgrade-and-claude-settings` for the two capabilities both changes touch
 - [x] 3.6 Confirm none of the 18 is renamed or removed by `brew-upgrade-and-claude-settings`, which archives first — a `MODIFIED` header naming a requirement that change has already renamed away would not resolve. Cross-check against its `RENAMED` **and** `REMOVED` blocks, matching `- FROM:`/`- TO:` bullet syntax as well as `### Requirement:` headings: a parser that only reads headings reports zero renames for a delta that has one. Its full inventory is 3 operations — `claude-user-preferences` renames "User-preference keys appear in canonical order" → "User-preference keys are present with managed values", and `claude-hooks` removes the two `bd prime` requirements — and none is among the 18

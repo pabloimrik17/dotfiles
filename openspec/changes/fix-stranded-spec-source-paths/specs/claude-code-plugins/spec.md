@@ -92,7 +92,7 @@ The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL 
 
 ### Requirement: SuperWhisper marketplace is registered on Apple Silicon
 
-The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include a `superwhisper` entry in `extraKnownMarketplaces` with source `github` and repo `superultrainc/superwhisper-claude-code`, with `autoUpdate` set to `true`, only when chezmoi renders the template on `darwin/arm64`. The entry SHALL be wrapped in the same `{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }} ... {{ end }}` guard as the plugin entry, and SHALL include the leading comma inside the conditional block so the surrounding JSON stays valid on Intel.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include a `superwhisper` entry in `extraKnownMarketplaces` with source `github` and repo `superultrainc/superwhisper-claude-code`, with `autoUpdate` set to `true`, only when chezmoi renders the template on `darwin/arm64`. The entry SHALL be wrapped in the same `{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }} ... {{ end }}` guard as the plugin entry, and SHALL include the trailing comma inside the conditional block so the surrounding JSON stays valid on Intel.
 
 #### Scenario: Fresh machine setup on Apple Silicon
 

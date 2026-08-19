@@ -2,7 +2,7 @@
 
 `brew-upgrade-and-claude-settings` renamed `dot_claude/settings.json.tmpl` to `dot_claude/modify_settings.json.tmpl`: the file stopped being a whole-file template and became a chezmoi `modify_` script that overlays a managed key set onto the live `~/.claude/settings.json`. That rename stranded **18 requirements across 5 capabilities** that still name the old source file.
 
-All 18 are already satisfied by the shipped implementation. The keys they mandate are in the managed set, the host conditionals are still `{{ if }}`-guarded, and `mcpServers` is still absent. Only the filename in the spec text is stale. Nothing is broken at runtime, and nothing needs to be built.
+All 18 are already satisfied by the shipped implementation. The keys they mandate are in the managed set, the host conditionals are still `{{ if }}`-guarded, and `mcpServers` is still absent. What is stale is the spec text: the filename in all 18, plus two clauses that misdescribe the source (see What Changes). Nothing is broken at runtime, and nothing needs to be built.
 
 The parent change deliberately did not widen its scope to cover them; its `Impact` section names this change as the handler.
 
@@ -10,14 +10,14 @@ The parent change deliberately did not widen its scope to cover them; its `Impac
 
 - Repoint every stranded reference from `dot_claude/settings.json.tmpl` to `dot_claude/modify_settings.json.tmpl`.
 - Adjust the minimum wording where a sentence describes the old mechanism and now reads wrong: the file no longer *contains* the JSON keys ("the chezmoi template SHALL include" → "the managed key set SHALL include"), and `~/.claude/settings.json` is no longer *rendered* from it but materialized by the merge.
+- Correct two clauses that describe the source wrongly, both predating the rename: `claude-code-plugins` :: "SuperWhisper marketplace is registered on Apple Silicon" said the conditional block carries a *leading* comma where the source has always written a trailing one inside the guard, and `claude-hud-config` :: "Statusline command sets COLUMNS for subprocess mode" said the command *prefixes* the bun invocation where it exports `COLUMNS=200` as the first statement of the same `bash -c`. Both were previously deferred; they are fixed here because `MODIFIED` replaces the main requirement wholesale, so archiving the restatements verbatim would republish both falsehoods as this change's active contract.
 
-Nothing else. No requirement gains, loses, or changes a normative clause; no scenario is added or removed; no rationale is rewritten. **The delta specs are the entire fix** — there is no implementation work, and `openspec/specs/` is left untouched because archiving the deltas is what updates it.
+Nothing beyond that. No scenario is added or removed, no requirement gains or loses a clause, and the only normative text that changes is the two corrections above. **The delta specs are the entire fix** — there is no implementation work, and `openspec/specs/` is left untouched because archiving the deltas is what updates it.
 
 Explicitly **not** in scope:
 
 - `claude-hooks`, whose three stale references need no follow-up: two belong to requirements `brew-upgrade-and-claude-settings` removes, the third to the one it restates. It nets to zero.
 - `claude-user-preferences` :: "User-preference keys appear in canonical order" and `claude-code-plugins` :: "Beads marketplace is registered" — both already restated by the parent change against the new path.
-- Two pre-existing inaccuracies found while reading these requirements, both predating the rename and therefore not this change's business: `claude-code-plugins` :: "SuperWhisper marketplace is registered on Apple Silicon" says the conditional block carries a *leading* comma when the source has always written a trailing one, and `claude-hud-config` :: "Statusline command sets COLUMNS for subprocess mode" says the command *prefixes* the bun invocation when it actually sets `COLUMNS` via `export` inside the same `bash -c`. Both are restated verbatim; correcting them is a separate change.
 
 ## Capabilities
 
