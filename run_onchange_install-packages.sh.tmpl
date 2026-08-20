@@ -899,6 +899,7 @@ CC_MARKETPLACES=(
     "max-sixty/worktrunk"
     "gastownhall/beads"
     "fallow-rs/fallow-skills"
+    "getsentry/sentry-mcp"
 )
 
 CC_PLUGINS=(
@@ -929,6 +930,7 @@ CC_PLUGINS=(
     "code-simplifier@claude-plugins-official"
     "fallow@fallow-skills"
     "posthog@claude-plugins-official"
+    "sentry-mcp@sentry-mcp"
 )
 
 if command -v claude &>/dev/null; then
@@ -948,7 +950,7 @@ if command -v claude &>/dev/null; then
     plugin_installed() {
         local plugin_id="$1"
         if [ -n "$CC_PLUGIN_JSON" ]; then
-            echo "$CC_PLUGIN_JSON" | grep -q "$plugin_id"
+            echo "$CC_PLUGIN_JSON" | grep -qF "\"$plugin_id\""
         else
             return 1
         fi
@@ -1234,6 +1236,7 @@ info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma
 info "  - Linear MCP: requires OAuth authentication — run 'claude mcp get linear' or use on first invocation"
 info "  - Notion MCP: requires OAuth authentication — run 'claude mcp get notion' or use on first invocation"
 info "  - PostHog MCP: requires OAuth authentication — in Claude Code run '/mcp' and authenticate 'plugin:posthog:posthog'; in OpenCode run 'opencode mcp auth'"
+info "  - Sentry MCP: provided by the sentry-mcp plugin from the sentry-mcp marketplace — requires OAuth authentication; run '/mcp' inside Claude Code, or 'opencode mcp auth sentry' in OpenCode"
 info "  - Storybook MCP: requires @storybook/addon-mcp installed in each Storybook project and 'storybook dev' running on port 6006"
 info ""
 
@@ -1282,6 +1285,7 @@ info "  Claude Code plugins:"
 info "    - plannotator: curl -fsSL https://plannotator.ai/install.sh | bash"
 info "    - claude plugin marketplace add backnotprop/plannotator && claude plugin install plannotator@plannotator"
 info "    - claude plugin marketplace add max-sixty/worktrunk && claude plugin install worktrunk@worktrunk"
+info "    - claude plugin marketplace add getsentry/sentry-mcp && claude plugin install sentry-mcp@sentry-mcp"
 info "  Agent skills (requires npx/Node.js):"
 info "    npx -y skills add vercel-labs/skills --skill find-skills -g -y"
 info "    npx -y skills add vercel-labs/agent-skills --skill vercel-react-best-practices -g -y"

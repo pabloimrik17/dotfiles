@@ -2642,6 +2642,15 @@
                                     <code>/mcp</code> on <code>plugin:posthog:posthog</code>
                                 </td>
                             </tr>
+                            <tr>
+                                <td>sentry</td>
+                                <td>Issues, events, traces &amp; Seer root-cause analysis</td>
+                                <td>
+                                    Provided by the <code>sentry-mcp@sentry-mcp</code> plugin, not
+                                    as a global <code>claude mcp add</code> server &mdash; OAuth on
+                                    first use from <code>/mcp</code>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
 
@@ -2846,6 +2855,18 @@
                                 <td>expect</td>
                                 <td>Visual testing and accessibility audits</td>
                             </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>MCP servers (OpenCode only)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Server</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             <tr>
                                 <td>posthog</td>
                                 <td>
@@ -2853,6 +2874,17 @@
                                     remote entry in <code>opencode.jsonc</code> (Claude Code gets it
                                     from the plugin instead); OAuth via
                                     <code>opencode mcp auth</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>sentry</td>
+                                <td>
+                                    Issues, events, traces &amp; Seer. Declared independently as a
+                                    <code>remote</code> server in
+                                    <code>~/.config/opencode/opencode.jsonc</code> &mdash; not
+                                    shared with Claude Code, which gets Sentry from the
+                                    <code>sentry-mcp@sentry-mcp</code> plugin instead. Authenticate
+                                    with <code>opencode mcp auth sentry</code>
                                 </td>
                             </tr>
                         </tbody>
