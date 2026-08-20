@@ -64,7 +64,7 @@ Listed in `permissions.ask`:
 
 These two need an explicit rule, not just absence from `allow`. This template sets `permissions.defaultMode: "auto"`, and in auto mode a tool that matches no rule is handed to the safety classifier, which runs *without* prompting — so "left on the default `ask`" is not a thing here; there is no default ask to fall back to. Rules are evaluated deny → ask → allow, and a matching `ask` rule forces a prompt even in auto mode (and even when a broader `allow` rule would also match).
 
-Together the eight rules cover exactly the eight tools the plugin exposes — the `allowedTools` list in the subagent's front matter — so no Sentry tool reaches the classifier at all. `execute_sentry_tool` sitting in `ask` also means read-only catalog operations reached through the dispatcher prompt too; that is the intended conservative bias for a tool whose surface is unbounded.
+Together the eight rules cover exactly the eight functional tools the plugin exposes — the `allowedTools` list in the subagent's front matter. Not covered: `authenticate` and `complete_authentication`, which the server only surfaces while unauthenticated; they touch no Sentry data and need no rule. `execute_sentry_tool` sitting in `ask` also means read-only catalog operations reached through the dispatcher prompt too; that is the intended conservative bias for a tool whose surface is unbounded.
 
 The read/write line matches the one the existing requirement already draws for `memory` (read/search/open allowed, create/delete not). The mechanism differs because `memory`'s write tools predate `defaultMode: "auto"`; bringing those under explicit `ask` rules is a separate concern and belongs to its own change.
 
@@ -75,7 +75,7 @@ The plugin has no version coordinate we control: `extraKnownMarketplaces` carrie
 ## Risks / Trade-offs
 
 - Someone later adds `sentry` to `MCP_HTTP_SERVERS` "for consistency" → the `mcp-global-config` requirement states the prohibition with a scenario that checks `.mcpServers.sentry` is absent from `~/.claude.json`, so the regression is reviewable rather than invisible.
-- Upstream renames the plugin's internal server, breaking the `mcp__plugin_sentry-mcp_sentry__…` rules → the rules fail safe: they stop matching, and the tools fall back to the default `ask`. No tool silently gains permission. A spec scenario pins this behavior.
+- Upstream renames the plugin's internal server, breaking the `mcp__plugin_sentry-mcp_sentry__…` rules → the rules stop matching and every Sentry tool falls through to the auto-mode safety classifier, so `analyze_issue_with_seer` and `execute_sentry_tool` lose their guaranteed prompt. Accepted failure mode of pinning rules to a plugin-namespaced prefix; the rename is visible in `/mcp` as a changed server name. A spec scenario pins this behavior.
 - Sentry self-hosted is unreachable → `mcp.sentry.dev` serves `sentry.io` only. Recorded as a known limitation; the upstream repo's `stdio` transport is the escape route if it ever becomes necessary, and would be its own change.
 - Sentry's toolset inflates OpenCode's context, which has no subagent to hide it → single remote server, one edit (`enabled: false`) to switch off.
 - Marketplace/plugin drift between clients: Claude Code auto-updates the plugin, OpenCode always talks to whatever the endpoint currently serves → both track upstream automatically; there is no pinned state to drift.
