@@ -5,8 +5,15 @@
 # Note: set -e intentionally omitted — script continues on individual package failures
 set -o pipefail
 
-# Redirect all output to the terminal so the user sees prompts and progress.
-# chezmoi captures stdout/stderr of scripts by default, hiding interactive output.
+# Redirect all output to the controlling terminal so prompts and progress stay
+# visible however chezmoi itself was invoked (piped, redirected, or nested inside
+# another tool).
+#
+# chezmoi does NOT capture a run_ script's output — it wires run_ script stdio
+# straight to its own. Capture applies to modify_ scripts, whose stdout *is* the
+# target file. So the reason for this redirect is chezmoi's own stdout not being
+# guaranteed to be a terminal, not chezmoi swallowing anything. confirm() reads
+# from /dev/tty for the same reason, and degrades to "no" when there is none.
 exec > /dev/tty 2>&1
 
 ERRORS=0
@@ -356,24 +363,46 @@ if command -v gh &>/dev/null; then
             fi
         fi
 
-        # Official gh agent skill for Claude Code (gh skill: 2.90+). Structured
-        # detection via --json instead of grepping human-readable output.
-        # --scope user is required: gh skill list defaults to project + user,
-        # so a project-scoped skill would mask a missing user-scoped one.
-        if gh skill list --agent claude-code --scope user --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "gh"; then
+        # Official gh agent skills. `gh skill` landed in 2.90, but the guard
+        # below needs `gh skill list` (2.94+), so 2.94 is the real floor here.
+        # Structured detection via --json instead of grepping human-readable
+        # output. --scope user is required: gh skill list defaults to project +
+        # user, so a project-scoped skill would mask a missing user-scoped one.
+        #
+        # Do NOT add `--agent claude-code` to the *list* filter, even though the
+        # install side needs it to pick the destination. gh puts the skill body
+        # in ~/.agents/skills/<name> and leaves ~/.claude/skills/<name> as a
+        # symlink to it. `gh skill list` reports the resolved path, so these come
+        # back under the agent hosts `cline, universal, warp`, never
+        # `claude-code`. So an --agent-filtered check never matched, the script
+        # reinstalled on every run, and `gh skill install` stopped at its
+        # "already exists, overwrite?" prompt — which then died on the
+        # terminal's OSC 11 reply ("could not prompt: unexpected escape
+        # sequence from terminal"). That error made the script exit non-zero,
+        # so chezmoi never recorded the run_onchange state and `chezmoi diff`
+        # never came back clean.
+        #
+        # `--force` is the second line of defence: if the check ever misses
+        # again, the install overwrites silently instead of blocking on a prompt
+        # that cannot be answered through chezmoi's stdio.
+        gh_skill_installed() {
+            gh skill list --scope user --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "$1"
+        }
+
+        if gh_skill_installed "gh"; then
             info "  gh agent skill — already installed, skipping"
         else
             info "  Installing gh agent skill (Claude Code, user scope)..."
-            if ! gh skill install cli/cli gh --agent claude-code --scope user; then
+            if ! gh skill install cli/cli gh --agent claude-code --scope user --force; then
                 error "Failed to install gh agent skill"
             fi
         fi
 
-        if gh skill list --agent claude-code --scope user --json skillName --jq '.[].skillName' 2>/dev/null | grep -qx "gh-stack"; then
+        if gh_skill_installed "gh-stack"; then
             info "  gh-stack agent skill — already installed, skipping"
         else
             info "  Installing gh-stack agent skill (Claude Code, user scope)..."
-            if ! gh skill install github/gh-stack gh-stack --agent claude-code --scope user; then
+            if ! gh skill install github/gh-stack gh-stack --agent claude-code --scope user --force; then
                 error "Failed to install gh-stack agent skill"
             fi
         fi
@@ -387,39 +416,62 @@ fi
 # ------------------------------------------------------------------
 # Group 2: Fonts
 # ------------------------------------------------------------------
-# Pre-scan: check if fonts are already installed
+# Only a Homebrew cask counts as installed. A hand-copied .ttf under
+# ~/Library/Fonts is frozen at whatever version was copied: outside brew's view,
+# never listed by `brew outdated`, never advanced by `brew upgrade`. The primary
+# font draws every eza icon and every nerdFontsVersion:"3" glyph, so treating a
+# manual copy as satisfied silently caps glyph coverage. It also blocks the cask,
+# which refuses to overwrite a real file at its target path — so the fix is
+# always "delete the copies, then install", never "install over them".
+FONT_CASKS=("font-hack-nerd-font:HackNerdFont" "font-jetbrains-mono-nerd-font:JetBrainsMonoNerdFont")
+
+font_manual_installed() {
+    local f
+    for f in "$HOME"/Library/Fonts/"$1"*.ttf; do
+        [ -e "$f" ] && return 0
+    done
+    return 1
+}
+
+# Pre-scan
 FONTS_PENDING=0
-if ! brew list --cask font-hack-nerd-font &>/dev/null && ! ls ~/Library/Fonts/HackNerdFont*.ttf &>/dev/null 2>&1; then
+FONTS_MANUAL=0
+for font_spec in "${FONT_CASKS[@]}"; do
+    brew list --cask "${font_spec%%:*}" &>/dev/null && continue
     FONTS_PENDING=$((FONTS_PENDING + 1))
-fi
-if ! brew list --cask font-jetbrains-mono-nerd-font &>/dev/null && ! ls ~/Library/Fonts/JetBrainsMonoNerdFont*.ttf &>/dev/null 2>&1; then
-    FONTS_PENDING=$((FONTS_PENDING + 1))
-fi
+    if font_manual_installed "${font_spec##*:}"; then
+        FONTS_MANUAL=$((FONTS_MANUAL + 1))
+    fi
+done
 
 if [ "$FONTS_PENDING" -eq 0 ]; then
-    info "Fonts: 2/2 installed"
-elif confirm "Install terminal fonts ($FONTS_PENDING/2 pending)?"; then
-    info "Installing terminal fonts..."
-    if brew list --cask font-hack-nerd-font &>/dev/null; then
-        info "  font-hack-nerd-font — already installed (via brew), skipping"
-    elif ls ~/Library/Fonts/HackNerdFont*.ttf &>/dev/null 2>&1; then
-        info "  font-hack-nerd-font — already installed (manual), skipping"
-    else
-        if ! brew install --cask font-hack-nerd-font; then
-            error "Failed to install font-hack-nerd-font"
-        fi
-    fi
-    if brew list --cask font-jetbrains-mono-nerd-font &>/dev/null; then
-        info "  font-jetbrains-mono-nerd-font — already installed (via brew), skipping"
-    elif ls ~/Library/Fonts/JetBrainsMonoNerdFont*.ttf &>/dev/null 2>&1; then
-        info "  font-jetbrains-mono-nerd-font — already installed (manual), skipping"
-    else
-        if ! brew install --cask font-jetbrains-mono-nerd-font; then
-            error "Failed to install font-jetbrains-mono-nerd-font"
-        fi
-    fi
+    info "Fonts: ${#FONT_CASKS[@]}/${#FONT_CASKS[@]} installed (Homebrew casks)"
 else
-    info "Skipping font installation."
+    if [ "$FONTS_MANUAL" -gt 0 ]; then
+        warn "$FONTS_MANUAL font(s) present as manual copies in ~/Library/Fonts, not under Homebrew."
+        warn "  A manual copy is never upgraded and never reported as outdated."
+        for font_spec in "${FONT_CASKS[@]}"; do
+            if ! brew list --cask "${font_spec%%:*}" &>/dev/null && font_manual_installed "${font_spec##*:}"; then
+                warn "  ${font_spec%%:*}: rm ~/Library/Fonts/${font_spec##*:}*.ttf, then re-run this script"
+            fi
+        done
+    fi
+    if confirm "Install terminal fonts ($FONTS_PENDING/${#FONT_CASKS[@]} pending)?"; then
+        info "Installing terminal fonts..."
+        for font_spec in "${FONT_CASKS[@]}"; do
+            font_cask="${font_spec%%:*}"
+            font_prefix="${font_spec##*:}"
+            if brew list --cask "$font_cask" &>/dev/null; then
+                info "  $font_cask — already installed (via brew), skipping"
+            elif font_manual_installed "$font_prefix"; then
+                warn "  $font_cask — skipped: manual copies at ~/Library/Fonts/$font_prefix*.ttf would block the cask install"
+            elif ! brew install --cask "$font_cask"; then
+                error "Failed to install $font_cask"
+            fi
+        done
+    else
+        info "Skipping font installation."
+    fi
 fi
 
 # ------------------------------------------------------------------
@@ -845,7 +897,7 @@ CC_MARKETPLACES=(
     "nrwl/nx-ai-agents-config"
     "backnotprop/plannotator"
     "max-sixty/worktrunk"
-    "steveyegge/beads"
+    "gastownhall/beads"
     "fallow-rs/fallow-skills"
 )
 
@@ -1207,7 +1259,8 @@ info "    - aoe: cargo install aoe (Linux supported by upstream; brew is macOS-o
 info "    - glow: brew install glow (or your distro's package manager, or 'go install github.com/charmbracelet/glow@latest')"
 info "    - mdfried: brew install mdfried (or cargo install mdfried); its image / mermaid / Big-Header rendering needs a terminal with a graphics protocol (Kitty, iTerm2, or Sixel) and otherwise degrades to character rendering"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
-info "  Shell: oh-my-zsh (https://ohmyz.sh/)"
+info "  Shell: zsh, then oh-my-zsh (https://ohmyz.sh/)"
+info "    - zsh: install it first — the oh-my-zsh installer aborts when zsh is missing (apt install zsh, dnf install zsh, …)"
 info "  Zsh plugins:"
 info "    - you-should-use: git clone https://github.com/MichaelAquilina/zsh-you-should-use.git \${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/you-should-use"
 info "    - zsh-autosuggestions (via package manager or git clone)"
@@ -1218,6 +1271,9 @@ info "  gh extensions:"
 info "    - gh extension install dlvhdr/gh-dash"
 info "    - gh extension install dlvhdr/gh-enhance"
 info "    - gh extension install github/gh-stack"
+info "  gh agent skills (requires gh 2.90+):"
+info "    - gh skill install cli/cli gh --agent claude-code --scope user --force"
+info "    - gh skill install github/gh-stack gh-stack --agent claude-code --scope user --force"
 info "  Bat theme: Catppuccin Mocha"
 info "    mkdir -p \"\$(bat --config-dir)/themes\""
 info "    curl -fsSLo \"\$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme\" https://raw.githubusercontent.com/catppuccin/bat/main/themes/Catppuccin%20Mocha.tmTheme"

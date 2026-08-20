@@ -4,6 +4,10 @@ openspec/
 .junie/
 .opencode/
 .husky/_/
-# chezmoi modify_ script: a POSIX shell script that carries its target's .toml
-# extension (chezmoi naming). oxfmt would parse it as TOML and corrupt it.
+# chezmoi modify_ scripts: POSIX shell scripts that carry their target's
+# extension (chezmoi naming). oxfmt would parse them as TOML/JSON and corrupt
+# them. The .tmpl suffix already keeps oxfmt off the settings one today; it is
+# listed anyway so a future rename or a wider extension map cannot silently
+# mangle the script that produces ~/.claude/settings.json.
 dot_config/private_agent-of-empires/modify_private_config.toml
+dot_claude/modify_settings.json.tmpl

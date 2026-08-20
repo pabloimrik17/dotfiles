@@ -3,12 +3,10 @@
 ## Purpose
 
 Global MCP server configuration managed by chezmoi — defines which MCP servers are available in every Claude Code session across all machines.
-
 ## Requirements
-
 ### Requirement: Global MCP servers are registered via Claude CLI in install script
 
-`run_onchange_install-packages.sh.tmpl` SHALL register the following 13 MCP servers via `claude mcp add --scope user`, which writes to `~/.claude.json`:
+`run_onchange_install-packages.sh.tmpl` SHALL register the following 14 MCP servers via `claude mcp add --scope user`, which writes to `~/.claude.json`:
 
 | Name            | Type  | Command/URL                                            |
 | --------------- | ----- | ------------------------------------------------------ |
@@ -19,6 +17,7 @@ Global MCP server configuration managed by chezmoi — defines which MCP servers
 | playwright      | stdio | `npx -y @playwright/mcp@0.0.68`                        |
 | chrome-devtools | stdio | `npx -y chrome-devtools-mcp@0.18.1`                    |
 | expect          | stdio | `npx -y expect-cli@0.1.3 mcp`                          |
+| fallow          | stdio | `fallow-mcp` (PATH binary from the global npm install) |
 | gh_grep         | http  | `https://mcp.grep.app`                                 |
 | atlassian       | http  | `https://mcp.atlassian.com/v1/mcp`                     |
 | figma           | http  | `https://mcp.figma.com/mcp`                            |
@@ -26,13 +25,13 @@ Global MCP server configuration managed by chezmoi — defines which MCP servers
 | notion          | http  | `https://mcp.notion.com/mcp`                           |
 | storybook       | http  | `http://localhost:6006/mcp`                            |
 
-`dot_claude/settings.json.tmpl` SHALL NOT contain an `mcpServers` key.
+`dot_claude/modify_settings.json.tmpl` SHALL NOT contain an `mcpServers` key.
 
-#### Scenario: All 13 servers registered after install script runs
+#### Scenario: All 14 servers registered after install script runs
 
 - **WHEN** `chezmoi apply` runs the install script on a machine with `claude` CLI available
 - **AND** the user confirms the MCP servers install group
-- **THEN** `claude mcp list --scope user` SHALL list all 13 servers above
+- **THEN** `claude mcp list --scope user` SHALL list all 14 servers above
 
 #### Scenario: Servers registered to correct file
 
@@ -42,14 +41,25 @@ Global MCP server configuration managed by chezmoi — defines which MCP servers
 
 #### Scenario: Settings template has no mcpServers block
 
-- **WHEN** reading `dot_claude/settings.json.tmpl`
+- **WHEN** reading `dot_claude/modify_settings.json.tmpl`
 - **THEN** the file SHALL NOT contain an `mcpServers` key at any level
 
 #### Scenario: Stdio servers use pinned versions managed by Renovate
 
 - **WHEN** inspecting registered stdio servers via `claude mcp get <name>`
-- **THEN** all 7 stdio servers SHALL reference pinned versions (not `@latest`)
+- **THEN** the 7 npx-launched stdio servers SHALL reference pinned versions (not `@latest`)
 - **AND** `renovate.json` SHALL contain a custom regex manager for the install script template
+
+#### Scenario: Fallow server runs the global binary without a pin
+
+- **WHEN** inspecting the `fallow` server via `claude mcp get fallow`
+- **THEN** its command SHALL be the bare `fallow-mcp` binary (no npx, no version pin)
+- **AND** its version SHALL be owned by the global npm install (updated via `update-extra`), so the MCP server and the `fallow` CLI it shells out to can never skew from each other
+
+#### Scenario: Fallow entry is presence-checked only
+
+- **WHEN** the install script pre-scans MCP servers for outdated pins
+- **THEN** the `fallow` entry SHALL participate in presence detection only, not in the `pkg@version` outdated-check
 
 ### Requirement: MCP registration is idempotent and follows install script patterns
 
@@ -102,7 +112,7 @@ The install script SHALL register `atlassian`, `figma`, `linear`, `notion`, and 
 
 ### Requirement: Template uses no machine-specific conditionals for MCP
 
-The MCP server list in `run_onchange_install-packages.sh.tmpl` SHALL be plain bash arrays without chezmoi template conditionals (`{{ if }}`, `{{ else }}`). All 13 servers are registered identically on every machine.
+The MCP server list in `run_onchange_install-packages.sh.tmpl` SHALL be plain bash arrays without chezmoi template conditionals (`{{ if }}`, `{{ else }}`). All 14 servers are registered identically on every machine.
 
 #### Scenario: No conditional logic in MCP server arrays
 
@@ -122,3 +132,4 @@ The MCP server list in `run_onchange_install-packages.sh.tmpl` SHALL be plain ba
 
 - **WHEN** `chezmoi apply` deploys the updated OpenCode config
 - **THEN** the `model`, `tui`, `plugin`, `formatter`, and `permission` keys SHALL remain unchanged
+

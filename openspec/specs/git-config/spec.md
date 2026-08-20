@@ -1,9 +1,7 @@
 ## Purpose
 
 Specification for chezmoi-managed git configuration files (`~/.gitconfig` and `~/.gitignore_global`), covering modern defaults, delta pager integration, curated aliases, and comprehensive global ignore patterns.
-
 ## Requirements
-
 ### Requirement: Chezmoi-managed gitconfig template
 
 The system SHALL provide a `dot_gitconfig.tmpl` file that chezmoi renders to `~/.gitconfig`. The template SHALL use `{{ .name }}` and `{{ .email }}` from chezmoi data for the `[user]` section.
@@ -99,7 +97,7 @@ The gitconfig SHALL NOT include a `syntax-theme` setting in the `[delta]` sectio
 
 The gitconfig SHALL define exactly these aliases:
 
-- `lg` = graph log with color formatting and abbreviated commits
+- `lg` = graph log with color formatting, abbreviated commits, and `--graph-lane-limit=8` (git ≥2.55) so wide commit graphs are truncated to at most 8 lanes
 - `last` = `log -1 HEAD --stat`
 - `unstage` = `reset HEAD --`
 - `undo` = `reset --soft HEAD~1`
@@ -113,6 +111,11 @@ The gitconfig SHALL NOT include shorthand aliases (`st`, `co`, `ci`, `cm`, `ca`,
 
 - **WHEN** `git lg` is run in a repository with commits
 - **THEN** a colored graph log with abbreviated hashes, branch names, relative dates, and author names is displayed
+
+#### Scenario: Git lg caps graph lanes
+
+- **WHEN** `git lg` is run in a repository whose history would render more than 8 parallel graph lanes
+- **THEN** the graph is truncated to 8 lanes instead of widening unbounded
 
 #### Scenario: Git unstage removes from index
 
@@ -139,12 +142,17 @@ The gitignore_global SHALL include safety-net patterns for:
 
 - macOS artifacts (`.DS_Store`, `.AppleDouble`, `.LSOverride`, `._*`)
 - Editor/IDE files (selective `.vscode/` files, `.idea/`, `*.swp`, `*.swo`, `*~`, Sublime files)
-- Environment/secrets (`.env`, `.env.local`, `.env.*.local`)
+- Environment/secrets (`.env*`, with `!.env.example` and `!.env.template` re-included)
 - Node.js (`node_modules/`, debug logs for npm/yarn/pnpm)
 - Logs (`logs/`, `*.log`)
 - Build outputs (`dist/`, `build/`, `*.map`)
 - Testing (`coverage/`, `.nyc_output/`)
 - Temporary (`tmp/`, `temp/`)
+- Agent-local state (`**/.claude/settings.local.json`, `.claude/.worktree-base`)
+
+The gitignore_global is the **only** global ignore file in effect. Because the gitconfig sets `core.excludesFile`, the XDG default location is replaced rather than stacked, so any patterns living there are dead. Patterns must be consolidated here.
+
+`.claude/.worktree-base` is manufactured by this repo's own worktrunk `save-base` hook in every worktree that contains a `.claude/` directory, so it appears in unrelated repositories as an untracked file.
 
 #### Scenario: .vscode selective ignore
 
@@ -155,6 +163,16 @@ The gitignore_global SHALL include safety-net patterns for:
 
 - **WHEN** a project without its own `.gitignore` contains a `.env` file
 - **THEN** the `.env` file is excluded from `git status` and `git add`
+
+#### Scenario: Agent-generated files are ignored globally
+
+- **WHEN** a worktree created by worktrunk contains `.claude/.worktree-base` and `.claude/settings.local.json`
+- **THEN** neither appears in `git status`, without needing a per-repository `.gitignore` entry
+
+#### Scenario: No second global ignore file is relied upon
+
+- **WHEN** patterns are needed globally
+- **THEN** they SHALL be added to the gitignore_global, because a file at the XDG default location has no effect while `core.excludesFile` is set
 
 ### Requirement: Brew-installed git
 
@@ -169,3 +187,4 @@ The install script SHALL include `git` in `BREW_PACKAGES` so that Homebrew insta
 
 - **WHEN** brew packages are installed and shell is restarted
 - **THEN** `git --version` reports 2.37 or higher
+

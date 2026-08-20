@@ -3,12 +3,10 @@
 ## Purpose
 
 Configure lazygit to use the official Catppuccin Mocha blue theme via a chezmoi-managed config file.
-
 ## Requirements
-
 ### Requirement: lazygit renders with Catppuccin Mocha blue theme
 
-A chezmoi-managed config file SHALL exist at `dot_config/lazygit/config.yml` deploying to `~/.config/lazygit/config.yml` (macOS: `~/Library/Application Support/lazygit/config.yml` is also valid, but `~/.config/lazygit/` is the XDG standard path). The file SHALL contain the official Catppuccin Mocha blue theme under `gui`:
+A chezmoi-managed config template SHALL exist at `dot_config/lazygit/config.yml.tmpl` deploying to `~/.config/lazygit/config.yml` (macOS: `~/Library/Application Support/lazygit/config.yml` is also valid, but `~/.config/lazygit/` is the XDG standard path). The file SHALL contain the official Catppuccin Mocha blue theme under `gui`:
 
 **`gui.theme`:**
 
@@ -38,3 +36,4 @@ A chezmoi-managed config file SHALL exist at `dot_config/lazygit/config.yml` dep
 
 - **WHEN** `chezmoi apply` is run
 - **THEN** `~/.config/lazygit/config.yml` is created/updated with the theme configuration
+

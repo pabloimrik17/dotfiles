@@ -1,0 +1,17 @@
+# atuin AI standing permission grants — lands at ~/.config/atuin/permissions.ai.toml
+# Managed by chezmoi; `private_` makes it 0600.
+#
+# These are no-prompt capability grants to the `?` agent. atuin 18.19.0 knows
+# Read, Edit, Write, Shell, AtuinHistory, AtuinOutput and LoadSkill, each
+# optionally scoped — `Shell(git status *)` — across allow/deny/ask lists, where
+# ask > deny > allow. atuin appends here itself as prompts are accepted, so left
+# unmanaged the granted set widens with no record and no review. chezmoi
+# reasserts this file on every apply, which makes the list below the only set
+# that survives — widen it here, in a commit, or not at all.
+#
+# `Shell` is unscoped: the agent may run any command without confirming. Scoping
+# IS expressible, so leaving it wide is a deliberate hold, not a limit of atuin.
+# Narrowing changes behaviour and belongs in its own change.
+
+[permissions]
+allow = ["Shell"]

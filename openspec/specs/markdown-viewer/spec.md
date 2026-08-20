@@ -131,7 +131,7 @@ or `}}` sequences (which chezmoi interprets as template delimiters); only `fzf`'
 
 ### Requirement: lazygit opens Markdown via mdview
 
-`dot_config/lazygit/config.yml` SHALL define a `customCommands` entry in the `files` context that
+`dot_config/lazygit/config.yml.tmpl` SHALL define a `customCommands` entry in the `files` context that
 opens the selected file through `mdview` as a subprocess (so the viewer takes over the terminal and
 returns to lazygit on exit). This views a whole document; it SHALL NOT alter how lazygit renders
 diffs (which remain `delta`'s responsibility).

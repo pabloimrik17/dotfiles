@@ -1,0 +1,70 @@
+# lazygit — Catppuccin Mocha (Blue) theme
+# https://github.com/catppuccin/lazygit
+
+gui:
+    # Nerd Font glyphs for branch/file icons. `showIcons` is NOT also needed:
+    # it is declared deprecated upstream and its only consumer is unreachable
+    # once nerdFontsVersion is set, so setting it was a no-op. Since 0.64.0 an
+    # open PR renders its checks state as plain Unicode, needing no icon font.
+    nerdFontsVersion: "3"
+    # Give the side panels only the width their content needs (0.64.0).
+    # Must be a direct child of `gui:` — lazygit unmarshals without
+    # KnownFields, so nesting it under `theme:` would be a silent no-op.
+    shrinkSidePanelsToContent: true
+    theme:
+        activeBorderColor:
+            - "#89b4fa"
+            - bold
+        inactiveBorderColor:
+            - "#a6adc8"
+        searchingActiveBorderColor:
+            - "#f9e2af"
+        optionsTextColor:
+            - "#89b4fa"
+        selectedLineBgColor:
+            - "#313244"
+        inactiveViewSelectedLineBgColor:
+            - "#6c7086"
+        cherryPickedCommitFgColor:
+            - "#89b4fa"
+        cherryPickedCommitBgColor:
+            - "#45475a"
+        markedBaseCommitFgColor:
+            - "#89b4fa"
+        markedBaseCommitBgColor:
+            - "#f9e2af"
+        unstagedChangesColor:
+            - "#f38ba8"
+        defaultFgColor:
+            - "#cdd6f4"
+    authorColors:
+        "*": "#b4befe"
+
+# Render diffs through delta with the Catppuccin Mocha theme (0.64.0 key name).
+# `--config` points delta at a standalone file instead of ~/.gitconfig, because
+# lazygit does not inherit the git pager and `--no-gitconfig` would drop the
+# theme. Only `diffRenderers` is written here: the superseded `git.pagers` key
+# triggers lazygit's migration, which rewrites this whole chezmoi-managed file.
+# A single entry means there is nothing to cycle, so no keybinding is needed.
+#
+# The path is expanded by chezmoi (hence the .tmpl suffix), not left as `~`:
+# lazygit execs the renderer without a shell, and delta given an unexpanded
+# literal `~` exits 0, warns about nothing, and silently falls back to its
+# built-in defaults -- the Catppuccin theme just disappears (delta 0.19.2).
+git:
+    diffRenderers:
+        - command: delta --config {{ .chezmoi.homeDir }}/.config/delta/lazygit.gitconfig --paging=never
+
+# Open the selected file rendered via the mdview dispatcher (glow / mdfried).
+# `output: terminal` hands the terminal to the viewer and resumes lazygit on exit
+# (the modern, non-deprecated form of `subprocess: true` — using the deprecated
+# key makes lazygit migrate + rewrite this whole file, which drifts from chezmoi).
+# This views a whole document; diffs remain delta's job (unchanged).
+# The `{{ "{{" }}...{{ "}}" }}` below is lazygit's own template, quoted so chezmoi
+# emits it literally instead of trying to resolve `.SelectedFile`.
+customCommands:
+    - key: "g"
+      context: "files"
+      command: "mdview {{ "{{.SelectedFile.Name | quote}}" }}"
+      output: terminal
+      description: "Open file rendered (mdview: glow/mdfried)"
