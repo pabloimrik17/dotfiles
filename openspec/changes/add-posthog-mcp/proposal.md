@@ -11,7 +11,7 @@ Authentication is browser OAuth on first use, so there is no API key to store an
 **Claude Code — via the official plugin only:**
 
 - Add `posthog@claude-plugins-official` to `CC_PLUGINS` in `run_onchange_install-packages.sh.tmpl`. `CC_MARKETPLACES` is unchanged: `anthropics/claude-plugins-official` is already registered.
-- Add `"posthog@claude-plugins-official": true` to `enabledPlugins` in `dot_claude/settings.json.tmpl` (alphabetical position, between `plugin-dev@…` and `skill-creator@…`). `extraKnownMarketplaces` is unchanged for the same reason.
+- Add `"posthog@claude-plugins-official": true` to `enabledPlugins` in `dot_claude/modify_settings.json.tmpl` (alphabetical position, between `plugin-dev@…` and `skill-creator@…`). `extraKnownMarketplaces` is unchanged for the same reason.
 - The plugin bundles its own http MCP server (`https://mcp.posthog.com/mcp`, header `x-posthog-mcp-consumer: plugin`), surfacing as `plugin:posthog:posthog`. Its other surface, verified at the marketplace-pinned sha (`672b007`): ~140 PostHog product skills, an `error-analyzer` agent, three `/posthog:llma-cc-*` commands, and two hooks — a SessionEnd LLMA uploader (no-op unless `POSTHOG_LLMA_CC_ENABLED` and `POSTHOG_API_KEY` are set) and a PreToolUse gate that re-prompts on sensitive `exec` write calls.
 
 **Explicitly not added to `MCP_HTTP_SERVERS`.** Registering `posthog` user-scope *on top of* the plugin would connect the same server twice in every Claude Code session — the MCP exposes a single `exec` dispatcher tool, so the duplicate is `mcp__posthog__exec` **and** `mcp__plugin_posthog_posthog__exec` — and require two separate OAuth logins against the same account, for zero extra capability. The exclusion is written as a `SHALL NOT` requirement so a later change does not "fix" it back in.
@@ -35,7 +35,7 @@ Authentication is browser OAuth on first use, so there is no API key to store an
 
 ## Impact
 
-- **Files** (touched by the implementation, not by this change): `run_onchange_install-packages.sh.tmpl`, `dot_claude/settings.json.tmpl`, `dot_config/opencode/opencode.jsonc`, `README.md`, `docs/manual.html`.
+- **Files** (touched by the implementation, not by this change): `run_onchange_install-packages.sh.tmpl`, `dot_claude/modify_settings.json.tmpl`, `dot_config/opencode/opencode.jsonc`, `README.md`, `docs/manual.html`.
 - **Dependencies**: none. No new npm package, no global binary — the endpoint is hosted and the plugin is fetched by the Claude CLI.
 - **Renovate / update-extra**: nothing to add. There is no `pkg@version` to pin, and the plugin version is governed by the `claude-plugins-official` marketplace, already set to `autoUpdate: true`.
 - **Permissions**: no `mcp__posthog__*` entry in `permissions.allow`, since the PostHog MCP also writes (create/update feature flags and insights, resolve issues). With `defaultMode: "auto"` that leaves its calls to the safety classifier rather than to user confirmation — the same footing as the repo's other write-capable MCPs (`mcp__memory__create_entities`, playwright, chrome-devtools), except that PostHog is the only one shipping its own `PreToolUse` ask-gate, which prompts on a curated write subset in Claude Code. See design D4 for what that gate covers and for why no *permission rule* can gate the writes selectively.

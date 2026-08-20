@@ -2,7 +2,7 @@
 
 ## Context
 
-PostHog exposes a hosted MCP endpoint at `https://mcp.posthog.com/mcp` — free, no self-hosting, browser OAuth on first use, covering insights/HogQL, feature flags, experiments, error tracking and session data. There are two ways to reach it from this machine, and the repo already has both patterns in place: the `MCP_HTTP_SERVERS` array in `run_onchange_install-packages.sh.tmpl` (which registers the http servers user-scope via `claude mcp add`), and the `CC_MARKETPLACES` / `CC_PLUGINS` arrays plus `enabledPlugins` in `dot_claude/settings.json.tmpl` for Claude Code plugins.
+PostHog exposes a hosted MCP endpoint at `https://mcp.posthog.com/mcp` — free, no self-hosting, browser OAuth on first use, covering insights/HogQL, feature flags, experiments, error tracking and session data. There are two ways to reach it from this machine, and the repo already has both patterns in place: the `MCP_HTTP_SERVERS` array in `run_onchange_install-packages.sh.tmpl` (which registers the http servers user-scope via `claude mcp add`), and the `CC_MARKETPLACES` / `CC_PLUGINS` arrays plus `enabledPlugins` in `dot_claude/modify_settings.json.tmpl` for Claude Code plugins.
 
 The finding that shapes this design: **the official PostHog plugin is already published in the `claude-plugins-official` marketplace** — plugin name `posthog`, source `url` → `https://github.com/PostHog/ai-plugin.git`, pinned by commit sha — and that marketplace is already registered both in `CC_MARKETPLACES` (`anthropics/claude-plugins-official`) and in `extraKnownMarketplaces` with `autoUpdate: true`. The plugin ships its own MCP definition:
 
@@ -61,7 +61,7 @@ Renovate's custom manager for the install script matches `pkg@version` strings; 
 
 ### D4: No PostHog tools in `permissions.allow`
 
-The allow-list in `dot_claude/settings.json.tmpl` enumerates read-only MCP tools one by one (`mcp__context7__query-docs`, `mcp__memory__read_graph`, `mcp__gh_grep__searchGitHub`), never by wildcard. The PostHog MCP is write-capable — it can create and update feature flags and insights and resolve issues — and `claude-user-preferences` already states that MCP write tools SHALL NOT be in the allow list. So no PostHog entry is added there.
+The allow-list in `dot_claude/modify_settings.json.tmpl` enumerates read-only MCP tools one by one (`mcp__context7__query-docs`, `mcp__memory__read_graph`, `mcp__gh_grep__searchGitHub`), never by wildcard. The PostHog MCP is write-capable — it can create and update feature flags and insights and resolve issues — and `claude-user-preferences` already states that MCP write tools SHALL NOT be in the allow list. So no PostHog entry is added there.
 
 Note what that does and does not buy. `permissions.defaultMode` is `auto`, so a tool matching no allow, ask, or deny rule is reviewed by the safety classifier, not confirmed by the user. Staying off the allow list means "classifier-reviewed", not "user-confirmed".
 
@@ -77,7 +77,7 @@ Also worth recording, because it is the first thing anyone will reach for: **no 
 
 `claude-code-plugins` owns "install and enable the plugin" (the `CC_PLUGINS` entry and the `enabledPlugins` key), matching the existing `code-simplifier@claude-plugins-official` requirement. `mcp-global-config` owns "which MCP servers exist and where" — the OpenCode remote entry, the install-script exclusion, and the manual OAuth note. This is consistent with `opencode-user-config`, which already delegates ownership of the OpenCode `mcp` block to `mcp-global-config`.
 
-The `mcp-global-config` delta uses `## ADDED Requirements` exclusively and does not touch the "N MCP servers" table requirement, which the in-flight `add-fallow` change is already modifying (13 → 14). Both changes can therefore be archived in either order.
+The `mcp-global-config` delta uses `## ADDED Requirements` exclusively and does not touch the "N MCP servers" table requirement, which `add-fallow` already took from 13 to 14 before being archived. Nothing here changes that count, since PostHog is not registered by the install script.
 
 ### D6: Docs as implementation tasks, not spec deltas
 

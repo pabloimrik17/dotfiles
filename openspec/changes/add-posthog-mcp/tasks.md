@@ -3,7 +3,7 @@
 ## 1. Global layer
 
 - [x] 1.1 Add `posthog@claude-plugins-official` to `CC_PLUGINS` in `run_onchange_install-packages.sh.tmpl` (Group 8); leave `CC_MARKETPLACES` untouched — `anthropics/claude-plugins-official` is already registered
-- [x] 1.2 Add `"posthog@claude-plugins-official": true` to `enabledPlugins` in `dot_claude/settings.json.tmpl`, in alphabetical position between `plugin-dev@claude-plugins-official` and `skill-creator@claude-plugins-official`
+- [x] 1.2 Add `"posthog@claude-plugins-official": true` to `enabledPlugins` in `dot_claude/modify_settings.json.tmpl`, in alphabetical position between `plugin-dev@claude-plugins-official` and `skill-creator@claude-plugins-official`
 - [x] 1.3 Add a `posthog` entry to the `mcp` block of `dot_config/opencode/opencode.jsonc`: `type: "remote"`, `url: "https://mcp.posthog.com/mcp"`, `enabled: true` — same shape as `gh_grep` in the project-level `opencode.json`
 - [x] 1.4 Add a PostHog line to the "Manual Installation Required" section of the install script, matching the existing OAuth lines: `/mcp` → `plugin:posthog:posthog` in Claude Code, `opencode mcp auth` in OpenCode
 - [x] 1.5 Confirm no `posthog` entry is added to `MCP_HTTP_SERVERS` or `MCP_STDIO_SERVERS`, and no `mcp__posthog__*` rule is added to `permissions.allow` (design D1 and D4)
