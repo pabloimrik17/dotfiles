@@ -4,7 +4,7 @@
 
 ### Requirement: Sentry MCP marketplace is registered
 
-The install script (`run_onchange_install-packages.sh.tmpl`) SHALL include `getsentry/sentry-mcp` in the `CC_MARKETPLACES` array, and the Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include a `sentry-mcp` entry in `extraKnownMarketplaces` with source `github` and repo `getsentry/sentry-mcp`, with `autoUpdate` set to `true`. Registration SHALL go through the group's existing loop (`marketplace_installed` pre-scan guard, then `run_claude_step "marketplace $repo" claude plugin marketplace add "$repo"`).
+The install script (`run_onchange_install-packages.sh.tmpl`) SHALL include `getsentry/sentry-mcp` in the `CC_MARKETPLACES` array, and the Claude Code settings source (`dot_claude/modify_settings.json.tmpl`) SHALL include a `sentry-mcp` entry in `extraKnownMarketplaces` with source `github` and repo `getsentry/sentry-mcp`, with `autoUpdate` set to `true`. Registration SHALL go through the group's existing loop (`marketplace_installed` pre-scan guard, then `run_claude_step "marketplace $repo" claude plugin marketplace add "$repo"`).
 
 #### Scenario: Fresh machine setup
 

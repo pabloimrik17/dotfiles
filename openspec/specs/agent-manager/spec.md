@@ -2,10 +2,8 @@
 
 ## Purpose
 
-Install and integrate the Agent of Empires (`aoe`) agent manager and the Conductor cask via the dotfiles' brew groups, ship a deliberate chezmoi-managed AoE config at `~/.agent-of-empires/config.toml`, and guarantee `aoe` is only ever launched on demand by the user (never automatically), since it opens an interactive TUI.
-
+Install and integrate the Agent of Empires (`aoe`) agent manager and the Conductor cask via the dotfiles' brew groups, ship a deliberate chezmoi-managed AoE config at `~/.config/agent-of-empires/config.toml`, and guarantee `aoe` is only ever launched on demand by the user (never automatically), since it opens an interactive TUI.
 ## Requirements
-
 ### Requirement: aoe binary is installed via the brew packages group
 
 The install script `run_onchange_install-packages.sh.tmpl` SHALL include `aoe` in the `BREW_PACKAGES` array under the `{{ if eq .chezmoi.os "darwin" }}` branch. `aoe` SHALL be installed from `homebrew-core` (no `BREW_TAPS` entry required) using the same idempotency check applied to every other CLI in the array (`command -v aoe` → skip).
@@ -87,25 +85,12 @@ The `ALL_CASKS` array in the install script SHALL include a `conductor` entry (f
 - **WHEN** the cask group runs on a host where `/Applications/Conductor.app` exists OR `brew list --cask conductor` succeeds
 - **THEN** the entry is detected as installed by `is_cask_installed` and is excluded from the `PENDING_CASKS` list
 
-### Requirement: AoE configuration is chezmoi-managed at `~/.agent-of-empires/config.toml`
-
-The dotfiles source tree SHALL contain a `private_dot_agent-of-empires/config.toml` file targeting `~/.agent-of-empires/config.toml` (AoE reads from `~/.agent-of-empires/` on macOS, breaking the `~/.config/` convention). The file SHALL be applied unconditionally on `chezmoi apply` (no per-host gating).
-
-#### Scenario: Config file present after chezmoi apply
-
-- **WHEN** the user runs `chezmoi apply` on any supported host
-- **THEN** `~/.agent-of-empires/config.toml` SHALL exist and be readable by the current user
-
-#### Scenario: Config file is private (chezmoi `private_` prefix)
-
-- **WHEN** `chezmoi apply` materializes the file
-- **THEN** the resulting `~/.agent-of-empires/config.toml` SHALL have permissions `0600` or stricter
-
 ### Requirement: AoE config sets deliberate knobs for power use
 
-The `~/.agent-of-empires/config.toml` managed by chezmoi SHALL contain the following table entries (or their schema-equivalent keys after `aoe init` verification):
+The `~/.config/agent-of-empires/config.toml` managed by chezmoi SHALL contain the following table entries (or their schema-equivalent keys after `aoe init` verification):
 
-- `[session]` with `default_tool = "claude"` and `agent_status_hooks = true`.
+- `[session]` with `default_tool = "claude"`, `agent_status_hooks = true`, and `confirm_delete = true` (AoE 1.12.0: confirmation guard before deleting a session from the TUI).
+- `[acp]` with `rate_limit_auto_resume = true` (AoE 1.10.1: opt-in daemon auto-resume of ACP sessions once the adapter-reported rate-limit reset time passes).
 - `[status_hooks]` with `on_waiting` and `on_idle` commands that invoke `terminal-notifier` (already provided by `cli-tool-expansion`).
 - `[worktree]` with `init_submodules = false`.
 - `[tmux]` with `status_bar = "disabled"` (user owns `~/.tmux.conf`).
@@ -123,6 +108,16 @@ The config MAY include a `[theme]` block matching the rest of the dotfiles' Catp
 
 - **WHEN** the config file is rendered by chezmoi
 - **THEN** the rendered file contains `agent_status_hooks = true` under a `[session]` table
+
+#### Scenario: Session delete guarded
+
+- **WHEN** the config file is rendered by chezmoi
+- **THEN** the rendered file contains `confirm_delete = true` under a `[session]` table
+
+#### Scenario: Rate-limited ACP sessions auto-resume
+
+- **WHEN** the config file is rendered by chezmoi
+- **THEN** the rendered file contains `rate_limit_auto_resume = true` under an `[acp]` table
 
 #### Scenario: status_hooks use terminal-notifier
 
@@ -158,21 +153,6 @@ The dotfiles SHALL NOT invoke `aoe` from any chezmoi `run_*` script, git hook, s
 - **WHEN** any file in the dotfiles source tree is searched for `aoe` as a command invocation (not as a string in `BREW_PACKAGES`, an `info` line, a manual-instruction line, or a comment)
 - **THEN** zero matches are found — `aoe` appears only in install-script package lists, the closing summary, manual-instruction lines, and user-facing docs
 
-### Requirement: AoE config path is verified at first install
-
-The implementation tasks SHALL include a manual verification step that runs `aoe init` (or equivalent) on a clean state and confirms AoE reads from `~/.agent-of-empires/config.toml` on macOS. If verification reveals a different path (e.g., `~/.config/agent-of-empires/`), the chezmoi target SHALL be relocated accordingly and this spec SHALL be updated via a follow-up delta.
-
-#### Scenario: Verified path is `~/.agent-of-empires/`
-
-- **WHEN** the user runs `aoe init` on a host without an existing config and inspects which file AoE creates or reads
-- **THEN** the path is `~/.agent-of-empires/config.toml`
-- **AND** no change to the chezmoi target is required
-
-#### Scenario: Verified path differs from documented expectation
-
-- **WHEN** verification reveals AoE actually reads from a different path
-- **THEN** the chezmoi source path is moved accordingly AND a follow-up change updates this spec to reference the verified path
-
 ### Requirement: AoE launches claude under the project Node version
 
 AoE-launched claude sessions SHALL pick up the project's Node version through the `claude-node-launch` shim. Because AoE runs the agent in a sandbox with an environment passthrough allowlist (not the user's interactive shell), the AoE config managed by chezmoi SHALL include `NVM_DIR` in its sandbox `environment` passthrough so the shim can resolve the version from the filesystem (`$NVM_DIR/versions/node/`) without needing the `nvm` shell function. AoE SHALL invoke `claude` such that the PATH shim intercepts it — either by preserving the shim's PATH ordering inside the sandbox, or via an agent-command override pointing at the shim if AoE supports one.
@@ -189,7 +169,7 @@ AoE-launched claude sessions SHALL pick up the project's Node version through th
 
 ### Requirement: AoE forces tmux clipboard passthrough
 
-The AoE config (`~/.agent-of-empires/config.toml`, chezmoi-managed) SHALL set `[tmux].clipboard = "enabled"` so AoE applies `set-clipboard on` and `allow-passthrough on` to its tmux sessions, letting OSC 52 clipboard writes from wrapped agents reach the terminal. The default `"auto"` is a no-op when a user-owned `~/.tmux.conf` exists.
+The AoE config (`~/.config/agent-of-empires/config.toml`, chezmoi-managed) SHALL set `[tmux].clipboard = "enabled"` so AoE applies `set-clipboard on` and `allow-passthrough on` to its tmux sessions, letting OSC 52 clipboard writes from wrapped agents reach the terminal. The default `"auto"` is a no-op when a user-owned `~/.tmux.conf` exists.
 
 #### Scenario: Clipboard passthrough enabled
 
@@ -198,12 +178,42 @@ The AoE config (`~/.agent-of-empires/config.toml`, chezmoi-managed) SHALL set `[
 
 ### Requirement: AoE tmux mouse mode is deterministic
 
-The AoE config SHALL set `[tmux].mouse = "disabled"` so AoE never touches tmux mouse mode, leaving the user-owned `~/.tmux.conf` (`mouse on`) authoritative on AoE sessions, mirroring the existing `status_bar = "disabled"` rationale.
+The AoE config SHALL set `[tmux].mouse = "auto"`, the value AoE documents as respecting the user's tmux config: AoE leaves the session-local `mouse` option unset, so the global set by `~/.tmux.conf` resolves through instead of being shadowed. `~/.tmux.conf` SHALL remain the single authority for mouse behavior inside aoe panes.
 
-#### Scenario: Mouse mode pinned
+The value SHALL NOT be `"disabled"`: in AoE that means "apply `mouse off`", written as a session-local tmux option, which shadows the global setting rather than deferring to it.
+
+The value SHALL NOT be `"enabled"` either. It produces the same observable behavior as `"auto"` on a host whose `~/.tmux.conf` sets `mouse on`, but it does so by having AoE assert the value independently, so the two configs can silently disagree — the arrangement that caused this requirement to be wrong in the first place. Under `"auto"` AoE asserts no value of its own, so there is nothing that can disagree with `~/.tmux.conf`.
+
+The key SHALL remain present in the chezmoi-managed config rather than being omitted. Omission is behaviorally identical to `"auto"`, but an explicit entry pins the no-op: it records the decision and lets `chezmoi apply` revert any value written into the live config by hand or by AoE.
+
+Because the mouse is active inside aoe panes, this requirement depends on the tmux clipboard passthrough requirement remaining satisfied: tmux copy-mode selections reach the system clipboard only via `set-clipboard on` + `allow-passthrough on`.
+
+#### Scenario: Mouse mode pinned to auto
 
 - **WHEN** the AoE config is rendered by chezmoi
-- **THEN** it contains `mouse = "disabled"` under a `[tmux]` table
+- **THEN** it contains `mouse = "auto"` under a `[tmux]` table
+
+#### Scenario: AoE defers the tmux mouse option rather than overriding it
+
+- **WHEN** a new aoe session is created after the config is applied
+- **THEN** the session resolves `mouse` to `on`
+- **AND** any session-local `mouse` value equals the global one set by `~/.tmux.conf`, so it never shadows it with a different value
+
+#### Scenario: Clicking a pane selects it
+
+- **WHEN** the user clicks a pane in an aoe session
+- **THEN** that pane becomes the active pane
+
+#### Scenario: Wheel scrolls the pane, not the agent
+
+- **WHEN** the user scrolls the wheel over an aoe pane running an agent that is neither in alternate-screen nor requesting mouse reporting
+- **THEN** the pane enters copy-mode and scrolls its own scrollback
+- **AND** the agent's TUI does not receive the scroll as input
+
+#### Scenario: Applications that request the mouse still receive it
+
+- **WHEN** the user scrolls the wheel over an aoe pane whose application is in alternate-screen or has enabled mouse reporting
+- **THEN** the wheel events are forwarded to that application unchanged
 
 ### Requirement: AoE notifies on session error
 
@@ -216,13 +226,20 @@ The AoE config `[status_hooks]` table SHALL include an `on_error` command that i
 
 ### Requirement: AoE config preserves runtime writeback under chezmoi
 
-The chezmoi management of `~/.agent-of-empires/config.toml` SHALL preserve AoE's runtime writeback tables (`[app_state]`, `[web]`, `[cockpit]`, `[logging]`, and default-expanded keys) rather than clobbering them on `chezmoi apply`, while still enforcing the deliberately-managed keys (`[theme]`, `[session]`, `[worktree]`, `[tmux]`, `[updates]`, `[status_hooks]`, `[sandbox]`, `[sound]`, `[tools.lazygit]`). The chezmoi target file SHALL remain mode `0600`.
+The chezmoi management of `~/.config/agent-of-empires/config.toml` SHALL preserve AoE's runtime writeback tables (`[web]`, `[logging]`, and default-expanded keys) rather than clobbering them on `chezmoi apply`, while still enforcing the deliberately-managed keys (`[theme]`, `[session]`, `[acp]`, `[worktree]`, `[tmux]`, `[updates]`, `[status_hooks]`, `[sandbox]`, `[sound]`, `[tools.lazygit]`). The chezmoi target file SHALL remain mode `0600`.
+
+Two corrections to the previous wording. `[cockpit]` no longer exists — AoE renamed it to `[acp]` in 1.11.0, which is before this repo's baseline, so the table named in the old requirement has been absent for three releases while `[acp]` was already being managed. And `[app_state]` is no longer part of this file at all: AoE 1.13.0 moved it to a sibling `state.toml`, which is unmanaged and left alone.
 
 #### Scenario: Apply does not drop AoE runtime state
 
-- **WHEN** AoE has written runtime tables (e.g. `[app_state]`, `[web]`) into the live config and the user runs `chezmoi apply`
-- **THEN** those runtime tables remain present in `~/.agent-of-empires/config.toml`
+- **WHEN** AoE has written runtime tables (for example `[web]`) into the live config and the user runs `chezmoi apply`
+- **THEN** those runtime tables remain present in `~/.config/agent-of-empires/config.toml`
 - **AND** the deliberately-managed keys reflect the chezmoi-managed values
+
+#### Scenario: Session state file is not managed
+
+- **WHEN** AoE maintains `state.toml` alongside the config
+- **THEN** chezmoi SHALL neither create, modify nor remove that file
 
 #### Scenario: Re-apply is quiet (no churn)
 
@@ -232,16 +249,21 @@ The chezmoi management of `~/.agent-of-empires/config.toml` SHALL preserve AoE's
 #### Scenario: Managed config stays private
 
 - **WHEN** chezmoi materializes the config
-- **THEN** `~/.agent-of-empires/config.toml` has permissions `0600` or stricter
+- **THEN** `~/.config/agent-of-empires/config.toml` has permissions `0600` or stricter
 
 ### Requirement: AoE uses a Catppuccin Mocha theme
 
-The AoE config SHALL set `[theme].name = "catppuccin-mocha"` referencing a chezmoi-managed custom theme at `private_dot_agent-of-empires/themes/catppuccin-mocha.toml` (AoE ships no built-in Catppuccin dark theme), aligning AoE with the rest of the Catppuccin Mocha stack. `color_mode` SHALL remain `truecolor`.
+The AoE config SHALL set `[theme].name = "catppuccin-mocha"` referencing a chezmoi-managed custom theme at `dot_config/private_agent-of-empires/themes/catppuccin-mocha.toml` (AoE ships no built-in Catppuccin dark theme), aligning AoE with the rest of the Catppuccin Mocha stack. `color_mode` SHALL remain `truecolor`. The theme SHALL define `unread = "#94e2d5"` (Mocha teal) so the unread session state introduced in AoE 1.11.2 is distinguishable from accent-colored elements (omitting the key falls back to the theme accent, blue `#89b4fa`, which this theme already uses for accent/title/hint) while respecting AoE's waiting > unread > idle luminance ordering.
 
 #### Scenario: Custom Mocha theme referenced
 
 - **WHEN** the AoE config is rendered by chezmoi
 - **THEN** `[theme].name = "catppuccin-mocha"` and a chezmoi-managed `themes/catppuccin-mocha.toml` exists
+
+#### Scenario: Unread sessions visually distinct
+
+- **WHEN** the theme file is rendered by chezmoi
+- **THEN** it contains `unread = "#94e2d5"`
 
 ### Requirement: AoE plays state-transition sounds
 
@@ -260,3 +282,85 @@ The AoE config SHALL define a `[tools.lazygit]` tool-session bound to `Alt+g` (l
 
 - **WHEN** the AoE config is rendered by chezmoi
 - **THEN** `[tools.lazygit]` has `command = "lazygit"` and `hotkey = "Alt+g"`
+
+### Requirement: AoE configuration is chezmoi-managed at `~/.config/agent-of-empires/config.toml`
+
+The dotfiles source tree SHALL contain `dot_config/private_agent-of-empires/modify_private_config.toml`, which targets `~/.config/agent-of-empires/config.toml` (AoE ≥1.10.1 reads `$XDG_CONFIG_HOME/agent-of-empires/` on macOS when that directory exists, preferring it over the legacy `~/.agent-of-empires/`). The file SHALL be applied unconditionally on `chezmoi apply` (no per-host gating). No `~/.agent-of-empires/` directory SHALL remain after migration (its presence alongside the XDG dir would strand legacy state).
+
+#### Scenario: Config file present after chezmoi apply
+
+- **WHEN** the user runs `chezmoi apply` on any supported host
+- **THEN** `~/.config/agent-of-empires/config.toml` SHALL exist and be readable by the current user
+
+#### Scenario: Config file is private (chezmoi `private_` attribute)
+
+- **WHEN** `chezmoi apply` materializes the file
+- **THEN** the resulting `~/.config/agent-of-empires/config.toml` SHALL have permissions `0600` or stricter
+
+#### Scenario: Legacy dir absent after migration
+
+- **WHEN** the migration has run on a host that previously used `~/.agent-of-empires/`
+- **THEN** `~/.agent-of-empires/` no longer exists and aoe reads (and writes runtime state to) `~/.config/agent-of-empires/`
+
+#### Scenario: AoE reads the managed file
+
+- **WHEN** the user runs `aoe settings explain <key>` for a `MANAGED` key whose value differs from AoE's schema default
+- **THEN** AoE reports the dotfiles value with `source: user value`, confirming the managed path is the one it reads
+- **AND** for a `MANAGED` key whose value matches the schema default, AoE reports `source: schema default`, which does not by itself mean the managed file is unread
+
+### Requirement: AoE XDG config path is verified at first install
+
+The implementation tasks SHALL include a manual verification step confirming AoE reads from `~/.config/agent-of-empires/config.toml` on macOS (AoE ≥1.10.1 prefers `$XDG_CONFIG_HOME/agent-of-empires/` when the directory exists; the legacy `~/.agent-of-empires/` is only used when no XDG dir exists). If verification reveals different precedence, the chezmoi target SHALL be relocated accordingly and this spec SHALL be updated via a follow-up delta.
+
+#### Scenario: Verified path is `~/.config/agent-of-empires/`
+
+- **WHEN** the user launches `aoe` on a host where `~/.config/agent-of-empires/` exists and `~/.agent-of-empires/` does not
+- **THEN** AoE reads and writes `~/.config/agent-of-empires/config.toml`
+- **AND** no change to the chezmoi target is required
+
+#### Scenario: Verified path differs from documented expectation
+
+- **WHEN** verification reveals AoE actually reads from a different path
+- **THEN** the chezmoi source path is moved accordingly AND a follow-up change updates this spec to reference the verified path
+
+### Requirement: AoE trash retention is pinned to 10 days
+
+Discarding an AoE session moves it to the trash instead of deleting it: transcript and worktree survive until retention expires. That window SHALL be a dotfiles-managed knob pinned to `10`, not inherited from AoE's schema default (`30`). AoE may rewrite the live value between applies; `chezmoi apply` SHALL restore it to `10`.
+
+#### Scenario: Retention pinned in the managed config
+
+- **WHEN** chezmoi materializes `~/.config/agent-of-empires/config.toml`
+- **THEN** the file contains `trash_retention_days = 10` under the `[session]` table
+
+#### Scenario: AoE resolves the value as a user value
+
+- **WHEN** the user runs `aoe settings explain session.trash_retention_days` after `chezmoi apply`
+- **THEN** the resolved value is `10`
+- **AND** the `source` is `user value`, not `schema default`
+
+#### Scenario: Retention survives AoE runtime writeback
+
+- **WHEN** AoE rewrites the config at runtime and `chezmoi apply` runs afterwards
+- **THEN** `trash_retention_days` is back to `10` if AoE had altered it
+- **AND** the other tables written by AoE are preserved intact
+
+### Requirement: The config merge runs isolated from the invoking directory
+
+The mechanism that merges managed keys into the AoE config SHALL resolve its own runtime dependencies without reference to any project rooted at the current working directory.
+
+`chezmoi apply` inherits the directory it was invoked from. Without isolation the merge engine walks upward looking for a project to attach to, with two observed consequences: from a directory whose project cannot be resolved, the merge is skipped while the apply still reports success — so the managed keys silently do not land; and from a directory whose project does resolve, the engine writes environment and lockfile artifacts into that unrelated repository.
+
+This is a pre-existing defect, not a consequence of any version in this upgrade.
+
+#### Scenario: Apply from inside an unrelated project
+
+- **WHEN** `chezmoi apply` is run from a working directory belonging to another project
+- **THEN** the managed AoE keys SHALL be applied to the config
+- **AND** no files SHALL be created in that other project
+
+#### Scenario: Merge failure is reported
+
+- **WHEN** the merge engine fails for any reason
+- **THEN** the live config SHALL be passed through unchanged
+- **AND** a diagnostic SHALL reach standard error rather than being suppressed
+

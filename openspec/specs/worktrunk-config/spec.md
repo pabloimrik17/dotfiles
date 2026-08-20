@@ -3,9 +3,7 @@
 ## Purpose
 
 Manage worktrunk user configuration via chezmoi, including post-create hooks for automatic package manager detection and dependency installation in new worktrees.
-
 ## Requirements
-
 ### Requirement: Chezmoi-managed user config
 
 A worktrunk user configuration file SHALL be managed by chezmoi at `dot_config/worktrunk/config.toml`, targeting `~/.config/worktrunk/config.toml`.
@@ -138,13 +136,18 @@ The user config SHALL define a `[step.copy-ignored]` section with an `exclude` l
 
 ### Requirement: LLM branch summaries enabled in list view
 
-The user config SHALL set `[list].summary = true` AND `[list].full = true` so that plain `wt list` and the `wt switch` picker display LLM-generated summaries for each branch, generated via the configured `[commit.generation].command`. Worktrunk renders the `Summary` column only when `full` mode is active (either via the `--full` flag or `[list].full = true`); enabling both keys together honors the user's intent to see summaries on every list invocation without typing `--full`.
+The user config SHALL pin the `wt list` layout with `[list].columns = ["branch", "working-diff", "branch-diff", "ci", "summary"]` so plain `wt list` and the `wt switch` picker display the branch, HEAD± working diffstat, main…± branch diffstat, CI status, and the LLM-generated summary (generated via the configured `[commit.generation].command`) on every invocation. Since worktrunk 0.63 an explicit `columns` list overrides the `full`/`summary` presets, so the config SHALL NOT also set `[list].full` or `[list].summary` (redundant). Column identifiers are names, not display headers (`working-diff` renders "HEAD±", `branch-diff` renders "main…±").
 
 #### Scenario: list shows branch summaries
 
 - **GIVEN** the user has configured `[commit.generation].command`
 - **WHEN** the user runs `wt list`
 - **THEN** each branch row SHALL include an LLM-generated summary line
+
+#### Scenario: list shows CI and diffstat columns
+
+- **WHEN** the user runs `wt list`
+- **THEN** each row SHALL include the working diffstat (HEAD±), the branch diffstat (main…±), and CI status columns
 
 #### Scenario: switch picker shows summaries
 
@@ -154,7 +157,7 @@ The user config SHALL set `[list].summary = true` AND `[list].full = true` so th
 #### Scenario: Config applied on fresh machine
 
 - **WHEN** the user runs `chezmoi apply`
-- **THEN** `~/.config/worktrunk/config.toml` SHALL contain `summary = true` AND `full = true` under a `[list]` table
+- **THEN** `~/.config/worktrunk/config.toml` SHALL contain `columns = ["branch", "working-diff", "branch-diff", "ci", "summary"]` under a `[list]` table and no `full` or `summary` keys
 
 ### Requirement: Switch picker uses delta as pager
 
@@ -196,7 +199,7 @@ The post-start install-deps hook SHALL emit `echo` markers at three phases — d
 
 ### Requirement: User-defined wt aliases for daily operations
 
-The user config SHALL define a `[aliases]` table with three entries: `wtlog` (tail the log file of a named hook by resolving its path through `wt config state logs --format=json | jq` filtering on `<source>:<hook_type>:<name>`), `wtci` (wrapper for `wt list --full --branches`), and `mc` (wrapper for `wt merge` that overrides `WORKTRUNK_COMMIT__GENERATION__COMMAND` so the squash message is composed in `$EDITOR` instead of via the configured Claude haiku command).
+The user config SHALL define a `[aliases]` table with four entries: `wtlog` (tail the log file of a named hook by resolving its path through `wt config state logs --format=json | jq` filtering on `<source>:<hook_type>:<name>`), `wtci` (wrapper for `wt list --full --branches`), `wtpr` (wrapper for `wt switch --prs`, the worktrunk 0.63 picker mode listing open PRs with live CI/review state), and `mc` (wrapper for `wt merge` that overrides `WORKTRUNK_COMMIT__GENERATION__COMMAND` so the squash message is composed in `$EDITOR` instead of via the configured Claude haiku command).
 
 #### Scenario: wtlog tails a named hook log
 
@@ -220,6 +223,11 @@ The user config SHALL define a `[aliases]` table with three entries: `wtlog` (ta
 - **WHEN** the user runs `wt wtci`
 - **THEN** the alias SHALL execute `wt list --full --branches`
 
+#### Scenario: wtpr opens the PR picker
+
+- **WHEN** the user runs `wt wtpr`
+- **THEN** the alias SHALL execute `wt switch --prs`, opening the picker with open pull requests and their live CI/review state
+
 #### Scenario: mc opens editor for squash message
 
 - **WHEN** the user runs `wt mc`
@@ -229,7 +237,7 @@ The user config SHALL define a `[aliases]` table with three entries: `wtlog` (ta
 #### Scenario: Aliases present after chezmoi apply
 
 - **WHEN** the user runs `chezmoi apply`
-- **THEN** `~/.config/worktrunk/config.toml` SHALL contain a `[aliases]` table with keys `wtlog`, `wtci`, and `mc`
+- **THEN** `~/.config/worktrunk/config.toml` SHALL contain a `[aliases]` table with keys `wtlog`, `wtci`, `wtpr`, and `mc`
 
 ### Requirement: Global pre-start save-base hook for Claude worktrees
 
@@ -312,3 +320,36 @@ The user config SHALL define a `[pre-remove].sync-claude` hook that, when the wo
 
 - **WHEN** the user runs `chezmoi apply`
 - **THEN** `~/.config/worktrunk/config.toml` SHALL contain a `[pre-remove]` section that includes a `sync-claude` key whose body performs the guarded jq deep-merge described above
+
+### Requirement: List output schema is pinned
+
+The worktrunk user config SHALL set an explicit `json-schema` value under `[list]`.
+
+Worktrunk's `wt config update` writes this key into the user config whenever it is absent. Because the config is chezmoi-managed, that write is drift: the deployed file gains a key the source does not have, and the repo's standing invariant — that `wt config update` finds nothing to migrate — is broken. Any explicit value closes the loop; the pinned value is a deliberate opt-in to the current schema rather than a forced choice.
+
+#### Scenario: Config update finds nothing to migrate
+
+- **WHEN** `wt config update` is run after `chezmoi apply`
+- **THEN** it SHALL report no changes to make
+
+#### Scenario: Deployed config matches source
+
+- **WHEN** `wt config update` has been run and `chezmoi diff` follows
+- **THEN** no difference SHALL be reported for the worktrunk config
+
+### Requirement: Worktree location is pinned
+
+The worktrunk user config SHALL set a top-level `worktree-path` template placing new worktrees in a sibling directory named after the repository.
+
+Left unset, worktrunk uses its own default layout while Agent of Empires creates worktrees under a different one, so a single repository accumulates worktrees in two places at once. Pinning the location makes both agree. The setting affects only worktrees created after it lands; existing worktrees are unaffected.
+
+#### Scenario: New worktree lands in the shared layout
+
+- **WHEN** a worktree is created via `wt switch --create`
+- **THEN** it SHALL be placed in the repository's sibling worktrees directory
+
+#### Scenario: Existing worktrees are unaffected
+
+- **WHEN** the setting is applied on a machine with worktrees already created under the previous default
+- **THEN** those worktrees SHALL continue to function and SHALL NOT be relocated
+

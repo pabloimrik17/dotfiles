@@ -2,10 +2,10 @@
 
 See proposal.md — Why. What shapes the approach here:
 
-- `run_onchange_install-packages.sh.tmpl:838-968` (Group 8) owns Claude Code plugins: `CC_MARKETPLACES` (11 entries) and `CC_PLUGINS` (26), a pre-scan over `claude plugin marketplace list --json` / `claude plugin list --json`, the `marketplace_installed` / `plugin_installed` guards, and `run_claude_step` for the actual CLI calls.
-- `run_onchange_install-packages.sh.tmpl:992-1115` (Group 8.5) owns global MCP servers: `MCP_STDIO_SERVERS` (8) and `MCP_HTTP_SERVERS` (6), registered with `claude mcp add --scope user` into `~/.claude.json`, pre-scanned with `jq` over `.mcpServers`.
-- `dot_config/opencode/opencode.jsonc:18-24` holds OpenCode's user-scope `mcp` block, currently a single `expect` server of type `local`.
-- `dot_claude/settings.json.tmpl` carries `enabledPlugins` (`:8-39`), `extraKnownMarketplaces` (`:43-123`) and `permissions.allow` (`:231-298`), where MCP rules live at `:287-297`.
+- `run_onchange_install-packages.sh.tmpl:890-1023` (Group 8) owns Claude Code plugins: `CC_MARKETPLACES` (11 entries) and `CC_PLUGINS` (27), a pre-scan over `claude plugin marketplace list --json` / `claude plugin list --json`, the `marketplace_installed` / `plugin_installed` guards, and `run_claude_step` for the actual CLI calls.
+- `run_onchange_install-packages.sh.tmpl:1047-1170` (Group 8.5) owns global MCP servers: `MCP_STDIO_SERVERS` (8) and `MCP_HTTP_SERVERS` (6), registered with `claude mcp add --scope user` into `~/.claude.json`, pre-scanned with `jq` over `.mcpServers`.
+- `dot_config/opencode/opencode.jsonc:18-34` holds OpenCode's user-scope `mcp` block, currently a single `expect` server of type `local`.
+- `dot_claude/modify_settings.json.tmpl` carries `enabledPlugins` (`:85-118`), `extraKnownMarketplaces` (`:122-216`) and `permissions.allow` (`:315-388`), where the MCP rules sit at the end. It is a `modify_` script whose `MANAGED` blob is overlaid onto the live file, so unmanaged keys written by Claude Code and Agent of Empires survive `chezmoi apply`.
 - `renovate.json:45-87` has custom managers that only match `<pkg>@<version>` pins in `opencode.json`, `.mcp.json`, CI workflows, and — via a leading-colon pattern — the install script's MCP arrays.
 - The change `add-fallow` is open (14/17 tasks) and already carries a `MODIFIED` delta on `mcp-global-config`'s *"Global MCP servers are registered via Claude CLI in install script"* requirement, moving it from 13 to 14 servers.
 
@@ -86,7 +86,7 @@ The plugin has no version coordinate we control: `extraKnownMarketplaces` carrie
 Additive; nothing is removed or repointed.
 
 1. `chezmoi apply` runs the install script, which registers the marketplace and installs the plugin through the existing Group 8 loops. Already-present entries are skipped by the pre-scan.
-2. `chezmoi apply` writes `dot_claude/settings.json.tmpl` and `dot_config/opencode/opencode.jsonc`. The `enabledPlugins` entry is inert until the plugin is actually downloaded.
+2. `chezmoi apply` runs `dot_claude/modify_settings.json.tmpl` and writes `dot_config/opencode/opencode.jsonc`. The `enabledPlugins` entry is inert until the plugin is actually downloaded.
 3. First use triggers OAuth: `/mcp` in Claude Code, `opencode mcp auth sentry` in OpenCode.
 
 Rollback: remove the two array entries, the two settings entries, the six allow rules and the OpenCode block, then `claude plugin uninstall sentry-mcp@sentry-mcp`. Nothing else in the repo depends on any of them.

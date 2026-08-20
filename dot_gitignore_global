@@ -1,4 +1,9 @@
 # ~/.gitignore_global — managed by chezmoi
+#
+# The only global ignore file in effect. dot_gitconfig.tmpl sets
+# core.excludesFile, which *replaces* the XDG default (~/.config/git/ignore)
+# rather than stacking with it — patterns put there are silently dead. Add them
+# here.
 
 # macOS
 .DS_Store
@@ -50,3 +55,11 @@ coverage/
 # Temp
 tmp/
 temp/
+
+# Agent-local state — written into unrelated repos, so it belongs globally.
+# Unanchored: Claude Code writes a .claude/ wherever it is started, not just at
+# the repo root. Folded in from the now-removed ~/.config/git/ignore.
+**/.claude/settings.local.json
+# Root-anchored: manufactured by this repo's own worktrunk save-base hook, which
+# only ever writes to the worktree root's .claude/.
+.claude/.worktree-base

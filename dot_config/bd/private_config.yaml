@@ -1,0 +1,24 @@
+# beads user-global config — lands at ~/.config/bd/config.yaml
+# Managed by chezmoi; `private_` makes it 0600, matching what bd writes itself.
+#
+# Telemetry opt-out. beads 1.1.x+ ships `internal/metrics`: `main.go`'s
+# PersistentPreRunE calls `metrics.Init(…, resolveMetricsEnabled(), …)` — on
+# unless opted out — before the `skipsStoreInit` branch, so even a bare
+# `bd prime` reaches it, and `CloseAndFlush()` spawns a detached `bd send-metrics`
+# upload. The `beads` plugin declares `bd prime` hooks with an empty matcher, so
+# this fires on every SessionStart and PreCompact in every directory. `prime` is
+# in `firstRunNoticeSuppressedCommands`, so the consent banner never reaches the
+# hook — the collection is silent. Opting out here rather than accepting it.
+#
+# This file is the ONLY place that can turn metrics off: beads resolves consent
+# from the user-global config alone, never merged project/BEADS_DIR config, so a
+# repository's `.beads/config.yaml` cannot re-enable it. Equivalent to running
+# `bd metrics off` once, but declarative and reproducible on a new machine.
+#
+# `endpoint` is kept deliberately even though it is unused while disabled:
+# `EnsureUserConfigDefaults()` writes any MISSING key back on the next `bd` run,
+# which would drift this chezmoi-managed file. With both keys present it returns
+# without writing. Keep both.
+metrics:
+    disabled: true
+    endpoint: https://gastownhall-eventsapi.com/mp/collect

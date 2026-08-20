@@ -19,11 +19,11 @@ symbols:
     - EXLS
     - HLI
     - HLNE
-    - HRL
     - INTU
     - IPAR
     - ISRG
     - JKHY
+    - LMAT
     - LULU
     - MCD
     - MORN
@@ -32,11 +32,9 @@ symbols:
     - NOMD
     - ODD
     - PAYX
-    - PCTY
     - PLNT
     - PNR
     - PODD
     - ROL
-    - TYL
     - UHS
     - VEEV

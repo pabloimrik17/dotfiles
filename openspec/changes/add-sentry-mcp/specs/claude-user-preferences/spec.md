@@ -4,13 +4,13 @@
 
 ### Requirement: Default permission mode is auto
 
-The chezmoi template SHALL include `"defaultMode": "auto"` inside the `permissions` object in `dot_claude/settings.json.tmpl`. Because Claude Code (v2.1.142+) ignores `permissions.defaultMode: "auto"` set in project or local settings, this rule MUST live in the user-scope template, which renders to `~/.claude/settings.json`.
+The managed key set SHALL include `"defaultMode": "auto"` inside the `permissions` object in `dot_claude/modify_settings.json.tmpl`. Because Claude Code (v2.1.142+) ignores `permissions.defaultMode: "auto"` set in project or local settings, this rule MUST live in the user-scope source, which materializes `~/.claude/settings.json`.
 
 In auto mode, rules are still evaluated first, in the order deny → ask → allow. A matching `ask` rule forces a prompt even in auto mode, and even when a broader `allow` rule would otherwise match. Only actions that match no rule are routed to Claude Code's safety classifier, which runs without prompting the user.
 
 #### Scenario: Template sets auto as the default permission mode
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** the `permissions` object in `~/.claude/settings.json` SHALL contain `"defaultMode": "auto"`
 
 #### Scenario: New session starts in auto mode

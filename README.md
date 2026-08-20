@@ -60,7 +60,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 
 ## MCP Servers
 
-The install script registers 14 global MCP servers to `~/.claude.json` (the stdio set is shared with OpenCode). Sentry is the exception: it ships with the `sentry-mcp@sentry-mcp` Claude Code plugin (and a `remote` entry in the OpenCode user config) instead of being registered with `claude mcp add`. Atlassian, Figma, Linear, Notion, and Sentry authenticate via OAuth on first use; stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead).
+The install script registers 14 global MCP servers to `~/.claude.json` (the stdio set is shared with OpenCode). Atlassian, Figma, Linear, and Notion authenticate via OAuth on first use; stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and remote entries in the OpenCode config, so neither is part of that count; both authenticate via OAuth on first use.
 
 | Server          | Transport | Description                                | Auth / Setup                                                            |
 | --------------- | --------- | ------------------------------------------ | ----------------------------------------------------------------------- |
@@ -78,7 +78,8 @@ The install script registers 14 global MCP servers to `~/.claude.json` (the stdi
 | linear          | http      | Linear issues & projects                   | OAuth on first use                                                      |
 | notion          | http      | Notion pages & databases                   | OAuth on first use                                                      |
 | storybook       | http      | Local Storybook component context          | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
-| sentry          | http      | Issues, traces, and Seer root-cause runs   | OAuth on first use — provided by the `sentry-mcp@sentry-mcp` plugin     |
+| posthog         | http      | Product analytics, feature flags, errors   | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
+| sentry          | http      | Issues, traces, and Seer root-cause runs   | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
 
 ## Setup
 

@@ -3,9 +3,7 @@
 ## Purpose
 
 Claude HUD statusline plugin configuration managed by chezmoi — display thresholds and git status options.
-
 ## Requirements
-
 ### Requirement: Git ahead/behind is enabled
 
 The claude-hud config SHALL set `gitStatus.showAheadBehind` to `true`.
@@ -71,9 +69,9 @@ The claude-hud config SHALL set `display.sevenDayThreshold` to `70`.
 
 ### Requirement: Statusline command sets COLUMNS for subprocess mode
 
-The chezmoi template for `statusLine.command` in `dot_claude/settings.json.tmpl` SHALL prefix the bun invocation with `COLUMNS=200` to prevent line wrapping when the plugin runs as a subprocess without terminal width information.
+The managed `statusLine.command` in `dot_claude/modify_settings.json.tmpl` SHALL export `COLUMNS=200` inside its `bash -c` invocation, ahead of the bun `exec`, to prevent line wrapping when the plugin runs as a subprocess without terminal width information.
 
-#### Scenario: COLUMNS is present in the rendered command
+#### Scenario: COLUMNS is present in the materialized command
 
 - **WHEN** `chezmoi cat ~/.claude/settings.json` is executed
 - **THEN** the `statusLine.command` value SHALL contain `COLUMNS=200` before the bun binary path
@@ -87,4 +85,5 @@ The chezmoi template for `statusLine.command` in `dot_claude/settings.json.tmpl`
 #### Scenario: Fix is removed after upstream resolution
 
 - **WHEN** jarrodwatts/claude-hud#404 is resolved and the plugin handles missing terminal width gracefully
-- **THEN** the `COLUMNS=200` prefix MAY be removed from the template without functional impact
+- **THEN** the `COLUMNS=200` export MAY be removed from the template without functional impact
+

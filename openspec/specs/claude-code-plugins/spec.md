@@ -3,12 +3,10 @@
 ## Purpose
 
 Claude Code plugin configuration and installation managed by chezmoi -- plugin enablement in settings and CLI tool installation via setup scripts.
-
 ## Requirements
-
 ### Requirement: Plannotator plugin is enabled by default
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"plannotator@plannotator": true` in the `enabledPlugins` object.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"plannotator@plannotator": true` in the `enabledPlugins` object.
 
 #### Scenario: Fresh machine setup
 
@@ -51,7 +49,7 @@ The install script (`run_once_install-packages.sh.tmpl`) SHALL include a dedicat
 
 ### Requirement: Expo consolidated plugin is enabled by default
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"expo@expo-plugins": true` in the `enabledPlugins` object.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"expo@expo-plugins": true` in the `enabledPlugins` object.
 
 #### Scenario: Fresh machine setup
 
@@ -65,7 +63,7 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 
 ### Requirement: Beads plugin is enabled by default
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"beads@beads-marketplace": true` in the `enabledPlugins` object.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"beads@beads-marketplace": true` in the `enabledPlugins` object.
 
 #### Scenario: Fresh machine setup
 
@@ -79,17 +77,25 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 
 ### Requirement: Beads marketplace is registered
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include a `beads-marketplace` entry in `extraKnownMarketplaces` with source `github` and repo `steveyegge/beads`, with `autoUpdate` set to `true`.
+The Claude Code settings SHALL include a `beads-marketplace` entry in `extraKnownMarketplaces` with source `github` and repo `gastownhall/beads`, with `autoUpdate` set to `true`.
+
+Upstream renamed the organisation at v1.0.0. The previous value (`steveyegge/beads`) resolves only through a GitHub redirect. Claude Code keys its registry by the marketplace *name* read from the repository's own manifest, which is unchanged, so repointing the repo is an in-place correction rather than a re-registration.
 
 #### Scenario: Fresh machine setup
 
 - **WHEN** `chezmoi apply` is run on a machine without Claude Code settings
-- **THEN** `~/.claude/settings.json` is created with `beads-marketplace` in `extraKnownMarketplaces` pointing to `steveyegge/beads`
+- **THEN** `~/.claude/settings.json` is created with `beads-marketplace` in `extraKnownMarketplaces` pointing to `gastownhall/beads`
 
 #### Scenario: Marketplace auto-updates
 
 - **WHEN** Claude Code checks for plugin updates
 - **THEN** the beads marketplace is included in the auto-update cycle because `autoUpdate` is `true`
+
+#### Scenario: Marketplace identity is unchanged by the repoint
+
+- **WHEN** the repo value changes from the old organisation to `gastownhall/beads`
+- **THEN** the registered marketplace SHALL remain the single entry named `beads-marketplace`
+- **AND** the installed `beads@beads-marketplace` plugin SHALL NOT be orphaned or duplicated
 
 ### Requirement: Claude CLI commands use PTY wrapper on macOS
 
@@ -113,12 +119,16 @@ The `run_claude_step()` helper SHALL wrap Claude CLI commands with `script -q` o
 
 ### Requirement: Beads plugin and marketplace are registered in install script
 
-The install script (`run_onchange_install-packages.sh.tmpl`) SHALL register the `beads-marketplace` marketplace (`steveyegge/beads`) and install the `beads@beads-marketplace` plugin in the Claude Code plugin dependencies group. Before registering a marketplace, the script SHALL check `claude plugin marketplace list --json` and skip if the marketplace repo is already registered. Before installing a plugin, the script SHALL check `claude plugin list --json` and skip if the plugin ID is already installed.
+The install script SHALL register the `beads-marketplace` marketplace (`gastownhall/beads`) and install the `beads@beads-marketplace` plugin in the Claude Code plugin dependencies group. Before registering a marketplace, the script SHALL check `claude plugin marketplace list --json` and skip if the marketplace repo is already registered. Before installing a plugin, the script SHALL check `claude plugin list --json` and skip if the plugin ID is already installed.
+
+The already-registered check compares the raw repo string, so on the first run after the repoint the check will not match and the script will re-attempt registration. That attempt is harmless — the group's runner does not fail the apply — but the noise can be avoided by removing the marketplace once beforehand.
+
+The group's no-prompt path is gated on all three counters being zero: the `plannotator` CLI present, no pending marketplaces, no pending plugins. A missing CLI alone still prompts, even with every marketplace and plugin already present.
 
 #### Scenario: First run with Claude Code installed
 
 - **WHEN** `chezmoi apply` runs the install script and the user confirms the Claude Code plugin dependencies group
-- **THEN** the beads marketplace is registered via `claude plugin marketplace add steveyegge/beads` and the beads plugin is installed via `claude plugin install beads@beads-marketplace`
+- **THEN** the beads marketplace is registered via `claude plugin marketplace add gastownhall/beads` and the beads plugin is installed via `claude plugin install beads@beads-marketplace`
 
 #### Scenario: Claude Code not installed
 
@@ -130,6 +140,12 @@ The install script (`run_onchange_install-packages.sh.tmpl`) SHALL register the 
 - **WHEN** `claude plugin marketplace list --json` output contains the marketplace repo
 - **THEN** the marketplace registration is skipped with an "already registered" message
 
+#### Scenario: First apply after the organisation repoint
+
+- **WHEN** the live registry still records the old organisation string and the install script runs
+- **THEN** the registration is re-attempted
+- **AND** the apply SHALL NOT fail as a result
+
 #### Scenario: Plugin already installed
 
 - **WHEN** `claude plugin list --json` output contains the plugin ID
@@ -138,11 +154,12 @@ The install script (`run_onchange_install-packages.sh.tmpl`) SHALL register the 
 #### Scenario: All marketplaces and plugins already present
 
 - **WHEN** every marketplace and every plugin in the group are already registered/installed
+- **AND** the `plannotator` CLI is already on `PATH`
 - **THEN** the script prints a summary ("CC marketplaces: N/N registered", "CC plugins: N/N installed") and skips the group without prompting
 
 ### Requirement: Code-simplifier plugin is enabled by default
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"code-simplifier@claude-plugins-official": true` in the `enabledPlugins` object.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"code-simplifier@claude-plugins-official": true` in the `enabledPlugins` object.
 
 #### Scenario: Fresh machine setup
 
@@ -156,7 +173,7 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 
 ### Requirement: SuperWhisper plugin is enabled by default on Apple Silicon
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"superwhisper@superwhisper": true` in the `enabledPlugins` object only when chezmoi renders the template on `darwin/arm64`. The entry SHALL be wrapped in a `{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }} ... {{ end }}` block. On any other architecture or OS the entry SHALL be absent from the rendered settings file. The rationale for the gate is that the plugin's hook binary at `/Applications/superwhisper.app/Contents/Resources/claude-hook` is `arm64`-only, so enabling the plugin on Intel causes "Bad CPU type in executable" errors on every stop hook.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"superwhisper@superwhisper": true` in the `enabledPlugins` object only when chezmoi renders the template on `darwin/arm64`. The entry SHALL be wrapped in a `{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }} ... {{ end }}` block. On any other architecture or OS the entry SHALL be absent from the materialized settings file. The rationale for the gate is that the plugin's hook binary at `/Applications/superwhisper.app/Contents/Resources/claude-hook` is `arm64`-only, so enabling the plugin on Intel causes "Bad CPU type in executable" errors on every stop hook.
 
 #### Scenario: Fresh machine setup on Apple Silicon
 
@@ -185,7 +202,7 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 
 ### Requirement: SuperWhisper marketplace is registered on Apple Silicon
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include a `superwhisper` entry in `extraKnownMarketplaces` with source `github` and repo `superultrainc/superwhisper-claude-code`, with `autoUpdate` set to `true`, only when chezmoi renders the template on `darwin/arm64`. The entry SHALL be wrapped in the same `{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }} ... {{ end }}` guard as the plugin entry, and SHALL include the leading comma inside the conditional block so the surrounding JSON stays valid on Intel.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include a `superwhisper` entry in `extraKnownMarketplaces` with source `github` and repo `superultrainc/superwhisper-claude-code`, with `autoUpdate` set to `true`, only when chezmoi renders the template on `darwin/arm64`. The entry SHALL be wrapped in the same `{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }} ... {{ end }}` guard as the plugin entry, and SHALL include the trailing comma inside the conditional block so the surrounding JSON stays valid on Intel.
 
 #### Scenario: Fresh machine setup on Apple Silicon
 
@@ -244,7 +261,7 @@ The step SHALL warn (and skip) if the `claude` CLI is not available. Failures fr
 
 ### Requirement: Commander plugin is enabled by default
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"commander@monolab": true` in the `enabledPlugins` object. Auto-update is inherited from the existing `monolab` entry in `extraKnownMarketplaces` (`autoUpdate: true`); no per-plugin auto-update field is added.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"commander@monolab": true` in the `enabledPlugins` object. Auto-update is inherited from the existing `monolab` entry in `extraKnownMarketplaces` (`autoUpdate: true`); no per-plugin auto-update field is added.
 
 #### Scenario: Fresh machine setup
 
@@ -265,3 +282,51 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 
 - **WHEN** Claude Code refreshes plugins
 - **THEN** `commander@monolab` is updated via the `monolab` marketplace entry's `autoUpdate: true` without a separate per-plugin auto-update field in `enabledPlugins`
+
+### Requirement: Fallow-skills marketplace and plugin are registered in install script
+
+The install script SHALL include `fallow-rs/fallow-skills` in the `CC_MARKETPLACES` array and the fallow-skills plugin in the `CC_PLUGINS` array, installed via the existing marketplace/plugin loops (`claude plugin marketplace add`, `claude plugin install fallow@fallow-skills`), with the same pre-scan skip-if-installed behavior as the other entries.
+
+#### Scenario: Fresh machine setup
+
+- **WHEN** the install script runs the Claude Code plugin dependencies group on a machine without the plugin
+- **THEN** the fallow-skills marketplace is registered and the plugin installed
+
+#### Scenario: Already installed
+
+- **WHEN** the marketplace and plugin are already present
+- **THEN** both are skipped with "already registered/installed" messages
+
+### Requirement: Fallow-skills plugin is enabled by default
+
+The managed key set of `dot_claude/modify_settings.json.tmpl` SHALL include the fallow-skills plugin entry (`"fallow@fallow-skills": true`, exact key as reported by `claude plugin list --json`) in the `enabledPlugins` object.
+
+#### Scenario: Fresh machine setup
+
+- **WHEN** `chezmoi apply` runs on a machine without Claude Code settings
+- **THEN** the rendered `~/.claude/settings.json` contains `fallow@fallow-skills` in `enabledPlugins`
+
+#### Scenario: Plugin not installed
+
+- **WHEN** the fallow-skills plugin has not been installed on the machine
+- **THEN** the `enabledPlugins` entry is inert and Claude Code operates normally without errors
+
+#### Scenario: Skill can reach the CLI
+
+- **WHEN** the fallow skill runs `npx fallow` inside a project
+- **THEN** it resolves the project-local devDependency if present, else falls back to the npm registry — independent of the global install
+
+### Requirement: Fallow-skills marketplace is registered
+
+The managed key set of `dot_claude/modify_settings.json.tmpl` SHALL include a `fallow-skills` entry in `extraKnownMarketplaces` with source `github` and repo `fallow-rs/fallow-skills`, with `autoUpdate` set to `true`.
+
+#### Scenario: Fresh machine setup
+
+- **WHEN** `chezmoi apply` runs on a machine without Claude Code settings
+- **THEN** the rendered `~/.claude/settings.json` contains `fallow-skills` in `extraKnownMarketplaces` pointing to `fallow-rs/fallow-skills`
+
+#### Scenario: Marketplace auto-updates
+
+- **WHEN** Claude Code checks for plugin updates
+- **THEN** the fallow-skills marketplace is included in the auto-update cycle because `autoUpdate` is `true`
+

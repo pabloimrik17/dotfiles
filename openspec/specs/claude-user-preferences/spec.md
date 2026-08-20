@@ -6,47 +6,47 @@ Claude Code user preference flags managed by chezmoi -- behavioral settings that
 ## Requirements
 ### Requirement: Extended thinking is always enabled
 
-The chezmoi template SHALL include `"alwaysThinkingEnabled": true` as a top-level key in `dot_claude/settings.json.tmpl`.
+The managed key set SHALL include `"alwaysThinkingEnabled": true` as a top-level key in `dot_claude/modify_settings.json.tmpl`.
 
 #### Scenario: Template includes alwaysThinkingEnabled
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** `~/.claude/settings.json` SHALL contain `"alwaysThinkingEnabled": true`
 
 ### Requirement: Voice mode is enabled
 
-The chezmoi template SHALL include `"voiceEnabled": true` as a top-level key in `dot_claude/settings.json.tmpl`.
+The managed key set SHALL include `"voiceEnabled": true` as a top-level key in `dot_claude/modify_settings.json.tmpl`.
 
 #### Scenario: Template includes voiceEnabled
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** `~/.claude/settings.json` SHALL contain `"voiceEnabled": true`
 
 ### Requirement: Dangerous mode permission prompt is skipped
 
-The chezmoi template SHALL include `"skipDangerousModePermissionPrompt": true` as a top-level key in `dot_claude/settings.json.tmpl`.
+The managed key set SHALL include `"skipDangerousModePermissionPrompt": true` as a top-level key in `dot_claude/modify_settings.json.tmpl`.
 
 #### Scenario: Template includes skipDangerousModePermissionPrompt
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** `~/.claude/settings.json` SHALL contain `"skipDangerousModePermissionPrompt": true`
 
 ### Requirement: Auto permission prompt is skipped
 
-The chezmoi template SHALL include `"skipAutoPermissionPrompt": true` as a top-level key in `dot_claude/settings.json.tmpl`.
+The managed key set SHALL include `"skipAutoPermissionPrompt": true` as a top-level key in `dot_claude/modify_settings.json.tmpl`.
 
 #### Scenario: Template includes skipAutoPermissionPrompt
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** `~/.claude/settings.json` SHALL contain `"skipAutoPermissionPrompt": true`
 
 ### Requirement: Effort level is set to xhigh
 
-The chezmoi template SHALL include `"effortLevel": "xhigh"` as a top-level key in `dot_claude/settings.json.tmpl`. The value MUST be the lowercase string `"xhigh"`; other casings (e.g., `"xHigh"`, `"XHIGH"`) are not accepted by the Claude Code settings schema and are normalized to `"high"`.
+The managed key set SHALL include `"effortLevel": "xhigh"` as a top-level key in `dot_claude/modify_settings.json.tmpl`. The value MUST be the lowercase string `"xhigh"`; other casings (e.g., `"xHigh"`, `"XHIGH"`) are not accepted by the Claude Code settings schema and are normalized to `"high"`.
 
 #### Scenario: Template includes lowercase xhigh effortLevel
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** `~/.claude/settings.json` SHALL contain `"effortLevel": "xhigh"`
 
 #### Scenario: Mixed-case value is not used
@@ -54,32 +54,15 @@ The chezmoi template SHALL include `"effortLevel": "xhigh"` as a top-level key i
 - **WHEN** the chezmoi template is read
 - **THEN** the `effortLevel` value SHALL match the literal lowercase string `"xhigh"` and SHALL NOT be `"xHigh"` or any other casing
 
-### Requirement: User-preference keys appear in canonical order
-
-The chezmoi template SHALL emit the following user-preference top-level keys in this exact order:
-
-1. `alwaysThinkingEnabled`
-2. `skipDangerousModePermissionPrompt`
-3. `skipAutoPermissionPrompt`
-4. `voiceEnabled`
-5. `effortLevel`
-
-This ordering applies only to the keys listed above (the user-preference block). Other top-level keys (`env`, `statusLine`, `enabledPlugins`, `extraKnownMarketplaces`, `hooks`, `permissions`, etc.) are governed by their own requirements and may appear before or after this block.
-
-#### Scenario: User-preference block is in canonical order
-
-- **WHEN** the output of `chezmoi cat dot_claude/settings.json.tmpl` is parsed and the five user-preference keys above are extracted in source order
-- **THEN** they SHALL appear in the order: `alwaysThinkingEnabled`, `skipDangerousModePermissionPrompt`, `skipAutoPermissionPrompt`, `voiceEnabled`, `effortLevel`
-
 ### Requirement: Default permission mode is auto
 
-The chezmoi template SHALL include `"defaultMode": "auto"` inside the `permissions` object in `dot_claude/settings.json.tmpl`. Because Claude Code (v2.1.142+) ignores `permissions.defaultMode: "auto"` set in project or local settings, this rule MUST live in the user-scope template, which renders to `~/.claude/settings.json`.
+The managed key set SHALL include `"defaultMode": "auto"` inside the `permissions` object in `dot_claude/modify_settings.json.tmpl`. Because Claude Code (v2.1.142+) ignores `permissions.defaultMode: "auto"` set in project or local settings, this rule MUST live in the user-scope source, which materializes `~/.claude/settings.json`.
 
 In auto mode, `permissions.deny` and `permissions.allow` rules are still evaluated first and take precedence; only actions not resolved by a rule are routed to Claude Code's safety classifier, which runs without prompting the user.
 
 #### Scenario: Template sets auto as the default permission mode
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** the `permissions` object in `~/.claude/settings.json` SHALL contain `"defaultMode": "auto"`
 
 #### Scenario: New session starts in auto mode
@@ -89,7 +72,7 @@ In auto mode, `permissions.deny` and `permissions.allow` rules are still evaluat
 
 ### Requirement: Deny rules block dangerous bash commands
 
-The chezmoi template SHALL include a `permissions.deny` array in `dot_claude/settings.json.tmpl` containing rules that hard-block the following categories:
+The managed key set SHALL include a `permissions.deny` array in `dot_claude/modify_settings.json.tmpl` containing rules that hard-block the following categories:
 
 - Privilege escalation: `Bash(sudo *)`
 - Remote code execution: `Bash(curl * | bash)`, `Bash(curl * | sh)`, `Bash(wget * | bash)`, `Bash(wget * | sh)`
@@ -299,7 +282,7 @@ MCP write tools (memory create/delete, playwright, chrome-devtools) SHALL NOT be
 
 ### Requirement: Claude attribution is disabled in commits and pull requests
 
-The chezmoi template SHALL include a top-level `attribution` object in `dot_claude/settings.json.tmpl` with both `commit` and `pr` set to the empty string:
+The managed key set SHALL include a top-level `attribution` object in `dot_claude/modify_settings.json.tmpl` with both `commit` and `pr` set to the empty string:
 
 ```json
 "attribution": {
@@ -310,16 +293,16 @@ The chezmoi template SHALL include a top-level `attribution` object in `dot_clau
 
 An empty `commit` string suppresses the entire commit attribution block, eliminating the `Co-Authored-By: Claude …` trailer and the `🤖 Generated with [Claude Code]…` line. An empty `pr` string removes the attribution line from pull request descriptions.
 
-The template SHALL NOT use the deprecated boolean key `includeCoAuthoredBy`; `attribution` is the current, supported mechanism and supersedes it.
+The managed key set SHALL NOT use the deprecated boolean key `includeCoAuthoredBy`; `attribution` is the current, supported mechanism and supersedes it.
 
 #### Scenario: Template includes empty attribution object
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** `~/.claude/settings.json` SHALL contain an `attribution` object equal to `{"commit": "", "pr": ""}`
 
 #### Scenario: Deprecated includeCoAuthoredBy key is absent
 
-- **WHEN** the rendered output of `chezmoi cat dot_claude/settings.json.tmpl` is parsed
+- **WHEN** the materialized output of `chezmoi cat dot_claude/modify_settings.json.tmpl` is parsed
 - **THEN** the JSON SHALL NOT contain a top-level `includeCoAuthoredBy` key
 
 #### Scenario: Commit authored by Claude Code carries no attribution
@@ -332,4 +315,56 @@ The template SHALL NOT use the deprecated boolean key `includeCoAuthoredBy`; `at
 
 - **WHEN** a Claude Code session running under the applied settings opens a pull request
 - **THEN** the pull request body SHALL NOT contain a `🤖 Generated with [Claude Code]` line
+
+### Requirement: User-preference keys are present with managed values
+
+The chezmoi-managed settings SHALL declare the following user-preference top-level keys:
+
+1. `alwaysThinkingEnabled`
+2. `skipDangerousModePermissionPrompt`
+3. `skipAutoPermissionPrompt`
+4. `voiceEnabled`
+5. `effortLevel`
+
+Key **order in the emitted file is no longer governed by this capability**. Under the merge contract defined by `claude-settings-merge`, the on-disk ordering is whatever the live file already uses, because Claude Code and Agent of Empires both rewrite this file and neither preserves a chezmoi-chosen order. Pinning a source order was attempted and does not survive: it produced an apply/rewrite loop rather than convergence.
+
+What this capability now requires is presence and value, not position.
+
+#### Scenario: All five user-preference keys are present
+
+- **WHEN** `chezmoi apply` has run
+- **THEN** `~/.claude/settings.json` SHALL contain all five keys above, each holding its managed value
+
+#### Scenario: Ordering is not asserted
+
+- **WHEN** another writer reorders the top-level keys of `~/.claude/settings.json`
+- **AND** `chezmoi diff` runs
+- **THEN** no difference SHALL be reported on the basis of key order alone
+
+### Requirement: Workflow orchestration keys are managed
+
+The chezmoi-managed settings SHALL set `enableWorkflows` to `true` and `workflowSizeGuideline` to `"large"`.
+
+Both keys resolve from the merged settings chain, which takes precedence over the value stored in `~/.claude.json`. Managing them here makes them reproducible on a fresh machine, which the `~/.claude.json` store cannot be: that file also holds machine-local state (install identifiers, caches, per-project history) and is not chezmoi-manageable.
+
+#### Scenario: Workflows are enabled on a fresh machine
+
+- **WHEN** `chezmoi apply` runs on a machine with no prior Claude Code settings
+- **THEN** `~/.claude/settings.json` SHALL contain `"enableWorkflows": true`
+
+#### Scenario: Size guideline is pinned
+
+- **WHEN** `chezmoi apply` has run
+- **THEN** `~/.claude/settings.json` SHALL contain `"workflowSizeGuideline": "large"`
+
+#### Scenario: The guideline becomes read-only in the settings UI
+
+- **WHEN** `workflowSizeGuideline` is present in the settings chain
+- **THEN** the corresponding `/config` row SHALL be non-editable, and changing the value SHALL require editing the dotfile
+
+#### Scenario: Neither key is lost to an apply
+
+- **WHEN** Claude Code has written either key into the live file
+- **AND** `chezmoi apply` runs
+- **THEN** the key SHALL still be present afterwards
 
