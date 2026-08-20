@@ -6,7 +6,7 @@ Claude Code plugin configuration and installation managed by chezmoi -- plugin e
 ## Requirements
 ### Requirement: Plannotator plugin is enabled by default
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"plannotator@plannotator": true` in the `enabledPlugins` object.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"plannotator@plannotator": true` in the `enabledPlugins` object.
 
 #### Scenario: Fresh machine setup
 
@@ -49,7 +49,7 @@ The install script (`run_once_install-packages.sh.tmpl`) SHALL include a dedicat
 
 ### Requirement: Expo consolidated plugin is enabled by default
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"expo@expo-plugins": true` in the `enabledPlugins` object.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"expo@expo-plugins": true` in the `enabledPlugins` object.
 
 #### Scenario: Fresh machine setup
 
@@ -63,7 +63,7 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 
 ### Requirement: Beads plugin is enabled by default
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"beads@beads-marketplace": true` in the `enabledPlugins` object.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"beads@beads-marketplace": true` in the `enabledPlugins` object.
 
 #### Scenario: Fresh machine setup
 
@@ -159,7 +159,7 @@ The group's no-prompt path is gated on all three counters being zero: the `plann
 
 ### Requirement: Code-simplifier plugin is enabled by default
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"code-simplifier@claude-plugins-official": true` in the `enabledPlugins` object.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"code-simplifier@claude-plugins-official": true` in the `enabledPlugins` object.
 
 #### Scenario: Fresh machine setup
 
@@ -173,7 +173,7 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 
 ### Requirement: SuperWhisper plugin is enabled by default on Apple Silicon
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"superwhisper@superwhisper": true` in the `enabledPlugins` object only when chezmoi renders the template on `darwin/arm64`. The entry SHALL be wrapped in a `{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }} ... {{ end }}` block. On any other architecture or OS the entry SHALL be absent from the rendered settings file. The rationale for the gate is that the plugin's hook binary at `/Applications/superwhisper.app/Contents/Resources/claude-hook` is `arm64`-only, so enabling the plugin on Intel causes "Bad CPU type in executable" errors on every stop hook.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"superwhisper@superwhisper": true` in the `enabledPlugins` object only when chezmoi renders the template on `darwin/arm64`. The entry SHALL be wrapped in a `{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }} ... {{ end }}` block. On any other architecture or OS the entry SHALL be absent from the materialized settings file. The rationale for the gate is that the plugin's hook binary at `/Applications/superwhisper.app/Contents/Resources/claude-hook` is `arm64`-only, so enabling the plugin on Intel causes "Bad CPU type in executable" errors on every stop hook.
 
 #### Scenario: Fresh machine setup on Apple Silicon
 
@@ -202,7 +202,7 @@ The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include
 
 ### Requirement: SuperWhisper marketplace is registered on Apple Silicon
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include a `superwhisper` entry in `extraKnownMarketplaces` with source `github` and repo `superultrainc/superwhisper-claude-code`, with `autoUpdate` set to `true`, only when chezmoi renders the template on `darwin/arm64`. The entry SHALL be wrapped in the same `{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }} ... {{ end }}` guard as the plugin entry, and SHALL include the leading comma inside the conditional block so the surrounding JSON stays valid on Intel.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include a `superwhisper` entry in `extraKnownMarketplaces` with source `github` and repo `superultrainc/superwhisper-claude-code`, with `autoUpdate` set to `true`, only when chezmoi renders the template on `darwin/arm64`. The entry SHALL be wrapped in the same `{{ if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }} ... {{ end }}` guard as the plugin entry, and SHALL include the trailing comma inside the conditional block so the surrounding JSON stays valid on Intel.
 
 #### Scenario: Fresh machine setup on Apple Silicon
 
@@ -261,7 +261,7 @@ The step SHALL warn (and skip) if the `claude` CLI is not available. Failures fr
 
 ### Requirement: Commander plugin is enabled by default
 
-The Claude Code settings dotfile (`dot_claude/settings.json.tmpl`) SHALL include `"commander@monolab": true` in the `enabledPlugins` object. Auto-update is inherited from the existing `monolab` entry in `extraKnownMarketplaces` (`autoUpdate: true`); no per-plugin auto-update field is added.
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"commander@monolab": true` in the `enabledPlugins` object. Auto-update is inherited from the existing `monolab` entry in `extraKnownMarketplaces` (`autoUpdate: true`); no per-plugin auto-update field is added.
 
 #### Scenario: Fresh machine setup
 

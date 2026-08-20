@@ -6,47 +6,47 @@ Claude Code user preference flags managed by chezmoi -- behavioral settings that
 ## Requirements
 ### Requirement: Extended thinking is always enabled
 
-The chezmoi template SHALL include `"alwaysThinkingEnabled": true` as a top-level key in `dot_claude/settings.json.tmpl`.
+The managed key set SHALL include `"alwaysThinkingEnabled": true` as a top-level key in `dot_claude/modify_settings.json.tmpl`.
 
 #### Scenario: Template includes alwaysThinkingEnabled
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** `~/.claude/settings.json` SHALL contain `"alwaysThinkingEnabled": true`
 
 ### Requirement: Voice mode is enabled
 
-The chezmoi template SHALL include `"voiceEnabled": true` as a top-level key in `dot_claude/settings.json.tmpl`.
+The managed key set SHALL include `"voiceEnabled": true` as a top-level key in `dot_claude/modify_settings.json.tmpl`.
 
 #### Scenario: Template includes voiceEnabled
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** `~/.claude/settings.json` SHALL contain `"voiceEnabled": true`
 
 ### Requirement: Dangerous mode permission prompt is skipped
 
-The chezmoi template SHALL include `"skipDangerousModePermissionPrompt": true` as a top-level key in `dot_claude/settings.json.tmpl`.
+The managed key set SHALL include `"skipDangerousModePermissionPrompt": true` as a top-level key in `dot_claude/modify_settings.json.tmpl`.
 
 #### Scenario: Template includes skipDangerousModePermissionPrompt
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** `~/.claude/settings.json` SHALL contain `"skipDangerousModePermissionPrompt": true`
 
 ### Requirement: Auto permission prompt is skipped
 
-The chezmoi template SHALL include `"skipAutoPermissionPrompt": true` as a top-level key in `dot_claude/settings.json.tmpl`.
+The managed key set SHALL include `"skipAutoPermissionPrompt": true` as a top-level key in `dot_claude/modify_settings.json.tmpl`.
 
 #### Scenario: Template includes skipAutoPermissionPrompt
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** `~/.claude/settings.json` SHALL contain `"skipAutoPermissionPrompt": true`
 
 ### Requirement: Effort level is set to xhigh
 
-The chezmoi template SHALL include `"effortLevel": "xhigh"` as a top-level key in `dot_claude/settings.json.tmpl`. The value MUST be the lowercase string `"xhigh"`; other casings (e.g., `"xHigh"`, `"XHIGH"`) are not accepted by the Claude Code settings schema and are normalized to `"high"`.
+The managed key set SHALL include `"effortLevel": "xhigh"` as a top-level key in `dot_claude/modify_settings.json.tmpl`. The value MUST be the lowercase string `"xhigh"`; other casings (e.g., `"xHigh"`, `"XHIGH"`) are not accepted by the Claude Code settings schema and are normalized to `"high"`.
 
 #### Scenario: Template includes lowercase xhigh effortLevel
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** `~/.claude/settings.json` SHALL contain `"effortLevel": "xhigh"`
 
 #### Scenario: Mixed-case value is not used
@@ -56,13 +56,13 @@ The chezmoi template SHALL include `"effortLevel": "xhigh"` as a top-level key i
 
 ### Requirement: Default permission mode is auto
 
-The chezmoi template SHALL include `"defaultMode": "auto"` inside the `permissions` object in `dot_claude/settings.json.tmpl`. Because Claude Code (v2.1.142+) ignores `permissions.defaultMode: "auto"` set in project or local settings, this rule MUST live in the user-scope template, which renders to `~/.claude/settings.json`.
+The managed key set SHALL include `"defaultMode": "auto"` inside the `permissions` object in `dot_claude/modify_settings.json.tmpl`. Because Claude Code (v2.1.142+) ignores `permissions.defaultMode: "auto"` set in project or local settings, this rule MUST live in the user-scope source, which materializes `~/.claude/settings.json`.
 
 In auto mode, `permissions.deny` and `permissions.allow` rules are still evaluated first and take precedence; only actions not resolved by a rule are routed to Claude Code's safety classifier, which runs without prompting the user.
 
 #### Scenario: Template sets auto as the default permission mode
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** the `permissions` object in `~/.claude/settings.json` SHALL contain `"defaultMode": "auto"`
 
 #### Scenario: New session starts in auto mode
@@ -72,7 +72,7 @@ In auto mode, `permissions.deny` and `permissions.allow` rules are still evaluat
 
 ### Requirement: Deny rules block dangerous bash commands
 
-The chezmoi template SHALL include a `permissions.deny` array in `dot_claude/settings.json.tmpl` containing rules that hard-block the following categories:
+The managed key set SHALL include a `permissions.deny` array in `dot_claude/modify_settings.json.tmpl` containing rules that hard-block the following categories:
 
 - Privilege escalation: `Bash(sudo *)`
 - Remote code execution: `Bash(curl * | bash)`, `Bash(curl * | sh)`, `Bash(wget * | bash)`, `Bash(wget * | sh)`
@@ -282,7 +282,7 @@ MCP write tools (memory create/delete, playwright, chrome-devtools) SHALL NOT be
 
 ### Requirement: Claude attribution is disabled in commits and pull requests
 
-The chezmoi template SHALL include a top-level `attribution` object in `dot_claude/settings.json.tmpl` with both `commit` and `pr` set to the empty string:
+The managed key set SHALL include a top-level `attribution` object in `dot_claude/modify_settings.json.tmpl` with both `commit` and `pr` set to the empty string:
 
 ```json
 "attribution": {
@@ -293,16 +293,16 @@ The chezmoi template SHALL include a top-level `attribution` object in `dot_clau
 
 An empty `commit` string suppresses the entire commit attribution block, eliminating the `Co-Authored-By: Claude …` trailer and the `🤖 Generated with [Claude Code]…` line. An empty `pr` string removes the attribution line from pull request descriptions.
 
-The template SHALL NOT use the deprecated boolean key `includeCoAuthoredBy`; `attribution` is the current, supported mechanism and supersedes it.
+The managed key set SHALL NOT use the deprecated boolean key `includeCoAuthoredBy`; `attribution` is the current, supported mechanism and supersedes it.
 
 #### Scenario: Template includes empty attribution object
 
-- **WHEN** chezmoi applies `dot_claude/settings.json.tmpl`
+- **WHEN** chezmoi applies `dot_claude/modify_settings.json.tmpl`
 - **THEN** `~/.claude/settings.json` SHALL contain an `attribution` object equal to `{"commit": "", "pr": ""}`
 
 #### Scenario: Deprecated includeCoAuthoredBy key is absent
 
-- **WHEN** the rendered output of `chezmoi cat dot_claude/settings.json.tmpl` is parsed
+- **WHEN** the materialized output of `chezmoi cat dot_claude/modify_settings.json.tmpl` is parsed
 - **THEN** the JSON SHALL NOT contain a top-level `includeCoAuthoredBy` key
 
 #### Scenario: Commit authored by Claude Code carries no attribution

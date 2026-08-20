@@ -33,4 +33,4 @@ Extract each requirement from its main spec verbatim, then apply the substitutio
 - [x] 4.2 `openspec validate --all --strict` — the parent change must not regress
 - [x] 4.3 `bunx oxfmt --check --ignore-path .oxfmtignore`
 - [x] 4.4 Commit on `brew-update`; no push
-- [ ] 4.5 Archive **after** `brew-upgrade-and-claude-settings` — the parent creates the `claude-settings-merge` capability these restatements presuppose, and archiving out of order writes the new paths into specs whose mechanism has not landed
+- [x] 4.5 Archive **after** `brew-upgrade-and-claude-settings` — the parent creates the `claude-settings-merge` capability these restatements presuppose, and archiving out of order writes the new paths into specs whose mechanism has not landed. Satisfied: the parent was archived to `openspec/changes/archive/2026-08-20-brew-upgrade-and-claude-settings/` and pushed to `main` in commit `1cc4d1d` on 2026-08-20, so this change now archives second
