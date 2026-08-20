@@ -5,7 +5,7 @@ See proposal.md — Why. This section records only what was measured, because th
 Measured on aoe 1.12.0 / tmux 3.7b / Ghostty, with three live aoe sessions:
 
 ```
-tmux show-options -g mouse            → mouse on      (dot_tmux.conf:2)
+tmux show-options -g mouse            → mouse on      (dot_tmux.conf:3)
 tmux show-options -t <each session>   → mouse off     (×3, session-local)
 ```
 
@@ -26,7 +26,7 @@ The values were also probed against a throwaway `XDG_CONFIG_HOME`:
 
 So `auto` is reported as if unset, and an invalid value degrades silently to `auto` rather than failing the config load.
 
-Measured after applying the fix, against a throwaway scratch session: `auto` does **not** stop AoE writing the option — the new session carries a session-local `mouse on`, mirroring `~/.tmux.conf`, where a non-aoe session carries no session-local value at all. So `auto` means "read the user's config and apply what it says", not "abstain". The DOT-40 symptoms go away either way; the requirement is worded against mirroring, not abstention.
+Measured after applying the fix. On aoe 1.14.0 (installed), `auto` writes no session-local `mouse` at all — live aoe sessions carry none and inherit the global `mouse on`. On aoe 1.12.0, the version measured above, `auto` instead wrote a session-local `mouse on` mirroring `~/.tmux.conf`. The mechanism changed between versions; the resolved value and the DOT-40 fix are identical either way, so the requirement is worded against the outcome — `~/.tmux.conf` decides — not against mirroring.
 
 Corroborating field evidence: a second machine of the user's runs `mouse = "auto"` and has none of the DOT-40 symptoms.
 
@@ -59,7 +59,7 @@ Both values fix DOT-40 on a host whose `~/.tmux.conf` sets `mouse on`. They diff
 
 `improve-aoe-config` D1 chose `"disabled"` as the deterministic counterpart to `"auto"`, reasoning by analogy with `status_bar = "disabled"`. The analogy breaks: for `status_bar`, "disabled" means "don't draw AoE's bar" — a genuine opt-out, protecting the user's Catppuccin status line. For `mouse`, the same word means "apply `mouse off`" — an opt-*in* to the opposite behavior. AoE spells the actual opt-out `auto`, and documents it as "respects your tmux config".
 
-The tempting repair is `"enabled"`: it is pinned, it survives the probe as a `user value`, and it yields `mouse on`. It was the first candidate here and was rejected. Both values leave AoE writing a session-local option (measured above) — the difference is where the value comes from. Under `auto` it is read from `dot_tmux.conf`, so the two cannot disagree. `"enabled"` re-establishes two independent sources of truth for the mouse, with AoE's session-local write outranking `dot_tmux.conf` silently. That is structurally the arrangement that produced this bug — a value in the AoE config quietly overriding the file the reader believes is authoritative. Fixing the symptom by rebuilding the mechanism is a worse outcome than fixing it by removing the mechanism, even though today the two are observationally identical.
+The tempting repair is `"enabled"`: it is pinned, it survives the probe as a `user value`, and it yields `mouse on`. It was the first candidate here and was rejected. `"enabled"` writes a session-local option; `auto` writes none (measured above), so `dot_tmux.conf` resolves through unopposed and there is no second value to disagree with it. `"enabled"` re-establishes two independent sources of truth for the mouse, with AoE's session-local write outranking `dot_tmux.conf` silently. That is structurally the arrangement that produced this bug — a value in the AoE config quietly overriding the file the reader believes is authoritative. Fixing the symptom by rebuilding the mechanism is a worse outcome than fixing it by removing the mechanism, even though today the two are observationally identical.
 
 The determinism the original design wanted was not wrong; it was applied at the wrong layer. Under `auto` it moves to where it belongs: `dot_tmux.conf` gets an explicit requirement (`tmux-config` delta) so the `mouse on` line is protected by spec rather than by habit. One authority, specified.
 

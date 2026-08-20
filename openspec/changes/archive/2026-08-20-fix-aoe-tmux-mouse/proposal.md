@@ -1,12 +1,12 @@
 ## Why
 
-`improve-aoe-config` pinned `[tmux].mouse = "disabled"` intending "AoE never touches tmux mouse mode, leaving the user-owned `~/.tmux.conf` (`mouse on`) authoritative" (the spec's own words). In AoE that value means the opposite: **apply `mouse off`** to every session it creates. AoE writes it as a session-local tmux option, which shadows the global `mouse on` from `dot_tmux.conf:2`, killing click-to-select-pane and handing the scroll wheel to the agent TUI instead of the pane's scrollback (DOT-40).
+`improve-aoe-config` pinned `[tmux].mouse = "disabled"` intending "AoE never touches tmux mouse mode, leaving the user-owned `~/.tmux.conf` (`mouse on`) authoritative" (the spec's own words). In AoE that value means the opposite: **apply `mouse off`** to every session it creates. AoE writes it as a session-local tmux option, which shadows the global `mouse on` from `dot_tmux.conf:3`, killing click-to-select-pane and handing the scroll wheel to the agent TUI instead of the pane's scrollback (DOT-40).
 
 The value that means what the spec wanted is `"auto"` — AoE's own schema documents it as *"Auto respects your tmux config"*.
 
 ## What Changes
 
-- Change `(("tmux", "mouse"), ...)` in `dot_config/private_agent-of-empires/modify_private_config.toml` from `"disabled"` to `"auto"`, so AoE mirrors the global `mouse on` into each session it creates instead of forcing `off`.
+- Change `(("tmux", "mouse"), ...)` in `dot_config/private_agent-of-empires/modify_private_config.toml` from `"disabled"` to `"auto"`, so AoE writes no session-local `mouse` option at all and the global `mouse on` resolves through instead of being forced `off`.
 - Rewrite the `agent-manager` requirement that encodes the misreading, so the spec mandates the value that produces the behavior it already describes.
 - Specify the setting the fix now depends on: `dot_tmux.conf` SHALL set `mouse on`. It is there today but unspecified, so nothing currently protects it — and under `auto` it becomes the single authority for mouse behavior in aoe panes.
 
@@ -36,5 +36,5 @@ None.
 - **Runtime effect**: applies to aoe sessions created *after* the change. Sessions already running keep their session-local `mouse off` until recreated, or until `tmux set-option -t <session> mouse on` is run by hand.
 - **Interaction with `tmux.clipboard = "enabled"`**: unchanged and load-bearing — it already sets `set-clipboard on` + `allow-passthrough on`, which is what carries tmux copy-mode selections to the system clipboard once tmux owns the drag. Note this key deliberately stays pinned rather than moving to `auto`: unlike the mouse, no setting in `dot_tmux.conf` provides it.
 - **External deps**: none. No new brew packages, no aoe version bump.
-- **Concurrent changes**: `update-brew-deps` also carries an `agent-manager` delta but does not touch the mouse requirement, so the two deltas do not overlap.
+- **Concurrent changes**: `brew-upgrade-and-claude-settings` also carries an `agent-manager` delta but does not touch the mouse requirement, so the two deltas do not overlap.
 - **Platform**: macOS, same as the parent change. Requires tmux ≥ 3.6: the default `WheelUpPane` binding only gained the `alternate_on` test in 3.6 (3.5a has just `pane_in_mode`/`mouse_any_flag`). Verified on 3.7b.
