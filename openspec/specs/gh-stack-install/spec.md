@@ -1,9 +1,8 @@
+# gh-stack-install Specification
+
 ## Purpose
-
 Makes GitHub's stacked pull requests usable from the terminal on every repository on this machine, by installing the `gh-stack` extension, its Claude Code agent skill, and a short shell alias for the command.
-
-## ADDED Requirements
-
+## Requirements
 ### Requirement: gh-stack extension install
 
 The chezmoi install script SHALL install `gh-stack` in the existing gh CLI extensions confirmable group using `gh extension install github/gh-stack`. The extension SHALL be installed unpinned, matching the other extensions in the group, because the extras updater upgrades all gh extensions and would undo a pin.
@@ -30,16 +29,16 @@ The chezmoi install script SHALL install `gh-stack` in the existing gh CLI exten
 
 ### Requirement: gh-stack agent skill for Claude Code
 
-The chezmoi install script SHALL install the gh-stack agent skill at user scope for the `claude-code` agent, so Claude Code knows the `gh stack` command surface in every repository. Detection of an existing install SHALL use structured JSON output rather than matching human-readable text, and SHALL be restricted to user scope: `gh skill list` defaults to both project and user scope, so an unscoped check would let a project-scoped skill mask a missing user-scoped one.
+The chezmoi install script SHALL install the gh-stack agent skill at user scope for the `claude-code` agent, so Claude Code knows the `gh stack` command surface in every repository. Detection of an existing install SHALL use structured JSON output rather than matching human-readable text, and SHALL be restricted to user scope: `gh skill list` defaults to both project and user scope, so an unscoped check would let a project-scoped skill mask a missing user-scoped one. The list check SHALL NOT be filtered by `--agent`: gh reports skills installed into `~/.claude/skills` under the agent hosts `cline, universal, warp` unless the SKILL.md carries a Claude-specific key such as `allowed-tools`, so an `--agent`-filtered check never matches and the script reinstalls on every run — blocking on `gh skill install`'s overwrite prompt, which chezmoi's stdio cannot answer. `--agent claude-code` stays on the install side, where it selects the destination. The install SHALL also pass `--force`, so a missed detection overwrites silently instead of blocking on that prompt.
 
 #### Scenario: Fresh install of the skill
 
 - **WHEN** chezmoi apply runs, the user confirms the gh extensions group, and the gh-stack skill is not installed
-- **THEN** the skill is installed via `gh skill install github/gh-stack gh-stack --agent claude-code --scope user`
+- **THEN** the skill is installed via `gh skill install github/gh-stack gh-stack --agent claude-code --scope user --force`
 
 #### Scenario: Skill already installed
 
-- **WHEN** `gh skill list --agent claude-code --scope user --json skillName` already reports `gh-stack`
+- **WHEN** `gh skill list --scope user --json skillName` already reports `gh-stack`
 - **THEN** the script skips installation and reports it as already installed
 
 #### Scenario: Skill is available outside this repository
@@ -76,3 +75,4 @@ The dotfiles SHALL keep `rerere.enabled = true` in the global gitconfig, so that
 
 - **WHEN** the user runs `gh stack init` in a repository with no local rerere setting
 - **THEN** rerere is already enabled globally, so the stack inherits it without gh-stack changing repository-local config in a way that diverges from the dotfiles
+
