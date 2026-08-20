@@ -928,6 +928,7 @@ CC_PLUGINS=(
     "beads@beads-marketplace"
     "code-simplifier@claude-plugins-official"
     "fallow@fallow-skills"
+    "posthog@claude-plugins-official"
 )
 
 if command -v claude &>/dev/null; then
@@ -1232,6 +1233,7 @@ info "  - Atlassian MCP: requires OAuth authentication — run 'claude mcp get a
 info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma' or use on first invocation"
 info "  - Linear MCP: requires OAuth authentication — run 'claude mcp get linear' or use on first invocation"
 info "  - Notion MCP: requires OAuth authentication — run 'claude mcp get notion' or use on first invocation"
+info "  - PostHog MCP: requires OAuth authentication — in Claude Code run '/mcp' and authenticate 'plugin:posthog:posthog'; in OpenCode run 'opencode mcp auth'"
 info "  - Storybook MCP: requires @storybook/addon-mcp installed in each Storybook project and 'storybook dev' running on port 6006"
 info ""
 
