@@ -28,6 +28,8 @@ The install script SHALL register the `beads-marketplace` marketplace (`gastownh
 
 The already-registered check compares the raw repo string, so on the first run after the repoint the check will not match and the script will re-attempt registration. That attempt is harmless — the group's runner does not fail the apply — but the noise can be avoided by removing the marketplace once beforehand.
 
+The group's no-prompt path is gated on all three counters being zero: the `plannotator` CLI present, no pending marketplaces, no pending plugins. A missing CLI alone still prompts, even with every marketplace and plugin already present.
+
 #### Scenario: First run with Claude Code installed
 
 - **WHEN** `chezmoi apply` runs the install script and the user confirms the Claude Code plugin dependencies group
@@ -57,4 +59,5 @@ The already-registered check compares the raw repo string, so on the first run a
 #### Scenario: All marketplaces and plugins already present
 
 - **WHEN** every marketplace and every plugin in the group are already registered/installed
+- **AND** the `plannotator` CLI is already on `PATH`
 - **THEN** the script prints a summary ("CC marketplaces: N/N registered", "CC plugins: N/N installed") and skips the group without prompting
