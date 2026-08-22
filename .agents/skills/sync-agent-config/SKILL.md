@@ -1,6 +1,6 @@
 ---
 name: sync-agent-config
-description: Use when user-scope agentic-tool config changes in this repo — a setting, permission rule, plugin, marketplace, hook, statusline or command under `dot_claude/`; an MCP server registered in `run_onchange_install-packages.sh.tmpl`; anything under `dot_config/opencode/`; or a Junie user-scope surface (`dot_junie/`, not yet created) — added, modified, or removed. Not for project-level agent config in this repository.
+description: Use when user-scope agentic-tool config changes in this repo — a setting, permission rule, plugin, marketplace, hook, statusline or command under `dot_claude/`; an MCP server, plugin marketplace, or plugin registered in `run_onchange_install-packages.sh.tmpl` (`MCP_HTTP_SERVERS`, `MCP_STDIO_SERVERS`, `CC_MARKETPLACES`, `CC_PLUGINS`); anything under `dot_config/opencode/`; or a Junie user-scope surface (`dot_junie/`, not yet created) — added, modified, or removed. Not for project-level agent config in this repository.
 ---
 
 # Sync Agent Config
