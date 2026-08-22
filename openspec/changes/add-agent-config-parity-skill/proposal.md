@@ -32,13 +32,15 @@ The repo's own skills show the same drift at a second level: `update-manual`, `u
 ### Modified Capabilities
 
 - `update-manual-skill`: the requirement fixing the skill at `.claude/skills/update-manual/SKILL.md` changes to the canonical body plus symlink layout.
-- `update-readme-skill`: same path requirement change for `update-readme`.
-- `classify-tool-updates-skill`: same path requirement change for `classify-tool-updates`.
+- `update-readme-skill`: the same path requirement change for `update-readme`, plus the trigger list and a scenario for a new workflow pattern being added — behavior the skill body already has, which the spec omitted.
+- `classify-tool-updates-skill`: the same path requirement change for `classify-tool-updates`, plus the trigger list and a scenario for the removal of a tool carrying an `update-extra` step — likewise already in the body, previously unspecified.
 
 ## Impact
 
 - **New**: `.agents/skills/sync-agent-config/{SKILL.md,parity.md}`.
-- **Moved**: `.agents/skills/{update-manual,update-readme,classify-tool-updates}/` become the bodies; the `.claude/skills/` entries become symlinks; the duplicated `.junie/skills/` copies are replaced by symlinks.
-- **Untouched**: everything under `dot_claude/` and `dot_config/opencode/` (the skill only proposes), all `openspec-*` skill copies, `.codex/skills`, and `.claude/commands/`.
+- **Moved**: `.agents/skills/{update-manual,update-readme,classify-tool-updates}/` become the bodies; the `.claude/skills/` entries become symlinks; the duplicated `.junie/skills/` copies are replaced by symlinks. `update-manual` and `update-readme` also shed their bulk convention blocks into `references/{html-conventions,readme-conventions}.md` beside each body.
+- **Untouched**: everything under `dot_claude/` and `dot_config/opencode/` (the skill only proposes), all `openspec-*` skill copies, and `.codex/skills`.
+- **Re-synced, not migrated**: `.claude/commands/docs/{manual,readme}.md` and their `.junie/` twins. Commands stay where they are (design — Non-Goals), but moving the skill bodies broke the existing content-parity requirement, so the command copies are brought back in line with them.
+- **Corrected in passing**: `dot_zshrc.tmpl`'s `update-extra` comment still pointed at the old `.claude/skills/` home for `classify-tool-updates`.
 - **Not deployed by chezmoi**: repo-root dot-directories are ignored by chezmoi, so none of this reaches `$HOME`.
 - **Verification required, not assumed**: whether OpenCode and Junie double-load a skill reachable both as `.agents/skills/<name>` and through a symlink, and whether Junie discovers `.agents/skills` at all.
