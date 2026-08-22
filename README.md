@@ -38,7 +38,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **CLI Tools**  | [ripgrep](https://github.com/BurntSushi/ripgrep)                                | Fast recursive grep                                                                        |
 | **CLI Tools**  | [atuin](https://atuin.sh/)                                                      | Modern shell history search                                                                |
 | **CLI Tools**  | [direnv](https://direnv.net/)                                                   | Auto-load/unload env vars per directory                                                    |
-| **CLI Tools**  | [tickrs](https://github.com/tarkah/tickrs)                                      | Real-time stock ticker TUI with curated 42-symbol watchlist                                |
+| **CLI Tools**  | [tickrs](https://github.com/tarkah/tickrs)                                      | Real-time stock ticker TUI with curated watchlist                                          |
 | **CLI Tools**  | [ticker](https://github.com/achannarasappa/ticker)                              | Terminal stock tracker with cost-basis positions and sector groups                         |
 | **CLI Tools**  | [age](https://age-encryption.org/)                                              | Modern encryption tool backing the chezmoi-managed secrets workflow                        |
 | **CLI Tools**  | [mole](https://github.com/tw93/mole)                                            | Deep clean and optimize your Mac — caches, logs, app remnants, `node_modules` (macOS only) |
