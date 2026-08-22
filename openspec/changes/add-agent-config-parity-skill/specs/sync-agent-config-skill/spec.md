@@ -20,12 +20,22 @@ The system SHALL provide a skill named `sync-agent-config` whose body lives at `
 
 ### Requirement: Scope is user-scope config only
 
-The skill SHALL activate only for chezmoi-managed user-scope agentic-tool configuration: `dot_claude/**` (Claude Code), `dot_config/opencode/**` (OpenCode), and the Junie user-scope surface once the repository manages one. The skill SHALL NOT activate for project-level agent configuration in this repository (`.claude/`, `.opencode/`, `.junie/`, `.agents/`, `.mcp.json`, `opencode.json`, `AGENTS.md`, `CLAUDE.md`).
+The skill SHALL activate only for chezmoi-managed user-scope agentic-tool configuration: `dot_claude/**` and the Claude Code user-scope registrations in `run_onchange_install-packages.sh.tmpl` (`MCP_HTTP_SERVERS`, `MCP_STDIO_SERVERS`, `CC_MARKETPLACES`, `CC_PLUGINS`), `dot_config/opencode/**` (OpenCode), and the Junie user-scope surface once the repository manages one. One tool's user-scope configuration MAY span more than one source path: Claude Code's MCP servers are registered by the install script into `~/.claude.json`, a file the `mcp-global-config` capability forbids `dot_claude/modify_settings.json.tmpl` from carrying, so `dot_claude/**` alone does not cover them. Changes to that install script that are not agentic-tool configuration — brew packages, gh extensions, unrelated tooling — belong to `classify-tool-updates`, not to this skill. The skill SHALL NOT activate for project-level agent configuration in this repository (`.claude/`, `.opencode/`, `.junie/`, `.agents/`, `.mcp.json`, `opencode.json`, `AGENTS.md`, `CLAUDE.md`).
 
 #### Scenario: Claude Code user config changes
 
 - **WHEN** a file under `dot_claude/` is added, modified, or removed
 - **THEN** the skill activates
+
+#### Scenario: Claude Code MCP server registration changes
+
+- **WHEN** an entry in `MCP_HTTP_SERVERS` or `MCP_STDIO_SERVERS` in `run_onchange_install-packages.sh.tmpl` is added, modified, or removed
+- **THEN** the skill activates and treats it as a Claude Code user-scope change
+
+#### Scenario: Install script changes unrelated to agent config
+
+- **WHEN** only non-agent entries in `run_onchange_install-packages.sh.tmpl` change, such as a brew package or a gh extension
+- **THEN** the skill does NOT activate
 
 #### Scenario: OpenCode user config changes
 

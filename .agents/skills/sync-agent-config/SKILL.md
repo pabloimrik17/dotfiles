@@ -1,6 +1,6 @@
 ---
 name: sync-agent-config
-description: Use when user-scope agentic-tool config changes in this repo — a setting, permission rule, MCP server, plugin, marketplace, hook, statusline, or command added, modified, or removed under `dot_claude/`, `dot_config/opencode/`, or a Junie user-scope surface (`dot_junie/`, not yet created). Not for project-level agent config in this repository.
+description: Use when user-scope agentic-tool config changes in this repo — a setting, permission rule, plugin, marketplace, hook, statusline or command under `dot_claude/`; an MCP server registered in `run_onchange_install-packages.sh.tmpl`; anything under `dot_config/opencode/`; or a Junie user-scope surface (`dot_junie/`, not yet created) — added, modified, or removed. Not for project-level agent config in this repository.
 ---
 
 # Sync Agent Config
@@ -10,6 +10,7 @@ Keep user-scope config comparable across Claude Code, OpenCode, and Junie. When 
 ## When This Activates
 
 - A file under `dot_claude/` is added, modified, or removed — the `MANAGED` keys in `modify_settings.json.tmpl` (`permissions`, `enabledPlugins`, `extraKnownMarketplaces`, `hooks`, `env`, `statusLine`, `effortLevel`, …), `dot_claude/commands/`, `dot_claude/plugins/*/config.json`
+- An agent-config entry in `run_onchange_install-packages.sh.tmpl` changes — `MCP_HTTP_SERVERS`, `MCP_STDIO_SERVERS` (Claude Code's user-scope MCP servers, registered by `claude mcp add` into `~/.claude.json`), `CC_MARKETPLACES`, `CC_PLUGINS`
 - A file under `dot_config/opencode/` is added, modified, or removed — `opencode.jsonc` (`model`, `plugin`, `mcp`, `permission`, `formatter`), `tui.json`
 - A Junie user-scope surface changes, or is created for the first time. The repo manages none today, so the first Junie proposal is always "create this file"
 
@@ -17,7 +18,10 @@ Keep user-scope config comparable across Claude Code, OpenCode, and Junie. When 
 
 Project-level agent config in this repository is out of scope. Never activate on `.claude/`, `.opencode/`, `.junie/`, `.agents/`, `.mcp.json`, `opencode.json`, `AGENTS.md`, or `CLAUDE.md`.
 
-The test: in scope means a chezmoi source path that deploys to `$HOME` (`dot_*`). Repo-root dot-directories are repo tooling and chezmoi never applies them.
+The test: in scope means chezmoi source state that configures the user's own environment — a `dot_*` file, or a
+`run_onchange_*` script that registers user-scope agent config. Repo-root dot-directories are repo tooling and chezmoi
+never applies them. A change to the install script that is not agent config (a brew package, a gh extension) belongs to
+`classify-tool-updates`, not here.
 
 ## Workflow
 
@@ -39,7 +43,11 @@ A removal is not a no-op. An orphaned counterpart is exactly the drift this skil
 
 ### Step 3: Locate the counterpart surface per tool
 
-For each of the other two tools, name the concrete file and key, verified against that tool's own docs — never guess a key or a path. The grammars differ, so an equivalence is a judgment call, not a rename:
+For each of the other two tools, name the concrete file and key, verified against that tool's own docs — never guess a key or a path.
+
+One tool's capability can live in more than one file, so locating "the surface" means naming every file that carries it. Claude Code is the case that bites: its settings live in `dot_claude/modify_settings.json.tmpl`, but its user-scope MCP servers are registered by the install script into `~/.claude.json` — a file the `mcp-global-config` capability forbids the settings template from carrying at all. An MCP server can also arrive a second way, bundled in a plugin via `enabledPlugins` plus `extraKnownMarketplaces`; that is a different mechanism, not the same entry written elsewhere, and it lands under a different tool-permission namespace (`mcp__plugin_<plugin>_<server>__*`).
+
+The grammars differ, so an equivalence is a judgment call, not a rename:
 
 - Claude Code `permissions.allow/ask/deny` ↔ OpenCode `permission.bash.<glob>: allow|ask|deny`
 - Claude Code MCP server via plugin (`enabledPlugins` + `extraKnownMarketplaces`) ↔ OpenCode `mcp.<name>` with `type: remote|local`

@@ -1,0 +1,56 @@
+{
+  "skill_name": "sync-agent-config",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "He añadido el MCP de Sentry a mi config de usuario de Claude Code: una entrada en enabledPlugins y su marketplace en extraKnownMarketplaces, dentro de dot_claude/modify_settings.json.tmpl. ¿Tengo que tocar algo en opencode o en junie para no quedarme desalineado?",
+      "expected_output": "A proposal naming all three tools with concrete target files, no config written, plus a parity.md row",
+      "files": [],
+      "assertions": [
+        "Names all three tools (Claude Code, OpenCode, Junie) — none silently omitted",
+        "Reports Junie explicitly as a gap or a create-this-file proposal rather than skipping it",
+        "Names the concrete target file per tool (e.g. dot_config/opencode/opencode.jsonc)",
+        "Recognises the mechanisms differ: Claude Code via plugin + marketplace, OpenCode via a direct mcp.<name> entry",
+        "Waits for confirmation before any edit; no file is written",
+        "Proposes a parity.md row with all five columns filled and no blank cell"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Acabo de quitar la entrada `linear` del bloque mcp de dot_config/opencode/opencode.jsonc porque ya no la uso. ¿Hay algo más que deba limpiar?",
+      "expected_output": "A proposal naming all three tools with concrete target files, no config written, plus a parity.md row",
+      "files": [],
+      "assertions": [
+        "Names all three tools (Claude Code, OpenCode, Junie) — none silently omitted",
+        "Treats the change as a removal and proposes removing counterparts, not adding anything",
+        "Names the concrete target file per tool",
+        "Waits for confirmation before any edit; no file is written",
+        "Proposes a parity.md row with all five columns filled and no blank cell"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "añadí \"Bash(rg *)\": \"allow\" al bloque permissions de dot_claude/modify_settings.json.tmpl para que no me pregunte cada vez que hago un ripgrep. lo replico en algun sitio mas?",
+      "expected_output": "A proposal naming all three tools with concrete target files, no config written, plus a parity.md row",
+      "files": [],
+      "assertions": [
+        "Names all three tools (Claude Code, OpenCode, Junie) — none silently omitted",
+        "Translates into OpenCode's permission.bash.<glob> grammar instead of copying Claude Code's Bash(...) syntax verbatim",
+        "Names the concrete target file per tool",
+        "Waits for confirmation before any edit; no file is written",
+        "Proposes a parity.md row with all five columns filled and no blank cell"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "He metido un .mcp.json en la raíz de este repo con el server de knip, para que cualquiera que abra el proyecto lo tenga. ¿Lo dejo así?",
+      "expected_output": "A proposal naming all three tools with concrete target files, no config written, plus a parity.md row",
+      "files": [],
+      "assertions": [
+        "Does NOT produce a cross-tool user-scope replication proposal",
+        "States that project-level config (.mcp.json) is out of the skill's scope",
+        "No file is written"
+      ]
+    }
+  ]
+}
