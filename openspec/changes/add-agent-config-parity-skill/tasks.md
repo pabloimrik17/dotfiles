@@ -1,0 +1,53 @@
+## 1. Prepare the canonical directory
+
+- [x] 1.1 Add `.agents/` to `.oxfmtignore` alongside the existing `.claude/`, `.codex/`, `.junie/`, `.opencode/` entries (D7); verify by staging a file under `.agents/skills/` and confirming `bunx oxfmt --ignore-path .oxfmtignore` reports it unmatched
+- [x] 1.2 Confirm repo-root `.agents/` is invisible to chezmoi; verify `chezmoi managed` lists no path under it and `chezmoi diff` is clean
+
+## 2. Migrate repo-owned skills to the canonical layout
+
+Each skill migrates in a single commit (design — Migration Plan), so no intermediate state leaves a skill discoverable by zero tools.
+
+- [x] 2.1 Migrate `update-manual`: `git mv .claude/skills/update-manual .agents/skills/update-manual`, create relative symlinks `.claude/skills/update-manual` and `.junie/skills/update-manual` → `../../.agents/skills/update-manual`, delete the duplicated `.junie/skills/update-manual/` body; verify `readlink` returns the relative target on both and `cat .claude/skills/update-manual/SKILL.md` resolves to the canonical body
+- [x] 2.2 Migrate `update-readme` the same way; verify the same three checks
+- [x] 2.3 Migrate `classify-tool-updates` the same way; verify the same three checks
+- [x] 2.4 Confirm no duplicated bodies remain; verify `find .claude/skills .junie/skills .opencode/skills -name SKILL.md -type f` lists only generator-owned `openspec-*` copies
+
+## 3. Author the sync-agent-config skill
+
+- [x] 3.1 Write `.agents/skills/sync-agent-config/SKILL.md` following the repo's existing skill conventions (`classify-tool-updates` as the model: frontmatter `name` + trigger-bearing `description`, then When This Activates / Workflow sections) and the skill-authoring guidance in `superpowers:writing-skills`; verify the frontmatter parses and the description names the user-scope trigger surfaces `dot_claude/`, `dot_config/opencode/`, and the Junie user-scope surface
+- [x] 3.2 Encode the scope boundary in the skill body: user-scope chezmoi config only, explicitly excluding project-level `.claude/`, `.opencode/`, `.junie/`, `.agents/`, `.mcp.json`, `opencode.json`, `AGENTS.md`, `CLAUDE.md`; verify the exclusion list appears as a non-activation rule
+- [x] 3.3 Encode the propose-only gate and the add/modify/remove symmetry: every replication states target tool, target file, and concrete edit, and waits for confirmation; verify the body contains no instruction that writes config before confirmation
+- [x] 3.4 Encode gap handling: when a feature has no counterpart in a target tool, report the gap per tool and record it rather than omitting the tool; verify the body forbids silently dropping a tool from a proposal
+- [x] 3.5 Encode docs delegation to `update-manual` / `update-readme`, and the prohibition on editing `README.md` or `docs/manual.html` directly; verify both skill names appear as the follow-up path
+- [x] 3.6 Create `.agents/skills/sync-agent-config/parity.md` with the five column headers (capability, Claude Code, OpenCode, Junie, notes) and zero mapping rows; verify the file parses as a markdown table with a header row and no data rows
+- [x] 3.7 Encode the parity-table protocol in `SKILL.md`: read `parity.md` before proposing, propose a row on each new mapping or confirmed gap, never leave a cell blank; verify the body references `parity.md` by path
+- [x] 3.8 Expose the new skill: create relative symlinks `.claude/skills/sync-agent-config` and `.junie/skills/sync-agent-config` → `../../.agents/skills/sync-agent-config`; verify `readlink` returns the relative target on both
+
+## 4. Verify per-tool discovery
+
+These resolve the two unknowns D2 leaves open. Record each result in the change before archiving.
+
+- [x] 4.1 Verify Claude Code discovers all four repo-owned skills through their `.claude/skills/` symlinks and lists each exactly once; check with `/skills` in a session started at the repo root
+  - Result: fresh `claude -p` session at the repo root lists `classify-tool-updates`, `sync-agent-config`, `update-manual`, `update-readme` — each exactly once. Bodies exist only under `.agents/skills/`, which Claude Code does not read, so all four resolved through their `.claude/skills/<name>` symlinks.
+- [x] 4.2 Verify OpenCode discovers all four and lists each exactly once, with nothing under `.opencode/skills/`; if it double-lists via `.agents/skills` plus the `.claude/skills` symlink, record the finding and remove the redundant exposure per D2
+  - Result: `opencode debug skill` (opencode 1.18.21) reports all four, each exactly once, each located at `.agents/skills/<name>/SKILL.md` — no `.claude/skills` location appears at all. Zero duplicate names across 67 discovered skills, including the `openspec-*` skills that physically exist in three directories. Nothing under `.opencode/skills/` but generator-owned copies. D2 confirmed: no OpenCode entry needed, nothing to remove.
+- [ ] 4.3 Verify whether Junie reads `.agents/skills` and whether it double-lists with the `.junie/skills` symlink present; keep the symlink if Junie needs it, remove it if Junie double-lists (D2)
+  - BLOCKED on a GUI check. Junie ships in the `ml-llm` plugin (installed, WebStorm 2026.2 / build 262.9437.145) and has no CLI, so its skill list cannot be enumerated from a shell. Static evidence gathered: its skills-settings bundle enumerates the roots `claude` ("Claude Agent (project)"), `claude.global`, `codex`, `codex.project`, `project`, plus user-added paths — there is no `.agents/` root key, and the only filesystem literal found in the Junie jars is `.junie/mcp`. That cuts both ways and settles neither branch: Junie may reach the skills through the `.claude/skills` symlink instead of `.junie/skills`, and if it scans both roots the two symlinks share one target, which is precisely the double-list case D2 asks about. Resolve by opening this worktree in WebStorm and reading Junie's skills settings panel.
+  - Note: at user scope `~/.junie/skills/<name>` is already a symlink to `../../.agents/skills/<name>`, same as `~/.claude/skills` — the layout this change adopts at repo scope.
+- [ ] 4.4 Update the `repo-skill-canonical-layout` delta spec if 4.2 or 4.3 changes which tools carry a symlink; verify `openspec validate add-agent-config-parity-skill --strict` still passes
+
+## 5. Verify the layout survives the repo's tooling
+
+- [x] 5.1 Run `openspec update` and confirm it rewrites only its own `openspec-*` per-tool copies; verify `git status` shows no change to any repo-owned skill body or symlink
+  - Result: `openspec update` reported all 4 tools up to date (no writes), so it was re-run with `--force` to actually exercise the generator. It rewrote only its own 12 `openspec-*` `SKILL.md` copies (pure YAML-indent reformatting, 4-space to its native 2-space) and left every repo-owned body and all eight symlinks byte-identical. The churn was reverted as out of scope. Side finding: those committed `openspec-*` files carry oxfmt's 4-space frontmatter indent, i.e. oxfmt had been reformatting generator output through lint-staged's `"*"` glob — the exact exposure D7 closes. Now that `.agents/` is ignored, a future `openspec update` will surface that 2-space reformat as real diff noise instead of having it flattened back by oxfmt.
+- [ ] 5.2 Stage a symlinked skill path and run the pre-commit hook; verify the entry is still a symlink afterwards (`git ls-files -s` reports mode `120000`, not `100644`)
+  - BLOCKED, cause identified and bounded. The hook aborts before running any task: lint-staged's backup step calls `git stash create`, which fails with `error: '.claude/skills/<name>/SKILL.md' is beyond a symbolic link` / `Cannot save the current worktree state`. HEAD still records `.claude/skills/<name>/SKILL.md` as a regular file while the worktree has `.claude/skills/<name>` as a symlink, and git refuses to traverse a tracked path that now lies beyond a symlink. Real hook exit code is 1, so this blocks the migration commit. Nothing was lost (index, worktree, and all eight `120000` modes intact; no lint-staged stash entry was created). Reproduced in a throwaway repo and bounded: `git stash create` succeeds before the migration, fails only in the transitional staged state, and succeeds again after the migration is committed — including with a symlink staged as a modification. So the hook is broken for exactly this one commit and healthy afterwards, and the oxfmt-clobbers-a-symlink check this task exists for can only run post-migration (where D7's `.oxfmtignore` entry is what protects it). Needs a decision: `--no-verify` for the migration commit only, versus any alternative.
+- [ ] 5.3 Confirm the four repo-owned skills are committed as symlinks where expected; verify `git ls-files -s .claude/skills .junie/skills` reports mode `120000` for each
+  - Index-verified, commit pending: `git ls-files -s .claude/skills .junie/skills` reports mode `120000` for all four repo-owned skills in both directories (8 entries). The "committed" half waits on the 5.2 decision.
+
+## 6. Documentation
+
+- [x] 6.1 Run the `update-manual` skill against this change and apply or dismiss its proposal with a reason; verify `docs/manual.html` either gains the change or is explicitly recorded as unaffected
+  - Dismissed with reason: `docs/manual.html` is unaffected. Its "Skills (auto-triggered)" table (section 11) lists only user-scope and plugin skills; all three pre-existing repo-owned skills (`update-manual`, `update-readme`, `classify-tool-updates`) are absent from it and from the rest of the manual, so repo tooling is outside the manual's documented scope by established precedent. Everything this change touches is repo tooling chezmoi never deploys (`.agents/`, `.claude/skills`, `.junie/skills`, `.oxfmtignore`); no `dot_*`, `.mcp.json`, or install-script surface in the skill's Config-to-Section map is affected. The manual's single `oxfmt` mention is OpenCode's `formatter` setting, unrelated to `.oxfmtignore`. Optional call left to the user: a `sync-agent-config` row could be added to that table, but only alongside its three absent siblings, otherwise the table becomes inconsistent.
+- [x] 6.2 Run the `update-readme` skill against this change and apply or dismiss its proposal with a reason; verify `README.md` either gains the change or is explicitly recorded as unaffected
+  - Dismissed with reason: `README.md` is unaffected. The change installs no tool, removes none, and alters no setup step, prerequisite, theme, or workflow, so the tool-level "What's Included" table, the badges, and the Setup and Daily Workflows sections all stay accurate. The skill's own non-triggers already exclude changes at this level.

@@ -1,4 +1,5 @@
 openspec/
+.agents/
 .claude/
 .codex/
 .junie/
