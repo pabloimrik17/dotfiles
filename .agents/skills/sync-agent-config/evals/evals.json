@@ -44,7 +44,7 @@
     {
       "id": 3,
       "prompt": "He metido un .mcp.json en la raíz de este repo con el server de knip, para que cualquiera que abra el proyecto lo tenga. ¿Lo dejo así?",
-      "expected_output": "A proposal naming all three tools with concrete target files, no config written, plus a parity.md row",
+      "expected_output": "Explains that project-level .mcp.json is out of scope; no proposal, file write, or parity.md row",
       "files": [],
       "assertions": [
         "Does NOT produce a cross-tool user-scope replication proposal",

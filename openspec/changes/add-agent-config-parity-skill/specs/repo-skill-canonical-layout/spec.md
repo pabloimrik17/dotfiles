@@ -15,7 +15,7 @@ Every skill authored in this repository SHALL have exactly one body directory, a
 
 #### Scenario: Duplicate body introduced
 
-- **WHEN** a second regular-file copy of a repo-owned skill's `SKILL.md` appears under `.claude/skills/`, `.junie/skills/`, or `.opencode/skills/`
+- **WHEN** a second regular-file copy of a repo-owned skill's `SKILL.md` appears under `.claude/skills/` or `.junie/skills/`
 - **THEN** that copy is a defect and is replaced by a symlink to the canonical body
 
 ### Requirement: Claude Code discovery via relative symlink

@@ -91,16 +91,18 @@ Present proposals in a structured format:
 
 ### 📸 SCREENSHOT SUGGESTIONS
 
-#### gh-dash-overview.png
+#### assets/gh-dash-overview.png
 
 - **Show**: gh-dash running with open PRs, Catppuccin Mocha theme visible
 - **Simulate**: Run `gh dash` in a repo with open PRs. Resize terminal to ~120x35.
+- **Size**: 120x35 terminal, 800px width
 - **Placement**: Could be added as a second screenshot below the terminal overview, or inline in What's Included
 
-#### terminal-overview.png (UPDATE)
+#### assets/terminal-overview.png (UPDATE)
 
 - **Show**: Updated terminal with new prompt/theme changes visible
 - **Simulate**: Open Ghostty, run `ls` in a colorful directory, show starship prompt
+- **Size**: matches the existing featured screenshot, 800px width
 - **Placement**: Replace existing featured screenshot
 
 ### No changes needed

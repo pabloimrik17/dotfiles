@@ -31,7 +31,7 @@ Read `.agents/skills/sync-agent-config/parity.md` first. If the changed capabili
 
 ### Step 2: Classify the change kind
 
-Exactly one of add / modify / remove. All three are handled symmetrically:
+Classify each changed entry independently — one diff can add one entry and remove another. All three kinds are handled symmetrically:
 
 | Source change    | Proposal for each other tool     |
 | ---------------- | -------------------------------- |

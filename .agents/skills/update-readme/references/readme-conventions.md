@@ -4,7 +4,7 @@ Exact markdown patterns for editing `README.md`, plus the format a screenshot pr
 follow. Read this before applying an approved proposal — the README's table, badges, and image
 blocks are hand-maintained, so matching the existing shape keeps the diff reviewable.
 
-### What's Included table row
+## What's Included table row
 
 ```markdown
 | **Category** | [Tool Name](https://tool-url/) | Brief description of what it does |
@@ -12,13 +12,13 @@ blocks are hand-maintained, so matching the existing shape keeps the diff review
 
 Categories in use: Terminal, Shell, CLI Tools, Git, AI Tooling
 
-### Badge
+## Badge
 
 ```markdown
 [![Label](https://img.shields.io/badge/Label-text-color?style=for-the-badge&logo=logo-name&logoColor=white)](https://url/)
 ```
 
-### Screenshot
+## Screenshot
 
 ```markdown
 <p align="center">
@@ -26,7 +26,7 @@ Categories in use: Terminal, Shell, CLI Tools, Git, AI Tooling
 </p>
 ```
 
-### Intro paragraph style
+## Intro paragraph style
 
 One sentence summarizing the stack: tools, theme, shell, terminal. Keep it concise.
 

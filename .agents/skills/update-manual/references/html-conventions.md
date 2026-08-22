@@ -4,7 +4,7 @@ Exact HTML patterns for editing `docs/manual.html`. Read this before applying an
 proposal, so the emitted markup matches the file's existing style instead of a plausible
 guess — the manual is hand-maintained and a mismatched row is visible in the rendered page.
 
-### Table row (alias/command)
+## Table row (alias/command)
 
 ```html
 <tr>
@@ -13,7 +13,7 @@ guess — the manual is hand-maintained and a mismatched row is visible in the r
 </tr>
 ```
 
-### Table row (keyboard shortcut)
+## Table row (keyboard shortcut)
 
 ```html
 <tr>
@@ -22,7 +22,7 @@ guess — the manual is hand-maintained and a mismatched row is visible in the r
 </tr>
 ```
 
-### Table row (config setting)
+## Table row (config setting)
 
 ```html
 <tr>
@@ -31,7 +31,7 @@ guess — the manual is hand-maintained and a mismatched row is visible in the r
 </tr>
 ```
 
-### New h3 subsection with table
+## New h3 subsection with table
 
 ```html
 <h3>Tool Name</h3>
@@ -48,7 +48,7 @@ guess — the manual is hand-maintained and a mismatched row is visible in the r
 </table>
 ```
 
-### Flow block (workflow)
+## Flow block (workflow)
 
 ```html
 <div class="flow-only">
@@ -57,7 +57,7 @@ guess — the manual is hand-maintained and a mismatched row is visible in the r
 </div>
 ```
 
-### New section (rare — new tool category)
+## New section (rare — new tool category)
 
 ```html
 <details
@@ -73,7 +73,7 @@ guess — the manual is hand-maintained and a mismatched row is visible in the r
 
 Also requires: sidebar `<a href="#section-id">` link and renumbering subsequent sections.
 
-### Styling rules
+## Styling rules
 
 - `<code>` for aliases, commands, config values, file paths
 - `<kbd>` for physical keys: `⌘`, `⌥`, `Ctrl`, `⇧`, `Esc`, `Tab`, letter/number keys
