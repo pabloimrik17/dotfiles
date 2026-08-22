@@ -54,4 +54,4 @@ Never edit `README.md` or `docs/manual.html` here. After an `update-extra` chang
 - Every new tool gets exactly one class; when ambiguous (e.g. curl installer that also self-updates), ask instead of guessing
 - `update-extra` must never invoke `brew`, a self-updater, or a repo-pinned tool's update path
 - Step add/remove proposals always carry the matching `extra-updates-command` spec delta
-- This skill is repo tooling: `.claude/` is never applied by chezmoi
+- This skill is repo tooling: `.agents/` is never applied by chezmoi

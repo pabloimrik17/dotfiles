@@ -317,7 +317,7 @@ alias check-json="jq empty"
 
 # update-extra: single entry point for tools that are neither brew-managed,
 # self-updating, nor repo-pinned (those have their own update paths). Step list
-# is maintained by the classify-tool-updates skill (repo .claude/skills/).
+# is maintained by the classify-tool-updates skill (repo .agents/skills/).
 # A failing step reports and continues; exit is non-zero if any step failed.
 _update_extra_step() {
   local label="$1"; shift
