@@ -13,6 +13,7 @@
         "@tarquinen/opencode-dcp@latest",
         "@plannotator/opencode@latest",
         "opencode-wakatime",
+        "superpowers@git+https://github.com/obra/superpowers.git",
         "opencode-websearch-cited@1.2.0",
     ],
     "mcp": {

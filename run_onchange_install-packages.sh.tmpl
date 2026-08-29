@@ -965,9 +965,9 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Group 7: OpenCode plugins
+# Group 7: Plannotator for OpenCode
 # ------------------------------------------------------------------
-if confirm "Install OpenCode plugin dependencies (plannotator, superpowers)?"; then
+if confirm "Install Plannotator for OpenCode?"; then
     if command -v opencode &>/dev/null; then
         if command -v plannotator &>/dev/null; then
             info "  plannotator — already installed, skipping"
@@ -983,25 +983,11 @@ if confirm "Install OpenCode plugin dependencies (plannotator, superpowers)?"; t
             fi
         fi
 
-        info "  Installing superpowers..."
-        SUPERPOWERS_DIR="$HOME/.config/opencode/superpowers"
-        if [ -d "$SUPERPOWERS_DIR" ]; then
-            info "  superpowers — already installed, skipping"
-        else
-            if git clone https://github.com/obra/superpowers.git "$SUPERPOWERS_DIR"; then
-                mkdir -p "$HOME/.config/opencode/plugins"
-                ln -sf "$SUPERPOWERS_DIR/.opencode/plugins/superpowers.js" "$HOME/.config/opencode/plugins/superpowers.js"
-                mkdir -p "$HOME/.config/opencode/skills"
-                ln -sf "$SUPERPOWERS_DIR/skills" "$HOME/.config/opencode/skills/superpowers"
-            else
-                error "Failed to clone superpowers"
-            fi
-        fi
     else
-        warn "OpenCode is not installed — skipping plugin setup"
+        warn "OpenCode is not installed — skipping Plannotator setup"
     fi
 else
-    info "Skipping OpenCode plugin dependencies."
+    info "Skipping Plannotator."
 fi
 
 # ------------------------------------------------------------------
