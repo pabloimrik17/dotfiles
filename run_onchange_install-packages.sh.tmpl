@@ -1312,8 +1312,13 @@ if confirm "Install global agent skills via skills.sh?"; then
         install_skill() {
             local repo="$1"
             local name="$2"
+            local agents="$3"
             if skill_installed "$name"; then
                 info "  $name — already installed, skipping"
+            elif [ -n "$agents" ]; then
+                # Intentional word splitting: $agents is a space-separated
+                # list for the variadic --agent flag.
+                run_claude_step "skill $name" npx -y skills add "$repo" --skill "$name" -g -y --agent $agents
             else
                 run_claude_step "skill $name" npx -y skills add "$repo" --skill "$name" -g -y
             fi
@@ -1332,6 +1337,7 @@ if confirm "Install global agent skills via skills.sh?"; then
         install_skill "coderabbitai/skills" "code-review"
         install_skill "coderabbitai/skills" "autofix"
         install_skill "slidevjs/slidev" "slidev"
+        install_skill "gluestack/agent-skills" "gluestack-ui-v5" "claude-code opencode junie"
     else
         warn "npx is not available — skipping agent skills installation"
     fi
@@ -1422,6 +1428,7 @@ info "    npx -y skills add anthropics/skills --skill pptx -g -y"
 info "    npx -y skills add anthropics/skills --skill docx -g -y"
 info "    npx -y skills add anthropics/skills --skill xlsx -g -y"
 info "    npx -y skills add slidevjs/slidev --skill slidev -g -y"
+info "    npx -y skills add gluestack/agent-skills --skill gluestack-ui-v5 -g -y --agent claude-code opencode junie"
 info ""
 
 {{ end -}}
