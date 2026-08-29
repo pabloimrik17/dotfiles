@@ -1,6 +1,6 @@
 ---
 name: update-manual
-description: Use when making, planning, or completing changes to any dotfiles configuration — zshrc aliases, gitconfig, ghostty config, starship.toml, atuin config, fzf settings, tmux.conf, MCP servers (.mcp.json), Claude Code plugins/settings, OpenCode config, brew packages, gh CLI extensions, or any CLI tool configuration. Analyzes docs/manual.html against actual config state and proposes additions, modifications, or removals to keep the manual in sync.
+description: Use when making, planning, or completing changes to any dotfiles configuration — zshrc aliases, gitconfig, ghostty config, starship.toml, atuin config, fzf settings, tmux.conf, MCP servers (.mcp.json), Claude Code plugins/settings, Codex installation or user configuration, OpenCode config, brew packages, gh CLI extensions, or any CLI tool configuration. Analyzes docs/manual.html against actual config state and proposes additions, modifications, or removals to keep the manual in sync.
 ---
 
 # Update Manual
@@ -20,11 +20,12 @@ This skill activates when changes are made (or planned) to dotfiles configuratio
 - `dot_config/atuin/config.toml` (history settings)
 - `dot_config/worktrunk/` (worktree manager config)
 - `dot_config/gh-dash/config.yml` (GitHub dashboard)
+- `dot_codex/**` (future Codex user configuration)
 - `dot_config/opencode/opencode.jsonc` (OpenCode config)
 - `dot_tmux.conf` (tmux settings)
 - `.mcp.json` (Claude Code MCP servers)
 - `dot_claude/modify_settings.json.tmpl` (Claude Code settings)
-- `run_onchange_install-packages.sh.tmpl` (brew packages, gh extensions, plugins)
+- `run_onchange_install-packages.sh.tmpl` (brew packages, gh extensions, plugins, Codex installer)
 
 **Does NOT trigger on:**
 
@@ -59,6 +60,7 @@ Use this mapping to identify which sections of `docs/manual.html` to analyze:
 | `dot_zshrc.tmpl` — macos aliases                                 | 10. macOS Integration  |
 | `.mcp.json` + `dot_claude/` + Claude Code plugins                | 11. Claude Code        |
 | `dot_config/opencode/`                                           | 12. OpenCode           |
+| `run_onchange_install-packages.sh.tmpl` — Codex installer + `dot_codex/**` | 13. Codex      |
 
 ### Step 3: Read and Compare
 

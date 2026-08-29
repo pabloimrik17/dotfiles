@@ -149,7 +149,7 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Group 1.5: opencode + CodeRabbit (official installers, self-updating)
+# Group 1.5: opencode + CodeRabbit + Codex (official installers, self-updating)
 # ------------------------------------------------------------------
 # Installed via official scripts instead of brew/cask so their built-in
 # auto-update works — a package-manager install disables it. Ordered right
@@ -158,24 +158,35 @@ fi
 
 # ~/.opencode/bin and ~/.local/bin hold the official-install binaries. Put them
 # on PATH for this run regardless of the prompt below: later groups probe
-# `command -v opencode`, and the CodeRabbit installer treats its rc-edit as a
-# no-op when ~/.local/bin is already on PATH. PATH edits are non-destructive.
+# `command -v opencode`, and the CodeRabbit and Codex installers place their
+# binaries in ~/.local/bin. PATH edits are non-destructive.
 OPENCODE_BIN_DIR="$HOME/.opencode/bin"
+CODEX_BIN="$HOME/.local/bin/codex"
 export PATH="$OPENCODE_BIN_DIR:$HOME/.local/bin:$PATH"
 hash -r
 
 # Pre-scan: a tool is "pending" if it still needs installing or migrating off
-# brew. Skip the prompt entirely when both are already on the official install.
+# a package manager. Skip the prompt when all use their official installs.
 OC_PENDING=0
 [ -x "$OPENCODE_BIN_DIR/opencode" ] || OC_PENDING=1
 brew list opencode &>/dev/null && OC_PENDING=1
 CR_PENDING=0
 [ -x "$HOME/.local/bin/coderabbit" ] || CR_PENDING=1
 brew list --cask coderabbit &>/dev/null && CR_PENDING=1
+CODEX_BREW_INSTALLED=0
+brew list --cask codex &>/dev/null && CODEX_BREW_INSTALLED=1
+CODEX_NPM_INSTALLED=0
+if command -v npm &>/dev/null && npm list --global --depth=0 @openai/codex &>/dev/null; then
+    CODEX_NPM_INSTALLED=1
+fi
+CODEX_PENDING=0
+[ -x "$CODEX_BIN" ] || CODEX_PENDING=1
+[ "$CODEX_BREW_INSTALLED" -eq 1 ] && CODEX_PENDING=1
+[ "$CODEX_NPM_INSTALLED" -eq 1 ] && CODEX_PENDING=1
 
-if [ "$((OC_PENDING + CR_PENDING))" -eq 0 ]; then
-    info "opencode + CodeRabbit: installed via official scripts"
-elif confirm "Install/migrate opencode + CodeRabbit to official installers ($((OC_PENDING + CR_PENDING)) pending)?"; then
+if [ "$((OC_PENDING + CR_PENDING + CODEX_PENDING))" -eq 0 ]; then
+    info "opencode + CodeRabbit + Codex: installed via official scripts"
+elif confirm "Install/migrate opencode + CodeRabbit + Codex to official installers ($((OC_PENDING + CR_PENDING + CODEX_PENDING)) pending)?"; then
     # --- opencode → ~/.opencode/bin ---
     # Install via the official script first (with --no-modify-path so it does
     # not edit the chezmoi-managed ~/.zshrc), then migrate off brew ONLY after
@@ -218,8 +229,117 @@ elif confirm "Install/migrate opencode + CodeRabbit to official installers ($((O
         brew uninstall --cask coderabbit || error "Failed to uninstall coderabbit cask"
         hash -r
     fi
+
+    # --- Codex → ~/.local/bin (non-interactive) ---
+    # A package-manager migration always reruns the standalone installer: an
+    # npm global prefix may place its shim at the same path. Give the installer
+    # only system paths plus its destination so it cannot detect the legacy
+    # command and add an unmanaged PATH block to a shell profile.
+    CODEX_STANDALONE_VERIFIED=0
+    if [ "$CODEX_BREW_INSTALLED" -eq 1 ] || [ "$CODEX_NPM_INSTALLED" -eq 1 ] || [ ! -x "$CODEX_BIN" ]; then
+        # Preserve any command already at the destination until the installer
+        # succeeds. This may be an npm shim when npm's global prefix is
+        # ~/.local; a late installer failure must restore that working legacy
+        # command rather than leave an unverified standalone target behind.
+        CODEX_PREINSTALL_BIN_BACKUP="$CODEX_BIN.preinstall.$$"
+        CODEX_INSTALL_READY=1
+        CODEX_PREINSTALL_HAD_BIN=0
+        CODEX_PREINSTALL_RESTORE_NEEDED=0
+        if [ -e "$CODEX_BIN" ] || [ -L "$CODEX_BIN" ]; then
+            CODEX_PREINSTALL_HAD_BIN=1
+        fi
+        restore_codex_preinstall_bin() {
+            [ "$CODEX_PREINSTALL_RESTORE_NEEDED" -eq 1 ] || return 0
+            if [ "$CODEX_PREINSTALL_HAD_BIN" -eq 1 ]; then
+                # A missing backup means a previous invocation already restored
+                # it. Do not remove that restored command on a repeated EXIT.
+                if [ -e "$CODEX_PREINSTALL_BIN_BACKUP" ] || [ -L "$CODEX_PREINSTALL_BIN_BACKUP" ]; then
+                    rm -f "$CODEX_BIN" || return 1
+                    mv "$CODEX_PREINSTALL_BIN_BACKUP" "$CODEX_BIN" || return 1
+                fi
+            else
+                rm -f "$CODEX_BIN" || return 1
+            fi
+            CODEX_PREINSTALL_RESTORE_NEEDED=0
+            CODEX_PREINSTALL_BIN_BACKUP=""
+        }
+        # Arm rollback before the first move so a signal cannot strand the
+        # existing command under its temporary backup name.
+        CODEX_PREINSTALL_RESTORE_NEEDED=1
+        trap 'restore_codex_preinstall_bin' EXIT
+        if [ "$CODEX_PREINSTALL_HAD_BIN" -eq 1 ] && ! mv "$CODEX_BIN" "$CODEX_PREINSTALL_BIN_BACKUP"; then
+            error "Failed to protect existing Codex command before standalone installation"
+            CODEX_INSTALL_READY=0
+            CODEX_PREINSTALL_RESTORE_NEEDED=0
+            trap - EXIT
+        fi
+        if [ "$CODEX_INSTALL_READY" -eq 1 ]; then
+            info "  Installing Codex via official script..."
+            CODEX_INSTALLER_PATH="$HOME/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+            if curl -fsSL https://chatgpt.com/codex/install.sh | PATH="$CODEX_INSTALLER_PATH" CODEX_INSTALL_DIR="$HOME/.local/bin" CODEX_NON_INTERACTIVE=1 sh; then
+                if [ ! -x "$CODEX_BIN" ] || ! "$CODEX_BIN" --version &>/dev/null; then
+                    error "Codex installer completed but $CODEX_BIN failed verification"
+                else
+                    CODEX_STANDALONE_VERIFIED=1
+                fi
+            else
+                error "Failed to install Codex"
+            fi
+            if [ "$CODEX_STANDALONE_VERIFIED" -eq 1 ]; then
+                # Commit before deleting the backup. If a signal arrives in this
+                # window, the EXIT handler becomes a no-op and cannot remove the
+                # newly verified standalone command.
+                CODEX_PREINSTALL_RESTORE_NEEDED=0
+                trap - EXIT
+                rm -f "$CODEX_PREINSTALL_BIN_BACKUP" || error "Failed to remove pre-install Codex command backup"
+                CODEX_PREINSTALL_BIN_BACKUP=""
+            elif restore_codex_preinstall_bin; then
+                trap - EXIT
+            else
+                error "Failed to restore pre-install Codex command after standalone installation failure"
+            fi
+        fi
+        hash -r
+    else
+        info "  codex — already installed via official script, skipping"
+        CODEX_STANDALONE_VERIFIED=1
+    fi
+    if [ "$CODEX_STANDALONE_VERIFIED" -eq 1 ] && [ "$CODEX_BREW_INSTALLED" -eq 1 ]; then
+        info "  Migrating Codex off the Homebrew cask..."
+        brew uninstall --cask codex || error "Failed to uninstall codex cask"
+        hash -r
+    fi
+    if [ "$CODEX_STANDALONE_VERIFIED" -eq 1 ] && [ "$CODEX_NPM_INSTALLED" -eq 1 ]; then
+        info "  Migrating Codex off global npm..."
+        # npm removes its configured bin path without checking ownership. Move
+        # the verified standalone command aside so a ~/.local npm prefix cannot
+        # delete it, then restore it after npm updates its package state.
+        CODEX_BIN_BACKUP="$CODEX_BIN.codex-standalone.$$"
+        if mv "$CODEX_BIN" "$CODEX_BIN_BACKUP"; then
+            restore_codex_bin() {
+                if [ -e "$CODEX_BIN_BACKUP" ] || [ -L "$CODEX_BIN_BACKUP" ]; then
+                    rm -f "$CODEX_BIN"
+                    mv "$CODEX_BIN_BACKUP" "$CODEX_BIN" || return 1
+                fi
+                CODEX_BIN_BACKUP=""
+            }
+            trap 'restore_codex_bin' EXIT
+            npm uninstall --global @openai/codex || error "Failed to uninstall global @openai/codex"
+            if restore_codex_bin; then
+                trap - EXIT
+            else
+                error "Failed to restore standalone Codex command after npm migration"
+            fi
+        else
+            error "Failed to protect standalone Codex command during npm migration"
+        fi
+        if [ ! -x "$CODEX_BIN" ] || ! "$CODEX_BIN" --version &>/dev/null; then
+            error "Standalone Codex command failed verification after npm migration"
+        fi
+        hash -r
+    fi
 else
-    info "Skipping opencode + CodeRabbit official-installer setup."
+    info "Skipping opencode + CodeRabbit + Codex official-installer setup."
 fi
 
 # ------------------------------------------------------------------
@@ -1231,6 +1351,7 @@ info "  - Adobe Creative Cloud: requires Adobe login — install from https://cr
 info "  - 1Password for Safari: install from the Mac App Store (Safari extension)"
 info "  - CodeRabbit: authenticates on first use; sign in explicitly with 'coderabbit auth login' (browser sign-in also selects your org; 'coderabbit auth org' switches orgs)"
 info "  - CodeRabbit setup check: run 'coderabbit doctor' to verify auth, network, git state, and config"
+info "  - Codex: run 'codex' for first-use authentication; update with 'codex update' or rerun the standalone installer"
 info "  - Atlassian MCP: requires OAuth authentication — run 'claude mcp get atlassian' or use on first invocation"
 info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma' or use on first invocation"
 info "  - Linear MCP: requires OAuth authentication — run 'claude mcp get linear' or use on first invocation"
@@ -1258,6 +1379,9 @@ info "    - ticker: download a release binary from https://github.com/achannaras
 info "    - age: brew install age (or use your distro's package manager, e.g. apt install age)"
 info "    - opencode: curl -fsSL https://opencode.ai/install | bash  (official installer; installs to ~/.opencode/bin — add it to PATH)"
 info "    - CodeRabbit: curl -fsSL https://cli.coderabbit.ai/install.sh | sh  (official installer; installs to ~/.local/bin — auth on first use)"
+info "    - Codex: curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh  (official standalone installer; installs to ~/.local/bin)"
+info "      Authenticate on first use: codex"
+info "      Update: codex update  (or rerun the standalone installer)"
 info "    - aoe: cargo install aoe (Linux supported by upstream; brew is macOS-only)"
 info "    - glow: brew install glow (or your distro's package manager, or 'go install github.com/charmbracelet/glow@latest')"
 info "    - mdfried: brew install mdfried (or cargo install mdfried); its image / mermaid / Big-Header rendering needs a terminal with a graphics protocol (Kitty, iTerm2, or Sixel) and otherwise degrades to character rendering"
@@ -1309,7 +1433,7 @@ fi
 
 info "Installation complete!"
 {{ if eq .chezmoi.os "darwin" -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age, mole, aoe, glow, mdfried"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, mole, aoe, glow, mdfried"
 {{ else -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, tickrs, ticker, age, aoe, glow, mdfried"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, aoe, glow, mdfried"
 {{ end -}}

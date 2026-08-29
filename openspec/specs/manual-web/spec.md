@@ -9,7 +9,7 @@ The system SHALL provide a single `docs/manual.html` file that displays all alia
 #### Scenario: Open manual from filesystem
 
 - **WHEN** user opens `docs/manual.html` in a browser via `file://` or local server
-- **THEN** the manual renders with Catppuccin Mocha dark theme, sidebar navigation, and all 12 content sections
+- **THEN** the manual renders with Catppuccin Mocha dark theme, sidebar navigation, and all 14 content sections
 
 ### Requirement: Catppuccin Mocha dark theme
 
@@ -22,7 +22,7 @@ The manual SHALL use the Catppuccin Mocha color palette for all screen rendering
 
 ### Requirement: Sidebar navigation
 
-The manual SHALL display a sticky sidebar on the left with anchor links to each of the 12 content sections. Clicking a link SHALL scroll to that section.
+The manual SHALL display a sticky sidebar on the left with anchor links to each of the 14 content sections. Clicking a link SHALL scroll to that section.
 
 #### Scenario: Navigate to section
 
@@ -84,13 +84,13 @@ Keybindings SHALL be rendered with `<kbd>` elements for visual distinction (e.g.
 - **WHEN** user views a keybinding entry
 - **THEN** the key combination appears in a styled `<kbd>` tag visually distinct from regular text
 
-### Requirement: 12 content sections
+### Requirement: 14 content sections
 
 The manual SHALL contain these sections in order:
 
-1. Terminal (Ghostty), 2. Navigation & Search, 3. Files & Viewing, 4. Git, 5. Worktrees, 6. Package Managers, 7. Shell Productivity, 8. Brew, 9. Docker, 10. macOS Integration, 11. Claude Code, 12. OpenCode
+1. Terminal (Ghostty), 2. Navigation & Search, 3. Files & Viewing, 4. Git, 5. Worktrees, 6. Package Managers, 7. Shell Productivity, 8. Brew, 9. Docker, 10. macOS Integration, 11. Claude Code, 12. OpenCode, 13. Codex, 14. Agent Sessions
 
-Each section SHALL reflect current tool capabilities as of the brew upgrade cycle (worktrunk 0.32, atuin 18.13, git-delta 0.19, lazygit 0.60, fd 10.4).
+Each section SHALL reflect current shipped tool capabilities. The Codex section SHALL document only behavior delivered by this change and SHALL NOT claim managed Codex MCP servers or preferences.
 
 #### Scenario: Atuin section includes AI and daemon
 
@@ -118,10 +118,21 @@ Each section SHALL reflect current tool capabilities as of the brew upgrade cycl
 - **WHEN** user views the Worktrees section under "Commands"
 - **THEN** the commands table SHALL include `wt step <alias>` for custom step aliases and `wt merge --no-ff` for semi-linear merge history
 
+#### Scenario: Codex section reflects shipped behavior
+
+- **WHEN** user views Section 13 (Codex)
+- **THEN** it documents standalone installation, first-run authentication, self-updating, completion generation, `AGENTS.md`, and `.agents/skills` discovery
+- **AND** it does not claim Codex MCP registrations or managed preferences
+
+#### Scenario: Agent Sessions remains last
+
+- **WHEN** user inspects the sidebar or page content order
+- **THEN** Agent Sessions is Section 14 and follows Codex
+
 #### Scenario: All sections present
 
 - **WHEN** the manual is loaded
-- **THEN** all 12 sections are present in the sidebar and in the page content
+- **THEN** all 14 sections are present in the sidebar and in the page content
 
 ### Requirement: Destructive commands are never described as read-only
 
@@ -177,4 +188,3 @@ The manual currently states that pull-request badges in the git TUI require two 
 
 - **WHEN** a configuration key is deprecated and inert in the shipped setup
 - **THEN** the manual SHALL NOT instruct the reader to set it
-

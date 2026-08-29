@@ -1,24 +1,4 @@
-# Capability: sync-agent-config-skill
-
-## Purpose
-
-Repo-tooling skill that keeps user-scope agentic-tool configuration comparable across Claude Code, OpenCode, and Junie: on every addition, modification, or removal to one tool's config it proposes the equivalent edit for the others, records the cases where no equivalent exists, and maintains a parity table of the mappings it has established.
-
-## Requirements
-
-### Requirement: Skill exists as repo tooling
-
-The system SHALL provide a skill named `sync-agent-config` whose body lives at `.agents/skills/sync-agent-config/SKILL.md`, exposed to each agent per the `repo-skill-canonical-layout` capability. The skill description SHALL trigger auto-invocation when user-scope agentic-tool configuration changes. Repo-root dot-directories are outside chezmoi's source state, so the skill SHALL NOT be deployed to `$HOME`.
-
-#### Scenario: Skill body is canonical
-
-- **WHEN** the repository is inspected
-- **THEN** exactly one `SKILL.md` body for `sync-agent-config` exists, at `.agents/skills/sync-agent-config/SKILL.md`
-
-#### Scenario: Not applied by chezmoi
-
-- **WHEN** `chezmoi apply` runs
-- **THEN** nothing under repo-root `.agents/`, `.claude/`, or `.junie/` is deployed to `$HOME`
+## MODIFIED Requirements
 
 ### Requirement: Scope is user-scope config only
 
@@ -54,20 +34,6 @@ The skill SHALL activate only for chezmoi-managed user-scope agentic-tool config
 - **WHEN** only project-level agent files such as `.mcp.json`, `.codex/config.toml`, `opencode.json`, or `.claude/commands/` change
 - **THEN** the skill does NOT activate
 
-### Requirement: Proposal-only, never unattended application
-
-For every replication the skill identifies, it SHALL present the target tool, the target file, and the concrete edit, then wait for user confirmation before writing. The skill SHALL NOT modify any tool's configuration without that confirmation.
-
-#### Scenario: User confirms a proposal
-
-- **WHEN** the skill proposes an equivalent edit and the user confirms it
-- **THEN** the edit is applied to the target tool's configuration file
-
-#### Scenario: User rejects a proposal
-
-- **WHEN** the user rejects the proposed edit
-- **THEN** no target configuration file is modified
-
 ### Requirement: Additions, modifications, and removals are all covered
 
 The skill SHALL handle all three change kinds symmetrically: a config entry added to one tool proposes an addition to the other three, a modified entry proposes the matching modification, and a removed entry proposes the matching removal.
@@ -102,19 +68,10 @@ The skill SHALL own a parity table at `.agents/skills/sync-agent-config/parity.m
 
 #### Scenario: New mapping established
 
-- **WHEN** the skill resolves an equivalence between two tools that the table does not yet record
+- **WHEN** the skill resolves an equivalence between tools that the table does not yet record
 - **THEN** the skill proposes adding the corresponding row to `parity.md`
 
 #### Scenario: Table consulted before proposing
 
 - **WHEN** the skill runs on a config change
 - **THEN** it reads `parity.md` first and reuses any mapping already recorded there
-
-### Requirement: Docs delegation
-
-The skill SHALL NOT edit `README.md` or `docs/manual.html`. After a confirmed config change it SHALL defer documentation follow-up to the existing `update-manual` and `update-readme` skills.
-
-#### Scenario: Config replicated across tools
-
-- **WHEN** a replication proposal is confirmed and applied
-- **THEN** the skill points to `update-manual`/`update-readme` for documentation instead of editing docs directly

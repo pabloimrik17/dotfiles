@@ -337,8 +337,8 @@
 
                 body {
                     display: block;
-                    font-size: 8pt;
-                    line-height: 1.3;
+                    font-size: 7.5pt;
+                    line-height: 1.1;
                     color: #1e1e2e;
                     background: #fff;
                 }
@@ -355,8 +355,8 @@
                 .content {
                     max-width: 100%;
                     padding: 0;
-                    column-count: 2;
-                    column-gap: 1.5em;
+                    column-count: 3;
+                    column-gap: 0.8em;
                     column-rule: 1px solid #ccc;
                 }
 
@@ -372,22 +372,29 @@
                 }
 
                 details {
-                    break-inside: avoid;
+                    break-inside: auto;
                     border: none;
-                    margin-bottom: 6pt;
-                    page-break-inside: avoid;
+                    margin-bottom: 2pt;
+                    page-break-inside: auto;
                 }
 
                 details > summary ~ * {
                     display: block !important;
                 }
 
+                details::details-content {
+                    display: block !important;
+                    content-visibility: visible !important;
+                }
+
                 summary {
                     background: none;
-                    padding: 2pt 0;
-                    font-size: 9pt;
+                    padding: 1pt 0;
+                    font-size: 8.5pt;
                     color: #1e1e2e;
                     border-bottom: 1px solid #999;
+                    break-after: avoid;
+                    page-break-after: avoid;
                 }
 
                 summary::before {
@@ -395,36 +402,44 @@
                 }
 
                 .section-content {
-                    padding: 2pt 0;
+                    padding: 1pt 0;
                 }
 
                 .section-content h3 {
-                    font-size: 8pt;
-                    margin: 4pt 0 1pt;
+                    font-size: 7.5pt;
+                    margin: 2pt 0 1pt;
                     color: #333;
                     break-after: avoid;
                     page-break-after: avoid;
                 }
 
                 table {
-                    font-size: 7pt;
-                    margin: 1pt 0 4pt;
+                    font-size: 6.5pt;
+                    margin: 0 0 2pt;
+                    break-inside: avoid;
+                    page-break-inside: avoid;
+                }
+
+                .note {
                     break-inside: avoid;
                     page-break-inside: avoid;
                 }
 
                 thead th {
-                    font-size: 6.5pt;
-                    padding: 1pt 3pt;
+                    font-size: 6pt;
+                    padding: 0.5pt 2pt;
                 }
 
                 td {
-                    padding: 1pt 3pt;
-                    font-size: 7pt;
+                    padding: 0.5pt 2pt;
+                    font-size: 6.5pt;
                 }
 
                 td:first-child {
-                    font-size: 7pt;
+                    width: 36%;
+                    white-space: normal;
+                    overflow-wrap: anywhere;
+                    font-size: 6.5pt;
                 }
 
                 tbody tr:nth-child(even) {
@@ -432,12 +447,16 @@
                 }
 
                 kbd {
-                    font-size: 7pt;
+                    font-size: 6.5pt;
                     padding: 0 2pt;
                     border: 1px solid #999;
                     border-bottom-width: 1px;
                     background: #eee;
                     color: #1e1e2e;
+                }
+
+                code {
+                    font-size: inherit;
                 }
 
                 h2,
@@ -477,7 +496,8 @@
             <a href="#macos">10. macOS Integration</a>
             <a href="#claude">11. Claude Code</a>
             <a href="#opencode">12. OpenCode</a>
-            <a href="#agents">13. Agent Sessions</a>
+            <a href="#codex">13. Codex</a>
+            <a href="#agents">14. Agent Sessions</a>
         </nav>
 
         <!-- ── Main content ─────────────────────────────────────────── -->
@@ -2923,11 +2943,135 @@
                 </div>
             </details>
 
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 13: Codex -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="codex"
+                open
+            >
+                <summary>13. Codex</summary>
+                <div class="section-content">
+                    <h3>Install &amp; lifecycle</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Command &amp; purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Install</td>
+                                <td>
+                                    <code
+                                        >curl -fsSL https://chatgpt.com/codex/install.sh |
+                                        CODEX_NON_INTERACTIVE=1 sh</code
+                                    >
+                                    &mdash; standalone installer; setup runs it on macOS, or use it
+                                    manually on other systems
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Launch / authenticate</td>
+                                <td>
+                                    <code>codex</code> &mdash; launch the interactive CLI and
+                                    complete authentication on first run
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Update</td>
+                                <td>
+                                    <code>codex update</code> &mdash; self-update; rerun the
+                                    standalone installer if the installed release cannot update
+                                    itself
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Completion</td>
+                                <td>
+                                    <code>codex completion zsh</code> &mdash; generate zsh
+                                    completion on demand; these dotfiles do not evaluate it
+                                    automatically at shell startup
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Commands</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>codex exec &quot;prompt&quot;</code></td>
+                                <td>Run a non-interactive task for scripts or CI</td>
+                            </tr>
+                            <tr>
+                                <td><code>codex resume</code></td>
+                                <td>Continue a saved interactive session</td>
+                            </tr>
+                            <tr>
+                                <td><code>codex review --uncommitted</code></td>
+                                <td>Review the current working tree</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Instructions &amp; skills</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Surface</th>
+                                <th>Behavior</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AGENTS.md</code> / <code>/init</code></td>
+                                <td>
+                                    Persistent repository instructions; <code>/init</code> creates a
+                                    starter file in the current directory
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>.agents/skills</code></td>
+                                <td>
+                                    Repository skills discovered from the working directory to root
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>~/.agents/skills</code></td>
+                                <td>User skills available across repositories</td>
+                            </tr>
+                            <tr>
+                                <td><code>/skills</code> / <code>$skill</code></td>
+                                <td>Browse or invoke an available skill</td>
+                            </tr>
+                            <tr>
+                                <td>Preferences &amp; MCP</td>
+                                <td>
+                                    Not managed by these dotfiles; existing
+                                    <code>~/.codex</code> runtime state remains Codex-owned
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 14: Agent Sessions -->
+            <!-- ════════════════════════════════════════════════════════════ -->
             <details
                 id="agents"
                 open
             >
-                <summary>13. Agent Sessions (Agent of Empires)</summary>
+                <summary>14. Agent Sessions (Agent of Empires)</summary>
                 <div class="section-content">
                     <h3>Config highlights</h3>
                     <table>
