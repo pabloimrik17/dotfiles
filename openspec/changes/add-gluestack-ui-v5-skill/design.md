@@ -1,25 +1,25 @@
 ## Context
 
-Este repo de dotfiles provisiona skills externas de agente vía `skills.sh` durante el setup de la máquina. El script actual contiene un único grupo en `run_onchange_install-packages.sh.tmpl` (Group 9, ~líneas 1170–1220) que instala trece skills de `vercel-labs`, `anthropics`, `coderabbitai` y `slidevjs`, cada una mediante el helper `install_skill <repo> <name>` que expande a `npx -y skills add <repo> --skill <name> -g -y`. El helper es idempotente (consulta la caché de `npx -y skills list -g --json` al inicio del grupo), está protegido por una confirmación del usuario y tolera fallos individuales vía un contador de errores. El bloque non-macOS (~líneas 1289–1300) lista cada comando verbatim.
+Este repo de dotfiles provisiona skills externas de agente vía `skills.sh` durante el setup de la máquina. Antes de este cambio, el script contenía un único grupo en `run_onchange_install-packages.sh.tmpl` (Group 9, ~líneas 1170–1220) que instalaba trece skills de `vercel-labs`, `anthropics`, `coderabbitai` y `slidevjs`, cada una mediante el helper `install_skill <repo> <name>` que expande a `npx -y skills add <repo> --skill <name> -g -y`. El helper es idempotente (consulta la caché de `npx -y skills list -g --json` al inicio del grupo), está protegido por una confirmación del usuario y tolera fallos individuales vía un contador de errores. El bloque non-macOS (~líneas 1289–1300) lista cada comando verbatim.
 
 Verificación empírica durante la exploración de este cambio (ago 2026):
 
-- El CLI actual de `skills.sh` soporta `-a, --agent <agents>` (variádico, p. ej. `--agent claude-code opencode junie`) y `--all`.
+- El CLI actual de `skills.sh` soporta `-a, --agent <agents>` (variádico, p. ej. `--agent claude-code opencode junie codex`) y `--all`.
 - `skills list -g --json` muestra las skills existentes vinculadas a seis agentes: Claude Code, Codex, Cursor, Gemini CLI, Junie y OpenCode.
-- El layout es uniforme: payload staged en `~/.agents/skills/<name>/` y symlinks por agente — `~/.claude/skills/<name>` y `~/.junie/skills/<name>` apuntan a `../../.agents/skills/<name>`. Junie está en uso activo en esta máquina (42 symlinks en `~/.junie/skills/`). OpenCode descubre las skills de usuario desde `~/.agents/skills/`.
-- La skill `gluestack-ui-v5` existe en `gluestack/agent-skills` (bajo `.agents/skills/`, junto a `gluestack-ui-v4`) y no está instalada en esta máquina.
-- Tras la instalación real, el CLI creó los symlinks pedidos para Claude Code y Junie y mantuvo el payload en el store global que OpenCode consume. `skills list -g --json` también lo muestra como visible para otros agentes universales (Codex, Cursor, Gemini CLI y GitHub Copilot): `--agent` controla los targets explícitos del comando y sus links, no hace exclusivo un payload del store compartido. El requisito es cobertura explícita de Claude Code, OpenCode y Junie, no exclusividad frente a otros consumidores universales.
+- El layout es uniforme: payload staged en `~/.agents/skills/<name>/` y symlinks por agente — `~/.claude/skills/<name>` y `~/.junie/skills/<name>` apuntan a `../../.agents/skills/<name>`. Junie está en uso activo en esta máquina (42 symlinks en `~/.junie/skills/`). OpenCode y Codex descubren las skills de usuario desde `~/.agents/skills/`; `~/.codex/skills/` no necesita contener un symlink para que `skills list -g --agent codex --json` reporte la skill.
+- La skill `gluestack-ui-v5` existe en `gluestack/agent-skills` (bajo `.agents/skills/`, junto a `gluestack-ui-v4`) y no estaba instalada en esta máquina antes de la verificación.
+- Tras la instalación real, el CLI creó los symlinks pedidos para Claude Code y Junie y mantuvo el payload en el store global que OpenCode y Codex consumen. `skills list -g --json` también puede mostrarlo como visible para otros agentes universales (Cursor, Gemini CLI y GitHub Copilot): `--agent` controla los targets explícitos del comando y sus links, no hace exclusivo un payload del store compartido. El requisito es cobertura explícita de Claude Code, OpenCode, Junie y Codex, no exclusividad frente a otros consumidores universales.
 
 Nota histórica: el diseño de slidev (abr 2026) observó que los installs con `--agent` bypasseaban el store compartido y escribían directo en `~/.claude/skills/`, y por eso revirtió el flag. La evidencia actual (slidev staged en `~/.agents/skills/slidev`, symlinks de Junie al store compartido) indica que el CLI actual enlaza todos los agentes desde el store compartido de forma uniforme. Aun así, el layout exacto se verifica empíricamente durante la implementación.
 
-Requisito del usuario (DOT-37 + instrucción explícita): la skill debe cubrir **Claude Code, OpenCode y Junie**. El ticket hermano DOT-3 (OpenCode para skills anteriores) y monolab#259 (override de gluestack en npm-update) son contexto, no scope.
+Requisito del usuario (DOT-37 + instrucciones explícitas): la skill debe cubrir **Claude Code, OpenCode, Junie y Codex**. El ticket hermano DOT-3 (OpenCode para skills anteriores) y monolab#259 (override de gluestack en npm-update) son contexto, no scope.
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- Hacer la skill `gluestack-ui-v5` disponible globalmente para Claude Code, OpenCode y Junie en cada `chezmoi apply` fresco.
-- Cobertura determinista de los tres agentes, independiente de la resolución por defecto del CLI.
+- Hacer la skill `gluestack-ui-v5` disponible globalmente para Claude Code, OpenCode, Junie y Codex en cada `chezmoi apply` fresco.
+- Cobertura determinista de los cuatro agentes, independiente de la resolución por defecto del CLI.
 - Mantener la instalación idempotente, tolerante a fallos y no destructiva con archivos gestionados por chezmoi, a la par con el patrón existente.
 - Preservar la paridad non-macOS (el bloque de instrucciones manuales incluye el comando).
 
@@ -39,13 +39,13 @@ Mismo patrón que slidev: una capability dedicada permite que los requisitos esp
 
 **Alternativa considerada:** Delta sobre `skills-global-install` (cambio de una línea en la lista). Rechazada para mantener la separación que ya marcó el precedente slidev.
 
-### Decision 2: Flag `--agent claude-code opencode junie` explícito en el comando de instalación
+### Decision 2: Flag `--agent claude-code opencode junie codex` explícito en el comando de instalación
 
-El usuario pidió declarar exactamente estos tres agentes. La resolución por defecto del CLI depende de los agentes detectados en la máquina, así que una lista explícita hace determinista qué targets solicita el comando. El payload global puede seguir siendo visible para otros agentes universales mediante el store compartido; esa visibilidad no sustituye la selección explícita requerida.
+El usuario pidió declarar exactamente estos cuatro agentes. La resolución por defecto del CLI depende de los agentes detectados en la máquina, así que una lista explícita hace determinista qué targets solicita el comando. El payload global puede seguir siendo visible para otros agentes universales mediante el store compartido; esa visibilidad no sustituye la selección explícita requerida.
 
 **Alternativas consideradas:**
 
-- Resolución por defecto (sin `--agent`) — rechazada: el comando no declararía de forma determinista los tres targets requeridos.
+- Resolución por defecto (sin `--agent`) — rechazada: el comando no declararía de forma determinista los cuatro targets requeridos.
 - `--all` — rechazada: más amplio de lo pedido.
 
 **Nota:** esto revierte la conclusión del diseño slidev contra flags `--agent`, pero la premisa cambió: el CLI actual mantiene el layout uniforme (store compartido + symlinks) también para installs con agentes explícitos, y aquí la cobertura multi-agente es un requisito, no una preferencia estética.
@@ -72,7 +72,7 @@ La spec no exige cambios en README ni manual. Las tareas instruyen ejecutar las 
 
 - **[Risk] El repo `gluestack/agent-skills` cambia de layout y rompe la resolución de `--skill gluestack-ui-v5`** → _Mitigación:_ `skills.sh add` falla ruidosamente; el contador de errores deja continuar al resto del grupo. El usuario re-ejecuta tras el fix upstream.
 - **[Risk] El comportamiento exacto de `--agent` multi-agente difiere de lo observado en la exploración** → _Mitigación:_ la implementación verifica empíricamente el layout resultante (staging + symlinks por agente) antes de dar por hecho el contrato; si el CLI cambió, se ajusta la invocación.
-- **[Trade-off] Asimetría con las skills existentes** → gluestack-ui-v5 queda enlazada a tres agentes mientras las demás están enlazadas a seis. _Aceptado:_ es lo pedido; retrofitar el resto es non-goal explícito.
+- **[Trade-off] Asimetría con las skills existentes** → gluestack-ui-v5 declara cuatro targets explícitos mientras las trece llamadas anteriores usan la resolución por defecto del CLI. _Aceptado:_ es lo pedido; retrofitar el resto es non-goal explícito.
 
 ## Migration Plan
 

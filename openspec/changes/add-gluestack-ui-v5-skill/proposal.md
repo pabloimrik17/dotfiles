@@ -7,7 +7,7 @@ Linear: [DOT-37](https://linear.app/monolab/issue/DOT-37/anadir-skill-gluestack-
 ## What Changes
 
 - Instalar la skill `gluestack-ui-v5` de `gluestack/agent-skills` globalmente vía `skills.sh` durante el setup de la máquina, usando el helper `install_skill` existente en el grupo de agent-skills (Group 9) de `run_onchange_install-packages.sh.tmpl`.
-- A diferencia del precedente slidev (solo Claude Code), esta instalación cubre explícitamente los tres agentes en uso: **Claude Code, OpenCode y Junie** (`--agent claude-code opencode junie`). El `skills.sh` actual soporta instalación multi-agente manteniendo el layout uniforme (staging en `~/.agents/skills/` + symlinks por agente).
+- A diferencia del precedente slidev (solo Claude Code), esta instalación cubre explícitamente los cuatro agentes en uso: **Claude Code, OpenCode, Junie y Codex** (`--agent claude-code opencode junie codex`). El `skills.sh` actual soporta instalación multi-agente manteniendo el layout uniforme (staging en `~/.agents/skills/` + resolución o symlinks por agente).
 - Skip idempotente cuando la skill ya está presente en la caché de `skills list -g --json` del grupo.
 - Extender el bloque de instrucciones manuales non-macOS con el mismo comando.
 - No modificar ningún archivo gestionado por chezmoi (los symlinks de la skill viven fuera del alcance de chezmoi).
@@ -16,7 +16,7 @@ Linear: [DOT-37](https://linear.app/monolab/issue/DOT-37/anadir-skill-gluestack-
 
 ### New Capabilities
 
-- `gluestack-ui-v5-skill-install`: Provisión de la skill de agente gluestack-ui v5 vía `skills.sh` durante el setup de chezmoi, con cobertura multi-agente (Claude Code, OpenCode, Junie), idempotencia, manejo de fallos y paridad manual non-macOS.
+- `gluestack-ui-v5-skill-install`: Provisión de la skill de agente gluestack-ui v5 vía `skills.sh` durante el setup de chezmoi, con cobertura multi-agente (Claude Code, OpenCode, Junie, Codex), idempotencia, manejo de fallos y paridad manual non-macOS.
 
 ### Modified Capabilities
 
@@ -27,4 +27,4 @@ Ninguna. La capability `skills-global-install` existente no se toca intencionada
 - **Code**: `run_onchange_install-packages.sh.tmpl` — nueva invocación de instalación dentro del grupo agent-skills existente, más una línea en el bloque de instrucciones non-macOS.
 - **Docs**: `README.md` (evaluado por la skill `update-readme` — adición de herramienta al setup) y `docs/manual.html` (evaluado por la skill `update-manual` — cambio de configuración CLI). Ambas son propuestas al usuario, no ediciones forzadas.
 - **Dependencies**: Sin nuevos paquetes brew/bun; depende del runner `npx` ya requerido por `skills.sh`.
-- **Machine state**: Un nuevo directorio staged en `~/.agents/skills/gluestack-ui-v5/` con symlinks en `~/.claude/skills/`, `~/.junie/skills/` y visibilidad en OpenCode tras el primer apply.
+- **Machine state**: Un nuevo directorio staged en `~/.agents/skills/gluestack-ui-v5/` con symlinks en `~/.claude/skills/`, `~/.junie/skills/` y visibilidad desde el store global en OpenCode y Codex tras el primer apply.

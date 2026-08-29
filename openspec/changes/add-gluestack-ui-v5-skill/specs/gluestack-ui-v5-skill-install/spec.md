@@ -1,17 +1,17 @@
 ## Purpose
 
-Provision the official gluestack-ui v5 agent skill (`gluestack/agent-skills` → `gluestack-ui-v5`) globally via `skills.sh` during chezmoi setup, so Claude Code, OpenCode, and Junie gain gluestack v5 knowledge — component regeneration with the official CLI (`npx gluestack-ui add`) instead of hand-maintained vendored components — on every fresh machine. The install shares the existing agent-skills group's confirmation prompt, skills-list cache, and error counter.
+Provision the official gluestack-ui v5 agent skill (`gluestack/agent-skills` → `gluestack-ui-v5`) globally via `skills.sh` during chezmoi setup, so Claude Code, OpenCode, Junie, and Codex gain gluestack v5 knowledge — component regeneration with the official CLI (`npx gluestack-ui add`) instead of hand-maintained vendored components — on every fresh machine. The install shares the existing agent-skills group's confirmation prompt, skills-list cache, and error counter.
 
 ## ADDED Requirements
 
 ### Requirement: gluestack-ui-v5 skill is installed globally via skills.sh
 
-The install script (`run_onchange_install-packages.sh.tmpl`) SHALL install the `gluestack-ui-v5` skill from the `gluestack/agent-skills` repository during the existing agent-skills installation group, reusing the group's shared install helper and its error handling. The executed command MUST include the `-g` global flag, MUST explicitly target the agents `claude-code`, `opencode`, and `junie`, and MUST be placed inside the group's confirmation-gated block so it shares the single user prompt with the other global skills.
+The install script (`run_onchange_install-packages.sh.tmpl`) SHALL install the `gluestack-ui-v5` skill from the `gluestack/agent-skills` repository during the existing agent-skills installation group, reusing the group's shared install helper and its error handling. The executed command MUST include the `-g` global flag, MUST explicitly target the agents `claude-code`, `opencode`, `junie`, and `codex`, and MUST be placed inside the group's confirmation-gated block so it shares the single user prompt with the other global skills.
 
 #### Scenario: First run on clean machine with npx available and user confirms
 
 - **WHEN** `chezmoi apply` runs the install script, `npx` is available, and the user confirms the agent-skills group
-- **THEN** the script executes `npx -y skills add gluestack/agent-skills --skill gluestack-ui-v5 -g -y` with an agent selection covering `claude-code`, `opencode`, and `junie`
+- **THEN** the script executes `npx -y skills add gluestack/agent-skills --skill gluestack-ui-v5 -g -y` with an agent selection covering `claude-code`, `opencode`, `junie`, and `codex`
 - **AND** the skill payload is staged at `~/.agents/skills/gluestack-ui-v5/`
 - **AND** no prompt or additional confirmation is requested beyond the group-level one
 
@@ -28,22 +28,23 @@ The install script (`run_onchange_install-packages.sh.tmpl`) SHALL install the `
 - **AND** a warning is logged
 - **AND** the script continues to subsequent groups
 
-### Requirement: gluestack-ui-v5 skill is available to Claude Code, OpenCode, and Junie
+### Requirement: gluestack-ui-v5 skill is available to Claude Code, OpenCode, Junie, and Codex
 
-The install step SHALL make the `gluestack-ui-v5` skill discoverable by all three agents in use — Claude Code, OpenCode, and Junie — following the per-agent linking behavior of the current `skills.sh` CLI.
+The install step SHALL make the `gluestack-ui-v5` skill discoverable by all four agents in use — Claude Code, OpenCode, Junie, and Codex — following the linking and shared-store resolution behavior of the current `skills.sh` CLI.
 
-#### Scenario: All three agents can discover the skill after install
+#### Scenario: All four agents can discover the skill after install
 
 - **WHEN** the install step completes successfully on the user's machine
 - **THEN** a `gluestack-ui-v5` symlink exists under `~/.claude/skills/` pointing into `~/.agents/skills/`
 - **AND** a `gluestack-ui-v5` symlink exists under `~/.junie/skills/` pointing into `~/.agents/skills/`
 - **AND** the `gluestack-ui-v5` skill is discoverable by OpenCode's user-level skill resolution
+- **AND** `npx -y skills list -g --agent codex --json` reports `gluestack-ui-v5` as discoverable by Codex through the global store
 
 #### Scenario: Agent selection arguments are explicit, not default-dependent
 
 - **WHEN** the install command is executed on a machine where `skills.sh` default agent resolution differs (e.g., additional agents installed)
-- **THEN** the command's explicit agent arguments still name exactly `claude-code`, `opencode`, and `junie`
-- **AND** coverage of these three agents does not depend on CLI default-resolution behavior
+- **THEN** the command's explicit agent arguments still name exactly `claude-code`, `opencode`, `junie`, and `codex`
+- **AND** coverage of these four agents does not depend on CLI default-resolution behavior
 - **AND** any additional discovery through the shared global store does not replace or expand the command's declared agent arguments
 
 ### Requirement: gluestack-ui-v5 install is idempotent via the shared skills-list cache
