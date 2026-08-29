@@ -68,6 +68,21 @@ Paridad copy-paste: la línea manual incluye el mismo `-g` y la misma lista `--a
 
 La spec no exige cambios en README ni manual. Las tareas instruyen ejecutar las skills `update-readme` y `update-manual` tras la implementación, que evalúan si procede actualización y lo proponen al usuario.
 
+### Decision 7: `skill_installed` reconcilia cobertura de agentes, no solo presencia por nombre
+
+Fix de CodeRabbit posterior a la redacción inicial de este documento (review en #181). `skill_installed <name> <agents>` salta la instalación solo si `name` aparece en la caché de `skills list -g --json` Y todos los `agents` pedidos ya están en el `agents` de esa entrada. Antes matcheaba solo por nombre: una skill presente pero sin un agente target quedaba saltada para siempre y la cobertura `--agent` pedida nunca se reconciliaba en reruns.
+
+`skill_agent_display` mapea slugs de CLI a nombres de display, porque `skills list --json` reporta agentes por display name mientras `--agent` toma slugs: `claude-code`→`Claude Code`, `opencode`→`OpenCode`, `junie`→`Junie`, `codex`→`Codex` (además de `cursor`, `gemini-cli`, `github-copilot`).
+
+Sin `jq` en PATH el check degrada a un match por nombre (`grep`), igual que la convención ya existente en el script (guard `command -v jq` ~línea 1191): `jq` se usa cuando está disponible pero nunca se asume, no es una dependencia gestionada por este repo.
+
+**Reconciliación con el Non-Goal "no modificar las trece skills existentes":** las trece llamadas no cambian y su comportamiento es idéntico — no pasan `agents`, así que el loop de cobertura no se ejecuta. Lo que cambió es el helper compartido `install_skill`/`skill_installed`, no las llamadas. El Non-Goal sigue cumplido.
+
+**Alternativas consideradas:**
+
+- Mantener el skip name-only — rechazada: deja el drift de cobertura sin reconciliar entre reruns.
+- Exigir `jq` como dependencia dura — rechazada: `jq` no es un paquete gestionado en este repo.
+
 ## Risks / Trade-offs
 
 - **[Risk] El repo `gluestack/agent-skills` cambia de layout y rompe la resolución de `--skill gluestack-ui-v5`** → _Mitigación:_ `skills.sh add` falla ruidosamente; el contador de errores deja continuar al resto del grupo. El usuario re-ejecuta tras el fix upstream.
