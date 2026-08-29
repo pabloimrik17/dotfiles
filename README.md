@@ -18,7 +18,7 @@
   <img src="assets/tickrs-overview.png" alt="tickrs real-time stock ticker" width="800">
 </p>
 
-chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Ghostty, Starship, zsh with Oh-My-Zsh, modern CLI replacements (`eza`, `bat`, `zoxide`, `fzf`), and AI tooling like Claude Code, OpenCode, and Agent of Empires. Everything themed with Catppuccin Mocha, with sensitive configs (like trading positions) encrypted at rest via `age`.
+chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Ghostty, Starship, zsh with Oh-My-Zsh, modern CLI replacements (`eza`, `bat`, `zoxide`, `fzf`), and AI tooling like Claude Code, Codex, OpenCode, and Agent of Empires. Everything themed with Catppuccin Mocha, with sensitive configs (like trading positions) encrypted at rest via `age`.
 
 ## What's Included
 
@@ -53,6 +53,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **Git**        | [gh-stack](https://github.com/github/gh-stack)                                  | Stacked pull requests from the terminal (`gs`)                                             |
 | **Git**        | [Worktrunk](https://github.com/max-sixty/worktrunk)                             | Git worktree manager for parallel AI agent workflows                                       |
 | **AI Tooling** | [Claude Code](https://code.claude.com/)                                         | AI coding assistant CLI with plugins                                                       |
+| **AI Tooling** | [Codex](https://developers.openai.com/codex/cli/)                               | OpenAI coding-agent CLI installed through its standalone installer                         |
 | **AI Tooling** | [OpenCode](https://github.com/anomalyco/opencode)                               | AI code editor                                                                             |
 | **AI Tooling** | [Agent of Empires](https://github.com/njbrake/agent-of-empires)                 | tmux-native TUI for managing parallel AI agent sessions (`aoe`)                            |
 | **AI Tooling** | [CodeRabbit](https://www.coderabbit.ai/)                                        | AI code review CLI                                                                         |
@@ -182,4 +183,4 @@ bubu            # brew packages: update + upgrade + cleanup
 update-extra    # the rest: gh extensions, omz plugins, skills, plannotator, themes, tv channels
 ```
 
-Self-updating tools (Claude Code, OpenCode, CodeRabbit) and repo-pinned versions (Renovate-managed) take care of themselves.
+Self-updating tools (Claude Code, Codex, OpenCode, CodeRabbit) and repo-pinned versions (Renovate-managed) take care of themselves.

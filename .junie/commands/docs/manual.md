@@ -20,11 +20,12 @@ This command is invoked via `/docs:manual` to check whether the interactive manu
 - `dot_config/atuin/config.toml` (history settings)
 - `dot_config/worktrunk/` (worktree manager config)
 - `dot_config/gh-dash/config.yml` (GitHub dashboard)
+- `dot_codex/**` (future Codex user configuration)
 - `dot_config/opencode/opencode.jsonc` (OpenCode config)
 - `dot_tmux.conf` (tmux settings)
 - `.mcp.json` (Claude Code MCP servers)
 - `dot_claude/modify_settings.json.tmpl` (Claude Code settings)
-- `run_onchange_install-packages.sh.tmpl` (brew packages, gh extensions, plugins)
+- `run_onchange_install-packages.sh.tmpl` (brew packages, gh extensions, plugins, Codex installer)
 
 **Does NOT trigger on:**
 
@@ -59,6 +60,7 @@ Use this mapping to identify which sections of `docs/manual.html` to analyze:
 | `dot_zshrc.tmpl` — macos aliases                                 | 10. macOS Integration  |
 | `.mcp.json` + `dot_claude/` + Claude Code plugins                | 11. Claude Code        |
 | `dot_config/opencode/`                                           | 12. OpenCode           |
+| `run_onchange_install-packages.sh.tmpl` — Codex installer + `dot_codex/**` | 13. Codex      |
 
 ### Step 3: Read and Compare
 
