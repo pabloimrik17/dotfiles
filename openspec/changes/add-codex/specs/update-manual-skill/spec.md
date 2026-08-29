@@ -19,6 +19,11 @@ The system SHALL provide a skill named `update-manual` whose body lives at `.age
 - **WHEN** the Codex installer stanza changes or a future source under `dot_codex/` is added, modified, or removed
 - **THEN** the skill activates and analyzes the Codex manual section
 
+#### Scenario: Project Codex output is ignored
+
+- **WHEN** changes are made only under project `.codex/**`
+- **THEN** the skill does NOT activate
+
 #### Scenario: Unrelated file changed
 
 - **WHEN** changes are made only to files unrelated to configuration (e.g., openspec artifacts, CI workflows, package.json)

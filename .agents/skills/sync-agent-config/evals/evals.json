@@ -86,14 +86,14 @@
     {
       "id": 6,
       "prompt": "Quiero añadir una regla de permisos de usuario para una herramienta agente. Antes de tocar nada, enséñame la propuesta completa de paridad y deja claro qué pasa con cada herramienta.",
-      "expected_output": "A complete proposal with separate Claude Code, Codex, OpenCode, and Junie blocks, each containing a verified target or explicit gap, no config written, plus a six-column parity.md row",
+      "expected_output": "A clarification request for the source tool and exact permission rule, with no config written, four-tool proposal, or parity.md row until those details are supplied",
       "files": [],
       "assertions": [
-        "Produces separate blocks for Claude Code, Codex, OpenCode, and Junie",
-        "Every block contains a concrete, documentation-verified target or an explicit reasoned gap",
+        "Asks which source tool and user-config surface the permission rule belongs to",
+        "Asks for the exact permission rule or capability to replicate",
         "Does not guess a key or path when the requested permission rule lacks enough detail",
         "Waits for clarification and confirmation before any edit; no file is written",
-        "Proposes a parity.md row with all six columns filled and no blank cell"
+        "Does NOT produce a four-tool proposal or parity.md row before the missing input is supplied"
       ]
     },
     {

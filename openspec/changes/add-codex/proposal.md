@@ -7,7 +7,7 @@ The dotfiles setup does not install or document OpenAI Codex, and its agent-conf
 - Install Codex with OpenAI's standalone installer, including idempotent detection, safe migration from package-manager installations, and non-fatal failure handling.
 - Treat Codex as self-updating and document its installation, authentication, update, completion, instruction, and skill-discovery workflows.
 - Extend the agent-configuration synchronization skill and parity table from three tools to Claude Code, Codex, OpenCode, and Junie.
-- Declare `.agents/skills` as Codex's canonical repository and user skill source, without creating Codex-specific skill copies.
+- Declare `.agents/skills` as Codex's canonical repository skill source and `~/.agents/skills` as its canonical user skill source, without creating Codex-specific skill copies.
 - Reconcile the web and print manual section counts while adding Codex and retaining Agent Sessions as the final section.
 - Update the README to list Codex among the installed and self-updating AI tools.
 - Leave Codex MCP registrations and managed `~/.codex` preferences out of scope until concrete cross-tool mappings are selected.

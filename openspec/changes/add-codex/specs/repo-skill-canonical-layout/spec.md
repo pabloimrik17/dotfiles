@@ -2,7 +2,7 @@
 
 ### Requirement: Codex needs no per-tool entry
 
-Codex SHALL discover repo-owned skills directly from `.agents/skills/` while walking from the session working directory to the repository root. No repo-owned skill entry SHALL be created under `.codex/skills/`, and any generator-owned content already present there SHALL remain outside this capability.
+Codex SHALL discover repo-owned skills directly from `.agents/skills/` while walking from the session working directory to the repository root. Repo-owned skill names SHALL remain unique across repository `.agents/skills/` roots, with the repository-root `.agents/skills/<name>` as the sole supported definition. No repo-owned skill entry SHALL be created under `.codex/skills/`, and any generator-owned content already present there SHALL remain outside this capability.
 
 #### Scenario: Codex session starts inside the repository
 
