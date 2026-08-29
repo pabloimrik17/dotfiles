@@ -8,7 +8,7 @@ Linear: [DOT-37](https://linear.app/monolab/issue/DOT-37/anadir-skill-gluestack-
 
 - Instalar la skill `gluestack-ui-v5` de `gluestack/agent-skills` globalmente vía `skills.sh` durante el setup de la máquina, usando el helper `install_skill` existente en el grupo de agent-skills (Group 9) de `run_onchange_install-packages.sh.tmpl`.
 - A diferencia del precedente slidev (solo Claude Code), esta instalación cubre explícitamente los cuatro agentes en uso: **Claude Code, OpenCode, Junie y Codex** (`--agent claude-code opencode junie codex`). El `skills.sh` actual soporta instalación multi-agente manteniendo el layout uniforme (staging en `~/.agents/skills/` + resolución o symlinks por agente).
-- Skip idempotente cuando la skill ya está presente en la caché de `skills list -g --json` del grupo.
+- Skip idempotente cuando la skill ya está en la caché de `skills list -g --json` **y** cubre todos los agentes pedidos; si falta alguno, se reejecuta `skills add` para reconciliar la cobertura. Sin `jq` disponible, se degrada al chequeo por nombre.
 - Extender el bloque de instrucciones manuales non-macOS con el mismo comando.
 - No modificar ningún archivo gestionado por chezmoi (los symlinks de la skill viven fuera del alcance de chezmoi).
 

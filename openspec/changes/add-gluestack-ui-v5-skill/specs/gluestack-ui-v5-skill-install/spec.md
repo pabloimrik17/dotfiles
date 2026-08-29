@@ -49,13 +49,31 @@ The install step SHALL make the `gluestack-ui-v5` skill discoverable by all four
 
 ### Requirement: gluestack-ui-v5 install is idempotent via the shared skills-list cache
 
-The gluestack-ui-v5 install step SHALL consult the same `npx -y skills list -g --json` result that the agent-skills group already caches, and SHALL skip invocation when `gluestack-ui-v5` is already present in that output.
+The gluestack-ui-v5 install step SHALL consult the same `npx -y skills list -g --json` result that the agent-skills group already caches, and SHALL skip invocation only when `gluestack-ui-v5` is present in that output AND every requested agent target is already covered by that entry's `agents` list. When any requested target is missing, the step SHALL proceed with `skills add` so the declared coverage is reconciled rather than left drifted. Because `skills list --json` reports agents by display name while `--agent` takes slugs, the check MUST map slugs to display names (`claude-code` → `Claude Code`, `opencode` → `OpenCode`, `junie` → `Junie`, `codex` → `Codex`).
 
-#### Scenario: gluestack-ui-v5 already installed
+#### Scenario: gluestack-ui-v5 already installed with full agent coverage
 
-- **WHEN** the agent-skills group runs and `gluestack-ui-v5` appears in the cached `skills list -g --json` output
+- **WHEN** the agent-skills group runs and `gluestack-ui-v5` appears in the cached `skills list -g --json` output with `claude-code`, `opencode`, `junie`, and `codex` all covered
 - **THEN** `npx -y skills add gluestack/agent-skills …` is NOT executed
 - **AND** an info message indicates gluestack-ui-v5 is already installed
+
+#### Scenario: cached skill is missing a requested agent target
+
+- **WHEN** `gluestack-ui-v5` appears in the cached output but its `agents` list omits one or more of `claude-code`, `opencode`, `junie`, `codex`
+- **THEN** the skip is NOT taken and `npx -y skills add gluestack/agent-skills --skill gluestack-ui-v5 -g -y --agent claude-code opencode junie codex` is executed
+- **AND** the requested coverage is reconciled instead of remaining incomplete across reruns
+
+#### Scenario: jq is unavailable for agent-coverage inspection
+
+- **WHEN** `jq` is not available on PATH, so the cached entry's `agents` list cannot be inspected
+- **THEN** the step falls back to a name-only presence check
+- **AND** a skill already present by name is skipped, matching the group's prior behavior
+
+#### Scenario: skills invoked without explicit agent targets are unaffected
+
+- **WHEN** an `install_skill` call passes no agent list, as the other skills in the group do
+- **THEN** the skip decision is made on skill-name presence alone
+- **AND** the behavior is identical to before agent-coverage checking was introduced
 
 #### Scenario: skills-list cache query fails
 

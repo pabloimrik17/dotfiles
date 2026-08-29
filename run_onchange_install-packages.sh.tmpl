@@ -1300,20 +1300,53 @@ if confirm "Install global agent skills via skills.sh?"; then
             warn "Could not query installed global skills; proceeding without skip checks"
         fi
 
+        # `skills list --json` reports agents by display name, while
+        # `skills add --agent` takes slugs. Map slug -> display name so the
+        # skip check can compare the two.
+        skill_agent_display() {
+            case "$1" in
+                claude-code) echo "Claude Code" ;;
+                opencode) echo "OpenCode" ;;
+                junie) echo "Junie" ;;
+                codex) echo "Codex" ;;
+                cursor) echo "Cursor" ;;
+                gemini-cli) echo "Gemini CLI" ;;
+                github-copilot) echo "GitHub Copilot" ;;
+                *) echo "$1" ;;
+            esac
+        }
+
         skill_installed() {
             local name="$1"
-            if [ -n "$INSTALLED_SKILLS" ]; then
+            local agents="$2"
+            [ -n "$INSTALLED_SKILLS" ] || return 1
+
+            if ! command -v jq &>/dev/null; then
+                # Without jq the agent list cannot be inspected; fall back to a
+                # name-only match so the skill is still skipped when present.
                 echo "$INSTALLED_SKILLS" | grep -q "\"name\": \"$name\""
-            else
-                return 1
+                return
             fi
+
+            echo "$INSTALLED_SKILLS" | jq -e --arg n "$name" \
+                'any(.[]; .name == $n)' >/dev/null 2>&1 || return 1
+
+            # A cached skill with missing agent targets must not be skipped, or
+            # the requested coverage would never be reconciled on a rerun.
+            local agent display
+            # Intentional word splitting: $agents is a space-separated list.
+            for agent in $agents; do
+                display="$(skill_agent_display "$agent")"
+                echo "$INSTALLED_SKILLS" | jq -e --arg n "$name" --arg d "$display" \
+                    'any(.[]; .name == $n and ((.agents // []) | index($d)))' >/dev/null 2>&1 || return 1
+            done
         }
 
         install_skill() {
             local repo="$1"
             local name="$2"
             local agents="$3"
-            if skill_installed "$name"; then
+            if skill_installed "$name" "$agents"; then
                 info "  $name — already installed, skipping"
             elif [ -n "$agents" ]; then
                 # Intentional word splitting: $agents is a space-separated
