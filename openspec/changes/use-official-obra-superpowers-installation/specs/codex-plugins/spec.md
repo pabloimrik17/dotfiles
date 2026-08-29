@@ -25,7 +25,7 @@ An installed and authenticated Codex CLI whose workspace policy makes the plugin
 
 ### Requirement: The installer provisions Codex plugins idempotently
 
-The package installer SHALL install every entry of its Codex plugin list with `codex plugin add`, skipping entries Codex already reports as installed. It SHALL detect installed plugins from the `installed` array of `codex plugin list --json`, and SHALL skip the group with a warning when either `codex` or `jq` is unavailable.
+The package installer SHALL install every entry of its Codex plugin list with `codex plugin add`, skipping entries Codex already reports as installed. It SHALL detect installed plugins from the `installed` array of `codex plugin list --json`, and SHALL skip the group with a warning when either `codex` or `jq` is unavailable. A failed `codex plugin add` SHALL warn rather than count as an installation error, since a managed workspace can withhold a plugin from the user's role.
 
 #### Scenario: Every listed plugin is already installed
 
@@ -41,6 +41,11 @@ The package installer SHALL install every entry of its Codex plugin list with `c
 
 - **WHEN** `codex plugin list --json` reports a listed plugin only in its `available` array
 - **THEN** the installer treats it as pending rather than as installed
+
+#### Scenario: Installation is refused
+
+- **WHEN** `codex plugin add` fails for a listed plugin
+- **THEN** the installer warns with administrator guidance, continues with the remaining plugins, and does not fail the run
 
 #### Scenario: A prerequisite is missing
 

@@ -1319,7 +1319,9 @@ else
             else
                 info "  Installing $plugin..."
                 if ! codex plugin add "$plugin"; then
-                    error "Failed to install Codex plugin $plugin"
+                    # Not an installation error: a managed workspace can withhold
+                    # a plugin from the user's role, and `error` would exit 1.
+                    warn "Could not install Codex plugin $plugin — if your workspace withholds it, ask an administrator to make it available to your role"
                 fi
             fi
         done

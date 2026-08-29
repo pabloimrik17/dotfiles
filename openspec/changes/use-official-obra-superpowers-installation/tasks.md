@@ -27,4 +27,4 @@
 
 ## 6. Automated Codex Plugin Provisioning
 
-- [x] 6.1 Add a `CODEX_PLUGINS` group to `run_onchange_install-packages.sh.tmpl` that installs each entry with `codex plugin add`, detects installed entries from the `installed` array of `codex plugin list --json`, and warns and skips when `codex` or `jq` is missing; verify the rendered template passes `bash -n` and that the already-installed, pending, declined, no-codex, and no-jq paths each behave as specified.
+- [x] 6.1 Add a `CODEX_PLUGINS` group to `run_onchange_install-packages.sh.tmpl` that installs each entry with `codex plugin add`, detects installed entries from the `installed` array of `codex plugin list --json`, and warns and skips when `codex` or `jq` is missing; verify the rendered template passes `bash -n` and that the already-installed, pending, declined, refused-install, no-codex, and no-jq paths each behave as specified.
