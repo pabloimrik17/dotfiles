@@ -82,12 +82,18 @@ The non-macOS branch of the install script SHALL display the literal Slidev inst
 - **THEN** the displayed manual-instructions block includes the line `npx -y skills add slidevjs/slidev --skill slidev -g -y`
 - **AND** the line appears alongside the existing skill install commands, not in a separate section
 
-### Requirement: Slidev install is scoped to Claude Code only in this change
+### Requirement: Slidev skill is available to Claude Code and Codex
 
-The Slidev install step introduced by this change SHALL result in the skill being available only to Claude Code on machines where `skills.sh`'s default agent resolution targets Claude Code (as observed on the user's machine). Extending availability to other agents (e.g., OpenCode) is out of scope and MUST be addressed by a separate change.
+The Slidev skill SHALL remain installed canonically at `~/.agents/skills/slidev`. Claude Code SHALL access it through the existing `~/.claude/skills/slidev` compatibility symlink, while Codex SHALL discover the canonical directory directly. The setup SHALL NOT create `~/.codex/skills/slidev`, `~/.config/opencode/skills/slidev`, or `~/.opencode/skills/slidev` entries.
 
-#### Scenario: Only Claude Code receives the skill
+#### Scenario: Claude Code and Codex discover Slidev
 
-- **WHEN** the install step runs successfully on a machine that has both Claude Code and OpenCode configured and whose `skills.sh` default resolution targets only Claude Code
-- **THEN** the `slidev` skill symlink appears under `~/.claude/skills/`
-- **AND** no `slidev` symlink is created under `~/.config/opencode/skills/` or `~/.opencode/skills/` as a result of this change
+- **WHEN** the install step succeeds on a machine with Claude Code and Codex configured
+- **THEN** Claude Code discovers Slidev through `~/.claude/skills/slidev`
+- **AND** Codex discovers Slidev directly from `~/.agents/skills/slidev`
+
+#### Scenario: No Codex-specific skill entry is created
+
+- **WHEN** the Slidev installation is inspected
+- **THEN** no `~/.codex/skills/slidev` entry exists
+- **AND** the Codex-visible skill body remains `~/.agents/skills/slidev/SKILL.md`
