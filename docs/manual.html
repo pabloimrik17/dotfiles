@@ -3032,6 +3032,62 @@
                         </tbody>
                     </table>
 
+                    <h3>Plugins</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Command &amp; purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Browse</td>
+                                <td>
+                                    <code>codex plugin list --available --json</code> &mdash; list
+                                    plugins from the built-in
+                                    <code>openai-curated</code> marketplace
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Install Superpowers</td>
+                                <td>
+                                    <code>codex plugin add superpowers@openai-curated</code>
+                                    &mdash; install and enable the official curated plugin
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Verify</td>
+                                <td>
+                                    <code>codex plugin list --json</code> &mdash; confirm
+                                    Superpowers is installed and enabled
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Activate skills</td>
+                                <td>
+                                    Fully quit and restart Codex, begin a fresh session, then invoke
+                                    <code>$using-superpowers</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Remove</td>
+                                <td>
+                                    <code>codex plugin remove superpowers@openai-curated</code>
+                                    &mdash; remove the local plugin installation
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>State ownership</td>
+                                <td>
+                                    Plugin installation and cache state under
+                                    <code>~/.codex</code> is local and Codex-owned; chezmoi does not
+                                    manage it
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h3>Instructions &amp; skills</h3>
                     <table>
                         <thead>
