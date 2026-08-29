@@ -23,7 +23,7 @@
 
 ## 5. Official Codex Plugin Activation
 
-- [x] 5.1 With Codex installed and authenticated, run `codex plugin add superpowers@openai-curated`; fully quit and restart Codex, confirm `codex plugin list --json` reports it installed and enabled, and verify a fresh session discovers and can invoke the bundled `using-superpowers` skill without any chezmoi-managed Codex plugin file or cache edit.
+- [x] 5.1 With Codex installed, authenticated, and the plugin available to your workspace role, run `codex plugin add superpowers@openai-curated`; fully quit and restart Codex, confirm `codex plugin list --json` reports it installed and enabled, and verify a fresh session discovers and can invoke the bundled `using-superpowers` skill without any chezmoi-managed Codex plugin file or cache edit.
 
 ## 6. Automated Codex Plugin Provisioning
 

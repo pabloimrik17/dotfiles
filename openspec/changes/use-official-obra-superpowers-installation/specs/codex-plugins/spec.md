@@ -6,12 +6,17 @@ Provides a supported Codex plugin installation and verification path while leavi
 
 ### Requirement: Superpowers installs from the built-in curated marketplace
 
-An installed and authenticated Codex CLI SHALL expose `superpowers@openai-curated` through its built-in marketplace and SHALL support installing it with `codex plugin add superpowers@openai-curated` without adding a custom marketplace.
+An installed and authenticated Codex CLI whose workspace policy makes the plugin available to the user's role SHALL expose `superpowers@openai-curated` through its built-in marketplace and SHALL support installing it with `codex plugin add superpowers@openai-curated` without adding a custom marketplace.
 
 #### Scenario: Official plugin is available
 
-- **WHEN** an authenticated user lists available Codex plugins
+- **WHEN** an authenticated user whose workspace policy allows the plugin lists available Codex plugins
 - **THEN** `superpowers@openai-curated` appears as an available plugin
+
+#### Scenario: Workspace policy withholds the plugin
+
+- **WHEN** the user's workspace policy does not make `superpowers@openai-curated` available to their role
+- **THEN** it does not appear as available, and installation requires a workspace administrator to make it available
 
 #### Scenario: Official plugin is installed
 

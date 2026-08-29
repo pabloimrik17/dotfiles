@@ -35,12 +35,17 @@ When a configuration feature has no equivalent in a target tool, the skill SHALL
 
 ### Requirement: Parity table lives in the skill and starts empty
 
-The skill SHALL own a parity table at `.agents/skills/sync-agent-config/parity.md` with the columns `capability`, `Claude Code`, `Codex`, `OpenCode`, `Junie`, and `notes`. It SHALL be created with its column headers and no mapping rows. The skill SHALL read the table before proposing a replication and SHALL propose a table update whenever it establishes a new mapping, refreshes a stale mapping, or confirms a gap. Every mapping row SHALL have all six cells populated; runtime-owned counterparts SHALL use a stable identifier, while `none` SHALL be reserved for a true capability gap.
+The skill SHALL own a parity table at `.agents/skills/sync-agent-config/parity.md` with the columns `capability`, `Claude Code`, `Codex`, `OpenCode`, `Junie`, and `notes`. It SHALL be created with its column headers, and SHALL carry only the mapping rows the skill has established. The skill SHALL read the table before proposing a replication and SHALL propose a table update whenever it establishes a new mapping, refreshes a stale mapping, or confirms a gap. Every mapping row SHALL have all six cells populated; runtime-owned counterparts SHALL use a stable identifier, while `none` SHALL be reserved for a true capability gap.
 
 #### Scenario: Table is initialized empty
 
-- **WHEN** the four-tool parity table is initialized
-- **THEN** `parity.md` contains `| capability | Claude Code | Codex | OpenCode | Junie | notes |` and zero mapping rows
+- **WHEN** the four-tool parity table is initialized before any mapping is established
+- **THEN** `parity.md` contains `| capability | Claude Code | Codex | OpenCode | Junie | notes |` and no mapping rows
+
+#### Scenario: Established mapping is preserved
+
+- **WHEN** the table already records the Superpowers mapping
+- **THEN** the row is retained with all six cells populated rather than reset to an empty table
 
 #### Scenario: New mapping established
 
