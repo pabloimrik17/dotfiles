@@ -3053,7 +3053,10 @@
                                 <td>Install Superpowers</td>
                                 <td>
                                     <code>codex plugin add superpowers@openai-curated</code>
-                                    &mdash; install and enable the official curated plugin
+                                    &mdash; install and enable the official curated plugin. The
+                                    installer&rsquo;s <code>CODEX_PLUGINS</code> group runs this for
+                                    you and skips plugins Codex already reports as installed, so a
+                                    fresh machine needs no manual step
                                 </td>
                             </tr>
                             <tr>
@@ -3082,7 +3085,9 @@
                                 <td>
                                     Plugin installation and cache state under
                                     <code>~/.codex</code> is local and Codex-owned; chezmoi does not
-                                    manage it
+                                    manage it. The installer only drives the official
+                                    <code>codex plugin</code> CLI &mdash; it never writes those
+                                    files
                                 </td>
                             </tr>
                         </tbody>

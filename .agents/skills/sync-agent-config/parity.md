@@ -4,4 +4,4 @@ One row per user-scope capability, added by the `sync-agent-config` skill as map
 
 | capability | Claude Code | Codex | OpenCode | Junie | notes |
 | ---------- | ----------- | ----- | -------- | ----- | ----- |
-| Superpowers | `superpowers@superpowers-marketplace` | `superpowers@openai-curated` | `superpowers@git+https://github.com/obra/superpowers.git` | none | Codex installs the runtime-owned plugin with `codex plugin add`; no Codex plugin file is managed by chezmoi. No supported Junie user-scope counterpart exists. |
+| Superpowers | `superpowers@superpowers-marketplace` | `superpowers@openai-curated` | `superpowers@git+https://github.com/obra/superpowers.git` | none | The installer's `CODEX_PLUGINS` group runs `codex plugin add`; the plugin state stays runtime-owned and no Codex file is managed by chezmoi. No supported Junie user-scope counterpart exists. |

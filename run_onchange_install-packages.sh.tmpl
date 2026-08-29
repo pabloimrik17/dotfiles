@@ -1274,6 +1274,61 @@ else
 fi
 
 # ------------------------------------------------------------------
+# Group 8.75: Codex plugins
+# ------------------------------------------------------------------
+# Codex owns its plugin state under ~/.codex (bundles land in a cache path it
+# may prune), so chezmoi manages no file there. Parity comes from driving the
+# official CLI idempotently, the same way Group 8 drives `claude plugin`.
+CODEX_PLUGINS=(
+    "superpowers@openai-curated"
+)
+
+if ! command -v codex &>/dev/null; then
+    warn "Codex is not installed — skipping plugin setup"
+elif ! command -v jq &>/dev/null; then
+    warn "jq is required for Codex plugin detection — skipping Codex plugins"
+else
+    CODEX_PLUGIN_JSON="$(codex plugin list --json 2>/dev/null || true)"
+
+    # Scope the match to `.installed[]`: the payload also carries an
+    # `available[]` array, so a substring match would report a merely
+    # available plugin as installed.
+    codex_plugin_installed() {
+        local plugin_id="$1"
+        [ -n "$CODEX_PLUGIN_JSON" ] || return 1
+        echo "$CODEX_PLUGIN_JSON" |
+            jq -e --arg id "$plugin_id" \
+                '.installed[]? | select(.pluginId == $id and .installed == true)' \
+                >/dev/null 2>&1
+    }
+
+    PENDING_CODEX=0
+    TOTAL_CODEX=${#CODEX_PLUGINS[@]}
+    for plugin in "${CODEX_PLUGINS[@]}"; do
+        if ! codex_plugin_installed "$plugin"; then
+            PENDING_CODEX=$((PENDING_CODEX + 1))
+        fi
+    done
+
+    if [ "$PENDING_CODEX" -eq 0 ]; then
+        info "Codex plugins: $TOTAL_CODEX/$TOTAL_CODEX installed"
+    elif confirm "Install Codex plugins ($PENDING_CODEX/$TOTAL_CODEX pending)?"; then
+        for plugin in "${CODEX_PLUGINS[@]}"; do
+            if codex_plugin_installed "$plugin"; then
+                info "  $plugin — already installed, skipping"
+            else
+                info "  Installing $plugin..."
+                if ! codex plugin add "$plugin"; then
+                    error "Failed to install Codex plugin $plugin"
+                fi
+            fi
+        done
+    else
+        info "Skipping Codex plugins."
+    fi
+fi
+
+# ------------------------------------------------------------------
 # Group 9: Agent skills (skills.sh)
 # ------------------------------------------------------------------
 if confirm "Install global agent skills via skills.sh?"; then

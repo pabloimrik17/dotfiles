@@ -24,3 +24,7 @@
 ## 5. Official Codex Plugin Activation
 
 - [x] 5.1 With Codex installed and authenticated, run `codex plugin add superpowers@openai-curated`; fully quit and restart Codex, confirm `codex plugin list --json` reports it installed and enabled, and verify a fresh session discovers and can invoke the bundled `using-superpowers` skill without any chezmoi-managed Codex plugin file or cache edit.
+
+## 6. Automated Codex Plugin Provisioning
+
+- [x] 6.1 Add a `CODEX_PLUGINS` group to `run_onchange_install-packages.sh.tmpl` that installs each entry with `codex plugin add`, detects installed entries from the `installed` array of `codex plugin list --json`, and warns and skips when `codex` or `jq` is missing; verify the rendered template passes `bash -n` and that the already-installed, pending, declined, no-codex, and no-jq paths each behave as specified.
