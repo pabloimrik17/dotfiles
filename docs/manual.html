@@ -2602,27 +2602,41 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Codex</td>
+                                <td>Codex, Cursor, Gemini CLI, GitHub Copilot, OpenCode</td>
                                 <td>
                                     Same 24 skills from <code>mattpocock/skills</code>, auto-loaded
-                                    from the shared <code>~/.agents/skills</code>; not a skills.sh
-                                    target
+                                    from the canonical <code>~/.agents/skills</code>; these are
+                                    universal agents, so there is no per-agent copy and
+                                    <code>~/.config/opencode/skills</code> stays empty
                                 </td>
                                 <td><code>update-extra</code> skills.sh globals step</td>
                             </tr>
                             <tr>
-                                <td>OpenCode</td>
-                                <td>24 scoped global skills from <code>mattpocock/skills</code></td>
+                                <td>Junie</td>
+                                <td>
+                                    Same 24 skills as symlinks to
+                                    <code>~/.agents/skills/&lt;name&gt;</code> under
+                                    <code>~/.junie/skills</code>; Junie is not universal, so it is
+                                    the only agent that needs a skills.sh target
+                                </td>
                                 <td><code>update-extra</code> skills.sh globals step</td>
                             </tr>
                             <tr>
-                                <td>Junie</td>
-                                <td>24 scoped global skills from <code>mattpocock/skills</code></td>
-                                <td><code>update-extra</code> skills.sh globals step</td>
+                                <td>skills.sh scoping</td>
+                                <td>
+                                    Installed with <code>--agent opencode junie</code>;
+                                    <code>opencode</code> is a no-op for exposure, so the real effect
+                                    is keeping the standalone set out of Claude Code
+                                </td>
+                                <td>&mdash;</td>
                             </tr>
                             <tr>
                                 <td>Flat <code>code-review</code></td>
-                                <td>CodeRabbit-owned for OpenCode and Junie</td>
+                                <td>
+                                    CodeRabbit-owned across the standalone channel &mdash; the
+                                    canonical <code>~/.agents/skills/code-review</code> is
+                                    CodeRabbit's
+                                </td>
                                 <td>Matt's standalone <code>code-review</code> is excluded</td>
                             </tr>
                         </tbody>
