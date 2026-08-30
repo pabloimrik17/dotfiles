@@ -2,7 +2,7 @@
 
 See `proposal.md` for motivation and `specs/opencode-user-config/spec.md` for the OpenCode behavior contract. The Codex contract will live in `specs/codex-plugins/spec.md`, and the four-tool parity contract will live in `specs/sync-agent-config-skill/spec.md`. The current bootstrap clones Obra Superpowers into `~/.config/opencode/superpowers` and creates plugin and skill symlinks under `~/.config/opencode/`. Obra's official OpenCode installation instead delegates fetching, plugin loading, and skill registration to OpenCode through a git-backed package spec in the `plugin` array.
 
-The global OpenCode config is deployed from `dot_config/opencode/opencode.jsonc`; its websearch-cited entry must remain last. Existing machines may retain all three legacy Superpowers paths, and the interactive installer can currently recreate them. Claude Code installs Superpowers independently through its marketplace, while this repository has no Junie user-scope equivalent.
+The global OpenCode config is deployed from `dot_config/opencode/opencode.jsonc`. Existing machines may retain all three legacy Superpowers paths, and the interactive installer can currently recreate them. Claude Code installs Superpowers independently through its marketplace, while this repository has no Junie user-scope equivalent.
 
 Codex App and Codex CLI install Superpowers from OpenAI's built-in `openai-curated` marketplace. Codex CLI 0.151.0 exposes stable `codex plugin add/list/remove` commands, and its authenticated marketplace reports `superpowers@openai-curated` as available. Installed-plugin state and cache paths under `~/.codex` are local, Codex-owned runtime state rather than a stable chezmoi configuration surface.
 
@@ -28,7 +28,7 @@ Codex App and Codex CLI install Superpowers from OpenAI's built-in `openai-curat
 
 ### Register the official git-backed package in managed config
 
-Add `superpowers@git+https://github.com/obra/superpowers.git` to `dot_config/opencode/opencode.jsonc` immediately before the final websearch-cited entry. OpenCode will fetch and load the plugin after restart, and the plugin will expose Superpowers through OpenCode's native skill mechanism. No `skills.paths` entry is needed because the current config has none and the official plugin performs skill registration.
+Add `superpowers@git+https://github.com/obra/superpowers.git` to `dot_config/opencode/opencode.jsonc` as the final plugin entry. OpenCode will fetch and load the plugin after restart, and the plugin will expose Superpowers through OpenCode's native skill mechanism. No `skills.paths` entry is needed because the current config has none and the official plugin performs skill registration.
 
 This follows Obra's supported installation contract and removes local plugin lifecycle code. Retaining the clone-and-symlink flow was rejected because it can load a stale or duplicate copy and leaves updates outside OpenCode's package management.
 

@@ -10,7 +10,7 @@ The file SHALL contain:
 - `model` set to `anthropic/claude-opus-4-6`
 - `autoupdate` set to `true`
 - `tui.scroll_acceleration.enabled` set to `true`
-- A `plugin` array with curated OpenCode plugins (DCP, Plannotator, WakaTime, `superpowers@git+https://github.com/obra/superpowers.git`, and websearch-cited), with websearch-cited remaining the final entry
+- A `plugin` array with curated OpenCode plugins (DCP, Plannotator, WakaTime, and `superpowers@git+https://github.com/obra/superpowers.git`)
 - A `formatter` section registering `oxfmt` as a custom formatter
 - A `permission` section with:
     - `edit` set to `"ask"`
@@ -78,7 +78,7 @@ The file's `mcp` block is owned by `mcp-global-config`, which requires the globa
 #### Scenario: Official Superpowers plugin is registered
 
 - **WHEN** `chezmoi apply` deploys OpenCode config
-- **THEN** the deployed plugin array contains `superpowers@git+https://github.com/obra/superpowers.git` and keeps websearch-cited as its final entry
+- **THEN** the deployed plugin array contains `superpowers@git+https://github.com/obra/superpowers.git` as its final entry and no websearch-cited entry
 
 ## ADDED Requirements
 
