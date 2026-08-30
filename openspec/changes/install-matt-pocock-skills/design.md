@@ -4,7 +4,7 @@ The dotfiles repository already installs Claude Code plugins in Group 8 and user
 
 Matt Pocock publishes the same skill collection through two channels. The Claude Code plugin namespaces its commands by plugin name, while skills.sh stores global skill bodies under flat names and exposes them to selected agents. That difference matters because the existing CodeRabbit installation already owns the flat global name `code-review`.
 
-Current skills.sh releases support repeatable `--agent` and `--skill` options and have native global targets for both OpenCode and Junie. This permits agent scoping without custom symlink management.
+Current skills.sh releases accept repeated `--skill` options and a variadic `--agent <agents>` list, and have native global targets for both OpenCode and Junie. This permits agent scoping without custom symlink management.
 
 ## Goals / Non-Goals
 
@@ -27,6 +27,8 @@ Current skills.sh releases support repeatable `--agent` and `--skill` options an
 ### Use the official Claude Code plugin for all 25 skills
 
 Add `mattpocock-skills@claude-plugins-official` to Group 8 and enable it in the merged Claude settings. Plugin namespacing makes `/mattpocock-skills:code-review` coexist safely with the existing standalone `/code-review`, and the already configured official marketplace supplies automatic updates.
+
+The 25 is the length of the `skills` array in the plugin manifest (v1.2.3), not a count of `SKILL.md` files: the repository holds 35, including `in-progress/` and `misc/` bodies the manifest does not expose. The Group 9 selection of 24 is exactly that array minus `code-review`. A version bump that changes the array silently invalidates both the count and that equivalence, so re-read the manifest when the plugin updates.
 
 The alternative was to install standalone Matt skills for Claude Code as well. Upstream explicitly warns that combining standalone and plugin distributions duplicates every skill, so the standalone channel will not target Claude Code.
 
