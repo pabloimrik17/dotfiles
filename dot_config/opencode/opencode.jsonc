@@ -8,12 +8,11 @@
             "enabled": true,
         },
     },
-    // websearch-cited must be LAST to avoid impacting other plugins' auth
     "plugin": [
         "@tarquinen/opencode-dcp@latest",
         "@plannotator/opencode@latest",
         "opencode-wakatime",
-        "opencode-websearch-cited@1.2.0",
+        "superpowers@git+https://github.com/obra/superpowers.git",
     ],
     "mcp": {
         "expect": {
