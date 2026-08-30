@@ -5,6 +5,7 @@ Superpowers installation is harness-specific: OpenCode still uses a hand-built c
 ## What Changes
 
 - Register `superpowers@git+https://github.com/obra/superpowers.git` in the chezmoi-managed global OpenCode plugin array, as prescribed by Obra's official OpenCode installation guide.
+- Drop `opencode-websearch-cited@1.2.0` from the same plugin array and from the manual's OpenCode plugin inventory, because PR review found it interferes with other plugins' auth.
 - Remove the Superpowers clone and symlink setup from the interactive install script while retaining the unrelated Plannotator dependency installation.
 - Remove the old plugin symlink, skills symlink, and cloned repository from existing machines during `chezmoi apply` so only the official plugin-manager installation remains.
 - Install and enable Superpowers for Codex through OpenAI's built-in `openai-curated` marketplace with `codex plugin add superpowers@openai-curated`, where workspace policy makes the plugin available to the user's role; the Codex App Plugins UI and interactive `/plugins` browser remain supported alternatives.

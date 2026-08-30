@@ -30,7 +30,7 @@ Codex App and Codex CLI install Superpowers from OpenAI's built-in `openai-curat
 
 Add `superpowers@git+https://github.com/obra/superpowers.git` to `dot_config/opencode/opencode.jsonc` as the final plugin entry. OpenCode will fetch and load the plugin after restart, and the plugin will expose Superpowers through OpenCode's native skill mechanism. No `skills.paths` entry is needed because the current config has none and the official plugin performs skill registration.
 
-This follows Obra's supported installation contract and removes local plugin lifecycle code. Retaining the clone-and-symlink flow was rejected because it can load a stale or duplicate copy and leaves updates outside OpenCode's package management.
+This follows Obra's supported installation contract and removes local plugin lifecycle code. Retaining the clone-and-symlink flow was rejected because it can load a stale or duplicate copy and leaves updates outside OpenCode's package management. `opencode-websearch-cited@1.2.0` leaves the array in the same edit, because PR review found it interferes with other plugins' auth; that makes the Superpowers spec the final entry.
 
 ### Use Codex's built-in curated marketplace without managing runtime state
 
