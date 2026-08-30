@@ -1006,6 +1006,7 @@ CC_MARKETPLACES=(
 CC_PLUGINS=(
     "typescript-lsp@claude-plugins-official"
     "frontend-design@claude-plugins-official"
+    "mattpocock-skills@claude-plugins-official"
     "code-review@claude-plugins-official"
     "commit-commands@claude-plugins-official"
     "claude-md-management@claude-plugins-official"
@@ -1354,8 +1355,13 @@ if confirm "Install global agent skills via skills.sh?"; then
             [ -n "$INSTALLED_SKILLS" ] || return 1
 
             if ! command -v jq &>/dev/null; then
-                # Without jq the agent list cannot be inspected; fall back to a
-                # name-only match so the skill is still skipped when present.
+                # Without jq the agent list cannot be inspected. A call that
+                # requests specific agents must not be skipped on a name match
+                # alone, or the missing coverage would never be reconciled.
+                if [ -n "$agents" ]; then
+                    return 1
+                fi
+                # No agents requested: a name-only match is the whole check.
                 echo "$INSTALLED_SKILLS" | grep -q "\"name\": \"$name\""
                 return
             fi
@@ -1403,6 +1409,30 @@ if confirm "Install global agent skills via skills.sh?"; then
         install_skill "coderabbitai/skills" "autofix"
         install_skill "slidevjs/slidev" "slidev"
         install_skill "gluestack/agent-skills" "gluestack-ui-v5" "claude-code opencode junie codex"
+        install_skill "mattpocock/skills" "ask-matt" "opencode junie"
+        install_skill "mattpocock/skills" "diagnosing-bugs" "opencode junie"
+        install_skill "mattpocock/skills" "grill-with-docs" "opencode junie"
+        install_skill "mattpocock/skills" "triage" "opencode junie"
+        install_skill "mattpocock/skills" "improve-codebase-architecture" "opencode junie"
+        install_skill "mattpocock/skills" "setup-matt-pocock-skills" "opencode junie"
+        install_skill "mattpocock/skills" "tdd" "opencode junie"
+        install_skill "mattpocock/skills" "to-spec" "opencode junie"
+        install_skill "mattpocock/skills" "to-tickets" "opencode junie"
+        install_skill "mattpocock/skills" "wayfinder" "opencode junie"
+        install_skill "mattpocock/skills" "implement" "opencode junie"
+        install_skill "mattpocock/skills" "prototype" "opencode junie"
+        install_skill "mattpocock/skills" "research" "opencode junie"
+        install_skill "mattpocock/skills" "domain-modeling" "opencode junie"
+        install_skill "mattpocock/skills" "codebase-design" "opencode junie"
+        install_skill "mattpocock/skills" "resolving-merge-conflicts" "opencode junie"
+        install_skill "mattpocock/skills" "wizard" "opencode junie"
+        install_skill "mattpocock/skills" "grill-me" "opencode junie"
+        install_skill "mattpocock/skills" "grilling" "opencode junie"
+        install_skill "mattpocock/skills" "handoff" "opencode junie"
+        install_skill "mattpocock/skills" "teach" "opencode junie"
+        install_skill "mattpocock/skills" "to-questionnaire" "opencode junie"
+        install_skill "mattpocock/skills" "wait-what" "opencode junie"
+        install_skill "mattpocock/skills" "writing-for-agents" "opencode junie"
     else
         warn "npx is not available — skipping agent skills installation"
     fi
@@ -1482,6 +1512,7 @@ info "  Claude Code plugins:"
 info "    - claude plugin marketplace add backnotprop/plannotator && claude plugin install plannotator@plannotator"
 info "    - claude plugin marketplace add max-sixty/worktrunk && claude plugin install worktrunk@worktrunk"
 info "    - claude plugin marketplace add getsentry/sentry-mcp && claude plugin install sentry-mcp@sentry-mcp"
+info "    - claude plugin install mattpocock-skills@claude-plugins-official"
 info "  Agent skills (requires npx/Node.js):"
 info "    npx -y skills add vercel-labs/skills --skill find-skills -g -y"
 info "    npx -y skills add vercel-labs/agent-skills --skill vercel-react-best-practices -g -y"
@@ -1497,6 +1528,7 @@ info "    npx -y skills add coderabbitai/skills --skill code-review -g -y"
 info "    npx -y skills add coderabbitai/skills --skill autofix -g -y"
 info "    npx -y skills add slidevjs/slidev --skill slidev -g -y"
 info "    npx -y skills add gluestack/agent-skills --skill gluestack-ui-v5 -g -y --agent claude-code opencode junie codex"
+info "    npx -y skills add mattpocock/skills --skill ask-matt --skill diagnosing-bugs --skill grill-with-docs --skill triage --skill improve-codebase-architecture --skill setup-matt-pocock-skills --skill tdd --skill to-spec --skill to-tickets --skill wayfinder --skill implement --skill prototype --skill research --skill domain-modeling --skill codebase-design --skill resolving-merge-conflicts --skill wizard --skill grill-me --skill grilling --skill handoff --skill teach --skill to-questionnaire --skill wait-what --skill writing-for-agents -g -y --agent opencode junie"
 info ""
 
 {{ end -}}

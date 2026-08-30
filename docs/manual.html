@@ -2579,6 +2579,70 @@
                         </tbody>
                     </table>
 
+                    <h3>Matt Pocock skills</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Surface</th>
+                                <th>Exposure</th>
+                                <th>Update path</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Claude Code</td>
+                                <td>
+                                    25 namespaced skills from
+                                    <code>mattpocock-skills@claude-plugins-official</code>,
+                                    including <code>mattpocock-skills:code-review</code>; 11 are
+                                    model-invocable, the other 14 run only as an explicit
+                                    <code>/mattpocock-skills:&lt;name&gt;</code> command
+                                </td>
+                                <td>
+                                    <code>claude-plugins-official</code> marketplace auto-update
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Codex, Cursor, Gemini CLI, GitHub Copilot, OpenCode</td>
+                                <td>
+                                    Same 24 skills from <code>mattpocock/skills</code>, auto-loaded
+                                    from the canonical <code>~/.agents/skills</code>; these are
+                                    universal agents, so there is no per-agent copy and
+                                    <code>~/.config/opencode/skills</code> stays empty
+                                </td>
+                                <td><code>update-extra</code> skills.sh globals step</td>
+                            </tr>
+                            <tr>
+                                <td>Junie</td>
+                                <td>
+                                    Same 24 skills as symlinks to
+                                    <code>~/.agents/skills/&lt;name&gt;</code> under
+                                    <code>~/.junie/skills</code>; Junie is not universal, so it is
+                                    the only agent that needs a skills.sh target
+                                </td>
+                                <td><code>update-extra</code> skills.sh globals step</td>
+                            </tr>
+                            <tr>
+                                <td>skills.sh scoping</td>
+                                <td>
+                                    Installed with <code>--agent opencode junie</code>;
+                                    <code>opencode</code> is a no-op for exposure, so the real
+                                    effect is keeping the standalone set out of Claude Code
+                                </td>
+                                <td>&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>Flat <code>code-review</code></td>
+                                <td>
+                                    CodeRabbit-owned across the standalone channel &mdash; the
+                                    canonical <code>~/.agents/skills/code-review</code> is
+                                    CodeRabbit's
+                                </td>
+                                <td>Matt's standalone <code>code-review</code> is excluded</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h3>MCP servers</h3>
                     <table>
                         <thead>
