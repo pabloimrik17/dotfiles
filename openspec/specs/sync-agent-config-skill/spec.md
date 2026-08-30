@@ -56,17 +56,22 @@ The skill SHALL activate only for chezmoi-managed user-scope agentic-tool config
 
 ### Requirement: Proposal-only, never unattended application
 
-For every replication the skill identifies, it SHALL present the target tool, the target file, and the concrete edit, then wait for user confirmation before writing. The skill SHALL NOT modify any tool's configuration without that confirmation.
+For every replication the skill identifies, it SHALL present the target tool, parity status, target surface, and concrete action, then wait for user confirmation before writing a file or mutating runtime-owned state. A target surface SHALL be a chezmoi source path and key, an official runtime-owned command or UI, or `none` for a capability gap. An already-satisfied counterpart SHALL be reported without proposing a duplicate action.
 
 #### Scenario: User confirms a proposal
 
 - **WHEN** the skill proposes an equivalent edit and the user confirms it
 - **THEN** the edit is applied to the target tool's configuration file
 
+#### Scenario: User confirms a runtime-owned proposal
+
+- **WHEN** the skill proposes an official runtime command and the user confirms it
+- **THEN** the command is run without creating a chezmoi-managed substitute
+
 #### Scenario: User rejects a proposal
 
-- **WHEN** the user rejects the proposed edit
-- **THEN** no target configuration file is modified
+- **WHEN** the user rejects a proposed file edit or runtime command
+- **THEN** neither target configuration nor runtime-owned state is modified
 
 ### Requirement: Additions, modifications, and removals are all covered
 
@@ -84,31 +89,46 @@ The skill SHALL handle all three change kinds symmetrically: a config entry adde
 
 ### Requirement: Gaps are recorded, not silently skipped
 
-When a configuration feature has no equivalent in a target tool, the skill SHALL report that explicitly as a gap, naming the tool and the feature, and SHALL record it in the parity table. Every proposal SHALL include Claude Code, Codex, OpenCode, and Junie either with a concrete counterpart or an explicit gap; silently omitting a tool is not permitted.
+When a configuration feature has no equivalent in a target tool, the skill SHALL report that explicitly as a capability gap, naming the tool and feature, and SHALL record it in the parity table. Runtime ownership without a chezmoi file SHALL NOT be classified as a capability gap when an official counterpart exists. Every proposal SHALL include Claude Code, Codex, OpenCode, and Junie as a concrete managed counterpart, an official runtime-owned counterpart, an already-satisfied counterpart, or an explicit gap.
 
 #### Scenario: Feature has no counterpart
 
-- **WHEN** a tool-specific feature such as a hook or plugin has no equivalent in one or more of the other tools
-- **THEN** the skill reports the gap for each affected tool and records it in the parity table instead of omitting those tools
+- **WHEN** a tool-specific feature has no equivalent in one or more target tools
+- **THEN** the skill reports the gap for each affected tool and records `none` with a reason instead of omitting those tools
+
+#### Scenario: Counterpart is runtime-owned
+
+- **WHEN** a target tool provides an official counterpart only through runtime-owned state
+- **THEN** the skill records its stable identifier and supported action instead of inventing a chezmoi file or recording `none`
 
 ### Requirement: Parity table lives in the skill and starts empty
 
-The skill SHALL own a parity table at `.agents/skills/sync-agent-config/parity.md` with the columns `capability`, `Claude Code`, `Codex`, `OpenCode`, `Junie`, and `notes`. It SHALL be created with its column headers and no mapping rows. The skill SHALL read the table before proposing a replication and SHALL propose a table update whenever it establishes a new mapping or confirms a gap.
+The skill SHALL own a parity table at `.agents/skills/sync-agent-config/parity.md` with the columns `capability`, `Claude Code`, `Codex`, `OpenCode`, `Junie`, and `notes`. It SHALL be created with its column headers, and SHALL carry only the mapping rows the skill has established. The skill SHALL read the table before proposing a replication and SHALL propose a table update whenever it establishes a new mapping, refreshes a stale mapping, or confirms a gap. Every mapping row SHALL have all six cells populated; runtime-owned counterparts SHALL use a stable identifier, while `none` SHALL be reserved for a true capability gap.
 
 #### Scenario: Table is initialized empty
 
-- **WHEN** the four-tool parity table is initialized
-- **THEN** `parity.md` contains `| capability | Claude Code | Codex | OpenCode | Junie | notes |` and zero mapping rows
+- **WHEN** the four-tool parity table is initialized before any mapping is established
+- **THEN** `parity.md` contains `| capability | Claude Code | Codex | OpenCode | Junie | notes |` and no mapping rows
+
+#### Scenario: Established mapping is preserved
+
+- **WHEN** the table already records the Superpowers mapping
+- **THEN** the row is retained with all six cells populated rather than reset to an empty table
 
 #### Scenario: New mapping established
 
-- **WHEN** the skill resolves an equivalence between two tools that the table does not yet record
-- **THEN** the skill proposes adding the corresponding row to `parity.md`
+- **WHEN** the skill resolves an equivalence that the table does not yet record
+- **THEN** it proposes a complete six-column row in `parity.md`
 
 #### Scenario: Table consulted before proposing
 
 - **WHEN** the skill runs on a config change
-- **THEN** it reads `parity.md` first and reuses any mapping already recorded there
+- **THEN** it reads `parity.md` first and reuses a current mapping or proposes correcting a stale one
+
+#### Scenario: Runtime-owned mapping is recorded
+
+- **WHEN** the skill records Codex's official Superpowers counterpart
+- **THEN** the Codex cell contains `superpowers@openai-curated` and the notes explain that Codex owns the local runtime state
 
 ### Requirement: Docs delegation
 

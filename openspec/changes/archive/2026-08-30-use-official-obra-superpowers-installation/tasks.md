@@ -20,7 +20,7 @@
 
 - [x] 4.1 Run `bun run lint:oxfmt` and `git diff --check`, resolving all formatting or whitespace findings.
 - [x] 4.2 Run `openspec validate use-official-obra-superpowers-installation --strict` and verify `openspec show use-official-obra-superpowers-installation --json --deltas-only` reports the modified `opencode-user-config` capability with the official plugin and legacy-cleanup requirements.
-- [ ] 4.3 After this branch merges and `chezmoi update` syncs `~/.local/share/chezmoi` (the source tree apply reads, not this worktree), approve the dry-run and run `chezmoi apply` from an interactive terminal so the three removal prompts can be answered, or pass `--force`; then fully quit and restart OpenCode, verify startup output contains no Superpowers plugin-load errors, confirm the restarted runtime's native `/skill` endpoint lists the Superpowers skills, and verify the three legacy target paths no longer exist.
+- [x] 4.3 After this branch merges and `chezmoi update` syncs `~/.local/share/chezmoi` (the source tree apply reads, not this worktree), approve the dry-run and run `chezmoi apply` from an interactive terminal so the three removal prompts can be answered, or pass `--force`; then fully quit and restart OpenCode, verify startup output contains no Superpowers plugin-load errors, confirm the restarted runtime's native `/skill` endpoint lists the Superpowers skills, and verify the three legacy target paths no longer exist.
 - [x] 4.4 Run `bun run lint:oxfmt`, `git diff --check`, and strict OpenSpec validation; verify the delta output includes the new `codex-plugins` capability and the modified `sync-agent-config-skill` four-tool parity requirements.
 
 ## 5. Official Codex Plugin Activation
