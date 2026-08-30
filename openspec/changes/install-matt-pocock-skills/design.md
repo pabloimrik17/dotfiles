@@ -28,7 +28,7 @@ Current skills.sh releases accept repeated `--skill` options and a variadic `--a
 
 Add `mattpocock-skills@claude-plugins-official` to Group 8 and enable it in the merged Claude settings. Plugin namespacing makes `/mattpocock-skills:code-review` coexist safely with the existing standalone `/code-review`, and the already configured official marketplace supplies automatic updates.
 
-The 25 is the length of the `skills` array in the plugin manifest (v1.2.3), not a count of `SKILL.md` files: the repository holds 35, including `in-progress/` and `misc/` bodies the manifest does not expose. The Group 9 selection of 24 is exactly that array minus `code-review`. A version bump that changes the array silently invalidates both the count and that equivalence, so re-read the manifest when the plugin updates.
+The 25 is the length of the `skills` array in the plugin manifest (v1.2.3), not a count of `SKILL.md` files: the repository holds 35, including `in-progress/` and `misc/` bodies the manifest does not expose. The Group 9 selection of 24 is exactly that array minus `code-review`. A version bump that changes the array silently invalidates both the count and that equivalence, so re-read the manifest when the plugin updates. The same bump can also change how many of those bodies carry `disable-model-invocation: true` — 14 of the 25 at v1.2.3, leaving 11 model-invocable — so re-read the frontmatter too and update the split published in the Claude Code row of the `docs/manual.html` "Matt Pocock skills" table.
 
 The alternative was to install standalone Matt skills for Claude Code as well. Upstream explicitly warns that combining standalone and plugin distributions duplicates every skill, so the standalone channel will not target Claude Code.
 
