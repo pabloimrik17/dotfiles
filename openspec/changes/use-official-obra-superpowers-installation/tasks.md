@@ -3,6 +3,7 @@
 - [x] 1.1 Add `superpowers@git+https://github.com/obra/superpowers.git` to `dot_config/opencode/opencode.jsonc` immediately before the final websearch-cited plugin, then run `OPENCODE_CONFIG="$PWD/dot_config/opencode/opencode.jsonc" opencode debug config --pure` and verify the config resolves with the exact package spec and ordering.
 - [x] 1.2 Update Group 7 in `run_onchange_install-packages.sh.tmpl` to describe only Plannotator and remove the Superpowers clone and symlink block; verify Plannotator's official installer remains and searches for the legacy repository URL and three Superpowers target paths return no installer matches.
 - [x] 1.3 Remove `opencode-websearch-cited@1.2.0` and its ordering comment from `dot_config/opencode/opencode.jsonc` and its row from the OpenCode Plugins table in `docs/manual.html` (PR review: it interferes with other plugins' auth), leaving the Superpowers git spec as the final plugin entry.
+- [x] 1.4 Make Group 7 the single owner of the agent-agnostic Plannotator CLI (OpenCode, Claude Code, Codex): drop the opencode gate and remove Group 8's duplicate CLI install and PLANNOTATOR_PENDING tally.
 
 ## 2. Deterministic Legacy Cleanup
 

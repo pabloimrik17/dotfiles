@@ -50,7 +50,7 @@ This makes cleanup part of every applicable `chezmoi apply`, independent of whet
 
 ### Keep Group 7 focused on Plannotator
 
-Remove only the Superpowers clone and symlink block from `run_onchange_install-packages.sh.tmpl`. Retain Plannotator's dependency installation and update the group prompt so it no longer claims to install Superpowers. This prevents fresh setups from recreating paths that `.chezmoiremove` owns as obsolete.
+Remove the Superpowers clone and symlink block from `run_onchange_install-packages.sh.tmpl`. Group 7 becomes the single owner of the agent-agnostic Plannotator CLI (it serves OpenCode, Claude Code, and Codex): the `command -v opencode` gate and Group 8's duplicate CLI install are removed, and the group prompt no longer claims to install Superpowers. This prevents fresh setups from recreating paths that `.chezmoiremove` owns as obsolete.
 
 ### Record cross-agent parity across all four tools
 

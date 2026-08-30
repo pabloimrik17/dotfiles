@@ -965,26 +965,21 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Group 7: Plannotator for OpenCode
+# Group 7: Plannotator CLI (serves OpenCode, Claude Code, and Codex)
 # ------------------------------------------------------------------
-if confirm "Install Plannotator for OpenCode?"; then
-    if command -v opencode &>/dev/null; then
-        if command -v plannotator &>/dev/null; then
-            info "  plannotator — already installed, skipping"
-        else
-            info "  Installing plannotator..."
-            if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
-                error "Failed to install plannotator"
-            fi
-            # plannotator installs to ~/.local/bin which may not be in PATH yet
-            export PATH="$HOME/.local/bin:$PATH"
-            if ! command -v plannotator &>/dev/null; then
-                error "plannotator installed but not found in PATH"
-            fi
-        fi
-
+if confirm "Install the Plannotator CLI (serves OpenCode, Claude Code, and Codex)?"; then
+    if command -v plannotator &>/dev/null; then
+        info "  plannotator — already installed, skipping"
     else
-        warn "OpenCode is not installed — skipping Plannotator setup"
+        info "  Installing plannotator..."
+        if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
+            error "Failed to install plannotator"
+        fi
+        # plannotator installs to ~/.local/bin which may not be in PATH yet
+        export PATH="$HOME/.local/bin:$PATH"
+        if ! command -v plannotator &>/dev/null; then
+            error "plannotator installed but not found in PATH"
+        fi
     fi
 else
     info "Skipping Plannotator."
@@ -1062,10 +1057,6 @@ if command -v claude &>/dev/null; then
         fi
     }
 
-    # Check if plannotator CLI is pending
-    PLANNOTATOR_PENDING=0
-    command -v plannotator &>/dev/null || PLANNOTATOR_PENDING=1
-
     # Count pending marketplaces
     PENDING_MP=0
     TOTAL_MP=${#CC_MARKETPLACES[@]}
@@ -1084,25 +1075,11 @@ if command -v claude &>/dev/null; then
         fi
     done
 
-    if [ "$PLANNOTATOR_PENDING" -eq 0 ] && [ "$PENDING_MP" -eq 0 ] && [ "$PENDING_PL" -eq 0 ]; then
+    if [ "$PENDING_MP" -eq 0 ] && [ "$PENDING_PL" -eq 0 ]; then
         info "CC marketplaces: $TOTAL_MP/$TOTAL_MP registered"
         info "CC plugins: $TOTAL_PL/$TOTAL_PL installed"
     else
-        if confirm "Install Claude Code plugin dependencies ($PLANNOTATOR_PENDING cli + $PENDING_MP marketplaces + $PENDING_PL plugins pending)?"; then
-            if command -v plannotator &>/dev/null; then
-                info "  plannotator — already installed, skipping"
-            else
-                info "  Installing plannotator..."
-                if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
-                    error "Failed to install plannotator"
-                fi
-                # plannotator installs to ~/.local/bin which may not be in PATH yet
-                export PATH="$HOME/.local/bin:$PATH"
-                if ! command -v plannotator &>/dev/null; then
-                    error "plannotator installed but not found in PATH"
-                fi
-            fi
-
+        if confirm "Install Claude Code plugin dependencies ($PENDING_MP marketplaces + $PENDING_PL plugins pending)?"; then
             info "  Registering Claude Code plugin marketplaces..."
             for repo in "${CC_MARKETPLACES[@]}"; do
                 if marketplace_installed "$repo"; then
@@ -1461,7 +1438,7 @@ info "    mkdir -p \"\$(bat --config-dir)/themes\""
 info "    curl -fsSLo \"\$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme\" https://raw.githubusercontent.com/catppuccin/bat/main/themes/Catppuccin%20Mocha.tmTheme"
 info "    bat cache --build"
 info "  Claude Code plugins:"
-info "    - plannotator: curl -fsSL https://plannotator.ai/install.sh | bash"
+info "    - plannotator CLI (serves OpenCode, Claude Code, and Codex): curl -fsSL https://plannotator.ai/install.sh | bash"
 info "    - claude plugin marketplace add backnotprop/plannotator && claude plugin install plannotator@plannotator"
 info "    - claude plugin marketplace add max-sixty/worktrunk && claude plugin install worktrunk@worktrunk"
 info "    - claude plugin marketplace add getsentry/sentry-mcp && claude plugin install sentry-mcp@sentry-mcp"

@@ -93,5 +93,5 @@ Applying the dotfiles SHALL remove the obsolete `~/.config/opencode/plugins/supe
 
 #### Scenario: Bootstrap does not recreate the legacy installation
 
-- **WHEN** the user accepts the OpenCode plugin dependency installation group
-- **THEN** Plannotator dependencies are installed without cloning or symlinking Superpowers into `~/.config/opencode/`
+- **WHEN** the user accepts the Plannotator CLI installation group
+- **THEN** the Plannotator CLI is installed without cloning or symlinking Superpowers into `~/.config/opencode/`
