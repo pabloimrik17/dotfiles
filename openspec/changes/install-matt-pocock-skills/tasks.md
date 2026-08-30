@@ -17,7 +17,7 @@
 
 - [x] 3.1 Add a row to `.agents/skills/sync-agent-config/parity.md` recording Claude Code's official namespaced plugin, OpenCode's scoped skills.sh exposure, Junie's scoped skills.sh exposure, and the flat `code-review` exception; verify all five table cells are populated.
 - [x] 3.2 Invoke the `update-manual` skill for the new plugin and standalone skill distribution, apply or explicitly dismiss its proposed `docs/manual.html` edits, and verify the documented counts and update mechanisms match the rendered configuration.
-- [x] 3.3 Invoke the `update-readme` skill for the same distribution, apply or explicitly dismiss its proposed `README.md` edits, and verify any resulting skill table or setup guidance distinguishes plugin auto-updates from `update-extra` global-skill updates.
+- [x] 3.3 Invoke the `update-readme` skill for the same distribution, apply or explicitly dismiss its proposed `README.md` edits, and verify any resulting skill table or setup guidance distinguishes plugin auto-updates from `update-extra` global-skill updates. **Dismissed: `README.md` stays unmodified.** It enumerates no individual skills or plugins, its only related line is the generic `update-extra` mention at `README.md:183`, and it names neither Matt Pocock nor this distribution — which is documented instead in the manual's "Matt Pocock skills" table (task 3.2).
 
 ## 4. Static Verification
 
