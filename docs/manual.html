@@ -2840,6 +2840,18 @@
                         </tbody>
                     </table>
 
+                    <p class="note">
+                        <strong>Upgrading an existing machine:</strong> superpowers used to be a
+                        clone plus two symlinks under <code>~/.config/opencode/</code>. The first
+                        <code>chezmoi apply</code> after this change asks three times to remove them
+                        (<code>superpowers/</code>, <code>plugins/superpowers.js</code>,
+                        <code>skills/superpowers</code>) because chezmoi never wrote those paths
+                        &mdash; answer yes, or run <code>chezmoi apply --force</code>. A
+                        non-interactive apply aborts on the first prompt, before
+                        <code>opencode.jsonc</code> is deployed. One-time only: the installer no
+                        longer creates those paths.
+                    </p>
+
                     <h3>MCP servers (shared with Claude Code)</h3>
                     <table>
                         <thead>
