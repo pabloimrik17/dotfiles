@@ -56,6 +56,12 @@ Do not alter `dot_zshrc.tmpl`: its generic global skills update already covers t
 
 The non-macOS section will print the Claude plugin command and one skills.sh command with repeatable `--skill` arguments plus the two agent targets. It will not use `--skill '*'`, ensuring the fallback preserves the same collision policy as the managed macOS path.
 
+### Accept repeated reinstalls where jq is absent
+
+`skill_installed()` returns 1 whenever the call requests agents and `jq` is missing. Without `jq` the `agents` array of `skills list --json` cannot be inspected, so a name-only match would report "installed" for a record that covers none of the requested agents and the missing coverage would never be reconciled. Correctness over speed: the accepted cost is that all 25 agent-scoped Group 9 entries — the 24 Matt standalone skills plus the pre-existing `gluestack-ui-v5` — reinstall on those machines.
+
+The alternatives were adding `jq` to `BREW_PACKAGES`, reusing the `uv run --no-project python` engine of `modify_settings.json.tmpl`, and narrowing the `return 1`. Adding `jq` only equips the platform that already has `/usr/bin/jq`, not the Linux where it is absent. A second JSON engine adds a parser to Group 9 for a skip check, not for a fail-closed merge. Any narrowing reintroduces the unreconciled-coverage case the branch exists to prevent.
+
 ## Risks / Trade-offs
 
 - [Future flat-name collision among the 24 selections] -> The existing name pre-scan protects the current owner rather than overwriting it; verification checks source metadata, and a future collision requires an explicit policy decision.
@@ -65,6 +71,7 @@ The non-macOS section will print the Claude plugin command and one skills.sh com
 - [skills.sh CLI flags or target paths change] -> Rendered-command and live registry verification catches incompatibility before considering custom link logic.
 - [A prior unscoped install left Matt links in Claude Code] -> Report the stale exposure and offer a scoped `skills remove` command for the 24 selected names; never include `code-review` in that cleanup.
 - [Junie does not discover a generated link despite current CLI support] -> Verify discovery on the live machine; treat an upstream regression as follow-up work rather than adding speculative fallback code.
+- [Without jq the skip check never matches an agent-scoped skill] -> Accept reinstalling all 25 agent-scoped entries, `gluestack-ui-v5` included even though it predates DOT-17; this is the usual path on Linux, where `jq` is absent, and the cost is bounded because `run_onchange` runs only when the rendered installer changes.
 
 ## Migration Plan
 
