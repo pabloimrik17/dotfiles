@@ -7,7 +7,7 @@
 
 ## 2. Deterministic Legacy Cleanup
 
-- [x] 2.1 Add `.config/opencode/plugins/superpowers.js`, `.config/opencode/skills/superpowers`, and `.config/opencode/superpowers` to `.chezmoiremove`, then run `chezmoi apply --dry-run --verbose` and verify those exact targets are scheduled for removal without unrelated OpenCode plugin, skill, or runtime-state deletions.
+- [x] 2.1 Add `.config/opencode/plugins/superpowers.js`, `.config/opencode/skills/superpowers`, and `.config/opencode/superpowers` to `.chezmoiremove`, then run `chezmoi apply --dry-run --verbose --force` (without `--force` it stops at the first removal prompt) and verify those exact targets are scheduled for removal without unrelated OpenCode plugin, skill, or runtime-state deletions.
 
 ## 3. Agent Parity and Documentation
 
@@ -20,7 +20,7 @@
 
 - [x] 4.1 Run `bun run lint:oxfmt` and `git diff --check`, resolving all formatting or whitespace findings.
 - [x] 4.2 Run `openspec validate use-official-obra-superpowers-installation --strict` and verify `openspec show use-official-obra-superpowers-installation --json --deltas-only` reports the modified `opencode-user-config` capability with the official plugin and legacy-cleanup requirements.
-- [x] 4.3 After approving the dry-run, run `chezmoi apply`, fully quit and restart OpenCode, verify startup output contains no Superpowers plugin-load errors, confirm the restarted runtime's native `/skill` endpoint lists the Superpowers skills, and verify the three legacy target paths no longer exist.
+- [ ] 4.3 After this branch merges and `chezmoi update` syncs `~/.local/share/chezmoi` (the source tree apply reads, not this worktree), approve the dry-run and run `chezmoi apply` from an interactive terminal so the three removal prompts can be answered, or pass `--force`; then fully quit and restart OpenCode, verify startup output contains no Superpowers plugin-load errors, confirm the restarted runtime's native `/skill` endpoint lists the Superpowers skills, and verify the three legacy target paths no longer exist.
 - [x] 4.4 Run `bun run lint:oxfmt`, `git diff --check`, and strict OpenSpec validation; verify the delta output includes the new `codex-plugins` capability and the modified `sync-agent-config-skill` four-tool parity requirements.
 
 ## 5. Official Codex Plugin Activation

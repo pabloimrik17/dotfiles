@@ -38,6 +38,8 @@ Install Superpowers non-interactively with `codex plugin add superpowers@openai-
 
 Directly managing Codex's cache or config was rejected because those are tool-owned runtime state. Adding a custom marketplace was also rejected because authenticated Codex already provides `openai-curated`. Codex and authenticated marketplace access are prerequisites; if the plugin is unavailable, the installation task must pause rather than add an unsupported source or fallback installation.
 
+`run_onchange_install-packages.sh.tmpl` provisions the list idempotently in its own `CODEX_PLUGINS` group, the same way Group 8 drives `claude plugin`. It decides what is pending from the `installed` array of `codex plugin list --json`, and skips the group with a warning when `codex` or `jq` is missing, the query exits non-zero, or the payload is unreadable — treating a failed query as an empty inventory would mark every entry pending and prompt to reinstall what is already there. A failed `codex plugin add` warns rather than erroring, because a managed workspace withholding a plugin from the user's role is not an installation failure. An installed-but-disabled plugin is warned about and left alone; disabling is the user's call. Driving the official CLI is not managing `~/.codex`, so this adds no chezmoi-managed Codex file.
+
 ### Use chezmoi's removal manifest for one-way cleanup
 
 Add these exact target paths to `.chezmoiremove`:
@@ -47,6 +49,8 @@ Add these exact target paths to `.chezmoiremove`:
 - `.config/opencode/superpowers`
 
 This makes cleanup part of every applicable `chezmoi apply`, independent of whether the user reruns an interactive installer group. Cleanup inside the installer was rejected because users can skip that group; manual instructions were rejected because they cannot guarantee a single active installation.
+
+chezmoi never wrote these three paths, so it prompts before removing each one. The migration apply therefore needs an interactive terminal for three confirmations, or `--force`. Without a TTY it aborts on the first entry, before deploying `opencode.jsonc` — leaving the machine half-migrated.
 
 ### Keep Group 7 focused on Plannotator
 
@@ -67,7 +71,8 @@ OpenCode runtime verification requires quitting and restarting OpenCode, checkin
 ## Risks / Trade-offs
 
 - [A git-backed package can remain at a cached or lockfile-selected revision] -> Verify startup and skill discovery after restart; troubleshoot OpenCode's cache or lockfile only if the runtime check fails.
-- [`.chezmoiremove` deletes matching targets unconditionally] -> Limit entries to the three Superpowers-owned legacy paths and inspect `chezmoi apply --dry-run --verbose` before applying.
+- [`.chezmoiremove` deletes matching targets unconditionally] -> Limit entries to the three Superpowers-owned legacy paths and inspect `chezmoi apply --dry-run --verbose --force` before applying.
+- [Removing paths chezmoi never wrote prompts per entry, and without a TTY the apply aborts before deploying the config] -> Run the dry-run and the apply interactively, or pass `--force`.
 - [The running OpenCode process does not reload config changes] -> Make a full quit and restart an explicit migration and verification step.
 - [A failed plugin fetch could temporarily leave Superpowers unavailable after legacy cleanup] -> Validate network-backed plugin loading before considering the migration complete; the upstream repository can be fetched again and contains no unique local state.
 - [Claude Code, OpenCode, and Codex use different update mechanisms while Junie has no managed equivalent] -> Preserve each supported harness-specific mechanism and record Junie's gap rather than attempting to normalize transport or state ownership.
@@ -79,10 +84,10 @@ OpenCode runtime verification requires quitting and restarting OpenCode, checkin
 
 1. Update the managed OpenCode plugin array, simplify Group 7, add the three removal-manifest entries, and update the parity skill, table, evals, and OpenCode and Codex manual documentation.
 2. Add the Codex plugin and four-tool parity behavior contracts, then run source-level checks and strict OpenSpec validation.
-3. Run `chezmoi apply --dry-run --verbose` and confirm only the expected legacy Superpowers targets are scheduled for removal alongside the intended config deployment.
-4. Apply the dotfiles when ready, then fully quit and restart OpenCode so it installs and loads the git-backed plugin.
+3. Run `chezmoi apply --dry-run --verbose --force` and confirm only the expected legacy Superpowers targets are scheduled for removal alongside the intended config deployment; without `--force` the dry-run stops at the first removal prompt.
+4. Apply the dotfiles when ready from an interactive terminal, answering the three removal prompts (or pass `--force`), then fully quit and restart OpenCode so it installs and loads the git-backed plugin.
 5. Inspect startup output for plugin errors and use OpenCode's native `skill` tool to confirm Superpowers discovery.
-6. Once Codex and authenticated marketplace access are available, run `codex plugin add superpowers@openai-curated`.
+6. Once Codex and authenticated marketplace access are available, let the installer's `CODEX_PLUGINS` group install the plugin; `codex plugin add superpowers@openai-curated` is the manual fallback.
 7. Fully quit and restart Codex, confirm the marketplace still reports Superpowers installed, and verify a fresh session can discover and invoke `using-superpowers`.
 
 For OpenCode rollback after an apply, revert the managed plugin and removal-manifest changes, then restore the previous clone and symlinks from Obra's repository if the legacy installation is intentionally required. No user-authored state needs recovery from the removed paths. For Codex rollback, run `codex plugin remove superpowers@openai-curated`; no chezmoi-managed file needs restoration.
