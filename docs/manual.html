@@ -2872,8 +2872,14 @@
                                 <td>Coding time tracking</td>
                             </tr>
                             <tr>
-                                <td>websearch-cited</td>
-                                <td>Web search with source citations</td>
+                                <td>superpowers</td>
+                                <td>
+                                    Installed from the official git-backed
+                                    <code
+                                        >superpowers@git+https://github.com/obra/superpowers.git</code
+                                    >
+                                    package; workflows use OpenCode's native skill discovery
+                                </td>
                             </tr>
                             <tr>
                                 <td>dcp</td>
@@ -2881,6 +2887,18 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <p class="note">
+                        <strong>Upgrading an existing machine:</strong> superpowers used to be a
+                        clone plus two symlinks under <code>~/.config/opencode/</code>. The first
+                        <code>chezmoi apply</code> after this change asks three times to remove them
+                        (<code>superpowers/</code>, <code>plugins/superpowers.js</code>,
+                        <code>skills/superpowers</code>) because chezmoi never wrote those paths
+                        &mdash; answer yes, or run <code>chezmoi apply --force</code>. A
+                        non-interactive apply aborts on the first prompt, before
+                        <code>opencode.jsonc</code> is deployed. One-time only: the installer no
+                        longer creates those paths.
+                    </p>
 
                     <h3>MCP servers (shared with Claude Code)</h3>
                     <table>
@@ -3066,6 +3084,78 @@
                             <tr>
                                 <td><code>codex review --uncommitted</code></td>
                                 <td>Review the current working tree</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Plugins</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Command &amp; purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Browse</td>
+                                <td>
+                                    <code>codex plugin list --available --json</code> &mdash; list
+                                    plugins from the built-in
+                                    <code>openai-curated</code> marketplace
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>No access?</td>
+                                <td>
+                                    Availability is set by workspace policy. If
+                                    <code>superpowers@openai-curated</code> does not appear, ask
+                                    your workspace administrator to make it available to your role
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Install Superpowers</td>
+                                <td>
+                                    <code>codex plugin add superpowers@openai-curated</code>
+                                    &mdash; install and enable the official curated plugin. The
+                                    installer&rsquo;s <code>CODEX_PLUGINS</code> group runs this for
+                                    you where both <code>codex</code> and <code>jq</code> are on
+                                    PATH, skipping plugins Codex already reports as installed.
+                                    <code>jq</code> is not a provisioned package &mdash; on Linux
+                                    and on macOS below 15 it is absent, so the group warns and skips
+                                    and this command is yours to run by hand
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Verify</td>
+                                <td>
+                                    <code>codex plugin list --json</code> &mdash; confirm
+                                    Superpowers is installed and enabled
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Activate skills</td>
+                                <td>
+                                    Fully quit and restart Codex, begin a fresh session, then invoke
+                                    <code>$using-superpowers</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Remove</td>
+                                <td>
+                                    <code>codex plugin remove superpowers@openai-curated</code>
+                                    &mdash; remove the local plugin installation
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>State ownership</td>
+                                <td>
+                                    Plugin installation and cache state under
+                                    <code>~/.codex</code> is local and Codex-owned; chezmoi does not
+                                    manage it. The installer only drives the official
+                                    <code>codex plugin</code> CLI &mdash; Codex writes those files,
+                                    the installer never manages them directly
+                                </td>
                             </tr>
                         </tbody>
                     </table>

@@ -965,43 +965,24 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Group 7: OpenCode plugins
+# Group 7: Plannotator CLI (serves OpenCode, Claude Code, and Codex)
 # ------------------------------------------------------------------
-if confirm "Install OpenCode plugin dependencies (plannotator, superpowers)?"; then
-    if command -v opencode &>/dev/null; then
-        if command -v plannotator &>/dev/null; then
-            info "  plannotator — already installed, skipping"
-        else
-            info "  Installing plannotator..."
-            if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
-                error "Failed to install plannotator"
-            fi
-            # plannotator installs to ~/.local/bin which may not be in PATH yet
-            export PATH="$HOME/.local/bin:$PATH"
-            if ! command -v plannotator &>/dev/null; then
-                error "plannotator installed but not found in PATH"
-            fi
-        fi
-
-        info "  Installing superpowers..."
-        SUPERPOWERS_DIR="$HOME/.config/opencode/superpowers"
-        if [ -d "$SUPERPOWERS_DIR" ]; then
-            info "  superpowers — already installed, skipping"
-        else
-            if git clone https://github.com/obra/superpowers.git "$SUPERPOWERS_DIR"; then
-                mkdir -p "$HOME/.config/opencode/plugins"
-                ln -sf "$SUPERPOWERS_DIR/.opencode/plugins/superpowers.js" "$HOME/.config/opencode/plugins/superpowers.js"
-                mkdir -p "$HOME/.config/opencode/skills"
-                ln -sf "$SUPERPOWERS_DIR/skills" "$HOME/.config/opencode/skills/superpowers"
-            else
-                error "Failed to clone superpowers"
-            fi
-        fi
+if confirm "Install the Plannotator CLI (serves OpenCode, Claude Code, and Codex)?"; then
+    if command -v plannotator &>/dev/null; then
+        info "  plannotator — already installed, skipping"
     else
-        warn "OpenCode is not installed — skipping plugin setup"
+        info "  Installing plannotator..."
+        if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
+            error "Failed to install plannotator"
+        fi
+        # plannotator installs to ~/.local/bin which may not be in PATH yet
+        export PATH="$HOME/.local/bin:$PATH"
+        if ! command -v plannotator &>/dev/null; then
+            error "plannotator installed but not found in PATH"
+        fi
     fi
 else
-    info "Skipping OpenCode plugin dependencies."
+    info "Skipping Plannotator."
 fi
 
 # ------------------------------------------------------------------
@@ -1077,10 +1058,6 @@ if command -v claude &>/dev/null; then
         fi
     }
 
-    # Check if plannotator CLI is pending
-    PLANNOTATOR_PENDING=0
-    command -v plannotator &>/dev/null || PLANNOTATOR_PENDING=1
-
     # Count pending marketplaces
     PENDING_MP=0
     TOTAL_MP=${#CC_MARKETPLACES[@]}
@@ -1099,25 +1076,11 @@ if command -v claude &>/dev/null; then
         fi
     done
 
-    if [ "$PLANNOTATOR_PENDING" -eq 0 ] && [ "$PENDING_MP" -eq 0 ] && [ "$PENDING_PL" -eq 0 ]; then
+    if [ "$PENDING_MP" -eq 0 ] && [ "$PENDING_PL" -eq 0 ]; then
         info "CC marketplaces: $TOTAL_MP/$TOTAL_MP registered"
         info "CC plugins: $TOTAL_PL/$TOTAL_PL installed"
     else
-        if confirm "Install Claude Code plugin dependencies ($PLANNOTATOR_PENDING cli + $PENDING_MP marketplaces + $PENDING_PL plugins pending)?"; then
-            if command -v plannotator &>/dev/null; then
-                info "  plannotator — already installed, skipping"
-            else
-                info "  Installing plannotator..."
-                if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
-                    error "Failed to install plannotator"
-                fi
-                # plannotator installs to ~/.local/bin which may not be in PATH yet
-                export PATH="$HOME/.local/bin:$PATH"
-                if ! command -v plannotator &>/dev/null; then
-                    error "plannotator installed but not found in PATH"
-                fi
-            fi
-
+        if confirm "Install Claude Code plugin dependencies ($PENDING_MP marketplaces + $PENDING_PL plugins pending)?"; then
             info "  Registering Claude Code plugin marketplaces..."
             for repo in "${CC_MARKETPLACES[@]}"; do
                 if marketplace_installed "$repo"; then
@@ -1285,6 +1248,75 @@ else
         else
             info "Skipping MCP server registration."
         fi
+    fi
+fi
+
+# ------------------------------------------------------------------
+# Group 8.75: Codex plugins
+# ------------------------------------------------------------------
+# Codex owns its plugin state under ~/.codex (bundles land in a cache path it
+# may prune), so chezmoi manages no file there. Parity comes from driving the
+# official CLI idempotently, the same way Group 8 drives `claude plugin`.
+CODEX_PLUGINS=(
+    "superpowers@openai-curated"
+)
+
+if ! command -v codex &>/dev/null; then
+    warn "Codex is not installed — skipping plugin setup"
+elif ! command -v jq &>/dev/null; then
+    warn "jq is required for Codex plugin detection — skipping Codex plugins"
+elif ! CODEX_PLUGIN_JSON="$(codex plugin list --json 2>/dev/null)"; then
+    # Do not let a failed query look like an empty inventory: that would mark
+    # every plugin pending and prompt to reinstall what is already there.
+    warn "Could not query Codex plugins — skipping Codex plugin setup"
+elif ! jq -e '(.installed | type) == "array"' >/dev/null 2>&1 <<<"$CODEX_PLUGIN_JSON"; then
+    warn "Codex returned unreadable plugin data — skipping Codex plugin setup"
+else
+    # Scope the match to `.installed[]`. Without `--available` that is the only
+    # populated array, but scoping keeps the check correct if the payload ever
+    # carries `available[]` too.
+    codex_plugin_installed() {
+        local plugin_id="$1"
+        jq -e --arg id "$plugin_id" \
+            '.installed[]? | select(.pluginId == $id and .installed == true)' \
+            >/dev/null 2>&1 <<<"$CODEX_PLUGIN_JSON"
+    }
+
+    codex_plugin_enabled() {
+        local plugin_id="$1"
+        jq -e --arg id "$plugin_id" \
+            '.installed[]? | select(.pluginId == $id and .enabled == true)' \
+            >/dev/null 2>&1 <<<"$CODEX_PLUGIN_JSON"
+    }
+
+    PENDING_CODEX=0
+    TOTAL_CODEX=${#CODEX_PLUGINS[@]}
+    for plugin in "${CODEX_PLUGINS[@]}"; do
+        if ! codex_plugin_installed "$plugin"; then
+            PENDING_CODEX=$((PENDING_CODEX + 1))
+        elif ! codex_plugin_enabled "$plugin"; then
+            # Deliberate disables are the user's call — surface it, do not reinstall.
+            warn "$plugin is installed but disabled — enable it in Codex to use its skills"
+        fi
+    done
+
+    if [ "$PENDING_CODEX" -eq 0 ]; then
+        info "Codex plugins: $TOTAL_CODEX/$TOTAL_CODEX installed"
+    elif confirm "Install Codex plugins ($PENDING_CODEX/$TOTAL_CODEX pending)?"; then
+        for plugin in "${CODEX_PLUGINS[@]}"; do
+            if codex_plugin_installed "$plugin"; then
+                info "  $plugin — already installed, skipping"
+            else
+                info "  Installing $plugin..."
+                if ! codex plugin add "$plugin"; then
+                    # Not an installation error: a managed workspace can withhold
+                    # a plugin from the user's role, and `error` would exit 1.
+                    warn "Could not install Codex plugin $plugin — if your workspace withholds it, ask an administrator to make it available to your role"
+                fi
+            fi
+        done
+    else
+        info "Skipping Codex plugins."
     fi
 fi
 
@@ -1469,8 +1501,9 @@ info "  Bat theme: Catppuccin Mocha"
 info "    mkdir -p \"\$(bat --config-dir)/themes\""
 info "    curl -fsSLo \"\$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme\" https://raw.githubusercontent.com/catppuccin/bat/main/themes/Catppuccin%20Mocha.tmTheme"
 info "    bat cache --build"
+info "  Plannotator CLI (serves OpenCode, Claude Code, and Codex):"
+info "    - curl -fsSL https://plannotator.ai/install.sh | bash"
 info "  Claude Code plugins:"
-info "    - plannotator: curl -fsSL https://plannotator.ai/install.sh | bash"
 info "    - claude plugin marketplace add backnotprop/plannotator && claude plugin install plannotator@plannotator"
 info "    - claude plugin marketplace add max-sixty/worktrunk && claude plugin install worktrunk@worktrunk"
 info "    - claude plugin marketplace add getsentry/sentry-mcp && claude plugin install sentry-mcp@sentry-mcp"
