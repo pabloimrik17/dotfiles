@@ -114,7 +114,7 @@
             "expected_output": "A four-tool proposal that represents Codex as a concrete runtime-owned counterpart rather than a file or capability gap, records Junie as the real gap, mutates nothing before confirmation, and reuses the current six-column parity row without proposing a duplicate update",
             "files": [],
             "assertions": [
-                "Names all four tools (Claude Code, Codex, OpenCode, Junie) - none silently omitted",
+                "Names all four tools (Claude Code, Codex, OpenCode, Junie) — none silently omitted",
                 "Represents `superpowers@openai-curated` as a concrete Codex runtime-owned counterpart installed with `codex plugin add`, not as `none`",
                 "Does not invent a chezmoi-managed Codex file or classify runtime ownership as a capability gap",
                 "Recognises the existing Claude Code and OpenCode counterparts as already satisfied rather than proposing duplicate edits",
