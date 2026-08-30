@@ -3071,10 +3071,11 @@
                                     <code>codex plugin add superpowers@openai-curated</code>
                                     &mdash; install and enable the official curated plugin. The
                                     installer&rsquo;s <code>CODEX_PLUGINS</code> group runs this for
-                                    you and skips plugins Codex already reports as installed, so
-                                    once you accept the installer prompt no manual command is
-                                    needed. The group is skipped when <code>codex</code> or
-                                    <code>jq</code> is unavailable
+                                    you where both <code>codex</code> and <code>jq</code> are on
+                                    PATH, skipping plugins Codex already reports as installed.
+                                    <code>jq</code> is not a provisioned package &mdash; on Linux
+                                    and on macOS below 15 it is absent, so the group warns and skips
+                                    and this command is yours to run by hand
                                 </td>
                             </tr>
                             <tr>
