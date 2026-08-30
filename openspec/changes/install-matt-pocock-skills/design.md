@@ -32,7 +32,7 @@ The alternative was to install standalone Matt skills for Claude Code as well. U
 
 ### Install an explicit 24-skill standalone set for OpenCode and Junie
 
-Add each selected skill through Group 9 with both `--agent opencode` and `--agent junie`. Keep per-skill operations so the existing pre-scan can skip present names and one failed network operation does not prevent later skills from installing. The default skills.sh symlink mode remains responsible for canonical bodies and agent-specific exposure.
+Add each selected skill through Group 9 with the agent list `opencode junie`. Keep per-skill operations so the existing pre-scan can skip names that already cover both agents and one failed network operation does not prevent later skills from installing. The default skills.sh symlink mode remains responsible for canonical bodies and agent-specific exposure.
 
 The alternatives were an all-skills selector or a single batched operation. Selecting all skills would include the conflicting `code-review` name and would silently expand the managed set when upstream adds skills. One batch would reduce process startup overhead but weaken per-skill failure isolation and diagnostics.
 

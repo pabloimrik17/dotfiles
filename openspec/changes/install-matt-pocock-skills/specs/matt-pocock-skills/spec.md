@@ -13,8 +13,12 @@ The installation configuration SHALL manage these skills from `mattpocock/skills
 - **THEN** it installs that skill globally from `mattpocock/skills`
 
 #### Scenario: Selected skill is already installed
-- **WHEN** the package installer runs and a selected skill name is already present in the global skills registry
+- **WHEN** the package installer runs and a selected skill name is already present in the global skills registry with both OpenCode and Junie coverage
 - **THEN** it does not reinstall or overwrite that skill
+
+#### Scenario: Selected skill is present without the required agent coverage
+- **WHEN** the package installer runs and a selected skill name is present in the global skills registry but is not exposed to both OpenCode and Junie
+- **THEN** it reinstalls that skill so the missing agent coverage is reconciled
 
 #### Scenario: One selected skill fails to install
 - **WHEN** a selected Matt Pocock skill installation fails

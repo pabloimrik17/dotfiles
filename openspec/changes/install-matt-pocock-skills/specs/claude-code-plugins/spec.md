@@ -48,5 +48,5 @@ Claude Code SHALL receive Matt Pocock's complete 25-skill collection through the
 
 #### Scenario: Distribution channels are inspected
 - **WHEN** the managed plugin and skills.sh configuration are inspected together
-- **THEN** Claude Code is configured for the plugin channel only
-- **AND** OpenCode and Junie are configured for the standalone channel only
+- **THEN** Claude Code receives Matt Pocock skills through the plugin channel only
+- **AND** OpenCode and Junie receive Matt Pocock skills through the standalone channel only

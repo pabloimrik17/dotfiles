@@ -8,7 +8,7 @@
 
 ## 2. Scoped Standalone Skills
 
-- [x] 2.1 Extend Group 9 in `run_onchange_install-packages.sh.tmpl` with a scoped per-skill helper that reuses `skill_installed` and `run_claude_step` but invokes skills.sh with `--agent opencode --agent junie`; verify an already-present name is skipped and an install failure can be recorded without stopping later skill calls.
+- [x] 2.1 Extend Group 9 in `run_onchange_install-packages.sh.tmpl` so each selected skill installs through the existing `install_skill` helper with the agent list `opencode junie`; verify a name already covering both agents is skipped and an install failure can be recorded without stopping later skill calls.
 - [x] 2.2 Add calls for the 24 selected `mattpocock/skills` names from `specs/matt-pocock-skills/spec.md`; inspect the rendered script and verify every selected name appears once in the managed call list, every resulting add command is global and non-interactive, and no Matt call selects `code-review`, `*`, or `claude-code`.
 - [x] 2.3 Add one non-macOS fallback skills.sh command with repeatable `--skill` arguments for the same 24 names and explicit `--agent opencode --agent junie` scope; compare its sorted selection with the Group 9 selection and verify both sets are identical and exclude `code-review`.
 - [x] 2.4 Re-read the implementation diff and verify it adds no direct OpenCode or Junie symlink management, no Matt-specific update step in `dot_zshrc.tmpl`, no Renovate version pin, and no automatic removal of existing user-managed skills.
