@@ -1287,19 +1287,28 @@ if ! command -v codex &>/dev/null; then
     warn "Codex is not installed — skipping plugin setup"
 elif ! command -v jq &>/dev/null; then
     warn "jq is required for Codex plugin detection — skipping Codex plugins"
+elif ! CODEX_PLUGIN_JSON="$(codex plugin list --json 2>/dev/null)"; then
+    # Do not let a failed query look like an empty inventory: that would mark
+    # every plugin pending and prompt to reinstall what is already there.
+    warn "Could not query Codex plugins — skipping Codex plugin setup"
+elif ! jq -e 'has("installed")' >/dev/null 2>&1 <<<"$CODEX_PLUGIN_JSON"; then
+    warn "Codex returned unreadable plugin data — skipping Codex plugin setup"
 else
-    CODEX_PLUGIN_JSON="$(codex plugin list --json 2>/dev/null || true)"
-
-    # Scope the match to `.installed[]`: the payload also carries an
-    # `available[]` array, so a substring match would report a merely
-    # available plugin as installed.
+    # Scope the match to `.installed[]`. Without `--available` that is the only
+    # populated array, but scoping keeps the check correct if the payload ever
+    # carries `available[]` too.
     codex_plugin_installed() {
         local plugin_id="$1"
-        [ -n "$CODEX_PLUGIN_JSON" ] || return 1
-        echo "$CODEX_PLUGIN_JSON" |
-            jq -e --arg id "$plugin_id" \
-                '.installed[]? | select(.pluginId == $id and .installed == true)' \
-                >/dev/null 2>&1
+        jq -e --arg id "$plugin_id" \
+            '.installed[]? | select(.pluginId == $id and .installed == true)' \
+            >/dev/null 2>&1 <<<"$CODEX_PLUGIN_JSON"
+    }
+
+    codex_plugin_enabled() {
+        local plugin_id="$1"
+        jq -e --arg id "$plugin_id" \
+            '.installed[]? | select(.pluginId == $id and .enabled == true)' \
+            >/dev/null 2>&1 <<<"$CODEX_PLUGIN_JSON"
     }
 
     PENDING_CODEX=0
@@ -1307,6 +1316,9 @@ else
     for plugin in "${CODEX_PLUGINS[@]}"; do
         if ! codex_plugin_installed "$plugin"; then
             PENDING_CODEX=$((PENDING_CODEX + 1))
+        elif ! codex_plugin_enabled "$plugin"; then
+            # Deliberate disables are the user's call — surface it, do not reinstall.
+            warn "$plugin is installed but disabled — enable it in Codex to use its skills"
         fi
     done
 

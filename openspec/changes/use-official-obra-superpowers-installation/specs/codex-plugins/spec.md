@@ -25,7 +25,7 @@ An installed and authenticated Codex CLI whose workspace policy makes the plugin
 
 ### Requirement: The installer provisions Codex plugins idempotently
 
-The package installer SHALL install every entry of its Codex plugin list with `codex plugin add`, skipping entries Codex already reports as installed. It SHALL detect installed plugins from the `installed` array of `codex plugin list --json`, and SHALL skip the group with a warning when either `codex` or `jq` is unavailable. A failed `codex plugin add` SHALL warn rather than count as an installation error, since a managed workspace can withhold a plugin from the user's role.
+The package installer SHALL install every entry of its Codex plugin list with `codex plugin add`, skipping entries Codex already reports as installed. It SHALL detect installed plugins from the `installed` array of `codex plugin list --json`, and SHALL skip the group with a warning when `codex` or `jq` is unavailable, when the plugin query fails, or when its output is unreadable. It SHALL warn rather than reinstall when a listed plugin is installed but disabled. A failed `codex plugin add` SHALL warn rather than count as an installation error, since a managed workspace can withhold a plugin from the user's role.
 
 #### Scenario: Every listed plugin is already installed
 
@@ -39,13 +39,23 @@ The package installer SHALL install every entry of its Codex plugin list with `c
 
 #### Scenario: A plugin is available but not installed
 
-- **WHEN** `codex plugin list --json` reports a listed plugin only in its `available` array
+- **WHEN** `codex plugin list --available --json` reports a listed plugin only in its `available` array
 - **THEN** the installer treats it as pending rather than as installed
 
 #### Scenario: Installation is refused
 
 - **WHEN** `codex plugin add` fails for a listed plugin
 - **THEN** the installer warns with administrator guidance, continues with the remaining plugins, and does not fail the run
+
+#### Scenario: The plugin query fails
+
+- **WHEN** `codex plugin list --json` exits non-zero or returns unreadable output
+- **THEN** the installer warns and skips the group instead of treating the inventory as empty
+
+#### Scenario: A listed plugin is installed but disabled
+
+- **WHEN** Codex reports a listed plugin as installed with `enabled` false
+- **THEN** the installer warns and leaves it alone rather than reinstalling it
 
 #### Scenario: A prerequisite is missing
 

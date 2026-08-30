@@ -3063,8 +3063,10 @@
                                     <code>codex plugin add superpowers@openai-curated</code>
                                     &mdash; install and enable the official curated plugin. The
                                     installer&rsquo;s <code>CODEX_PLUGINS</code> group runs this for
-                                    you and skips plugins Codex already reports as installed, so a
-                                    fresh machine needs no manual step
+                                    you and skips plugins Codex already reports as installed, so
+                                    once you accept the installer prompt no manual command is
+                                    needed. The group is skipped when <code>codex</code> or
+                                    <code>jq</code> is unavailable
                                 </td>
                             </tr>
                             <tr>
@@ -3094,8 +3096,8 @@
                                     Plugin installation and cache state under
                                     <code>~/.codex</code> is local and Codex-owned; chezmoi does not
                                     manage it. The installer only drives the official
-                                    <code>codex plugin</code> CLI &mdash; it never writes those
-                                    files
+                                    <code>codex plugin</code> CLI &mdash; Codex writes those files,
+                                    the installer never manages them directly
                                 </td>
                             </tr>
                         </tbody>
