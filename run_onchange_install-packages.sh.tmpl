@@ -1291,7 +1291,7 @@ elif ! CODEX_PLUGIN_JSON="$(codex plugin list --json 2>/dev/null)"; then
     # Do not let a failed query look like an empty inventory: that would mark
     # every plugin pending and prompt to reinstall what is already there.
     warn "Could not query Codex plugins — skipping Codex plugin setup"
-elif ! jq -e 'has("installed")' >/dev/null 2>&1 <<<"$CODEX_PLUGIN_JSON"; then
+elif ! jq -e '(.installed | type) == "array"' >/dev/null 2>&1 <<<"$CODEX_PLUGIN_JSON"; then
     warn "Codex returned unreadable plugin data — skipping Codex plugin setup"
 else
     # Scope the match to `.installed[]`. Without `--available` that is the only

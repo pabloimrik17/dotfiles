@@ -49,7 +49,7 @@ The package installer SHALL install every entry of its Codex plugin list with `c
 
 #### Scenario: The plugin query fails
 
-- **WHEN** `codex plugin list --json` exits non-zero or returns unreadable output
+- **WHEN** `codex plugin list --json` exits non-zero, or returns output whose `installed` field is absent or not an array
 - **THEN** the installer warns and skips the group instead of treating the inventory as empty
 
 #### Scenario: A listed plugin is installed but disabled
