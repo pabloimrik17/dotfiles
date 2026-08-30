@@ -1355,8 +1355,13 @@ if confirm "Install global agent skills via skills.sh?"; then
             [ -n "$INSTALLED_SKILLS" ] || return 1
 
             if ! command -v jq &>/dev/null; then
-                # Without jq the agent list cannot be inspected; fall back to a
-                # name-only match so the skill is still skipped when present.
+                # Without jq the agent list cannot be inspected. A call that
+                # requests specific agents must not be skipped on a name match
+                # alone, or the missing coverage would never be reconciled.
+                if [ -n "$agents" ]; then
+                    return 1
+                fi
+                # No agents requested: a name-only match is the whole check.
                 echo "$INSTALLED_SKILLS" | grep -q "\"name\": \"$name\""
                 return
             fi
