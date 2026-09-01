@@ -3,7 +3,7 @@
     "mcp": {
         "eslint": {
             "type": "local",
-            "command": ["npx", "-y", "@eslint/mcp@0.3.0"],
+            "command": ["npx", "-y", "@eslint/mcp@0.3.10"],
             "enabled": true
         },
         "context7": {
