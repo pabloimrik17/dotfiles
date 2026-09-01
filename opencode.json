@@ -23,7 +23,7 @@
         },
         "playwright": {
             "type": "local",
-            "command": ["npx", "-y", "@playwright/mcp@0.0.68"],
+            "command": ["npx", "-y", "@playwright/mcp@0.0.79"],
             "enabled": true
         },
         "chrome-devtools": {
