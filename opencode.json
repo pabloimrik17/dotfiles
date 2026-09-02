@@ -13,7 +13,7 @@
         },
         "knip": {
             "type": "local",
-            "command": ["npx", "-y", "@knip/mcp@0.0.19"],
+            "command": ["npx", "-y", "@knip/mcp@0.0.34"],
             "enabled": true
         },
         "memory": {
