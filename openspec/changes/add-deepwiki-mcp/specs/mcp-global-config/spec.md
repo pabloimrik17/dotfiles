@@ -28,7 +28,7 @@
 
 - **WHEN** `chezmoi apply` runs the install script on a machine with `claude` CLI available
 - **AND** the user confirms the MCP servers install group
-- **THEN** `claude mcp list --scope user` SHALL still list all 14 pre-existing servers in the table above
+- **THEN** `claude mcp list --scope user` SHALL still list the 14 servers in the table above other than `deepwiki`
 
 #### Scenario: DeepWiki is registered as the fifteenth server
 
@@ -133,7 +133,7 @@ The setup SHALL drive Codex through its official `codex mcp` CLI and SHALL NOT i
 
 User documentation SHALL describe DeepWiki as a provider-managed, free, unauthenticated service for already-indexed public GitHub repositories. It SHALL explain that an unindexed repository must be submitted by visiting its DeepWiki URL, that private Nazaries repositories require the separate authenticated Devin MCP and are unsupported by this entry, and that DeepWiki cannot select a branch, tag, or commit.
 
-The guidance SHALL position Context7 for published library API documentation, DeepWiki for architecture and internal-flow exploration on the currently indexed default branch, and `gh_grep` or direct WebFetch for exact source citations and revision-sensitive verification.
+The guidance SHALL position Context7 for published library API documentation, DeepWiki for architecture and internal-flow exploration on an already-indexed public repository, and `gh_grep` or direct WebFetch for exact source citations and revision-sensitive verification.
 
 #### Scenario: User investigates an unindexed repository
 

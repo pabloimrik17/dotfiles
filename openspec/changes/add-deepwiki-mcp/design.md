@@ -29,7 +29,7 @@ The public DeepWiki endpoint is stateless Streamable HTTP and needs no credentia
 
 ### Keep DeepWiki permanently enabled, with a narrow routing contract
 
-DeepWiki remains enabled in all four clients. Its fixed surface is only three read-only tools, requires no authentication, and the direct trial produced useful implementation-level context that Context7's published-doc focus does not provide. The routing contract limits use to architecture and internal-flow exploration for an indexed public repository's current default-branch snapshot:
+DeepWiki remains enabled in all four clients. Its fixed surface is only three read-only tools, requires no authentication, and the direct trial produced useful implementation-level context that Context7's published-doc focus does not provide. The routing contract limits use to architecture and internal-flow exploration for an already-indexed public repository without treating its contents as default-branch or revision-specific evidence:
 
 1. Use Context7 for documented APIs, configuration, and migration guides.
 2. Use DeepWiki for structure, architecture, and cross-file implementation questions.
@@ -50,7 +50,7 @@ The authenticated `https://mcp.devin.ai/mcp` service is a different product and 
 The parity proposal is:
 
 - **Claude Code — proposed change.** Surface: `run_onchange_install-packages.sh.tmpl`, `MCP_HTTP_SERVERS`. Action: add `deepwiki:https://mcp.deepwiki.com/mcp`; the existing pre-scan, URL-drift replacement, confirmation, and non-fatal error handling apply.
-- **Codex — proposed runtime-owned counterpart.** Surface: the official `codex mcp` CLI, driven by a new install-script group. Action: inspect JSON from `codex mcp get/list`, add with `codex mcp add deepwiki --url https://mcp.deepwiki.com/mcp`, and remove/re-add only on URL drift. Do not create `dot_codex/config.toml`.
+- **Codex — proposed runtime-owned counterpart.** Surface: the official `codex mcp` CLI, driven by a new install-script group. Action: inspect JSON from `codex mcp get/list`, add with `codex mcp add deepwiki --url https://mcp.deepwiki.com/mcp`, and remove/re-add only on URL drift. Restore the previous HTTP entry if registration fails, and leave non-HTTP entries unchanged because the CLI provides no lossless replacement operation. Do not create `dot_codex/config.toml`.
 - **OpenCode — proposed change.** Surface: `dot_config/opencode/opencode.jsonc`, `mcp.deepwiki`. Action: add `{ "type": "remote", "url": "https://mcp.deepwiki.com/mcp", "enabled": true }` alongside existing entries.
 - **Junie — proposed first managed surface.** Surface: `dot_junie/mcp/mcp.json`, mapping to `~/.junie/mcp/mcp.json`. Action: add `{ "mcpServers": { "deepwiki": { "url": "https://mcp.deepwiki.com/mcp" } } }`.
 
@@ -86,7 +86,7 @@ The README MCP table gains a DeepWiki row and updates the global-server count. T
 
 - [Persistent context overhead from server instructions and three schemas] → measure it once in the evaluation report, keep the server's role narrow, and reconsider only through a follow-up change if real sessions show material pressure.
 - [Generated answers can omit citations or mix indexed code with model knowledge] → treat DeepWiki as discovery and require direct-source verification for exact/version-sensitive claims.
-- [Indexed content can lag the repository and cannot target revisions] → document the default-branch snapshot limitation and route historical questions to GitHub source tools.
+- [Indexed content can lag the repository and cannot target revisions] → document the indexed-content freshness and no-revision-selection limitations, and route revision-sensitive questions to GitHub source tools.
 - [An unindexed repository fails instead of indexing on demand] → surface the returned DeepWiki URL workflow; do not automate a browser visit or claim transparent indexing.
 - [A private repository name sent to the public service leaks its existence even though content is inaccessible] → documentation says not to invoke DeepWiki for private/Nazaries repositories; no private endpoint or token is configured.
 - [Remote service outage adds a failed connection at startup] → do not mark the Codex entry `required`; each client's failure remains isolated from other MCP servers.

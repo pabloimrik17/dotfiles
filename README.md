@@ -61,7 +61,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 
 ## MCP Servers
 
-The install script registers 15 global MCP servers to `~/.claude.json` (the stdio set is shared with OpenCode). Atlassian, Figma, Linear, and Notion authenticate via OAuth on first use; stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and remote entries in the OpenCode config, so neither is part of that count; both authenticate via OAuth on first use.
+The install script registers 15 global MCP servers to `~/.claude.json` for Claude Code. OpenCode manages its MCP servers independently. Atlassian, Figma, Linear, and Notion authenticate via OAuth on first use; stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and remote entries in the OpenCode config, so neither is part of that count; both authenticate via OAuth on first use.
 
 | Server                                                         | Transport | Description                                        | Auth / Setup                                                            |
 | -------------------------------------------------------------- | --------- | -------------------------------------------------- | ----------------------------------------------------------------------- |
@@ -83,7 +83,7 @@ The install script registers 15 global MCP servers to `~/.claude.json` (the stdi
 | posthog                                                        | http      | Product analytics, feature flags, errors           | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
 | sentry                                                         | http      | Issues, traces, and Seer root-cause runs           | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
 
-DeepWiki uses the same user-scope endpoint in Claude Code, Codex, OpenCode, and Junie. Use Context7 for published API/configuration documentation, DeepWiki for architecture discovery on a repository's currently indexed default branch, and `gh_grep` or direct source for exact paths and revision-sensitive evidence. The public entry cannot access private repositories or select a branch, tag, or commit; if a public repository is missing, visit `https://deepwiki.com/<owner>/<repo>` to request indexing.
+DeepWiki uses the same user-scope endpoint in Claude Code, Codex, OpenCode, and Junie. Use Context7 for published API/configuration documentation, DeepWiki for architecture discovery on an already-indexed public repository, and `gh_grep` or direct source for exact paths and revision-sensitive evidence. The public entry cannot access private repositories or select a branch, tag, or commit; if a public repository is missing, visit `https://deepwiki.com/<owner>/<repo>` to request indexing.
 
 ## Setup
 

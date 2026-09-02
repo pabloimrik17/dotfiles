@@ -1310,7 +1310,8 @@ setup_codex_deepwiki_mcp() {
         if [ -n "$current_url" ]; then
             info "Codex MCP $CODEX_DEEPWIKI_MCP_NAME — URL changed from $current_url"
         else
-            info "Codex MCP $CODEX_DEEPWIKI_MCP_NAME — transport changed"
+            warn "Existing Codex MCP $CODEX_DEEPWIKI_MCP_NAME is not an HTTP entry — leaving runtime state unchanged"
+            return 0
         fi
         if ! confirm "Replace Codex MCP $CODEX_DEEPWIKI_MCP_NAME with $CODEX_DEEPWIKI_MCP_URL?"; then
             info "Skipping Codex DeepWiki MCP registration."
@@ -1326,7 +1327,15 @@ setup_codex_deepwiki_mcp() {
     fi
 
     if ! "$codex_cli" mcp add "$CODEX_DEEPWIKI_MCP_NAME" --url "$CODEX_DEEPWIKI_MCP_URL"; then
-        warn "Could not register Codex MCP $CODEX_DEEPWIKI_MCP_NAME — run 'codex mcp add $CODEX_DEEPWIKI_MCP_NAME --url $CODEX_DEEPWIKI_MCP_URL' manually"
+        if [ "$entry_exists" -eq 1 ] && [ -n "$current_url" ]; then
+            if "$codex_cli" mcp add "$CODEX_DEEPWIKI_MCP_NAME" --url "$current_url"; then
+                warn "Could not register Codex MCP $CODEX_DEEPWIKI_MCP_NAME — previous entry restored"
+            else
+                warn "Could not register Codex MCP $CODEX_DEEPWIKI_MCP_NAME or restore its previous entry"
+            fi
+        else
+            warn "Could not register Codex MCP $CODEX_DEEPWIKI_MCP_NAME — run 'codex mcp add $CODEX_DEEPWIKI_MCP_NAME --url $CODEX_DEEPWIKI_MCP_URL' manually"
+        fi
         return 0
     fi
     info "Codex MCP $CODEX_DEEPWIKI_MCP_NAME — registered"
