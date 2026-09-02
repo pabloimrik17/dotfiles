@@ -497,7 +497,8 @@
             <a href="#claude">11. Claude Code</a>
             <a href="#opencode">12. OpenCode</a>
             <a href="#codex">13. Codex</a>
-            <a href="#agents">14. Agent Sessions</a>
+            <a href="#junie">14. Junie</a>
+            <a href="#agents">15. Agent Sessions</a>
         </nav>
 
         <!-- ── Main content ─────────────────────────────────────────── -->
@@ -2699,6 +2700,15 @@
                                 <td>&mdash;</td>
                             </tr>
                             <tr>
+                                <td>deepwiki</td>
+                                <td>Explore repository architecture and internal flows</td>
+                                <td>
+                                    Registered by the install script in
+                                    <code>~/.claude.json</code>; already-indexed public GitHub
+                                    repositories only
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>atlassian</td>
                                 <td>Jira &amp; Confluence integration</td>
                                 <td>OAuth on first use</td>
@@ -2745,6 +2755,20 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries the currently indexed default-branch snapshot. It cannot
+                        access private repositories or select a branch, tag, or commit. If a public
+                        repository is missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
 
                     <h3>OpenSpec workflow</h3>
                     <table>
@@ -2968,7 +2992,7 @@
                         </tbody>
                     </table>
 
-                    <h3>MCP servers (OpenCode only)</h3>
+                    <h3>MCP servers (OpenCode-managed remote entries)</h3>
                     <table>
                         <thead>
                             <tr>
@@ -2977,6 +3001,14 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <tr>
+                                <td>deepwiki</td>
+                                <td>
+                                    Enabled remote entry in
+                                    <code>~/.config/opencode/opencode.jsonc</code> for
+                                    already-indexed public GitHub repositories
+                                </td>
+                            </tr>
                             <tr>
                                 <td>posthog</td>
                                 <td>
@@ -2999,6 +3031,20 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries the currently indexed default-branch snapshot. It cannot
+                        access private repositories or select a branch, tag, or commit. If a public
+                        repository is missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
 
                     <h3>Config</h3>
                     <table>
@@ -3184,6 +3230,43 @@
                         </tbody>
                     </table>
 
+                    <h3>MCP servers</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Server</th>
+                                <th>Registration &amp; ownership</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>deepwiki</td>
+                                <td>
+                                    The installer drives
+                                    <code
+                                        >codex mcp add deepwiki --url
+                                        https://mcp.deepwiki.com/mcp</code
+                                    >; Codex stores the user entry in its runtime-owned
+                                    <code>~/.codex/config.toml</code>, which chezmoi does not manage
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries the currently indexed default-branch snapshot. It cannot
+                        access private repositories or select a branch, tag, or commit. If a public
+                        repository is missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
+
                     <h3>Instructions &amp; skills</h3>
                     <table>
                         <thead>
@@ -3215,10 +3298,11 @@
                                 <td>Browse or invoke an available skill</td>
                             </tr>
                             <tr>
-                                <td>Preferences &amp; MCP</td>
+                                <td>Other preferences &amp; MCP</td>
                                 <td>
-                                    Not managed by these dotfiles; existing
-                                    <code>~/.codex</code> runtime state remains Codex-owned
+                                    Existing <code>~/.codex</code> runtime state remains
+                                    Codex-owned. Chezmoi drives only declared CLI setup groups and
+                                    never manages <code>config.toml</code> directly
                                 </td>
                             </tr>
                         </tbody>
@@ -3227,13 +3311,71 @@
             </details>
 
             <!-- ════════════════════════════════════════════════════════════ -->
-            <!-- Section 14: Agent Sessions -->
+            <!-- Section 14: Junie -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="junie"
+                open
+            >
+                <summary>14. Junie</summary>
+                <div class="section-content">
+                    <h3>MCP servers</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Setting</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>deepwiki</td>
+                                <td>
+                                    Remote URL <code>https://mcp.deepwiki.com/mcp</code> for
+                                    already-indexed public GitHub repositories
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>User config</td>
+                                <td>
+                                    <code>~/.junie/mcp/mcp.json</code> &mdash; chezmoi-managed from
+                                    <code>dot_junie/mcp/mcp.json</code> and available across
+                                    projects
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Runtime check</td>
+                                <td>
+                                    <code>/mcp</code> &mdash; list the configured server and status
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries the currently indexed default-branch snapshot. It cannot
+                        access private repositories or select a branch, tag, or commit. If a public
+                        repository is missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 15: Agent Sessions -->
             <!-- ════════════════════════════════════════════════════════════ -->
             <details
                 id="agents"
                 open
             >
-                <summary>14. Agent Sessions (Agent of Empires)</summary>
+                <summary>15. Agent Sessions (Agent of Empires)</summary>
                 <div class="section-content">
                     <h3>Config highlights</h3>
                     <table>

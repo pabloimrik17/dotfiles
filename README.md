@@ -61,26 +61,29 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 
 ## MCP Servers
 
-The install script registers 14 global MCP servers to `~/.claude.json` (the stdio set is shared with OpenCode). Atlassian, Figma, Linear, and Notion authenticate via OAuth on first use; stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and remote entries in the OpenCode config, so neither is part of that count; both authenticate via OAuth on first use.
+The install script registers 15 global MCP servers to `~/.claude.json` (the stdio set is shared with OpenCode). Atlassian, Figma, Linear, and Notion authenticate via OAuth on first use; stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and remote entries in the OpenCode config, so neither is part of that count; both authenticate via OAuth on first use.
 
-| Server          | Transport | Description                                | Auth / Setup                                                            |
-| --------------- | --------- | ------------------------------------------ | ----------------------------------------------------------------------- |
-| eslint          | stdio     | Lint files on demand                       | —                                                                       |
-| context7        | stdio     | Fetch up-to-date library docs              | —                                                                       |
-| knip            | stdio     | Detect unused code/exports                 | —                                                                       |
-| memory          | stdio     | Persistent knowledge graph across sessions | —                                                                       |
-| playwright      | stdio     | Browser automation and testing             | —                                                                       |
-| chrome-devtools | stdio     | Inspect/control browser sessions           | —                                                                       |
-| expect          | stdio     | Visual testing and accessibility audits    | —                                                                       |
-| fallow          | stdio     | Codebase intelligence: dead code, dupes    | Runs the global `fallow-mcp` binary (npm)                               |
-| gh_grep         | http      | Search across GitHub repos                 | —                                                                       |
-| atlassian       | http      | Jira & Confluence integration              | OAuth on first use                                                      |
-| figma           | http      | Figma design context (Dev Mode)            | OAuth on first use                                                      |
-| linear          | http      | Linear issues & projects                   | OAuth on first use                                                      |
-| notion          | http      | Notion pages & databases                   | OAuth on first use                                                      |
-| storybook       | http      | Local Storybook component context          | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
-| posthog         | http      | Product analytics, feature flags, errors   | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
-| sentry          | http      | Issues, traces, and Seer root-cause runs   | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
+| Server                                                         | Transport | Description                                        | Auth / Setup                                                            |
+| -------------------------------------------------------------- | --------- | -------------------------------------------------- | ----------------------------------------------------------------------- |
+| eslint                                                         | stdio     | Lint files on demand                               | —                                                                       |
+| context7                                                       | stdio     | Fetch up-to-date library docs                      | —                                                                       |
+| knip                                                           | stdio     | Detect unused code/exports                         | —                                                                       |
+| memory                                                         | stdio     | Persistent knowledge graph across sessions         | —                                                                       |
+| playwright                                                     | stdio     | Browser automation and testing                     | —                                                                       |
+| chrome-devtools                                                | stdio     | Inspect/control browser sessions                   | —                                                                       |
+| expect                                                         | stdio     | Visual testing and accessibility audits            | —                                                                       |
+| fallow                                                         | stdio     | Codebase intelligence: dead code, dupes            | Runs the global `fallow-mcp` binary (npm)                               |
+| gh_grep                                                        | http      | Search across GitHub repos                         | —                                                                       |
+| [deepwiki](https://docs.devin.ai/work-with-devin/deepwiki-mcp) | http      | Explore repository architecture and internal flows | Already-indexed public GitHub repositories only                         |
+| atlassian                                                      | http      | Jira & Confluence integration                      | OAuth on first use                                                      |
+| figma                                                          | http      | Figma design context (Dev Mode)                    | OAuth on first use                                                      |
+| linear                                                         | http      | Linear issues & projects                           | OAuth on first use                                                      |
+| notion                                                         | http      | Notion pages & databases                           | OAuth on first use                                                      |
+| storybook                                                      | http      | Local Storybook component context                  | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
+| posthog                                                        | http      | Product analytics, feature flags, errors           | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
+| sentry                                                         | http      | Issues, traces, and Seer root-cause runs           | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
+
+DeepWiki uses the same user-scope endpoint in Claude Code, Codex, OpenCode, and Junie. Use Context7 for published API/configuration documentation, DeepWiki for architecture discovery on a repository's currently indexed default branch, and `gh_grep` or direct source for exact paths and revision-sensitive evidence. The public entry cannot access private repositories or select a branch, tag, or commit; if a public repository is missing, visit `https://deepwiki.com/<owner>/<repo>` to request indexing.
 
 ## Setup
 
