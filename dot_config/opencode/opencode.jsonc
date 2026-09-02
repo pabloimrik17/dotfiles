@@ -20,6 +20,11 @@
             "command": ["npx", "-y", "expect-cli@latest", "mcp"],
             "enabled": true,
         },
+        "deepwiki": {
+            "type": "remote",
+            "url": "https://mcp.deepwiki.com/mcp",
+            "enabled": true,
+        },
         "posthog": {
             "type": "remote",
             "url": "https://mcp.posthog.com/mcp",

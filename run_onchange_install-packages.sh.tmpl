@@ -1143,6 +1143,7 @@ MCP_STDIO_SERVERS=(
 
 MCP_HTTP_SERVERS=(
     "gh_grep:https://mcp.grep.app"
+    "deepwiki:https://mcp.deepwiki.com/mcp"
     "atlassian:https://mcp.atlassian.com/v1/mcp"
     "figma:https://mcp.figma.com/mcp"
     "linear:https://mcp.linear.app/mcp"
@@ -1250,6 +1251,90 @@ else
         fi
     fi
 fi
+
+# ------------------------------------------------------------------
+# Group 8.6: Codex DeepWiki MCP server
+# ------------------------------------------------------------------
+# Codex owns ~/.codex/config.toml, shared by its CLI, IDE extension, and
+# ChatGPT desktop app. Drive the official CLI instead of managing that file.
+# BEGIN CODEX DEEPWIKI MCP
+CODEX_DEEPWIKI_MCP_NAME="deepwiki"
+CODEX_DEEPWIKI_MCP_URL="https://mcp.deepwiki.com/mcp"
+
+setup_codex_deepwiki_mcp() {
+    # Optional command names keep the production path simple while letting the
+    # isolated test harness inject controlled stubs without touching live state.
+    local codex_cli="${1:-codex}"
+    local jq_cli="${2:-jq}"
+    local codex_mcp_json
+    local current_url
+    local entry_exists=0
+
+    if ! command -v "$codex_cli" &>/dev/null; then
+        warn "Codex is not installed — skipping DeepWiki MCP registration"
+        return 0
+    fi
+    if ! command -v "$jq_cli" &>/dev/null; then
+        warn "jq is required for Codex MCP detection — skipping DeepWiki MCP registration"
+        return 0
+    fi
+    if ! codex_mcp_json="$("$codex_cli" mcp list --json 2>/dev/null)"; then
+        warn "Could not query Codex MCP servers — skipping DeepWiki MCP registration"
+        return 0
+    fi
+    if ! "$jq_cli" -e \
+        'type == "array" and all(.[]; type == "object" and (.name | type) == "string" and (.transport | type) == "object")' \
+        >/dev/null 2>&1 <<<"$codex_mcp_json"; then
+        warn "Codex returned unreadable MCP data — skipping DeepWiki MCP registration"
+        return 0
+    fi
+
+    if "$jq_cli" -e --arg name "$CODEX_DEEPWIKI_MCP_NAME" \
+        'any(.[]; .name == $name)' >/dev/null 2>&1 <<<"$codex_mcp_json"; then
+        entry_exists=1
+    fi
+
+    if "$jq_cli" -e \
+        --arg name "$CODEX_DEEPWIKI_MCP_NAME" \
+        --arg url "$CODEX_DEEPWIKI_MCP_URL" \
+        'any(.[]; .name == $name and .transport.type == "streamable_http" and .transport.url == $url)' \
+        >/dev/null 2>&1 <<<"$codex_mcp_json"; then
+        info "Codex MCP $CODEX_DEEPWIKI_MCP_NAME — already registered, skipping"
+        return 0
+    fi
+
+    if [ "$entry_exists" -eq 1 ]; then
+        current_url="$("$jq_cli" -r --arg name "$CODEX_DEEPWIKI_MCP_NAME" \
+            'first(.[] | select(.name == $name) | .transport.url // empty)' \
+            <<<"$codex_mcp_json")"
+        if [ -n "$current_url" ]; then
+            info "Codex MCP $CODEX_DEEPWIKI_MCP_NAME — URL changed from $current_url"
+        else
+            info "Codex MCP $CODEX_DEEPWIKI_MCP_NAME — transport changed"
+        fi
+        if ! confirm "Replace Codex MCP $CODEX_DEEPWIKI_MCP_NAME with $CODEX_DEEPWIKI_MCP_URL?"; then
+            info "Skipping Codex DeepWiki MCP registration."
+            return 0
+        fi
+        if ! "$codex_cli" mcp remove "$CODEX_DEEPWIKI_MCP_NAME"; then
+            warn "Could not remove stale Codex MCP $CODEX_DEEPWIKI_MCP_NAME — leaving runtime state unchanged"
+            return 0
+        fi
+    elif ! confirm "Register Codex MCP $CODEX_DEEPWIKI_MCP_NAME at $CODEX_DEEPWIKI_MCP_URL?"; then
+        info "Skipping Codex DeepWiki MCP registration."
+        return 0
+    fi
+
+    if ! "$codex_cli" mcp add "$CODEX_DEEPWIKI_MCP_NAME" --url "$CODEX_DEEPWIKI_MCP_URL"; then
+        warn "Could not register Codex MCP $CODEX_DEEPWIKI_MCP_NAME — run 'codex mcp add $CODEX_DEEPWIKI_MCP_NAME --url $CODEX_DEEPWIKI_MCP_URL' manually"
+        return 0
+    fi
+    info "Codex MCP $CODEX_DEEPWIKI_MCP_NAME — registered"
+    return 0
+}
+# END CODEX DEEPWIKI MCP
+
+setup_codex_deepwiki_mcp
 
 # ------------------------------------------------------------------
 # Group 8.75: Codex plugins
@@ -1453,6 +1538,7 @@ info "  - 1Password for Safari: install from the Mac App Store (Safari extension
 info "  - CodeRabbit: authenticates on first use; sign in explicitly with 'coderabbit auth login' (browser sign-in also selects your org; 'coderabbit auth org' switches orgs)"
 info "  - CodeRabbit setup check: run 'coderabbit doctor' to verify auth, network, git state, and config"
 info "  - Codex: run 'codex' for first-use authentication; update with 'codex update' or rerun the standalone installer"
+info "  - DeepWiki MCP (Codex): if registration was skipped or failed, run 'codex mcp remove deepwiki' when replacing a stale entry, then 'codex mcp add deepwiki --url https://mcp.deepwiki.com/mcp'"
 info "  - Atlassian MCP: requires OAuth authentication — run 'claude mcp get atlassian' or use on first invocation"
 info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma' or use on first invocation"
 info "  - Linear MCP: requires OAuth authentication — run 'claude mcp get linear' or use on first invocation"
