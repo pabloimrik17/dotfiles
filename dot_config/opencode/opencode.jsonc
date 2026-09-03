@@ -20,6 +20,11 @@
             "command": ["npx", "-y", "expect-cli@latest", "mcp"],
             "enabled": true,
         },
+        "linear": {
+            "type": "remote",
+            "url": "https://mcp.linear.app/mcp",
+            "enabled": true,
+        },
         "posthog": {
             "type": "remote",
             "url": "https://mcp.posthog.com/mcp",
