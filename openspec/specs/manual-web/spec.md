@@ -90,7 +90,7 @@ The manual SHALL contain these sections in order:
 
 1. Terminal (Ghostty), 2. Navigation & Search, 3. Files & Viewing, 4. Git, 5. Worktrees, 6. Package Managers, 7. Shell Productivity, 8. Brew, 9. Docker, 10. macOS Integration, 11. Claude Code, 12. OpenCode, 13. Codex, 14. Junie, 15. Agent Sessions
 
-Each section SHALL reflect current shipped tool capabilities. The Codex section SHALL describe the narrowly managed Linear MCP registration without claiming that chezmoi owns the rest of Codex preferences or runtime state. The Junie section SHALL document the managed user-scope Linear MCP file, mark Linear access as not currently supported, explain the reproduced OAuth token-exchange failure, and provide a future revalidation path.
+Each section SHALL reflect current shipped tool capabilities. The Codex section SHALL describe the narrowly managed DeepWiki and Linear MCP registrations without claiming that chezmoi owns the rest of Codex preferences or runtime state. The Junie section SHALL document the managed user-scope DeepWiki and Linear MCP entries, mark Linear access as not currently supported, explain the reproduced OAuth token-exchange failure, and provide a future revalidation path.
 
 #### Scenario: Atuin section includes AI and daemon
 
@@ -121,13 +121,13 @@ Each section SHALL reflect current shipped tool capabilities. The Codex section 
 #### Scenario: Codex section reflects shipped behavior
 
 - **WHEN** user views Section 13 (Codex)
-- **THEN** it documents standalone installation, first-run authentication, self-updating, completion generation, `AGENTS.md`, `.agents/skills` discovery, and Linear MCP registration, login, and verification
+- **THEN** it documents standalone installation, first-run authentication, self-updating, completion generation, `AGENTS.md`, `.agents/skills` discovery, DeepWiki registration, and Linear MCP registration, login, and verification
 - **AND** it explains that other Codex preferences and runtime state remain Codex-owned
 
 #### Scenario: Junie section reflects shipped behavior
 
 - **WHEN** user views Section 14 (Junie)
-- **THEN** it documents `~/.junie/mcp/mcp.json`, the credential-free Linear endpoint preconfiguration, and the attempted `/mcp` authorization flow
+- **THEN** it documents `~/.junie/mcp/mcp.json`, the credential-free DeepWiki and Linear endpoint preconfiguration, and the attempted Linear `/mcp` authorization flow
 - **AND** it labels Junie as not currently supported because Linear OAuth returns `Client must not use multiple authentication methods`
 - **AND** it reserves connection and functional verification instructions for a future Junie release that completes OAuth successfully
 

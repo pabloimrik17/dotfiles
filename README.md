@@ -62,7 +62,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 
 ## MCP Servers
 
-The install script registers 14 user-scope Claude Code MCP servers in runtime-owned `~/.claude.json`. Similarly named OpenCode servers are declared separately in repo-local `opencode.json` or the managed user configuration; Claude Code's list is not automatically shared with OpenCode, Codex, or Junie. Stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and separate remote entries in the OpenCode config, so neither is part of that count.
+The install script registers 15 user-scope Claude Code MCP servers in runtime-owned `~/.claude.json`. Similarly named OpenCode servers are declared separately in repo-local `opencode.json` or the managed user configuration; Claude Code's list is not automatically shared with OpenCode, Codex, or Junie. Stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and separate remote entries in the OpenCode config, so neither is part of that count.
 
 Claude Code, OpenCode, and Codex support Linear through its official read-write endpoint, `https://mcp.linear.app/mcp`, while keeping registration and OAuth state client-specific. Junie is configured for the same endpoint, but its current OAuth token exchange is not compatible with Linear:
 
@@ -71,28 +71,31 @@ Claude Code, OpenCode, and Codex support Linear through its official read-write 
 | Claude Code | Installer runs `claude mcp add --scope user --transport http linear https://mcp.linear.app/mcp`        | `claude mcp login linear` or `/mcp`; `claude mcp get linear`                                                                | Runtime-owned `~/.claude.json`; OAuth remains Claude Code-owned              |
 | OpenCode    | `chezmoi apply` manages a native remote `mcp.linear` entry                                             | `opencode mcp auth linear`; `opencode mcp list`                                                                             | OAuth remains in OpenCode's native credential store outside the repository   |
 | Codex       | Installer narrowly reconciles `linear` through `codex mcp add linear --url https://mcp.linear.app/mcp` | `codex mcp login linear`; `codex mcp list --json`                                                                           | Codex owns `~/.codex/config.toml` and its OAuth state                        |
-| Junie       | `chezmoi apply` merges only `mcpServers.linear` into `~/.junie/mcp/mcp.json`                           | **Not currently supported** — `/mcp` authorization fails during Linear's OAuth token exchange; revisit after a Junie update | The managed entry is credential-free; unrelated MCP entries remain untouched |
+| Junie       | `chezmoi apply` merges `mcpServers.linear` into `~/.junie/mcp/mcp.json`                                | **Not currently supported** — `/mcp` authorization fails during Linear's OAuth token exchange; revisit after a Junie update | The managed entry is credential-free; unrelated MCP entries remain untouched |
 
 The [interactive manual](docs/manual.html) contains the complete acceptance flow for the three supported clients—list Linear projects, find `dotfiles`, create a uniquely titled disposable issue, record its identifier, and close or cancel only that issue—plus the safe Junie revalidation procedure.
 
-| Server          | Transport | Description                                | Auth / Setup                                                            |
-| --------------- | --------- | ------------------------------------------ | ----------------------------------------------------------------------- |
-| eslint          | stdio     | Lint files on demand                       | —                                                                       |
-| context7        | stdio     | Fetch up-to-date library docs              | —                                                                       |
-| knip            | stdio     | Detect unused code/exports                 | —                                                                       |
-| memory          | stdio     | Persistent knowledge graph across sessions | —                                                                       |
-| playwright      | stdio     | Browser automation and testing             | —                                                                       |
-| chrome-devtools | stdio     | Inspect/control browser sessions           | —                                                                       |
-| expect          | stdio     | Visual testing and accessibility audits    | —                                                                       |
-| fallow          | stdio     | Codebase intelligence: dead code, dupes    | Runs the global `fallow-mcp` binary (npm)                               |
-| gh_grep         | http      | Search across GitHub repos                 | —                                                                       |
-| atlassian       | http      | Jira & Confluence integration              | OAuth on first use                                                      |
-| figma           | http      | Figma design context (Dev Mode)            | OAuth on first use                                                      |
-| linear          | http      | Linear issues & projects                   | Per-client native OAuth; see the client matrix above                    |
-| notion          | http      | Notion pages & databases                   | OAuth on first use                                                      |
-| storybook       | http      | Local Storybook component context          | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
-| posthog         | http      | Product analytics, feature flags, errors   | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
-| sentry          | http      | Issues, traces, and Seer root-cause runs   | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
+| Server                                                         | Transport | Description                                        | Auth / Setup                                                            |
+| -------------------------------------------------------------- | --------- | -------------------------------------------------- | ----------------------------------------------------------------------- |
+| eslint                                                         | stdio     | Lint files on demand                               | —                                                                       |
+| context7                                                       | stdio     | Fetch up-to-date library docs                      | —                                                                       |
+| knip                                                           | stdio     | Detect unused code/exports                         | —                                                                       |
+| memory                                                         | stdio     | Persistent knowledge graph across sessions         | —                                                                       |
+| playwright                                                     | stdio     | Browser automation and testing                     | —                                                                       |
+| chrome-devtools                                                | stdio     | Inspect/control browser sessions                   | —                                                                       |
+| expect                                                         | stdio     | Visual testing and accessibility audits            | —                                                                       |
+| fallow                                                         | stdio     | Codebase intelligence: dead code, dupes            | Runs the global `fallow-mcp` binary (npm)                               |
+| gh_grep                                                        | http      | Search across GitHub repos                         | —                                                                       |
+| [deepwiki](https://docs.devin.ai/work-with-devin/deepwiki-mcp) | http      | Explore repository architecture and internal flows | Already-indexed public GitHub repositories only                         |
+| atlassian                                                      | http      | Jira & Confluence integration                      | OAuth on first use                                                      |
+| figma                                                          | http      | Figma design context (Dev Mode)                    | OAuth on first use                                                      |
+| linear                                                         | http      | Linear issues & projects                           | Per-client native OAuth; see the client matrix above                    |
+| notion                                                         | http      | Notion pages & databases                           | OAuth on first use                                                      |
+| storybook                                                      | http      | Local Storybook component context                  | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
+| posthog                                                        | http      | Product analytics, feature flags, errors           | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
+| sentry                                                         | http      | Issues, traces, and Seer root-cause runs           | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
+
+DeepWiki uses the same user-scope endpoint in Claude Code, Codex, OpenCode, and Junie. Use Context7 for published API/configuration documentation, DeepWiki for architecture discovery on an already-indexed public repository, and `gh_grep` or direct source for exact paths and revision-sensitive evidence. The public entry cannot access private repositories or select a branch, tag, or commit; if a public repository is missing, visit `https://deepwiki.com/<owner>/<repo>` to request indexing.
 
 ## Setup
 

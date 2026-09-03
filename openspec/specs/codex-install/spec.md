@@ -86,7 +86,7 @@ Codex SHALL be classified as self-updating. The setup SHALL NOT add Codex to the
 
 ### Requirement: Manual setup guidance covers Codex lifecycle
 
-The setup's manual fallback and user documentation SHALL include the standalone install command, first-run interactive authentication, update guidance, shell completion generation, `AGENTS.md` instructions, skill discovery from `.agents/skills`, and the runtime-owned Linear MCP registration, OAuth login, status, and verification workflow. The documentation SHALL distinguish the narrowly reconciled Linear entry from the rest of Codex's unmanaged preferences and runtime state.
+The setup's manual fallback and user documentation SHALL include the standalone install command, first-run interactive authentication, update guidance, shell completion generation, `AGENTS.md` instructions, skill discovery from `.agents/skills`, and the runtime-owned DeepWiki and Linear MCP registrations plus Linear OAuth login, status, and verification workflow. The documentation SHALL distinguish the narrowly reconciled DeepWiki and Linear entries from the rest of Codex's unmanaged preferences and runtime state.
 
 #### Scenario: Automated setup is unavailable
 
@@ -97,5 +97,5 @@ The setup's manual fallback and user documentation SHALL include the standalone 
 #### Scenario: User consults Codex documentation
 
 - **WHEN** the user opens the Codex section of the manual
-- **THEN** it documents installation, authentication, updates, completion generation, `AGENTS.md`, `.agents/skills`, and Linear MCP registration and verification
-- **AND** it states that only the Linear MCP entry is reconciled by setup while other `~/.codex` preferences and runtime state remain Codex-owned
+- **THEN** it documents installation, authentication, updates, completion generation, `AGENTS.md`, `.agents/skills`, and DeepWiki and Linear MCP registration and verification
+- **AND** it states that only the DeepWiki and Linear MCP entries are reconciled by setup while other `~/.codex` preferences and runtime state remain Codex-owned

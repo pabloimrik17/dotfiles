@@ -1,6 +1,7 @@
 #!/bin/sh
 # chezmoi modify_ script for ~/.junie/mcp/mcp.json. It owns only the
-# mcpServers.linear entry and preserves every other valid value in the live file.
+# mcpServers.deepwiki and mcpServers.linear entries and preserves every other
+# valid value in the live file.
 # The merge is buffered and validated before stdout reaches chezmoi; failures
 # pass the live file through unchanged, while a fresh machine receives `{}`.
 set -eu
@@ -34,6 +35,10 @@ import json
 import sys
 from collections import OrderedDict
 
+DEEPWIKI = OrderedDict([
+    ("url", "https://mcp.deepwiki.com/mcp"),
+])
+
 LINEAR = OrderedDict([
     ("url", "https://mcp.linear.app/mcp"),
 ])
@@ -56,6 +61,8 @@ def main():
     elif not isinstance(servers, dict):
         raise ValueError("mcpServers is not a JSON object")
 
+    if servers.get("deepwiki") != DEEPWIKI:
+        servers["deepwiki"] = DEEPWIKI
     if servers.get("linear") != LINEAR:
         servers["linear"] = LINEAR
 

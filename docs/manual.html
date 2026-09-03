@@ -2704,6 +2704,15 @@
                                 <td>&mdash;</td>
                             </tr>
                             <tr>
+                                <td>deepwiki</td>
+                                <td>Explore repository architecture and internal flows</td>
+                                <td>
+                                    Registered by the install script in
+                                    <code>~/.claude.json</code>; already-indexed public GitHub
+                                    repositories only
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>atlassian</td>
                                 <td>Jira &amp; Confluence integration</td>
                                 <td>OAuth on first use</td>
@@ -2769,6 +2778,21 @@
                         &rarr; create a uniquely titled disposable issue in that project &rarr;
                         record its identifier &rarr; close or cancel only that issue
                     </div>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries provider-indexed public-repository content; its freshness
+                        and source revision are not guaranteed. It cannot access private
+                        repositories or select a branch, tag, or commit. If a public repository is
+                        missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
 
                     <h3>OpenSpec workflow</h3>
                     <table>
@@ -3008,6 +3032,14 @@
                                 <td>Visual testing and accessibility audits</td>
                             </tr>
                             <tr>
+                                <td>deepwiki</td>
+                                <td>
+                                    Enabled remote entry in
+                                    <code>~/.config/opencode/opencode.jsonc</code> for
+                                    already-indexed public GitHub repositories
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>linear</td>
                                 <td>
                                     Linear issues &amp; projects through the native remote
@@ -3050,6 +3082,21 @@
                         create a uniquely titled disposable issue in that project &rarr; record its
                         identifier &rarr; close or cancel only that issue
                     </div>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries provider-indexed public-repository content; its freshness
+                        and source revision are not guaranteed. It cannot access private
+                        repositories or select a branch, tag, or commit. If a public repository is
+                        missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
 
                     <h3>Config</h3>
                     <table>
@@ -3192,6 +3239,44 @@
                         identifier &rarr; close or cancel only that issue
                     </div>
 
+                    <h3>DeepWiki MCP</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Server</th>
+                                <th>Registration &amp; ownership</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>deepwiki</td>
+                                <td>
+                                    The installer drives
+                                    <code
+                                        >codex mcp add deepwiki --url
+                                        https://mcp.deepwiki.com/mcp</code
+                                    >; Codex stores the user entry in its runtime-owned
+                                    <code>~/.codex/config.toml</code>, which chezmoi does not manage
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries provider-indexed public-repository content; its freshness
+                        and source revision are not guaranteed. It cannot access private
+                        repositories or select a branch, tag, or commit. If a public repository is
+                        missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
+
                     <h3>Commands</h3>
                     <table>
                         <thead>
@@ -3321,10 +3406,10 @@
                             <tr>
                                 <td>Other preferences &amp; runtime state</td>
                                 <td>
-                                    Not managed by these dotfiles; only the Linear MCP entry is
-                                    narrowly reconciled through <code>codex mcp</code>. Existing
-                                    <code>~/.codex</code> preferences and runtime state remain
-                                    Codex-owned.
+                                    Not managed by these dotfiles; only the DeepWiki and Linear MCP
+                                    entries are narrowly reconciled through <code>codex mcp</code>.
+                                    Existing <code>~/.codex</code> preferences and runtime state
+                                    remain Codex-owned.
                                 </td>
                             </tr>
                         </tbody>
@@ -3341,7 +3426,7 @@
             >
                 <summary>14. Junie</summary>
                 <div class="section-content">
-                    <h3>Linear MCP</h3>
+                    <h3>MCP servers</h3>
                     <table>
                         <thead>
                             <tr>
@@ -3361,9 +3446,18 @@
                                 <td>Managed fragment</td>
                                 <td>
                                     <code>chezmoi apply</code> merge-manages only
+                                    <code>mcpServers.deepwiki</code> at
+                                    <code>https://mcp.deepwiki.com/mcp</code> and
                                     <code>mcpServers.linear</code> at
                                     <code>https://mcp.linear.app/mcp</code>; unrelated servers and
                                     unknown top-level values remain untouched
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>DeepWiki</td>
+                                <td>
+                                    Credential-free access to already-indexed public GitHub
+                                    repositories. Use <code>/mcp</code> to check its runtime status.
                                 </td>
                             </tr>
                             <tr>
@@ -3405,6 +3499,21 @@
                         <code>dotfiles</code> &rarr; create a uniquely titled disposable issue
                         &rarr; record its identifier &rarr; close or cancel only that issue
                     </div>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries provider-indexed public-repository content; its freshness
+                        and source revision are not guaranteed. It cannot access private
+                        repositories or select a branch, tag, or commit. If a public repository is
+                        missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
                 </div>
             </details>
 
