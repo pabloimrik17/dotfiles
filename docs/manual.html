@@ -314,6 +314,10 @@
             }
 
             /* ── Print stylesheet ──────────────────────────────────────── */
+            @page {
+                size: A4;
+            }
+
             @media print {
                 :root {
                     --ctp-text: #1e1e2e;
@@ -337,7 +341,7 @@
 
                 body {
                     display: block;
-                    font-size: 7.5pt;
+                    font-size: 7.2pt;
                     line-height: 1.1;
                     color: #1e1e2e;
                     background: #fff;
@@ -355,8 +359,8 @@
                 .content {
                     max-width: 100%;
                     padding: 0;
-                    column-count: 3;
-                    column-gap: 0.8em;
+                    column-count: 4;
+                    column-gap: 0.6em;
                     column-rule: 1px solid #ccc;
                 }
 
@@ -406,7 +410,7 @@
                 }
 
                 .section-content h3 {
-                    font-size: 7.5pt;
+                    font-size: 7.2pt;
                     margin: 2pt 0 1pt;
                     color: #333;
                     break-after: avoid;
@@ -414,7 +418,7 @@
                 }
 
                 table {
-                    font-size: 6.5pt;
+                    font-size: 6.2pt;
                     margin: 0 0 2pt;
                     break-inside: avoid;
                     page-break-inside: avoid;
@@ -432,14 +436,14 @@
 
                 td {
                     padding: 0.5pt 2pt;
-                    font-size: 6.5pt;
+                    font-size: 6.2pt;
                 }
 
                 td:first-child {
                     width: 36%;
                     white-space: normal;
                     overflow-wrap: anywhere;
-                    font-size: 6.5pt;
+                    font-size: 6.2pt;
                 }
 
                 tbody tr:nth-child(even) {
@@ -447,7 +451,7 @@
                 }
 
                 kbd {
-                    font-size: 6.5pt;
+                    font-size: 6.2pt;
                     padding: 0 2pt;
                     border: 1px solid #999;
                     border-bottom-width: 1px;
@@ -497,15 +501,16 @@
             <a href="#claude">11. Claude Code</a>
             <a href="#opencode">12. OpenCode</a>
             <a href="#codex">13. Codex</a>
-            <a href="#agents">14. Agent Sessions</a>
+            <a href="#junie">14. Junie</a>
+            <a href="#agents">15. Agent Sessions</a>
         </nav>
 
         <!-- ── Main content ─────────────────────────────────────────── -->
         <main class="content">
             <h1>Dotfiles Manual &amp; Cheatsheet</h1>
             <p class="subtitle">
-                All shortcuts, aliases, keybindings, and workflows in one place. Print for a dense
-                A4 cheatsheet.
+                All shortcuts, aliases, keybindings, and workflows across 15 sections. Print for a
+                dense A4 cheatsheet.
             </p>
 
             <!-- ════════════════════════════════════════════════════════════ -->
@@ -2710,8 +2715,20 @@
                             </tr>
                             <tr>
                                 <td>linear</td>
-                                <td>Linear issues &amp; projects</td>
-                                <td>OAuth on first use</td>
+                                <td>
+                                    Linear issues &amp; projects at
+                                    <code>https://mcp.linear.app/mcp</code>
+                                </td>
+                                <td>
+                                    Setup registers the user-scope server with
+                                    <code
+                                        >claude mcp add --scope user --transport http linear
+                                        https://mcp.linear.app/mcp</code
+                                    >. Authenticate with <code>claude mcp login linear</code> or
+                                    <code>/mcp</code>; check the endpoint and connection with
+                                    <code>claude mcp get linear</code>. OAuth state remains Claude
+                                    Code-owned outside chezmoi.
+                                </td>
                             </tr>
                             <tr>
                                 <td>notion</td>
@@ -2745,6 +2762,13 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Verify Linear from Claude Code</strong><br />
+                        Ask Claude Code to list Linear projects and find <code>dotfiles</code>
+                        &rarr; create a uniquely titled disposable issue in that project &rarr;
+                        record its identifier &rarr; close or cancel only that issue
+                    </div>
 
                     <h3>OpenSpec workflow</h3>
                     <table>
@@ -2924,7 +2948,7 @@
                         longer creates those paths.
                     </p>
 
-                    <h3>MCP servers (shared with Claude Code)</h3>
+                    <h3>Project MCP servers</h3>
                     <table>
                         <thead>
                             <tr>
@@ -2961,14 +2985,16 @@
                                 <td>gh_grep</td>
                                 <td>Search across GitHub repos</td>
                             </tr>
-                            <tr>
-                                <td>expect</td>
-                                <td>Visual testing and accessibility audits</td>
-                            </tr>
                         </tbody>
                     </table>
 
-                    <h3>MCP servers (OpenCode only)</h3>
+                    <p class="note">
+                        These entries are declared separately in repo-local
+                        <code>opencode.json</code>. Claude Code&rsquo;s user-scope server list is
+                        not automatically shared with OpenCode.
+                    </p>
+
+                    <h3>Managed user MCP servers</h3>
                     <table>
                         <thead>
                             <tr>
@@ -2977,6 +3003,24 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <tr>
+                                <td>expect</td>
+                                <td>Visual testing and accessibility audits</td>
+                            </tr>
+                            <tr>
+                                <td>linear</td>
+                                <td>
+                                    Linear issues &amp; projects through the native remote
+                                    <code>mcp.linear</code> entry in
+                                    <code>~/.config/opencode/opencode.jsonc</code>, targeting
+                                    <code>https://mcp.linear.app/mcp</code>. Authenticate with
+                                    <code>opencode mcp auth linear</code> and check the connection
+                                    with <code>opencode mcp list</code>. OAuth state remains in
+                                    OpenCode&rsquo;s native
+                                    <code>~/.local/share/opencode/mcp-auth.json</code> store outside
+                                    the repository.
+                                </td>
+                            </tr>
                             <tr>
                                 <td>posthog</td>
                                 <td>
@@ -2999,6 +3043,13 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Verify Linear from OpenCode</strong><br />
+                        Ask OpenCode to list Linear projects and find <code>dotfiles</code> &rarr;
+                        create a uniquely titled disposable issue in that project &rarr; record its
+                        identifier &rarr; close or cancel only that issue
+                    </div>
 
                     <h3>Config</h3>
                     <table>
@@ -3087,6 +3138,59 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <h3>Linear MCP</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Command &amp; behavior</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Register</td>
+                                <td>
+                                    Setup inspects <code>codex mcp list --json</code>, leaves a
+                                    matching entry alone, and narrowly adds or repairs only
+                                    <code>linear</code> with
+                                    <code
+                                        >codex mcp add linear --url https://mcp.linear.app/mcp</code
+                                    >. The add command may begin OAuth immediately.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Authenticate / recover</td>
+                                <td>
+                                    <code>codex mcp login linear</code> &mdash; start or restart the
+                                    browser OAuth flow
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Status</td>
+                                <td>
+                                    <code>codex mcp list --json</code> &mdash; verify the official
+                                    endpoint and authenticated status
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Ownership</td>
+                                <td>
+                                    Only the Linear MCP entry is reconciled by setup. Codex owns
+                                    <code>~/.codex/config.toml</code>, OAuth credentials, and every
+                                    other preference or runtime value; chezmoi does not manage the
+                                    whole file.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Verify Linear from Codex</strong><br />
+                        Ask Codex to list Linear projects and find <code>dotfiles</code> &rarr;
+                        create a uniquely titled disposable issue in that project &rarr; record its
+                        identifier &rarr; close or cancel only that issue
+                    </div>
 
                     <h3>Commands</h3>
                     <table>
@@ -3215,10 +3319,12 @@
                                 <td>Browse or invoke an available skill</td>
                             </tr>
                             <tr>
-                                <td>Preferences &amp; MCP</td>
+                                <td>Other preferences &amp; runtime state</td>
                                 <td>
-                                    Not managed by these dotfiles; existing
-                                    <code>~/.codex</code> runtime state remains Codex-owned
+                                    Not managed by these dotfiles; only the Linear MCP entry is
+                                    narrowly reconciled through <code>codex mcp</code>. Existing
+                                    <code>~/.codex</code> preferences and runtime state remain
+                                    Codex-owned.
                                 </td>
                             </tr>
                         </tbody>
@@ -3227,13 +3333,89 @@
             </details>
 
             <!-- ════════════════════════════════════════════════════════════ -->
-            <!-- Section 14: Agent Sessions -->
+            <!-- Section 14: Junie -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="junie"
+                open
+            >
+                <summary>14. Junie</summary>
+                <div class="section-content">
+                    <h3>Linear MCP</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Setting</th>
+                                <th>Behavior</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Managed file</td>
+                                <td>
+                                    <code>~/.junie/mcp/mcp.json</code> &mdash; Junie&rsquo;s
+                                    user-scope MCP configuration, shared by the CLI and IDE plugin
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Managed fragment</td>
+                                <td>
+                                    <code>chezmoi apply</code> merge-manages only
+                                    <code>mcpServers.linear</code> at
+                                    <code>https://mcp.linear.app/mcp</code>; unrelated servers and
+                                    unknown top-level values remain untouched
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Current support</td>
+                                <td>
+                                    <strong>Not currently supported.</strong> Junie 26.8.17 reaches
+                                    Linear OAuth, but token exchange returns
+                                    <code
+                                        >400 Bad Request: Client must not use multiple
+                                        authentication methods</code
+                                    >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Revalidate after an update</td>
+                                <td>
+                                    Open <code>/mcp</code>, select the user-scope
+                                    <code>linear</code> server, choose <strong>Authorize</strong>,
+                                    and complete browser OAuth. Proceed to functional verification
+                                    only if <code>linear</code> reports <strong>Active</strong>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Credentials</td>
+                                <td>
+                                    Junie owns OAuth state outside the repository. The managed JSON
+                                    contains no token, API key, or Authorization header. Do not add
+                                    a static credential or compatibility bridge to bypass the
+                                    current OAuth failure.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Revisit Linear compatibility from Junie</strong><br />
+                        Update Junie &rarr; retry <code>/mcp</code> authorization &rarr; require
+                        <strong>Active</strong> &rarr; list Linear projects and find
+                        <code>dotfiles</code> &rarr; create a uniquely titled disposable issue
+                        &rarr; record its identifier &rarr; close or cancel only that issue
+                    </div>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 15: Agent Sessions -->
             <!-- ════════════════════════════════════════════════════════════ -->
             <details
                 id="agents"
                 open
             >
-                <summary>14. Agent Sessions (Agent of Empires)</summary>
+                <summary>15. Agent Sessions (Agent of Empires)</summary>
                 <div class="section-content">
                     <h3>Config highlights</h3>
                     <table>

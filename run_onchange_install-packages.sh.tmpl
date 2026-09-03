@@ -70,6 +70,19 @@ confirm() {
     esac
 }
 
+print_linear_mcp_guidance() {
+    info "  - Linear MCP uses https://mcp.linear.app/mcp; each supported client keeps its own OAuth grant outside the dotfiles"
+    info "    Claude Code: claude mcp add --scope user --transport http linear https://mcp.linear.app/mcp"
+    info "      Authenticate: claude mcp login linear (or /mcp); status: claude mcp get linear"
+    info "    OpenCode: chezmoi manages the native remote entry; authenticate with 'opencode mcp auth linear'"
+    info "      Status: opencode mcp list; OAuth state stays in OpenCode's native credential store"
+    info "    Codex: codex mcp add linear --url https://mcp.linear.app/mcp (this may open OAuth immediately)"
+    info "      Authenticate/recover: codex mcp login linear; status: codex mcp list --json"
+    info "    Junie: chezmoi merges a credential-free user entry into ~/.junie/mcp/mcp.json"
+    info "      Not currently supported: Linear OAuth returns '400 Bad Request: Client must not use multiple authentication methods'"
+    info "      Revisit after a Junie update: retry /mcp authorization and require Active before functional verification"
+}
+
 {{ if eq .chezmoi.os "darwin" -}}
 # ====================================================================
 # macOS — install via Homebrew
@@ -1252,6 +1265,103 @@ else
 fi
 
 # ------------------------------------------------------------------
+# Group 8.6: Codex Linear MCP server
+# ------------------------------------------------------------------
+# BEGIN CODEX LINEAR MCP
+configure_codex_linear_mcp() {
+    local desired_url="https://mcp.linear.app/mcp"
+    local action
+    local prompt
+    local CODEX_MCP_JSON=""
+
+    if ! command -v codex &>/dev/null; then
+        warn "Codex is not installed — skipping Linear MCP registration"
+        return 0
+    fi
+    if ! command -v jq &>/dev/null; then
+        warn "jq is required for Codex MCP detection — skipping Linear MCP registration"
+        return 0
+    fi
+
+    codex_mcp_refresh() {
+        local payload
+        if ! payload="$(codex mcp list --json 2>/dev/null)"; then
+            return 1
+        fi
+        if ! jq -e 'type == "array"' >/dev/null 2>&1 <<<"$payload"; then
+            return 1
+        fi
+        CODEX_MCP_JSON="$payload"
+    }
+
+    codex_linear_registered() {
+        jq -e 'any(.[]; .name == "linear")' >/dev/null 2>&1 <<<"$CODEX_MCP_JSON"
+    }
+
+    codex_linear_matches() {
+        jq -e --arg url "$desired_url" \
+            '[.[] | select(.name == "linear")] | length == 1 and .[0].transport.url == $url' \
+            >/dev/null 2>&1 <<<"$CODEX_MCP_JSON"
+    }
+
+    if ! codex_mcp_refresh; then
+        warn "Could not read valid Codex MCP data — skipping Linear MCP registration"
+        return 0
+    fi
+
+    if codex_linear_matches; then
+        info "Codex Linear MCP — already registered, skipping"
+        return 0
+    elif codex_linear_registered; then
+        action="repair"
+        prompt="Repair the Codex Linear MCP server URL?"
+    else
+        action="add"
+        prompt="Register the Codex Linear MCP server?"
+    fi
+
+    if ! confirm "$prompt"; then
+        info "Skipping Codex Linear MCP registration."
+        return 0
+    fi
+
+    if [ "$action" = "repair" ]; then
+        info "  Codex Linear MCP URL changed, removing only the linear entry..."
+        if ! codex mcp remove linear; then
+            warn "Codex could not remove the outdated Linear MCP entry; checking its state before continuing"
+        fi
+        if ! codex_mcp_refresh; then
+            warn "Could not verify Codex MCP state after removal — skipping re-registration"
+            return 0
+        fi
+        if codex_linear_registered; then
+            warn "The outdated Codex Linear MCP entry is still present — skipping re-registration"
+            return 0
+        fi
+    fi
+
+    info "  Registering Codex Linear MCP..."
+    if codex mcp add linear --url "$desired_url"; then
+        info "  Codex Linear MCP registered. Run 'codex mcp login linear' if authentication is not connected."
+        return 0
+    fi
+
+    # `codex mcp add` may persist the server before its immediate browser OAuth
+    # flow returns. Re-read structured state so cancelling OAuth never causes a
+    # valid registration to be removed or treated as a destructive failure.
+    if codex_mcp_refresh && codex_linear_matches; then
+        warn "Codex Linear MCP is registered, but authentication did not finish — run 'codex mcp login linear'"
+    else
+        warn "Codex Linear MCP registration did not complete; no matching entry was found"
+    fi
+    return 0
+}
+
+configure_codex_linear_mcp
+unset -f configure_codex_linear_mcp codex_mcp_refresh codex_linear_registered codex_linear_matches
+# END CODEX LINEAR MCP
+
+# ------------------------------------------------------------------
 # Group 8.75: Codex plugins
 # ------------------------------------------------------------------
 # Codex owns its plugin state under ~/.codex (bundles land in a cache path it
@@ -1455,7 +1565,7 @@ info "  - CodeRabbit setup check: run 'coderabbit doctor' to verify auth, networ
 info "  - Codex: run 'codex' for first-use authentication; update with 'codex update' or rerun the standalone installer"
 info "  - Atlassian MCP: requires OAuth authentication — run 'claude mcp get atlassian' or use on first invocation"
 info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma' or use on first invocation"
-info "  - Linear MCP: requires OAuth authentication — run 'claude mcp get linear' or use on first invocation"
+print_linear_mcp_guidance
 info "  - Notion MCP: requires OAuth authentication — run 'claude mcp get notion' or use on first invocation"
 info "  - PostHog MCP: requires OAuth authentication — in Claude Code run '/mcp' and authenticate 'plugin:posthog:posthog'; in OpenCode run 'opencode mcp auth'"
 info "  - Sentry MCP: provided by the sentry-mcp plugin from the sentry-mcp marketplace — requires OAuth authentication; run '/mcp' inside Claude Code, or 'opencode mcp auth sentry' in OpenCode"
@@ -1483,6 +1593,7 @@ info "    - CodeRabbit: curl -fsSL https://cli.coderabbit.ai/install.sh | sh  (o
 info "    - Codex: curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh  (official standalone installer; installs to ~/.local/bin)"
 info "      Authenticate on first use: codex"
 info "      Update: codex update  (or rerun the standalone installer)"
+print_linear_mcp_guidance
 info "    - aoe: cargo install aoe (Linux supported by upstream; brew is macOS-only)"
 info "    - glow: brew install glow (or your distro's package manager, or 'go install github.com/charmbracelet/glow@latest')"
 info "    - mdfried: brew install mdfried (or cargo install mdfried); its image / mermaid / Big-Header rendering needs a terminal with a graphics protocol (Kitty, iTerm2, or Sixel) and otherwise degrades to character rendering"
