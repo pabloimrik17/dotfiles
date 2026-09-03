@@ -25,7 +25,7 @@ jobs:
               run: bun run lint:oxfmt
 
             - name: 🔍 Validate OpenSpec change proposals
-              run: bunx @fission-ai/openspec@1.2.0 validate --changes --no-interactive
+              run: bunx @fission-ai/openspec@1.10.0 validate --changes --no-interactive
 
             # PRs are gated by fallow.yml (audit, new-only ratchet); this catches
             # dead code landing on main via direct pushes
