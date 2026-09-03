@@ -109,7 +109,7 @@ The chezmoi setup SHALL provide one enabled user-scope MCP server named `deepwik
 
 ### Requirement: Codex MCP registration preserves runtime-owned configuration
 
-The setup SHALL drive Codex through its official `codex mcp` CLI and SHALL NOT introduce a chezmoi-managed `dot_codex/config.toml`. Registration SHALL be idempotent, SHALL replace an existing `deepwiki` entry only when its URL differs, and SHALL treat an individual registration failure as non-fatal.
+The setup SHALL drive Codex through its official `codex mcp` CLI and SHALL NOT introduce a chezmoi-managed `dot_codex/config.toml`. DeepWiki SHALL be declared alongside other managed HTTP entries in `CODEX_HTTP_MCP_SERVERS` and processed through the shared `configure_codex_mcp_servers` module. Registration SHALL be idempotent, SHALL replace an existing `deepwiki` entry only when its URL differs, and SHALL treat an individual registration failure as non-fatal. The module SHALL NOT invoke `codex mcp login` or manage credentials; authentication SHALL remain a separate user action, while accounting for `codex mcp add` potentially initiating OAuth itself.
 
 #### Scenario: Matching Codex registration exists
 
@@ -145,6 +145,12 @@ The setup SHALL drive Codex through its official `codex mcp` CLI and SHALL NOT i
 - **WHEN** `codex` is not in `PATH`
 - **THEN** the Codex MCP registration group SHALL be skipped with a warning
 - **AND** subsequent setup groups SHALL continue
+
+#### Scenario: Authentication is outside installer responsibility
+
+- **WHEN** the shared Codex MCP registration module is inspected
+- **THEN** it SHALL contain no invocation of `codex mcp login`
+- **AND** every OAuth grant SHALL remain Codex-owned outside chezmoi source state
 
 ### Requirement: DeepWiki limitations and routing are documented
 

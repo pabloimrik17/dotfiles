@@ -49,7 +49,7 @@ The chezmoi-managed OpenCode configuration SHALL define an enabled remote MCP se
 
 ### Requirement: Codex registration is idempotent and runtime-owned
 
-The setup SHALL use the official `codex mcp` CLI to reconcile a user-level server named `linear` at the official endpoint. It SHALL inspect structured CLI output before mutating state, add a missing entry, repair an entry whose URL differs, and leave a matching entry untouched. Because `codex mcp add` may initiate OAuth immediately, a cancelled or failed add SHALL be followed by a structured re-check: a matching entry that was already written SHALL be preserved and reported with `codex mcp login linear` as recovery, while an absent entry SHALL produce a non-fatal warning. The setup SHALL NOT manage the whole `~/.codex/config.toml` file with chezmoi.
+The setup SHALL use the official `codex mcp` CLI and the shared `CODEX_HTTP_MCP_SERVERS` registration module to reconcile a user-level server named `linear` at the official endpoint. It SHALL inspect structured CLI output before mutating state, add a missing entry, repair an entry whose URL differs, and leave a matching entry untouched. The module SHALL NOT invoke `codex mcp login` or manage credentials. Because `codex mcp add` may initiate OAuth immediately, a cancelled or failed add SHALL be followed by a structured re-check: a matching entry that was already written SHALL be preserved and reported with `codex mcp login linear` as the separate user-owned recovery action, while an absent entry SHALL produce a non-fatal warning. The setup SHALL NOT manage the whole `~/.codex/config.toml` file with chezmoi.
 
 #### Scenario: Codex entry is missing
 

@@ -1266,194 +1266,171 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Group 8.6: Codex DeepWiki MCP server
+# Group 8.6: Codex HTTP MCP servers
 # ------------------------------------------------------------------
 # Codex owns ~/.codex/config.toml, shared by its CLI, IDE extension, and
 # ChatGPT desktop app. Drive the official CLI instead of managing that file.
-# BEGIN CODEX DEEPWIKI MCP
-CODEX_DEEPWIKI_MCP_NAME="deepwiki"
-CODEX_DEEPWIKI_MCP_URL="https://mcp.deepwiki.com/mcp"
+# This module only reconciles registration. It never runs `codex mcp login` or
+# manages credentials. `codex mcp add` may itself start OAuth; if that flow is
+# cancelled after persisting the entry, the entry stays and login remains a
+# separate user action.
+# BEGIN CODEX HTTP MCP SERVERS
+CODEX_HTTP_MCP_SERVERS=(
+    "deepwiki:https://mcp.deepwiki.com/mcp"
+    "linear:https://mcp.linear.app/mcp"
+)
 
-setup_codex_deepwiki_mcp() {
-    # Optional command names keep the production path simple while letting an
-    # isolated harness inject controlled stubs without touching live state.
-    local codex_cli="${1:-codex}"
-    local jq_cli="${2:-jq}"
-    local codex_mcp_json
-    local current_url
-    local entry_exists=0
+codex_mcp_read_json() {
+    local codex_cli="$1"
+    local jq_cli="$2"
+    local payload
 
-    if ! command -v "$codex_cli" &>/dev/null; then
-        warn "Codex is not installed — skipping DeepWiki MCP registration"
-        return 0
-    fi
-    if ! command -v "$jq_cli" &>/dev/null; then
-        warn "jq is required for Codex MCP detection — skipping DeepWiki MCP registration"
-        return 0
-    fi
-    if ! codex_mcp_json="$("$codex_cli" mcp list --json 2>/dev/null)"; then
-        warn "Could not query Codex MCP servers — skipping DeepWiki MCP registration"
-        return 0
+    if ! payload="$("$codex_cli" mcp list --json 2>/dev/null)"; then
+        return 1
     fi
     if ! "$jq_cli" -e \
         'type == "array" and all(.[]; type == "object" and (.name | type) == "string" and (.transport | type) == "object")' \
-        >/dev/null 2>&1 <<<"$codex_mcp_json"; then
-        warn "Codex returned unreadable MCP data — skipping DeepWiki MCP registration"
+        >/dev/null 2>&1 <<<"$payload"; then
+        return 1
+    fi
+    printf '%s\n' "$payload"
+}
+
+codex_mcp_entry_matches() {
+    local jq_cli="$1"
+    local payload="$2"
+    local name="$3"
+    local url="$4"
+
+    "$jq_cli" -e --arg name "$name" --arg url "$url" \
+        '[.[] | select(.name == $name)] | length == 1 and .[0].transport.type == "streamable_http" and .[0].transport.url == $url' \
+        >/dev/null 2>&1 <<<"$payload"
+}
+
+reconcile_codex_http_mcp() {
+    local name="$1"
+    local desired_url="$2"
+    local codex_cli="$3"
+    local jq_cli="$4"
+    local payload
+    local entry_count
+    local current_transport=""
+    local current_url=""
+    local action="add"
+
+    if ! payload="$(codex_mcp_read_json "$codex_cli" "$jq_cli")"; then
+        warn "Could not read valid Codex MCP data — skipping $name registration"
         return 0
     fi
 
-    if "$jq_cli" -e --arg name "$CODEX_DEEPWIKI_MCP_NAME" \
-        'any(.[]; .name == $name)' >/dev/null 2>&1 <<<"$codex_mcp_json"; then
-        entry_exists=1
-    fi
-
-    if "$jq_cli" -e \
-        --arg name "$CODEX_DEEPWIKI_MCP_NAME" \
-        --arg url "$CODEX_DEEPWIKI_MCP_URL" \
-        'any(.[]; .name == $name and .transport.type == "streamable_http" and .transport.url == $url)' \
-        >/dev/null 2>&1 <<<"$codex_mcp_json"; then
-        info "Codex MCP $CODEX_DEEPWIKI_MCP_NAME — already registered, skipping"
+    entry_count="$("$jq_cli" -r --arg name "$name" \
+        '[.[] | select(.name == $name)] | length' <<<"$payload")"
+    if [ "$entry_count" -gt 1 ]; then
+        warn "Codex reported multiple MCP entries named $name — leaving runtime state unchanged"
         return 0
     fi
 
-    if [ "$entry_exists" -eq 1 ]; then
-        current_url="$("$jq_cli" -r --arg name "$CODEX_DEEPWIKI_MCP_NAME" \
-            'first(.[] | select(.name == $name) | .transport.url // empty)' \
-            <<<"$codex_mcp_json")"
-        if [ -n "$current_url" ]; then
-            info "Codex MCP $CODEX_DEEPWIKI_MCP_NAME — URL changed from $current_url"
-        else
-            warn "Existing Codex MCP $CODEX_DEEPWIKI_MCP_NAME is not an HTTP entry — leaving runtime state unchanged"
+    if [ "$entry_count" -eq 1 ]; then
+        if codex_mcp_entry_matches "$jq_cli" "$payload" "$name" "$desired_url"; then
+            info "Codex MCP $name — already registered, skipping"
             return 0
         fi
-        if ! confirm "Replace Codex MCP $CODEX_DEEPWIKI_MCP_NAME with $CODEX_DEEPWIKI_MCP_URL?"; then
-            info "Skipping Codex DeepWiki MCP registration."
+        current_transport="$("$jq_cli" -r --arg name "$name" \
+            'first(.[] | select(.name == $name) | .transport.type // empty)' <<<"$payload")"
+        current_url="$("$jq_cli" -r --arg name "$name" \
+            'first(.[] | select(.name == $name) | .transport.url // empty)' <<<"$payload")"
+        if [ "$current_transport" != "streamable_http" ] || [ -z "$current_url" ]; then
+            warn "Existing Codex MCP $name is not a replaceable HTTP entry — leaving runtime state unchanged"
             return 0
         fi
-        if ! "$codex_cli" mcp remove "$CODEX_DEEPWIKI_MCP_NAME"; then
-            warn "Could not remove stale Codex MCP $CODEX_DEEPWIKI_MCP_NAME — leaving runtime state unchanged"
-            return 0
-        fi
-    elif ! confirm "Register Codex MCP $CODEX_DEEPWIKI_MCP_NAME at $CODEX_DEEPWIKI_MCP_URL?"; then
-        info "Skipping Codex DeepWiki MCP registration."
-        return 0
+        action="replace"
     fi
 
-    if ! "$codex_cli" mcp add "$CODEX_DEEPWIKI_MCP_NAME" --url "$CODEX_DEEPWIKI_MCP_URL"; then
-        if [ "$entry_exists" -eq 1 ] && [ -n "$current_url" ]; then
-            if "$codex_cli" mcp add "$CODEX_DEEPWIKI_MCP_NAME" --url "$current_url"; then
-                warn "Could not register Codex MCP $CODEX_DEEPWIKI_MCP_NAME — previous entry restored"
-            else
-                warn "Could not register Codex MCP $CODEX_DEEPWIKI_MCP_NAME or restore its previous entry"
+    if [ "$action" = "replace" ]; then
+        info "Codex MCP $name — URL changed from $current_url"
+        if ! confirm "Replace Codex MCP $name with $desired_url?"; then
+            info "Skipping Codex MCP $name registration."
+            return 0
+        fi
+        if ! "$codex_cli" mcp remove "$name"; then
+            warn "Codex could not remove stale MCP $name — checking its state before continuing"
+            if ! payload="$(codex_mcp_read_json "$codex_cli" "$jq_cli")"; then
+                warn "Could not verify Codex MCP $name after removal — skipping replacement"
+                return 0
             fi
+            if codex_mcp_entry_matches "$jq_cli" "$payload" "$name" "$desired_url"; then
+                info "Codex MCP $name — already registered, skipping"
+                return 0
+            fi
+            entry_count="$("$jq_cli" -r --arg name "$name" \
+                '[.[] | select(.name == $name)] | length' <<<"$payload")"
+            if [ "$entry_count" -ne 0 ]; then
+                warn "Stale Codex MCP $name is still present — skipping replacement"
+                return 0
+            fi
+        fi
+    elif ! confirm "Register Codex MCP $name at $desired_url?"; then
+        info "Skipping Codex MCP $name registration."
+        return 0
+    fi
+
+    if "$codex_cli" mcp add "$name" --url "$desired_url"; then
+        info "Codex MCP $name — registered"
+        return 0
+    fi
+
+    # A failed add can still leave the entry registered when Codex continues
+    # into its own OAuth flow. Preserve that registration and leave login to
+    # the user rather than treating authentication as installer state.
+    if payload="$(codex_mcp_read_json "$codex_cli" "$jq_cli")" \
+        && codex_mcp_entry_matches "$jq_cli" "$payload" "$name" "$desired_url"; then
+        warn "Codex MCP $name is registered, but setup did not finish — authenticate later with 'codex mcp login $name' if required"
+        return 0
+    fi
+
+    if [ "$action" = "replace" ]; then
+        if "$codex_cli" mcp add "$name" --url "$current_url"; then
+            warn "Could not register Codex MCP $name — previous entry restored"
+        elif payload="$(codex_mcp_read_json "$codex_cli" "$jq_cli")" \
+            && codex_mcp_entry_matches "$jq_cli" "$payload" "$name" "$current_url"; then
+            warn "Could not register Codex MCP $name — previous entry restored, but its setup did not finish"
         else
-            warn "Could not register Codex MCP $CODEX_DEEPWIKI_MCP_NAME — run 'codex mcp add $CODEX_DEEPWIKI_MCP_NAME --url $CODEX_DEEPWIKI_MCP_URL' manually"
+            warn "Could not register Codex MCP $name or restore its previous entry"
         fi
-        return 0
-    fi
-    info "Codex MCP $CODEX_DEEPWIKI_MCP_NAME — registered"
-    return 0
-}
-# END CODEX DEEPWIKI MCP
-
-setup_codex_deepwiki_mcp
-
-# ------------------------------------------------------------------
-# Group 8.65: Codex Linear MCP server
-# ------------------------------------------------------------------
-# BEGIN CODEX LINEAR MCP
-configure_codex_linear_mcp() {
-    local desired_url="https://mcp.linear.app/mcp"
-    local action
-    local prompt
-    local CODEX_MCP_JSON=""
-
-    if ! command -v codex &>/dev/null; then
-        warn "Codex is not installed — skipping Linear MCP registration"
-        return 0
-    fi
-    if ! command -v jq &>/dev/null; then
-        warn "jq is required for Codex MCP detection — skipping Linear MCP registration"
-        return 0
-    fi
-
-    codex_mcp_refresh() {
-        local payload
-        if ! payload="$(codex mcp list --json 2>/dev/null)"; then
-            return 1
-        fi
-        if ! jq -e 'type == "array"' >/dev/null 2>&1 <<<"$payload"; then
-            return 1
-        fi
-        CODEX_MCP_JSON="$payload"
-    }
-
-    codex_linear_registered() {
-        jq -e 'any(.[]; .name == "linear")' >/dev/null 2>&1 <<<"$CODEX_MCP_JSON"
-    }
-
-    codex_linear_matches() {
-        jq -e --arg url "$desired_url" \
-            '[.[] | select(.name == "linear")] | length == 1 and .[0].transport.url == $url' \
-            >/dev/null 2>&1 <<<"$CODEX_MCP_JSON"
-    }
-
-    if ! codex_mcp_refresh; then
-        warn "Could not read valid Codex MCP data — skipping Linear MCP registration"
-        return 0
-    fi
-
-    if codex_linear_matches; then
-        info "Codex Linear MCP — already registered, skipping"
-        return 0
-    elif codex_linear_registered; then
-        action="repair"
-        prompt="Repair the Codex Linear MCP server URL?"
     else
-        action="add"
-        prompt="Register the Codex Linear MCP server?"
-    fi
-
-    if ! confirm "$prompt"; then
-        info "Skipping Codex Linear MCP registration."
-        return 0
-    fi
-
-    if [ "$action" = "repair" ]; then
-        info "  Codex Linear MCP URL changed, removing only the linear entry..."
-        if ! codex mcp remove linear; then
-            warn "Codex could not remove the outdated Linear MCP entry; checking its state before continuing"
-        fi
-        if ! codex_mcp_refresh; then
-            warn "Could not verify Codex MCP state after removal — skipping re-registration"
-            return 0
-        fi
-        if codex_linear_registered; then
-            warn "The outdated Codex Linear MCP entry is still present — skipping re-registration"
-            return 0
-        fi
-    fi
-
-    info "  Registering Codex Linear MCP..."
-    if codex mcp add linear --url "$desired_url"; then
-        info "  Codex Linear MCP registered. Run 'codex mcp login linear' if authentication is not connected."
-        return 0
-    fi
-
-    # `codex mcp add` may persist the server before its immediate browser OAuth
-    # flow returns. Re-read structured state so cancelling OAuth never causes a
-    # valid registration to be removed or treated as a destructive failure.
-    if codex_mcp_refresh && codex_linear_matches; then
-        warn "Codex Linear MCP is registered, but authentication did not finish — run 'codex mcp login linear'"
-    else
-        warn "Codex Linear MCP registration did not complete; no matching entry was found"
+        warn "Could not register Codex MCP $name — run 'codex mcp add $name --url $desired_url' manually"
     fi
     return 0
 }
 
-configure_codex_linear_mcp
-unset -f configure_codex_linear_mcp codex_mcp_refresh codex_linear_registered codex_linear_matches
-# END CODEX LINEAR MCP
+configure_codex_mcp_servers() {
+    # Optional command names form an internal test seam; production uses the
+    # official CLI and jq from PATH.
+    local codex_cli="${1:-codex}"
+    local jq_cli="${2:-jq}"
+    local entry
+    local name
+    local url
+
+    if ! command -v "$codex_cli" &>/dev/null; then
+        warn "Codex is not installed — skipping MCP server registration"
+        return 0
+    fi
+    if ! command -v "$jq_cli" &>/dev/null; then
+        warn "jq is required for Codex MCP detection — skipping MCP server registration"
+        return 0
+    fi
+
+    for entry in "${CODEX_HTTP_MCP_SERVERS[@]}"; do
+        name="${entry%%:*}"
+        url="${entry#*:}"
+        reconcile_codex_http_mcp "$name" "$url" "$codex_cli" "$jq_cli"
+    done
+}
+# END CODEX HTTP MCP SERVERS
+
+configure_codex_mcp_servers
+unset -f configure_codex_mcp_servers reconcile_codex_http_mcp codex_mcp_entry_matches codex_mcp_read_json
 
 # ------------------------------------------------------------------
 # Group 8.75: Codex plugins

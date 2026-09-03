@@ -50,7 +50,7 @@ The authenticated `https://mcp.devin.ai/mcp` service is a different product and 
 The parity proposal is:
 
 - **Claude Code — proposed change.** Surface: `run_onchange_install-packages.sh.tmpl`, `MCP_HTTP_SERVERS`. Action: add `deepwiki:https://mcp.deepwiki.com/mcp`; the existing pre-scan, URL-drift replacement, confirmation, and non-fatal error handling apply.
-- **Codex — proposed runtime-owned counterpart.** Surface: the official `codex mcp` CLI, driven by a new install-script group. Action: inspect JSON from `codex mcp get/list`, add with `codex mcp add deepwiki --url https://mcp.deepwiki.com/mcp`, and remove/re-add only on URL drift. Restore the previous HTTP entry if registration fails, and leave non-HTTP entries unchanged because the CLI provides no lossless replacement operation. Do not create `dot_codex/config.toml`.
+- **Codex — proposed runtime-owned counterpart.** Surface: the official `codex mcp` CLI, driven by the shared `CODEX_HTTP_MCP_SERVERS` declaration and `configure_codex_mcp_servers` module. Action: use the same JSON-based reconciliation for DeepWiki, Linear, and future HTTP entries; add a missing entry, skip an exact match, remove/re-add only on URL drift, restore the previous HTTP entry if registration fails, and leave non-HTTP entries unchanged because the CLI provides no lossless replacement operation. The module never invokes `codex mcp login` or manages credentials; authentication remains a separate user action, although `codex mcp add` may itself initiate OAuth. Do not create `dot_codex/config.toml`.
 - **OpenCode — proposed change.** Surface: `dot_config/opencode/opencode.jsonc`, `mcp.deepwiki`. Action: add `{ "type": "remote", "url": "https://mcp.deepwiki.com/mcp", "enabled": true }` alongside existing entries.
 - **Junie — proposed change.** Surface: `dot_junie/mcp/modify_mcp.json.tmpl`, merge-managing `~/.junie/mcp/mcp.json`. Action: add `mcpServers.deepwiki.url` alongside the managed Linear entry while preserving unrelated servers and unknown top-level values.
 
@@ -90,7 +90,7 @@ The README MCP table gains a DeepWiki row and updates the global-server count. T
 - [An unindexed repository fails instead of indexing on demand] → surface the returned DeepWiki URL workflow; do not automate a browser visit or claim transparent indexing.
 - [A private repository name sent to the public service leaks its existence even though content is inaccessible] → documentation says not to invoke DeepWiki for private/Nazaries repositories; no private endpoint or token is configured.
 - [Remote service outage adds a failed connection at startup] → do not mark the Codex entry `required`; each client's failure remains isolated from other MCP servers.
-- [Codex CLI output changes] → consume its documented JSON output with `jq`, fail the registration group non-fatally, and preserve existing runtime state when parsing fails.
+- [Codex CLI output changes] → consume its documented JSON output with `jq`, fail each shared registration non-fatally, and preserve existing runtime state when parsing fails.
 - [Junie users edit the MCP JSON through its UI] → use the merge-preserving modifier established by the Linear change so `chezmoi apply` restores only the declared DeepWiki and Linear entries and preserves unrelated state.
 - [OpenCode v2 uses a different MCP schema] → implement against the repository's installed/current v1 configuration and migrate all OpenCode entries together in a dedicated upgrade change.
 

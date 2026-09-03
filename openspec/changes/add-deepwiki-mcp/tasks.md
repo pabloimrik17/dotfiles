@@ -7,8 +7,8 @@
 ## 2. Claude Code and Codex Registration
 
 - [x] 2.1 Add `deepwiki:https://mcp.deepwiki.com/mcp` to `MCP_HTTP_SERVERS` in `run_onchange_install-packages.sh.tmpl`, preserving the existing pre-scan, URL-drift replacement, confirmation, and non-fatal registration flow; verify the rendered server total is 15 and no `/sse` or `mcp.devin.ai` DeepWiki entry exists.
-- [x] 2.2 Add an idempotent Codex MCP registration group to `run_onchange_install-packages.sh.tmpl` that uses JSON from the official `codex mcp` CLI, prompts before adding/replacing `deepwiki`, skips an exact URL match, and warns non-fatally when Codex, jq, parsing, removal, or addition fails; verify it never writes or introduces `dot_codex/config.toml`.
-- [x] 2.3 Exercise the Codex group's no-Codex, no-jq, failed-query, missing-entry, matching-entry, stale-URL, declined, removal-failure, and add-failure paths with controlled stubs or an equivalent isolated harness, and verify only the missing/stale confirmed cases invoke `codex mcp add deepwiki --url https://mcp.deepwiki.com/mcp`.
+- [x] 2.2 Add DeepWiki to a shared, idempotent `CODEX_HTTP_MCP_SERVERS` registration module in `run_onchange_install-packages.sh.tmpl` that uses JSON from the official `codex mcp` CLI, prompts before adding/replacing any declared HTTP entry, skips exact URL matches, and warns non-fatally when Codex, jq, parsing, removal, or addition fails; verify it never invokes `codex mcp login` or writes or introduces `dot_codex/config.toml`.
+- [x] 2.3 Exercise the shared Codex module's no-Codex, no-jq, failed-query, malformed/duplicate data, missing-entry, matching-entry, non-HTTP entry, stale-URL, declined, removal-failure, persisted-after-failed-add, add-failure, and rollback paths with controlled stubs or an equivalent isolated harness; verify only missing/stale confirmed entries invoke `codex mcp add <name> --url <url>` and both DeepWiki and Linear use the same interface.
 
 ## 3. Managed Client Configuration and Permissions
 
