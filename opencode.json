@@ -3,7 +3,7 @@
     "mcp": {
         "eslint": {
             "type": "local",
-            "command": ["npx", "-y", "@eslint/mcp@0.3.0"],
+            "command": ["npx", "-y", "@eslint/mcp@0.3.10"],
             "enabled": true
         },
         "context7": {
@@ -13,17 +13,17 @@
         },
         "knip": {
             "type": "local",
-            "command": ["npx", "-y", "@knip/mcp@0.0.19"],
+            "command": ["npx", "-y", "@knip/mcp@0.0.34"],
             "enabled": true
         },
         "memory": {
             "type": "local",
-            "command": ["npx", "-y", "@modelcontextprotocol/server-memory@2026.1.26"],
+            "command": ["npx", "-y", "@modelcontextprotocol/server-memory@2026.7.4"],
             "enabled": true
         },
         "playwright": {
             "type": "local",
-            "command": ["npx", "-y", "@playwright/mcp@0.0.68"],
+            "command": ["npx", "-y", "@playwright/mcp@0.0.79"],
             "enabled": true
         },
         "chrome-devtools": {

@@ -22,46 +22,58 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 
 ## What's Included
 
-| Category       | Tool                                                                            | Description                                                                                |
-| -------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| **Terminal**   | [Ghostty](https://ghostty.org/)                                                 | GPU-accelerated terminal with Catppuccin Mocha theme                                       |
-| **Terminal**   | [tmux](https://github.com/tmux/tmux)                                            | Terminal multiplexer for session management                                                |
-| **Shell**      | [Zsh](https://www.zsh.org/) + [Oh-My-Zsh](https://ohmyz.sh/)                    | Shell framework with 27+ plugins (git, docker, fzf, nvm, bun…)                             |
-| **Shell**      | [Starship](https://starship.rs/)                                                | Fast cross-shell prompt with Catppuccin palette                                            |
-| **Shell**      | [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)         | Fish-like command suggestions                                                              |
-| **Shell**      | [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) | Real-time syntax validation                                                                |
-| **CLI Tools**  | [eza](https://eza.rocks/)                                                       | Modern `ls` with icons, colors, git integration                                            |
-| **CLI Tools**  | [bat](https://github.com/sharkdp/bat)                                           | Modern `cat` with syntax highlighting                                                      |
-| **CLI Tools**  | [zoxide](https://github.com/ajeetdsouza/zoxide)                                 | Smart `cd` that learns your directories                                                    |
-| **CLI Tools**  | [fzf](https://github.com/junegunn/fzf)                                          | Fuzzy finder for files, history, and previews                                              |
-| **CLI Tools**  | [fd](https://github.com/sharkdp/fd)                                             | Fast `find` alternative                                                                    |
-| **CLI Tools**  | [ripgrep](https://github.com/BurntSushi/ripgrep)                                | Fast recursive grep                                                                        |
-| **CLI Tools**  | [atuin](https://atuin.sh/)                                                      | Modern shell history search                                                                |
-| **CLI Tools**  | [direnv](https://direnv.net/)                                                   | Auto-load/unload env vars per directory                                                    |
-| **CLI Tools**  | [tickrs](https://github.com/tarkah/tickrs)                                      | Real-time stock ticker TUI with curated watchlist                                          |
-| **CLI Tools**  | [ticker](https://github.com/achannarasappa/ticker)                              | Terminal stock tracker with cost-basis positions and sector groups                         |
-| **CLI Tools**  | [age](https://age-encryption.org/)                                              | Modern encryption tool backing the chezmoi-managed secrets workflow                        |
-| **CLI Tools**  | [mole](https://github.com/tw93/mole)                                            | Deep clean and optimize your Mac — caches, logs, app remnants, `node_modules` (macOS only) |
-| **CLI Tools**  | [glow](https://github.com/charmbracelet/glow)                                   | Terminal Markdown viewer — TUI browse + CLI render                                         |
-| **CLI Tools**  | [mdfried](https://github.com/benjajaja/mdfried)                                 | Markdown viewer with inline images, mermaid diagrams, and Big Headers (graphics terminal)  |
-| **CLI Tools**  | [fallow](https://fallow.tools/)                                                 | Codebase intelligence for TS/JS — dead code, duplication, complexity (CLI + MCP + skill)   |
-| **Git**        | [git-delta](https://github.com/dandavison/delta)                                | Syntax-highlighted diff viewer                                                             |
-| **Git**        | [lazygit](https://github.com/jesseduffield/lazygit)                             | TUI for git operations                                                                     |
-| **Git**        | [GitHub CLI](https://cli.github.com/)                                           | GitHub from the terminal                                                                   |
-| **Git**        | [gh-dash](https://github.com/dlvhdr/gh-dash)                                    | GitHub dashboard TUI with Catppuccin Mocha theme                                           |
-| **Git**        | [gh-enhance](https://github.com/dlvhdr/gh-enhance)                              | GitHub Actions TUI for workflow runs                                                       |
-| **Git**        | [gh-stack](https://github.com/github/gh-stack)                                  | Stacked pull requests from the terminal (`gs`)                                             |
-| **Git**        | [Worktrunk](https://github.com/max-sixty/worktrunk)                             | Git worktree manager for parallel AI agent workflows                                       |
-| **AI Tooling** | [Claude Code](https://code.claude.com/)                                         | AI coding assistant CLI with plugins                                                       |
-| **AI Tooling** | [Codex](https://developers.openai.com/codex/cli/)                               | OpenAI coding-agent CLI installed through its standalone installer                         |
-| **AI Tooling** | [OpenCode](https://github.com/anomalyco/opencode)                               | AI code editor                                                                             |
-| **AI Tooling** | [Agent of Empires](https://github.com/njbrake/agent-of-empires)                 | tmux-native TUI for managing parallel AI agent sessions (`aoe`)                            |
-| **AI Tooling** | [CodeRabbit](https://www.coderabbit.ai/)                                        | AI code review CLI                                                                         |
-| **Network**    | [Tailscale](https://tailscale.com/)                                             | Mesh VPN (WireGuard-based) for secure device-to-device networking                          |
+| Category       | Tool                                                                            | Description                                                                                                |
+| -------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Terminal**   | [Ghostty](https://ghostty.org/)                                                 | GPU-accelerated terminal with Catppuccin Mocha theme                                                       |
+| **Terminal**   | [tmux](https://github.com/tmux/tmux)                                            | Terminal multiplexer for session management                                                                |
+| **Shell**      | [Zsh](https://www.zsh.org/) + [Oh-My-Zsh](https://ohmyz.sh/)                    | Shell framework with 27+ plugins (git, docker, fzf, nvm, bun…)                                             |
+| **Shell**      | [Starship](https://starship.rs/)                                                | Fast cross-shell prompt with Catppuccin palette                                                            |
+| **Shell**      | [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)         | Fish-like command suggestions                                                                              |
+| **Shell**      | [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) | Real-time syntax validation                                                                                |
+| **CLI Tools**  | [eza](https://eza.rocks/)                                                       | Modern `ls` with icons, colors, git integration                                                            |
+| **CLI Tools**  | [bat](https://github.com/sharkdp/bat)                                           | Modern `cat` with syntax highlighting                                                                      |
+| **CLI Tools**  | [zoxide](https://github.com/ajeetdsouza/zoxide)                                 | Smart `cd` that learns your directories                                                                    |
+| **CLI Tools**  | [fzf](https://github.com/junegunn/fzf)                                          | Fuzzy finder for files, history, and previews                                                              |
+| **CLI Tools**  | [fd](https://github.com/sharkdp/fd)                                             | Fast `find` alternative                                                                                    |
+| **CLI Tools**  | [ripgrep](https://github.com/BurntSushi/ripgrep)                                | Fast recursive grep                                                                                        |
+| **CLI Tools**  | [atuin](https://atuin.sh/)                                                      | Modern shell history search                                                                                |
+| **CLI Tools**  | [direnv](https://direnv.net/)                                                   | Auto-load/unload env vars per directory                                                                    |
+| **CLI Tools**  | [tickrs](https://github.com/tarkah/tickrs)                                      | Real-time stock ticker TUI with curated watchlist                                                          |
+| **CLI Tools**  | [ticker](https://github.com/achannarasappa/ticker)                              | Terminal stock tracker with cost-basis positions and sector groups                                         |
+| **CLI Tools**  | [age](https://age-encryption.org/)                                              | Modern encryption tool backing the chezmoi-managed secrets workflow                                        |
+| **CLI Tools**  | [mole](https://github.com/tw93/mole)                                            | Deep clean and optimize your Mac — caches, logs, app remnants, `node_modules` (macOS only)                 |
+| **CLI Tools**  | [glow](https://github.com/charmbracelet/glow)                                   | Terminal Markdown viewer — TUI browse + CLI render                                                         |
+| **CLI Tools**  | [mdfried](https://github.com/benjajaja/mdfried)                                 | Markdown viewer with inline images, mermaid diagrams, and Big Headers (graphics terminal)                  |
+| **CLI Tools**  | [fallow](https://fallow.tools/)                                                 | Codebase intelligence for TS/JS — dead code, duplication, complexity (CLI + MCP + skill)                   |
+| **Git**        | [git-delta](https://github.com/dandavison/delta)                                | Syntax-highlighted diff viewer                                                                             |
+| **Git**        | [lazygit](https://github.com/jesseduffield/lazygit)                             | TUI for git operations                                                                                     |
+| **Git**        | [GitHub CLI](https://cli.github.com/)                                           | GitHub from the terminal                                                                                   |
+| **Git**        | [gh-dash](https://github.com/dlvhdr/gh-dash)                                    | GitHub dashboard TUI with Catppuccin Mocha theme                                                           |
+| **Git**        | [gh-enhance](https://github.com/dlvhdr/gh-enhance)                              | GitHub Actions TUI for workflow runs                                                                       |
+| **Git**        | [gh-stack](https://github.com/github/gh-stack)                                  | Stacked pull requests from the terminal (`gs`)                                                             |
+| **Git**        | [Worktrunk](https://github.com/max-sixty/worktrunk)                             | Git worktree manager for parallel AI agent workflows                                                       |
+| **AI Tooling** | [Claude Code](https://code.claude.com/)                                         | AI coding assistant CLI with plugins                                                                       |
+| **AI Tooling** | [Codex](https://developers.openai.com/codex/cli/)                               | OpenAI coding-agent CLI installed through its standalone installer                                         |
+| **AI Tooling** | [OpenCode](https://github.com/anomalyco/opencode)                               | AI code editor                                                                                             |
+| **AI Tooling** | [Junie](https://junie.jetbrains.com/)                                           | JetBrains coding agent installed separately; Linear is preconfigured, but OAuth is not currently supported |
+| **AI Tooling** | [Agent of Empires](https://github.com/njbrake/agent-of-empires)                 | tmux-native TUI for managing parallel AI agent sessions (`aoe`)                                            |
+| **AI Tooling** | [CodeRabbit](https://www.coderabbit.ai/)                                        | AI code review CLI                                                                                         |
+| **Network**    | [Tailscale](https://tailscale.com/)                                             | Mesh VPN (WireGuard-based) for secure device-to-device networking                                          |
 
 ## MCP Servers
 
-The install script registers 15 global MCP servers to `~/.claude.json` for Claude Code. OpenCode manages its MCP servers independently. Atlassian, Figma, Linear, and Notion authenticate via OAuth on first use; stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and remote entries in the OpenCode config, so neither is part of that count; both authenticate via OAuth on first use.
+The install script registers 15 user-scope Claude Code MCP servers in runtime-owned `~/.claude.json`. Similarly named OpenCode servers are declared separately in repo-local `opencode.json` or the managed user configuration; Claude Code's list is not automatically shared with OpenCode, Codex, or Junie. Stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and separate remote entries in the OpenCode config, so neither is part of that count.
+
+Claude Code, OpenCode, and Codex support Linear through its official read-write endpoint, `https://mcp.linear.app/mcp`, while keeping registration and OAuth state client-specific. Junie is configured for the same endpoint, but its current OAuth token exchange is not compatible with Linear:
+
+| Client      | Registration / configuration                                                                           | Authentication / status                                                                                                     | Ownership                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Claude Code | Installer runs `claude mcp add --scope user --transport http linear https://mcp.linear.app/mcp`        | `claude mcp login linear` or `/mcp`; `claude mcp get linear`                                                                | Runtime-owned `~/.claude.json`; OAuth remains Claude Code-owned              |
+| OpenCode    | `chezmoi apply` manages a native remote `mcp.linear` entry                                             | `opencode mcp auth linear`; `opencode mcp list`                                                                             | OAuth remains in OpenCode's native credential store outside the repository   |
+| Codex       | Installer narrowly reconciles `linear` through `codex mcp add linear --url https://mcp.linear.app/mcp` | `codex mcp login linear`; `codex mcp list --json`                                                                           | Codex owns `~/.codex/config.toml` and its OAuth state                        |
+| Junie       | `chezmoi apply` merges `mcpServers.linear` into `~/.junie/mcp/mcp.json`                                | **Not currently supported** — `/mcp` authorization fails during Linear's OAuth token exchange; revisit after a Junie update | The managed entry is credential-free; unrelated MCP entries remain untouched |
+
+The [interactive manual](docs/manual.html) contains the complete acceptance flow for the three supported clients—list Linear projects, find `dotfiles`, create a uniquely titled disposable issue, record its identifier, and close or cancel only that issue—plus the safe Junie revalidation procedure.
 
 | Server                                                         | Transport | Description                                        | Auth / Setup                                                            |
 | -------------------------------------------------------------- | --------- | -------------------------------------------------- | ----------------------------------------------------------------------- |
@@ -77,7 +89,7 @@ The install script registers 15 global MCP servers to `~/.claude.json` for Claud
 | [deepwiki](https://docs.devin.ai/work-with-devin/deepwiki-mcp) | http      | Explore repository architecture and internal flows | Already-indexed public GitHub repositories only                         |
 | atlassian                                                      | http      | Jira & Confluence integration                      | OAuth on first use                                                      |
 | figma                                                          | http      | Figma design context (Dev Mode)                    | OAuth on first use                                                      |
-| linear                                                         | http      | Linear issues & projects                           | OAuth on first use                                                      |
+| linear                                                         | http      | Linear issues & projects                           | Per-client native OAuth; see the client matrix above                    |
 | notion                                                         | http      | Notion pages & databases                           | OAuth on first use                                                      |
 | storybook                                                      | http      | Local Storybook component context                  | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
 | posthog                                                        | http      | Product analytics, feature flags, errors           | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |

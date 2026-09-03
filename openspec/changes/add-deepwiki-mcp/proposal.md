@@ -9,7 +9,7 @@ Context7 is effective for published library APIs, but it does not answer many qu
 - Allow DeepWiki's three public, read-only Claude Code tools (`read_wiki_structure`, `read_wiki_contents`, and `ask_question`) without prompting.
 - Add a four-client parity-table row and update the README/manual so the ownership and configuration surface for each client are explicit.
 - Record a repeatable comparison using the same `vite-tsconfig-paths` internals question in DeepWiki and Context7, followed by direct-source verification with `gh_grep`/WebFetch. Capture response size, latency, source traceability, factual coverage, and correctness; use the result to document routing guidance rather than silently treating the services as interchangeable.
-- Document the operating boundaries: public GitHub repositories only; a repository must already be indexed (an MCP miss directs the user to visit its DeepWiki URL to start indexing); queries target DeepWiki's currently indexed default-branch state and cannot select a tag, branch, or commit; exact or version-sensitive claims still require direct-source verification.
+- Document the operating boundaries: public GitHub repositories only; a repository must already be indexed (an MCP miss directs the user to visit its DeepWiki URL to start indexing); queries use provider-indexed content whose freshness and source revision are not guaranteed, and cannot select a tag, branch, or commit; exact or version-sensitive claims still require direct-source verification.
 - Classify DeepWiki as a provider-managed remote service: there is no local package, version pin, Renovate entry, secret, or `update-extra` step.
 
 Out of scope: the authenticated Devin MCP at `https://mcp.devin.ai/mcp`, private Nazaries repositories, project-local MCP files, and any automatic cloning or indexing workflow.
@@ -27,7 +27,7 @@ None. The change extends existing global MCP and Claude Code permission behavior
 
 ## Impact
 
-- **Configuration**: `run_onchange_install-packages.sh.tmpl`, `dot_config/opencode/opencode.jsonc`, and a new `dot_junie/mcp/mcp.json`; Codex remains CLI-managed rather than gaining a chezmoi-owned `dot_codex/config.toml`.
+- **Configuration**: `run_onchange_install-packages.sh.tmpl`, `dot_config/opencode/opencode.jsonc`, and `dot_junie/mcp/modify_mcp.json.tmpl`; Codex remains CLI-managed rather than gaining a chezmoi-owned `dot_codex/config.toml`.
 - **Permissions**: `dot_claude/modify_settings.json.tmpl` gains three exact read-only tool rules; no wildcard and no write-capable tool are introduced.
 - **Repo tooling and docs**: `.agents/skills/sync-agent-config/parity.md`, `README.md`, and `docs/manual.html` gain the four-client mapping, usage guidance, and limitations.
 - **Install/runtime**: the Claude and Codex registration loops gain one remote endpoint each. OpenCode and Junie load the equivalent managed entries. No authentication, package installation, or secret storage is required.

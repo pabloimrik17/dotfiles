@@ -314,6 +314,10 @@
             }
 
             /* ── Print stylesheet ──────────────────────────────────────── */
+            @page {
+                size: A4;
+            }
+
             @media print {
                 :root {
                     --ctp-text: #1e1e2e;
@@ -337,7 +341,7 @@
 
                 body {
                     display: block;
-                    font-size: 7.5pt;
+                    font-size: 7.2pt;
                     line-height: 1.1;
                     color: #1e1e2e;
                     background: #fff;
@@ -355,8 +359,8 @@
                 .content {
                     max-width: 100%;
                     padding: 0;
-                    column-count: 3;
-                    column-gap: 0.8em;
+                    column-count: 4;
+                    column-gap: 0.6em;
                     column-rule: 1px solid #ccc;
                 }
 
@@ -406,7 +410,7 @@
                 }
 
                 .section-content h3 {
-                    font-size: 7.5pt;
+                    font-size: 7.2pt;
                     margin: 2pt 0 1pt;
                     color: #333;
                     break-after: avoid;
@@ -414,7 +418,7 @@
                 }
 
                 table {
-                    font-size: 6.5pt;
+                    font-size: 6.2pt;
                     margin: 0 0 2pt;
                     break-inside: avoid;
                     page-break-inside: avoid;
@@ -432,14 +436,14 @@
 
                 td {
                     padding: 0.5pt 2pt;
-                    font-size: 6.5pt;
+                    font-size: 6.2pt;
                 }
 
                 td:first-child {
                     width: 36%;
                     white-space: normal;
                     overflow-wrap: anywhere;
-                    font-size: 6.5pt;
+                    font-size: 6.2pt;
                 }
 
                 tbody tr:nth-child(even) {
@@ -447,7 +451,7 @@
                 }
 
                 kbd {
-                    font-size: 6.5pt;
+                    font-size: 6.2pt;
                     padding: 0 2pt;
                     border: 1px solid #999;
                     border-bottom-width: 1px;
@@ -505,8 +509,8 @@
         <main class="content">
             <h1>Dotfiles Manual &amp; Cheatsheet</h1>
             <p class="subtitle">
-                All shortcuts, aliases, keybindings, and workflows in one place. Print for a dense
-                A4 cheatsheet.
+                All shortcuts, aliases, keybindings, and workflows across 15 sections. Print for a
+                dense A4 cheatsheet.
             </p>
 
             <!-- ════════════════════════════════════════════════════════════ -->
@@ -2720,8 +2724,20 @@
                             </tr>
                             <tr>
                                 <td>linear</td>
-                                <td>Linear issues &amp; projects</td>
-                                <td>OAuth on first use</td>
+                                <td>
+                                    Linear issues &amp; projects at
+                                    <code>https://mcp.linear.app/mcp</code>
+                                </td>
+                                <td>
+                                    Setup registers the user-scope server with
+                                    <code
+                                        >claude mcp add --scope user --transport http linear
+                                        https://mcp.linear.app/mcp</code
+                                    >. Authenticate with <code>claude mcp login linear</code> or
+                                    <code>/mcp</code>; check the endpoint and connection with
+                                    <code>claude mcp get linear</code>. OAuth state remains Claude
+                                    Code-owned outside chezmoi.
+                                </td>
                             </tr>
                             <tr>
                                 <td>notion</td>
@@ -2755,6 +2771,13 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Verify Linear from Claude Code</strong><br />
+                        Ask Claude Code to list Linear projects and find <code>dotfiles</code>
+                        &rarr; create a uniquely titled disposable issue in that project &rarr;
+                        record its identifier &rarr; close or cancel only that issue
+                    </div>
 
                     <div class="flow-only">
                         <strong>Flow: Route documentation and source questions</strong><br />
@@ -2949,7 +2972,53 @@
                         longer creates those paths.
                     </p>
 
-                    <h3>MCP server (OpenCode-managed local entry)</h3>
+                    <h3>Project MCP servers</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Server</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>eslint</td>
+                                <td>Lint files on demand</td>
+                            </tr>
+                            <tr>
+                                <td>context7</td>
+                                <td>Fetch up-to-date library docs</td>
+                            </tr>
+                            <tr>
+                                <td>knip</td>
+                                <td>Detect unused code/exports</td>
+                            </tr>
+                            <tr>
+                                <td>memory</td>
+                                <td>Persistent knowledge graph across sessions</td>
+                            </tr>
+                            <tr>
+                                <td>playwright</td>
+                                <td>Browser automation and testing</td>
+                            </tr>
+                            <tr>
+                                <td>chrome-devtools</td>
+                                <td>Inspect/control browser sessions</td>
+                            </tr>
+                            <tr>
+                                <td>gh_grep</td>
+                                <td>Search across GitHub repos</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p class="note">
+                        These entries are declared separately in repo-local
+                        <code>opencode.json</code>. Claude Code&rsquo;s user-scope server list is
+                        not automatically shared with OpenCode.
+                    </p>
+
+                    <h3>Managed user MCP servers</h3>
                     <table>
                         <thead>
                             <tr>
@@ -2962,24 +3031,26 @@
                                 <td>expect</td>
                                 <td>Visual testing and accessibility audits</td>
                             </tr>
-                        </tbody>
-                    </table>
-
-                    <h3>MCP servers (OpenCode-managed remote entries)</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Server</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
                             <tr>
                                 <td>deepwiki</td>
                                 <td>
                                     Enabled remote entry in
                                     <code>~/.config/opencode/opencode.jsonc</code> for
                                     already-indexed public GitHub repositories
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>linear</td>
+                                <td>
+                                    Linear issues &amp; projects through the native remote
+                                    <code>mcp.linear</code> entry in
+                                    <code>~/.config/opencode/opencode.jsonc</code>, targeting
+                                    <code>https://mcp.linear.app/mcp</code>. Authenticate with
+                                    <code>opencode mcp auth linear</code> and check the connection
+                                    with <code>opencode mcp list</code>. OAuth state remains in
+                                    OpenCode&rsquo;s native
+                                    <code>~/.local/share/opencode/mcp-auth.json</code> store outside
+                                    the repository.
                                 </td>
                             </tr>
                             <tr>
@@ -3004,6 +3075,13 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Verify Linear from OpenCode</strong><br />
+                        Ask OpenCode to list Linear projects and find <code>dotfiles</code> &rarr;
+                        create a uniquely titled disposable issue in that project &rarr; record its
+                        identifier &rarr; close or cancel only that issue
+                    </div>
 
                     <div class="flow-only">
                         <strong>Flow: Route documentation and source questions</strong><br />
@@ -3108,6 +3186,97 @@
                         </tbody>
                     </table>
 
+                    <h3>Linear MCP</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Command &amp; behavior</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Register</td>
+                                <td>
+                                    Setup inspects <code>codex mcp list --json</code>, leaves a
+                                    matching entry alone, and narrowly adds or repairs only
+                                    <code>linear</code> with
+                                    <code
+                                        >codex mcp add linear --url https://mcp.linear.app/mcp</code
+                                    >. The add command may begin OAuth immediately.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Authenticate / recover</td>
+                                <td>
+                                    <code>codex mcp login linear</code> &mdash; start or restart the
+                                    browser OAuth flow
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Status</td>
+                                <td>
+                                    <code>codex mcp list --json</code> &mdash; verify the official
+                                    endpoint and authenticated status
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Ownership</td>
+                                <td>
+                                    Only the Linear MCP entry is reconciled by setup. Codex owns
+                                    <code>~/.codex/config.toml</code>, OAuth credentials, and every
+                                    other preference or runtime value; chezmoi does not manage the
+                                    whole file.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Verify Linear from Codex</strong><br />
+                        Ask Codex to list Linear projects and find <code>dotfiles</code> &rarr;
+                        create a uniquely titled disposable issue in that project &rarr; record its
+                        identifier &rarr; close or cancel only that issue
+                    </div>
+
+                    <h3>DeepWiki MCP</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Server</th>
+                                <th>Registration &amp; ownership</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>deepwiki</td>
+                                <td>
+                                    The installer drives
+                                    <code
+                                        >codex mcp add deepwiki --url
+                                        https://mcp.deepwiki.com/mcp</code
+                                    >; Codex stores the user entry in its runtime-owned
+                                    <code>~/.codex/config.toml</code>, which chezmoi does not manage
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries provider-indexed public-repository content; its freshness
+                        and source revision are not guaranteed. It cannot access private
+                        repositories or select a branch, tag, or commit. If a public repository is
+                        missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
+
                     <h3>Commands</h3>
                     <table>
                         <thead>
@@ -3204,44 +3373,6 @@
                         </tbody>
                     </table>
 
-                    <h3>MCP servers</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Server</th>
-                                <th>Registration &amp; ownership</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>deepwiki</td>
-                                <td>
-                                    The installer drives
-                                    <code
-                                        >codex mcp add deepwiki --url
-                                        https://mcp.deepwiki.com/mcp</code
-                                    >; Codex stores the user entry in its runtime-owned
-                                    <code>~/.codex/config.toml</code>, which chezmoi does not manage
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="flow-only">
-                        <strong>Flow: Route documentation and source questions</strong><br />
-                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
-                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
-                        source for exact or revision-sensitive evidence
-                    </div>
-                    <p class="note">
-                        DeepWiki queries provider-indexed public-repository content; its freshness
-                        and source revision are not guaranteed. It cannot access private
-                        repositories or select a branch, tag, or commit. If a public repository is
-                        missing, visit
-                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
-                        indexing.
-                    </p>
-
                     <h3>Instructions &amp; skills</h3>
                     <table>
                         <thead>
@@ -3273,11 +3404,12 @@
                                 <td>Browse or invoke an available skill</td>
                             </tr>
                             <tr>
-                                <td>Other preferences &amp; MCP</td>
+                                <td>Other preferences &amp; runtime state</td>
                                 <td>
-                                    Existing <code>~/.codex</code> runtime state remains
-                                    Codex-owned. Chezmoi drives only declared CLI setup groups and
-                                    never manages <code>config.toml</code> directly
+                                    Not managed by these dotfiles; only the DeepWiki and Linear MCP
+                                    entries are narrowly reconciled through <code>codex mcp</code>.
+                                    Existing <code>~/.codex</code> preferences and runtime state
+                                    remain Codex-owned.
                                 </td>
                             </tr>
                         </tbody>
@@ -3299,33 +3431,74 @@
                         <thead>
                             <tr>
                                 <th>Setting</th>
-                                <th>Value</th>
+                                <th>Behavior</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>deepwiki</td>
+                                <td>Managed file</td>
                                 <td>
-                                    Remote URL <code>https://mcp.deepwiki.com/mcp</code> for
-                                    already-indexed public GitHub repositories
+                                    <code>~/.junie/mcp/mcp.json</code> &mdash; Junie&rsquo;s
+                                    user-scope MCP configuration, shared by the CLI and IDE plugin
                                 </td>
                             </tr>
                             <tr>
-                                <td>User config</td>
+                                <td>Managed fragment</td>
                                 <td>
-                                    <code>~/.junie/mcp/mcp.json</code> &mdash; chezmoi-managed from
-                                    <code>dot_junie/mcp/mcp.json</code> and available across
-                                    projects
+                                    <code>chezmoi apply</code> merge-manages only
+                                    <code>mcpServers.deepwiki</code> at
+                                    <code>https://mcp.deepwiki.com/mcp</code> and
+                                    <code>mcpServers.linear</code> at
+                                    <code>https://mcp.linear.app/mcp</code>; unrelated servers and
+                                    unknown top-level values remain untouched
                                 </td>
                             </tr>
                             <tr>
-                                <td>Runtime check</td>
+                                <td>DeepWiki</td>
                                 <td>
-                                    <code>/mcp</code> &mdash; list the configured server and status
+                                    Credential-free access to already-indexed public GitHub
+                                    repositories. Use <code>/mcp</code> to check its runtime status.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Current support</td>
+                                <td>
+                                    <strong>Not currently supported.</strong> Junie 26.8.17 reaches
+                                    Linear OAuth, but token exchange returns
+                                    <code
+                                        >400 Bad Request: Client must not use multiple
+                                        authentication methods</code
+                                    >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Revalidate after an update</td>
+                                <td>
+                                    Open <code>/mcp</code>, select the user-scope
+                                    <code>linear</code> server, choose <strong>Authorize</strong>,
+                                    and complete browser OAuth. Proceed to functional verification
+                                    only if <code>linear</code> reports <strong>Active</strong>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Credentials</td>
+                                <td>
+                                    Junie owns OAuth state outside the repository. The managed JSON
+                                    contains no token, API key, or Authorization header. Do not add
+                                    a static credential or compatibility bridge to bypass the
+                                    current OAuth failure.
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Revisit Linear compatibility from Junie</strong><br />
+                        Update Junie &rarr; retry <code>/mcp</code> authorization &rarr; require
+                        <strong>Active</strong> &rarr; list Linear projects and find
+                        <code>dotfiles</code> &rarr; create a uniquely titled disposable issue
+                        &rarr; record its identifier &rarr; close or cancel only that issue
+                    </div>
 
                     <div class="flow-only">
                         <strong>Flow: Route documentation and source questions</strong><br />

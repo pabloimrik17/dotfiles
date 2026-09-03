@@ -101,6 +101,12 @@ The chezmoi setup SHALL provide one enabled user-scope MCP server named `deepwik
 - **THEN** `~/.junie/mcp/mcp.json` SHALL contain `mcpServers.deepwiki.url` equal to `https://mcp.deepwiki.com/mcp`
 - **AND** the entry SHALL require no headers, environment variables, or credentials
 
+#### Scenario: Existing Junie configuration survives apply
+
+- **WHEN** `~/.junie/mcp/mcp.json` contains valid unrelated servers or unknown top-level values and `chezmoi apply` runs
+- **THEN** those values SHALL remain unchanged while `mcpServers.deepwiki` converges to the managed endpoint
+- **AND** the separately managed `mcpServers.linear` entry SHALL remain present
+
 ### Requirement: Codex MCP registration preserves runtime-owned configuration
 
 The setup SHALL drive Codex through its official `codex mcp` CLI and SHALL NOT introduce a chezmoi-managed `dot_codex/config.toml`. Registration SHALL be idempotent, SHALL replace an existing `deepwiki` entry only when its URL differs, and SHALL treat an individual registration failure as non-fatal.
@@ -122,6 +128,17 @@ The setup SHALL drive Codex through its official `codex mcp` CLI and SHALL NOT i
 - **WHEN** Codex reports a `deepwiki` MCP entry with a different URL
 - **AND** the user confirms the Codex MCP registration group
 - **THEN** the setup SHALL replace only that entry with `https://mcp.deepwiki.com/mcp`
+
+#### Scenario: Codex replacement fails
+
+- **WHEN** setup removes a stale HTTP `deepwiki` entry and adding the managed URL fails
+- **THEN** setup SHALL attempt to restore the previous URL
+- **AND** the failure SHALL remain non-fatal
+
+#### Scenario: Codex entry cannot be replaced losslessly
+
+- **WHEN** Codex reports an existing non-HTTP `deepwiki` entry
+- **THEN** setup SHALL leave that entry unchanged and warn the user
 
 #### Scenario: Codex is unavailable
 

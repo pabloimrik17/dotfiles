@@ -13,12 +13,12 @@
 ## 3. Managed Client Configuration and Permissions
 
 - [x] 3.1 Add an enabled remote `deepwiki` entry with URL `https://mcp.deepwiki.com/mcp` to `dot_config/opencode/opencode.jsonc`; verify all existing top-level keys and MCP entries remain present and `bun run lint:oxfmt` accepts the file.
-- [x] 3.2 Create `dot_junie/mcp/mcp.json` with only the user-scope `mcpServers.deepwiki.url` mapping required by Junie, no headers or credentials, and verify `jq -e '.mcpServers.deepwiki.url == "https://mcp.deepwiki.com/mcp"' dot_junie/mcp/mcp.json` succeeds.
+- [x] 3.2 Extend `dot_junie/mcp/modify_mcp.json.tmpl` to merge the user-scope `mcpServers.deepwiki.url` mapping alongside Linear, preserve unrelated valid state, add no headers or credentials, and verify the modifier is valid and idempotent.
 - [x] 3.3 Add the three exact `mcp__deepwiki__read_wiki_structure`, `mcp__deepwiki__read_wiki_contents`, and `mcp__deepwiki__ask_question` rules to `permissions.allow` in `dot_claude/modify_settings.json.tmpl`; render the template and verify with `jq` that all three exist and no `mcp__deepwiki__*` wildcard exists.
 
 ## 4. Parity and Documentation
 
-- [x] 4.1 Add a complete `DeepWiki MCP` row to `.agents/skills/sync-agent-config/parity.md` naming the Claude Code install-script registration, Codex runtime-owned CLI registration, OpenCode managed remote entry, and Junie managed JSON entry; verify all six cells are populated and the notes record public-only, pre-indexed, default-branch behavior.
+- [x] 4.1 Add a complete `DeepWiki MCP` row to `.agents/skills/sync-agent-config/parity.md` naming the Claude Code install-script registration, Codex runtime-owned CLI registration, OpenCode managed remote entry, and Junie managed JSON entry; verify all six cells are populated and the notes record public-only, pre-indexed, non-revision-specific behavior.
 - [x] 4.2 Apply the `update-readme` skill's approved proposal: update the Claude Code global MCP count to 15, add the DeepWiki table row/link, and summarize four-client availability and routing limits; verify README does not claim private-repository, on-demand MCP indexing, authentication, or revision selection.
 - [x] 4.3 Apply the `update-manual` skill's approved proposal across the Claude Code, OpenCode, Codex, and new Junie user-scope MCP documentation surfaces; verify each client names its real ownership/config path and all sections share the Context7 → DeepWiki → direct-source routing guidance.
 

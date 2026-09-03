@@ -5,7 +5,7 @@ See proposal.md — Why. The existing MCP surfaces are deliberately asymmetric:
 - Claude Code user MCPs are declared in `MCP_STDIO_SERVERS` / `MCP_HTTP_SERVERS` and registered by `run_onchange_install-packages.sh.tmpl` through `claude mcp add --scope user` into `~/.claude.json`.
 - Codex is installed by the same script, but its `~/.codex` state is runtime-owned. The installed CLI exposes JSON-capable `codex mcp list/get` commands and `codex mcp add <name> --url <url>`; official OpenAI documentation confirms that Streamable HTTP entries live in `~/.codex/config.toml` and are shared by the Codex CLI, IDE extension, and ChatGPT desktop app on that host.
 - OpenCode's user config is already fully managed at `dot_config/opencode/opencode.jsonc` and currently uses the v1 `mcp.<name>` shape.
-- Junie supports a native user-scope `~/.junie/mcp/mcp.json` with remote entries under `mcpServers.<name>.url`; this repository does not yet manage that surface.
+- Junie supports a native user-scope `~/.junie/mcp/mcp.json` with remote entries under `mcpServers.<name>.url`; this repository merge-manages the Linear entry on that surface while preserving unrelated state.
 
 The public DeepWiki endpoint is stateless Streamable HTTP and needs no credentials. An initialize/list-tools probe on 2026-08-31 reported server version `2.14.3` and exactly three public tools. A call for indexed `aleclarson/vite-tsconfig-paths` succeeded; a call for unindexed `etherless/dotfiles` returned `Repository not found` and directed the caller to visit its DeepWiki page. The service does not expose branch, tag, or commit parameters.
 
@@ -52,9 +52,9 @@ The parity proposal is:
 - **Claude Code — proposed change.** Surface: `run_onchange_install-packages.sh.tmpl`, `MCP_HTTP_SERVERS`. Action: add `deepwiki:https://mcp.deepwiki.com/mcp`; the existing pre-scan, URL-drift replacement, confirmation, and non-fatal error handling apply.
 - **Codex — proposed runtime-owned counterpart.** Surface: the official `codex mcp` CLI, driven by a new install-script group. Action: inspect JSON from `codex mcp get/list`, add with `codex mcp add deepwiki --url https://mcp.deepwiki.com/mcp`, and remove/re-add only on URL drift. Restore the previous HTTP entry if registration fails, and leave non-HTTP entries unchanged because the CLI provides no lossless replacement operation. Do not create `dot_codex/config.toml`.
 - **OpenCode — proposed change.** Surface: `dot_config/opencode/opencode.jsonc`, `mcp.deepwiki`. Action: add `{ "type": "remote", "url": "https://mcp.deepwiki.com/mcp", "enabled": true }` alongside existing entries.
-- **Junie — proposed first managed surface.** Surface: `dot_junie/mcp/mcp.json`, mapping to `~/.junie/mcp/mcp.json`. Action: add `{ "mcpServers": { "deepwiki": { "url": "https://mcp.deepwiki.com/mcp" } } }`.
+- **Junie — proposed change.** Surface: `dot_junie/mcp/modify_mcp.json.tmpl`, merge-managing `~/.junie/mcp/mcp.json`. Action: add `mcpServers.deepwiki.url` alongside the managed Linear entry while preserving unrelated servers and unknown top-level values.
 
-The accompanying parity row records all four mappings and notes the public/indexed/default-branch constraint. The user's request to add DeepWiki to all four clients is the confirmation for this proposal; implementation still changes only repository source state, with live runtime mutation deferred until the next confirmed `chezmoi apply`.
+The accompanying parity row records all four mappings and notes the public/indexed/revision limitations. The user's request to add DeepWiki to all four clients is the confirmation for this proposal; implementation still changes only repository source state, with live runtime mutation deferred until the next confirmed `chezmoi apply`.
 
 Alternatives: manage `dot_codex/config.toml` directly (rejected because it would take ownership of unrelated model, policy, plugin, and session-adjacent settings); write the Codex entry indirectly through Junie's or Claude's config (unsupported); use project-local `.mcp.json` files (wrong scope).
 
@@ -91,14 +91,14 @@ The README MCP table gains a DeepWiki row and updates the global-server count. T
 - [A private repository name sent to the public service leaks its existence even though content is inaccessible] → documentation says not to invoke DeepWiki for private/Nazaries repositories; no private endpoint or token is configured.
 - [Remote service outage adds a failed connection at startup] → do not mark the Codex entry `required`; each client's failure remains isolated from other MCP servers.
 - [Codex CLI output changes] → consume its documented JSON output with `jq`, fail the registration group non-fatally, and preserve existing runtime state when parsing fails.
-- [Junie users edit the managed MCP JSON through its UI] → document that chezmoi owns this user-scope file and that `chezmoi apply` restores the declared entry; expanding merge semantics is a separate change.
+- [Junie users edit the MCP JSON through its UI] → use the merge-preserving modifier established by the Linear change so `chezmoi apply` restores only the declared DeepWiki and Linear entries and preserves unrelated state.
 - [OpenCode v2 uses a different MCP schema] → implement against the repository's installed/current v1 configuration and migrate all OpenCode entries together in a dedicated upgrade change.
 
 ## Migration Plan
 
 1. Capture the comparison and protocol-size evidence in the exploration report; stop for artifact revision only if it contradicts the security or correctness assumptions above.
 2. Add the Claude Code and Codex install-script registrations, including pre-scan, exact URL matching, confirmation, skip, and non-fatal failure paths.
-3. Add the OpenCode and Junie managed entries and the exact Claude Code permission rules.
+3. Add the OpenCode entry, merge DeepWiki into Junie's managed MCP fragments, and add the exact Claude Code permission rules.
 4. Add the complete DeepWiki mapping to `sync-agent-config/parity.md`.
 5. Update README/manual using their repository skills and validate generated JSON/TOML/shell behavior without mutating live user state.
 6. On the next interactive `chezmoi apply`, confirm the Claude Code and Codex MCP groups. Verify all four clients list `deepwiki` and expose exactly the three public tools.

@@ -8,7 +8,7 @@ Skill and matching `/docs:manual` command that detect drift between dotfiles con
 
 ### Requirement: Skill auto-triggers on config file changes
 
-The system SHALL provide a skill named `update-manual` whose body lives at `.agents/skills/update-manual/SKILL.md` and is exposed to each agent per the `repo-skill-canonical-layout` capability, whose description triggers auto-invocation when an agent detects changes to dotfiles configuration files including zshrc, gitconfig, ghostty config, starship.toml, atuin config, fzf config, tmux.conf, .mcp.json, Claude Code settings, Codex installation or user configuration, OpenCode config, brew install script, or gh extension configs.
+The system SHALL provide a skill named `update-manual` whose body lives at `.agents/skills/update-manual/SKILL.md` and is exposed to each agent per the `repo-skill-canonical-layout` capability, whose description triggers auto-invocation when an agent detects changes to dotfiles configuration files including zshrc, gitconfig, ghostty config, starship.toml, atuin config, fzf config, tmux.conf, .mcp.json, Claude Code settings, Codex installation or user configuration, OpenCode config, Junie user configuration, brew install script, or gh extension configs.
 
 #### Scenario: Alias added to zshrc
 
@@ -24,6 +24,11 @@ The system SHALL provide a skill named `update-manual` whose body lives at `.age
 
 - **WHEN** the Codex installer stanza changes or a future source under `dot_codex/` is added, modified, or removed
 - **THEN** the skill activates and analyzes the Codex manual section
+
+#### Scenario: Junie user config changes
+
+- **WHEN** a source under `dot_junie/` is added, modified, or removed
+- **THEN** the skill activates and analyzes the Junie manual section
 
 #### Scenario: Project Codex output is ignored
 
@@ -51,7 +56,7 @@ The system SHALL provide a command (`.claude/commands/docs/manual.md`) that enab
 
 ### Requirement: Config-to-section mapping
 
-The skill SHALL contain a mapping of configuration source files to manual.html sections, enabling targeted analysis without scanning the entire HTML file. The mapping SHALL associate the Codex installer stanza in `run_onchange_install-packages.sh.tmpl` and any future `dot_codex/**` source with Section 13 (Codex).
+The skill SHALL contain a mapping of configuration source files to manual.html sections, enabling targeted analysis without scanning the entire HTML file. The mapping SHALL associate the Codex installer stanza in `run_onchange_install-packages.sh.tmpl` and any future `dot_codex/**` source with Section 13 (Codex), and `dot_junie/**` with Section 14 (Junie).
 
 #### Scenario: zshrc eza aliases changed
 
@@ -67,6 +72,11 @@ The skill SHALL contain a mapping of configuration source files to manual.html s
 
 - **WHEN** the Codex installer or a future `dot_codex/**` source changes
 - **THEN** the skill identifies Section 13 (Codex) as the target section
+
+#### Scenario: Junie source changes
+
+- **WHEN** a source under `dot_junie/**` changes
+- **THEN** the skill identifies Section 14 (Junie) as the target section
 
 ### Requirement: Gap detection
 

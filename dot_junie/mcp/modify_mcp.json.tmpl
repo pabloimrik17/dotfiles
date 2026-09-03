@@ -1,0 +1,88 @@
+#!/bin/sh
+# chezmoi modify_ script for ~/.junie/mcp/mcp.json. It owns only the
+# mcpServers.deepwiki and mcpServers.linear entries and preserves every other
+# valid value in the live file.
+# The merge is buffered and validated before stdout reaches chezmoi; failures
+# pass the live file through unchanged, while a fresh machine receives `{}`.
+set -eu
+
+work="$(mktemp -d)"
+trap 'rm -rf "$work"' EXIT
+infile="$work/live.json"
+outfile="$work/merged.json"
+prog="$work/merge.py"
+
+# Capture stdin verbatim so a fallback can preserve the live file byte-for-byte.
+cat >"$infile"
+
+passthrough() {
+  if [ -s "$infile" ]; then
+    cat "$infile"
+  else
+    printf '%s\n' '{}'
+  fi
+}
+
+# uv is installed by the dotfiles bootstrap. If it is not available yet, keep
+# the current state and let a later apply converge the managed entry.
+if ! command -v uv >/dev/null 2>&1; then
+  passthrough
+  exit 0
+fi
+
+cat >"$prog" <<'PYEOF'
+import json
+import sys
+from collections import OrderedDict
+
+DEEPWIKI = OrderedDict([
+    ("url", "https://mcp.deepwiki.com/mcp"),
+])
+
+LINEAR = OrderedDict([
+    ("url", "https://mcp.linear.app/mcp"),
+])
+
+
+def load_object(raw):
+    doc = json.loads(raw, object_pairs_hook=OrderedDict) if raw.strip() else OrderedDict()
+    if not isinstance(doc, dict):
+        raise ValueError("mcp.json is not a JSON object")
+    return doc
+
+
+def main():
+    raw = sys.stdin.read()
+    doc = load_object(raw)
+    servers = doc.get("mcpServers")
+    if servers is None:
+        servers = OrderedDict()
+        doc["mcpServers"] = servers
+    elif not isinstance(servers, dict):
+        raise ValueError("mcpServers is not a JSON object")
+
+    if servers.get("deepwiki") != DEEPWIKI:
+        servers["deepwiki"] = DEEPWIKI
+    if servers.get("linear") != LINEAR:
+        servers["linear"] = LINEAR
+
+    out = json.dumps(doc, indent=2, ensure_ascii=False)
+    if raw.endswith("\n"):
+        out += "\n"
+    load_object(out)
+    sys.stdout.write(out)
+
+
+if "--validate" in sys.argv:
+    load_object(sys.stdin.read())
+else:
+    main()
+PYEOF
+
+if uv run --no-project --quiet python "$prog" <"$infile" >"$outfile" \
+  && [ -s "$outfile" ] \
+  && uv run --no-project --quiet python "$prog" --validate <"$outfile"; then
+  cat "$outfile"
+else
+  passthrough
+fi
