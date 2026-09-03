@@ -135,9 +135,9 @@ The setup SHALL drive Codex through its official `codex mcp` CLI and SHALL NOT i
 - **THEN** setup SHALL attempt to restore the previous URL
 - **AND** the failure SHALL remain non-fatal
 
-#### Scenario: Codex entry cannot be replaced losslessly
+#### Scenario: Codex entry cannot be replaced safely
 
-- **WHEN** Codex reports an existing non-HTTP `deepwiki` entry
+- **WHEN** Codex reports an existing `deepwiki` entry whose transport is not `streamable_http` or whose URL is not a non-empty string
 - **THEN** setup SHALL leave that entry unchanged and warn the user
 
 #### Scenario: Codex is unavailable

@@ -1314,7 +1314,6 @@ reconcile_codex_http_mcp() {
     local jq_cli="$4"
     local payload
     local entry_count
-    local current_transport=""
     local current_url=""
     local action="add"
 
@@ -1335,14 +1334,17 @@ reconcile_codex_http_mcp() {
             info "Codex MCP $name — already registered, skipping"
             return 0
         fi
-        current_transport="$("$jq_cli" -r --arg name "$name" \
-            'first(.[] | select(.name == $name) | .transport.type // empty)' <<<"$payload")"
-        current_url="$("$jq_cli" -r --arg name "$name" \
-            'first(.[] | select(.name == $name) | .transport.url // empty)' <<<"$payload")"
-        if [ "$current_transport" != "streamable_http" ] || [ -z "$current_url" ]; then
+        if ! "$jq_cli" -e --arg name "$name" \
+            'first(.[] | select(.name == $name) | .transport)
+             | .type == "streamable_http"
+               and ((.url | type) == "string")
+               and (.url != "")' \
+            >/dev/null 2>&1 <<<"$payload"; then
             warn "Existing Codex MCP $name is not a replaceable HTTP entry — leaving runtime state unchanged"
             return 0
         fi
+        current_url="$("$jq_cli" -r --arg name "$name" \
+            'first(.[] | select(.name == $name) | .transport.url // empty)' <<<"$payload")"
         action="replace"
     fi
 
