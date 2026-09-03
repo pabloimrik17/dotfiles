@@ -6,7 +6,7 @@ Provide reproducible, secure user-level access to Linear's hosted MCP server fro
 
 ### Requirement: All clients use the official read-write Linear endpoint
 
-Claude Code, OpenCode, Codex, and Junie SHALL connect to `https://mcp.linear.app/mcp` at user scope. The setup SHALL NOT use the deprecated `/sse` endpoint or the read-only endpoint because the required acceptance flow creates issues.
+Claude Code, OpenCode, Codex, and Junie SHALL have a user-scope Linear entry at `https://mcp.linear.app/mcp`. Claude Code, OpenCode, and Codex SHALL provide authenticated connectivity. Junie SHALL remain preconfigured but SHALL NOT be treated as Active or connected until OAuth revalidation succeeds. The setup SHALL NOT use the deprecated `/sse` endpoint or the read-only endpoint because the required acceptance flow creates issues.
 
 #### Scenario: Endpoint parity across clients
 
