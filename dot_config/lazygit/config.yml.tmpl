@@ -68,3 +68,11 @@ customCommands:
       command: "mdview {{ "{{.SelectedFile.Name | quote}}" }}"
       output: terminal
       description: "Open file rendered (mdview: glow/mdfried)"
+    # V (reView), not W: W is lazygit's universal `diffingMenu`, so it is live
+    # in the files context too and binding it here would shadow a built-in.
+    # Plain `tuicr -w` uses no lazygit templates, so no chezmoi {{ "{{" }} escaping.
+    - key: "V"
+      context: "files"
+      command: "tuicr -w"
+      output: terminal
+      description: "Self-review working tree (tuicr)"
