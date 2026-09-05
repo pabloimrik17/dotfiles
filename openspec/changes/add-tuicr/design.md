@@ -18,9 +18,9 @@ See proposal.md — Why. tuicr 0.25.0 (current homebrew-core stable), reads `~/.
 
 ### 2. Popup over split for the tmux variant
 
-`tmux display-popup -E` instead of the `split-window -h` used by `B`/`I`/`T`. A diff review wants full width, and the user's requirement is "close tuicr → be exactly where I was in gh-dash". The popup overlays the pane; gh-dash keeps running untouched underneath; `-E` closes the popup on command exit. Geometry 95%x95%, `-T` title with `{{.RepoName}}#{{.PrNumber}}`, working dir via `-d "{{.RepoPath}}"`.
+`tmux display-popup -E` instead of the `split-window -h` used by `B`/`I`/`T`. A diff review wants full width, and the user's requirement is "close tuicr → be exactly where I was in gh-dash". The popup overlays the pane; gh-dash keeps running untouched underneath; `-E` closes the popup on command exit. Geometry 95%x95%, `-T` title with `{{.RepoName}}#{{.PrNumber}}`.
 
-- Fallback if `-d` fails tilde expansion (gh-dash expands `{{.RepoPath}}` before the shell sees it — `wt -C {{.RepoPath}}` already relies on this, but verify): wrap as `tmux display-popup -E 'cd {{.RepoPath}} && tuicr pr {{.PrNumber}}'`.
+- Working directory: the `-d "{{.RepoPath}}"` form was rejected on evidence. gh-dash renders `{{.RepoPath}}` as the literal `~/WebstormProjects/<repo>` (see gh-dash-repo-paths), and tmux does not tilde-expand a start-directory — it silently falls back to `$HOME` (probed on tmux 3.7b: `new-window -c '~/WebstormProjects'` lands in `/Users/etherless`). A wrong directory with no error is the worst failure mode here, so the binding uses the fallback form, `'cd {{.RepoPath}} && tuicr pr {{.PrNumber}}'`, which leaves the expansion to the shell. `wt -C {{.RepoPath}}` works in the existing bindings only because it is unquoted and the outer shell expands it first.
 - Injection: only deterministic tokens (`RepoPath`, `RepoName`, `PrNumber`); never `{{.Title}}` — same rationale documented on the AoE bindings.
 - Coexists with the skill: the skill ships its own `tuicr-wrapper.sh` that opens a tuicr pane when `$TMUX` is set. That is the agent-initiated path; `n`/`N` is the human-initiated one. Different entry points onto the same session store, no conflict.
 
@@ -35,6 +35,7 @@ theme = "catppuccin-mocha"
 no_update_check = true      # brew owns updates; tuicr update would bypass it
 show_pr_checks = true
 username = "pabloimrik17"
+diff_view = "side-by-side"  # runtime-togglable with `:diff`
 
 comment_types = [
   { id = "issue",      label = "issue",      definition = "a defect that must be fixed before merge",        color = "#f38ba8" },
@@ -60,15 +61,19 @@ The five ids are a superset of the four the skill's legend documents to the agen
 
 Ids must stay self-describing in plain English, because `definition` does **not** travel to the agent: `tuicr review comments` emits `id`, `location`, `path`, `start_line`, `end_line`, `side`, `comment_type`, `lifecycle_state`, `content` — the curated definitions only reach a consumer through the `[export]` path, which the skill treats as legacy. `question` and `nit` are outside the skill's legend but read unambiguously on their own; that is the whole reason for keeping them rather than collapsing to the skill's four.
 
-Colors are Catppuccin Mocha (red/blue/yellow/overlay/green). Everything else stays at defaults: `transparent_background = true` matches the Ghostty transparency setup, `mouse = true` matches tmux `mouse on`, `diff_view` togglable at runtime with `:diff`.
+Colors are Catppuccin Mocha (red/blue/yellow/overlay/green). `diff_view = "side-by-side"` pins the setting that was already in the unmanaged config this file replaces; it stays togglable at runtime with `:diff`. Everything else stays at defaults: `transparent_background = true` matches the Ghostty transparency setup, `mouse = true` matches tmux `mouse on`.
 
-### 5. lazygit binding `W` in files context
+### 5. lazygit binding `V` in files context
 
-Free in the files context (checked against lazygit's default keybindings; global `R` refresh untouched). Command is plain `tuicr -w` — no lazygit templates, so no chezmoi `{{ "{{" }}` escaping needed, unlike the mdview entry. `output: terminal`, matching the mdview precedent.
+`W` was the first choice and is wrong: lazygit binds it to `diffingMenu` in the **universal** section, so it is live in the files context and a customCommand there would shadow a built-in (`<ctrl+e>` would still reach the menu, but the house rule stands). Dumping `lazygit --config` and differencing universal + files leaves b, g, t, u, B, E, F, G, I, O, T, U, V, X, Y free; `g` is already the mdview entry. Chose `V` (mnemonic: reView), keeping the uppercase convention. Global `R` refresh untouched. Command is plain `tuicr -w` — no lazygit templates, so no chezmoi `{{ "{{" }}` escaping needed, unlike the mdview entry. `output: terminal`, matching the mdview precedent.
 
 ### 6. tmux popup styling: hardcoded hex
 
 `popup-border-lines rounded` + `set -g popup-border-style "fg=#cba6f7"` (Mocha mauve) as plain lines, not `@thm_*` variables: those only exist after the deferred catppuccin `run -b` load, and popup styling should survive a missing plugin (graceful-degradation property the tmux.conf already has).
+
+`popup-border-style` has to be set twice. Catppuccin's own conf sets it (`set -gF popup-border-style "fg=#{@thm_surface_1}"`), and because the plugin loads from a backgrounded `run -b` it lands after the plain `set -g` lines — so the standalone line alone is silently overwritten to surface_1 whenever the plugin is present. The fix follows the `message-style` precedent already in the file: re-set it at the tail of the same `run -b` chain, which wins after the plugin loads, and keep the plain line as the plugin-missing fallback. `popup-border-lines` needs no such treatment; catppuccin never sets it.
+
+Verifying this needs the wait: `source-file ~/.tmux.conf` followed by an immediate `show-options` reads the value before the async `run -b` has landed and reports a false pass.
 
 ### 7. Agent skill from upstream, not hand-written
 
@@ -103,4 +108,4 @@ Standard chezmoi flow: land on main → `chezmoi update` on each machine → `ru
 
 ## Open Questions
 
-None blocking. `diff_view` (unified vs side-by-side) left at default; runtime-togglable, revisit after real use.
+None blocking. `diff_view` is pinned to `side-by-side` (see §4); revisit after real use.

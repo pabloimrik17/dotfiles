@@ -42,6 +42,15 @@ The config SHALL set `show_pr_checks = true` (CI check rollups visible in PR mod
 - **WHEN** the user opens a PR via `tuicr pr <n>`
 - **THEN** the CI check rollup is fetched and displayed
 
+### Requirement: Side-by-side diff view
+
+The config SHALL set `diff_view = "side-by-side"`, preserving the setting the unmanaged config carried before chezmoi took the file over. The value remains togglable at runtime with `:diff`.
+
+#### Scenario: Diffs open side-by-side
+
+- **WHEN** the user opens a review after `chezmoi apply`
+- **THEN** the diff renders in side-by-side mode
+
 ### Requirement: LLM-oriented comment types
 
 The config SHALL define `comment_types` with ids `issue`, `suggestion`, `question`, `nit`, and `praise`, each with a `definition` that guides the human reviewer, and a color drawn from the Catppuccin Mocha palette. The ids SHALL be self-describing in plain English: `tuicr review comments` emits only the `comment_type` string to an agent, never the `definition`, so the id alone must carry the intent. The set is a superset of the four buckets the tuicr agent skill documents (`issue`, `suggestion`, `note`, `praise`), with `question` mapping to `note` and `nit` extending `suggestion`.

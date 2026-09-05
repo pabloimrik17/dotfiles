@@ -13,7 +13,7 @@ The PR keybindings SHALL include an `n` key that opens the selected PR in tuicr 
 
 ### Requirement: PR tuicr review keybinding (tmux popup)
 
-The PR keybindings SHALL include an `N` key that opens the selected PR in tuicr inside a tmux overlay popup. The command SHALL use `tmux display-popup -E` with the popup working directory set to `{{.RepoPath}}`, a size of at least 90% x 90%, and a title carrying `{{.RepoName}}#{{.PrNumber}}`. Closing tuicr SHALL close the popup, leaving the gh-dash pane untouched (section, cursor, and scroll preserved — gh-dash keeps running under the popup).
+The PR keybindings SHALL include an `N` key that opens the selected PR in tuicr inside a tmux overlay popup. The command SHALL use `tmux display-popup -E` with tuicr running in `{{.RepoPath}}`, a size of at least 90% x 90%, and a title carrying `{{.RepoName}}#{{.PrNumber}}`. The working directory SHALL be reached by a `cd` inside the popup payload, not by tmux's `-d` flag: gh-dash renders `{{.RepoPath}}` with an unexpanded `~`, and tmux silently falls back to `$HOME` rather than tilde-expanding a start-directory. Closing tuicr SHALL close the popup, leaving the gh-dash pane untouched (section, cursor, and scroll preserved — gh-dash keeps running under the popup).
 
 #### Scenario: tuicr opens over gh-dash in a popup
 
