@@ -93,6 +93,10 @@ MANAGED = [
      ["CLAUDE_CONFIG_DIR", "EDITOR", "TERM", "COLORTERM", "NVM_DIR"], False),
     (("tools", "lazygit", "command"), "lazygit", False),
     (("tools", "lazygit", "hotkey"), "Alt+g", False),
+    # No hotkey: the `;` picker lists every configured tool, which is enough for
+    # reading a diff the agent just wrote. Bare `tuicr` (not `-w`) so its own
+    # selector still covers both the working tree and a commit range.
+    (("tools", "tuicr", "command"), "tuicr", False),
 ]
 
 if "--validate" in sys.argv:
