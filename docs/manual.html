@@ -1395,8 +1395,10 @@
                                     <code>nerdFontsVersion: "3"</code> is set for branch and file
                                     icons, and <code>showIcons</code> is deprecated and inert
                                     &mdash; do not set it. Custom <kbd>g</kbd> in the Files panel
-                                    opens the selected file rendered via <code>mdview</code>; diffs
-                                    render through <code>delta</code> via
+                                    opens the selected file rendered via <code>mdview</code>, and
+                                    <kbd>V</kbd> opens <code>tuicr -w</code> to self-review the
+                                    working tree (<kbd>W</kbd> is lazygit's universal diffing menu,
+                                    so it is not free); diffs render through <code>delta</code> via
                                     <code>git.diffRenderers</code>
                                 </td>
                             </tr>
@@ -1461,6 +1463,20 @@
                                 <td>CI checks via gh-enhance (tmux split)</td>
                             </tr>
                             <tr>
+                                <td><kbd>n</kbd></td>
+                                <td>
+                                    Review PR in tuicr (inline) &mdash; gh-dash suspends and resumes
+                                    at the same section and cursor
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>N</kbd></td>
+                                <td>
+                                    Review PR in tuicr (tmux popup, 95%&times;95%) &mdash; overlays
+                                    the pane, so gh-dash keeps running underneath
+                                </td>
+                            </tr>
+                            <tr>
                                 <td><kbd>f</kbd></td>
                                 <td>
                                     Queue PR as AoE session &mdash; worktrunk creates the worktree,
@@ -1477,6 +1493,78 @@
                         </tbody>
                     </table>
 
+                    <h3>tuicr (code review TUI)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command / Key</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>tcr</code></td>
+                                <td>
+                                    <code>tuicr</code> &mdash; commit selector, pick a range to
+                                    review
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>tcrw</code></td>
+                                <td>
+                                    <code>tuicr -w</code> &mdash; review the uncommitted working
+                                    tree
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>c</kbd></td>
+                                <td>
+                                    Add a line comment. <kbd>Tab</kbd> cycles the type &mdash;
+                                    issue, suggestion, question, nit, praise, then untyped;
+                                    <kbd>Ctrl</kbd>+<kbd>S</kbd> saves
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>m</kbd> / <kbd>M</kbd></td>
+                                <td>Jump to the next / previous comment</td>
+                            </tr>
+                            <tr>
+                                <td><kbd>y</kbd></td>
+                                <td>
+                                    Copy the review to the clipboard &mdash; opens with the
+                                    configured intro and a legend of the comment-type definitions
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>:diff</code></td>
+                                <td>
+                                    Toggle unified &harr; side-by-side; the config pins
+                                    <code>side-by-side</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>:q</code></td>
+                                <td>Quit &mdash; <kbd>q</kbd> on its own does not</td>
+                            </tr>
+                            <tr>
+                                <td>Config</td>
+                                <td>
+                                    <code>~/.config/tuicr/config.toml</code> &mdash;
+                                    chezmoi-managed: <code>catppuccin-mocha</code>,
+                                    <code>no_update_check</code> (brew owns updates),
+                                    <code>show_pr_checks</code>, <code>username</code>, five
+                                    <code>comment_types</code>, and the
+                                    <code>[export] intro</code>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Self-review before pushing</strong><br />
+                        <code>lg</code> &rarr; <kbd>V</kbd> &rarr; comment with <kbd>c</kbd> &rarr;
+                        <code>:q</code> &rarr; <code>gcmsg</code>
+                    </div>
                     <div class="flow-only">
                         <strong>Flow: Full feature cycle</strong><br />
                         <code>gcb feat/x</code> &rarr; code &rarr; <code>gaa</code> &rarr;
@@ -2576,6 +2664,14 @@
                                 <td>fallow</td>
                                 <td>Dead code / duplication / complexity analysis via fallow</td>
                             </tr>
+                            <tr>
+                                <td>tuicr</td>
+                                <td>
+                                    Reads a live review via <code>tuicr review list</code> /
+                                    <code>review comments</code>; <code>review add</code> is gated
+                                    behind explicit approval
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
 
@@ -3159,6 +3255,14 @@
                                     <kbd>Alt</kbd>+<kbd>g</kbd> &mdash;
                                     <code>[tools.lazygit]</code>, git UI scoped to the session
                                     worktree (home view)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>tuicr tool-session</td>
+                                <td>
+                                    <kbd>;</kbd> picker &mdash; <code>[tools.tuicr]</code>, no
+                                    hotkey; review the diff the agent just wrote, scoped to the
+                                    session worktree
                                 </td>
                             </tr>
                             <tr>
