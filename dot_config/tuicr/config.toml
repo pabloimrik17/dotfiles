@@ -1,0 +1,21 @@
+# tuicr — code review TUI (https://tuicr.dev)
+# Managed by chezmoi. Deploys to ~/.config/tuicr/config.toml.
+
+theme = "catppuccin-mocha"
+no_update_check = true # brew owns the binary; self-update would bypass it
+show_pr_checks = true
+username = "pabloimrik17"
+diff_view = "side-by-side" # runtime-togglable with `:diff`
+
+# Ids must stay self-describing: `tuicr review comments` emits only
+# `comment_type` to an agent, never `definition`.
+comment_types = [
+    { id = "issue", label = "issue", definition = "a defect that must be fixed before merge", color = "#f38ba8" },
+    { id = "suggestion", label = "suggestion", definition = "a concrete improvement, author's call", color = "#89b4fa" },
+    { id = "question", label = "question", definition = "needs an answer before this can be resolved", color = "#f9e2af" },
+    { id = "nit", label = "nit", definition = "minor style point, feel free to ignore", color = "#9399b2" },
+    { id = "praise", label = "praise", definition = "no action needed", color = "#a6e3a1" },
+]
+
+[export]
+intro = "Address the review comments below. Treat 'issue' as required, 'suggestion' as recommended, answer 'question's, use judgment on 'nit's."
