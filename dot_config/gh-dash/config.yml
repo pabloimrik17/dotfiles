@@ -78,6 +78,9 @@ keybindings:
         - key: t
           name: CI checks (inline)
           command: ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}
+        - key: n
+          name: Review in tuicr
+          command: cd {{.RepoPath}} && tuicr pr {{.PrNumber}}
         # Tmux variants (opens in split pane)
         - key: B
           name: Code review (tmux)
@@ -88,6 +91,15 @@ keybindings:
         - key: T
           name: CI checks (tmux)
           command: tmux split-window -h 'ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}'
+        # Popup, not a split: a diff wants full width, and the popup overlays the
+        # pane so gh-dash keeps running underneath and is exactly where it was
+        # when tuicr exits (-E closes the popup on command exit).
+        # No -d: gh-dash renders {{.RepoPath}} as a literal ~/..., and tmux does
+        # not tilde-expand its start-directory (it silently falls back to $HOME).
+        # `cd` inside the payload leaves the expansion to the shell.
+        - key: N
+          name: Review in tuicr (tmux popup)
+          command: tmux display-popup -E -w 95% -h 95% -T " {{.RepoName}}#{{.PrNumber}} " 'cd {{.RepoPath}} && tuicr pr {{.PrNumber}}'
         # AoE queue bindings: create the worktree via worktrunk and register it as
         # an Agent of Empires session WITHOUT launching (fill the fleet, open later).
         # `aoe add` returns immediately, so there's no interactive tmux variant.
