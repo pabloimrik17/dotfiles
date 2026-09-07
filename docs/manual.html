@@ -2095,6 +2095,59 @@
                         </tbody>
                     </table>
 
+                    <h3>Model sizing (llmfit)</h3>
+                    <p class="note">
+                        Installed from the <code>AlexsJones/llmfit</code> tap, not
+                        <code>homebrew/core</code> &mdash; the core formula publishes no
+                        <code>x86_64</code> macOS bottle and would build from source on every
+                        upgrade. Running <code>llmfit</code> with no arguments opens the interactive
+                        TUI; the subcommands below are the scriptable surface and are all read-only.
+                        Every invocation is user-initiated &mdash; the dotfiles never call
+                        <code>llmfit</code> from any script, hook, or alias, and
+                        <code>download</code>, <code>run</code>, <code>serve</code>,
+                        <code>bench</code> and <code>update</code> move data or start processes.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>llmfit</code></td>
+                                <td>
+                                    Launch the interactive TUI &mdash; the default with no arguments
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>llmfit fit</code></td>
+                                <td>
+                                    Ranked table of the models that fit the detected RAM / CPU / GPU
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>llmfit recommend --json</code></td>
+                                <td>
+                                    Top-N recommendations as JSON &mdash; the agent-facing surface;
+                                    <code>--json</code> is global and works on every subcommand
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>llmfit info &lt;model&gt;</code></td>
+                                <td>
+                                    Full specs plus a fit analysis for one model &mdash; partial
+                                    names match
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>llmfit doctor</code></td>
+                                <td>Markdown hardware-detection report for upstream bug reports</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h3>Encrypted files (chezmoi + age)</h3>
                     <table>
                         <thead>
