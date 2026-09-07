@@ -22,6 +22,7 @@ This command is invoked via `/docs:manual` to check whether the interactive manu
 - `dot_config/gh-dash/config.yml` (GitHub dashboard)
 - `dot_codex/**` (future Codex user configuration)
 - `dot_config/opencode/opencode.jsonc` (OpenCode config)
+- `dot_junie/**` (Junie user configuration)
 - `dot_tmux.conf` (tmux settings)
 - `.mcp.json` (Claude Code MCP servers)
 - `dot_claude/modify_settings.json.tmpl` (Claude Code settings)
@@ -61,6 +62,7 @@ Use this mapping to identify which sections of `docs/manual.html` to analyze:
 | `.mcp.json` + `dot_claude/` + Claude Code plugins                | 11. Claude Code        |
 | `dot_config/opencode/`                                           | 12. OpenCode           |
 | `run_onchange_install-packages.sh.tmpl` — Codex installer + `dot_codex/**` | 13. Codex      |
+| `dot_junie/**`                                                   | 14. Junie             |
 
 ### Step 3: Read and Compare
 

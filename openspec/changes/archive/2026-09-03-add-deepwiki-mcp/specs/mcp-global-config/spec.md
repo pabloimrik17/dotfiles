@@ -1,9 +1,5 @@
-# Capability: mcp-global-config
+## MODIFIED Requirements
 
-## Purpose
-
-Global MCP server configuration managed by chezmoi — defines which MCP servers are available in every Claude Code session across all machines.
-## Requirements
 ### Requirement: Global MCP servers are registered via Claude CLI in install script
 
 `run_onchange_install-packages.sh.tmpl` SHALL register the following 15 MCP servers via `claude mcp add --scope user`, which writes to `~/.claude.json`:
@@ -68,55 +64,6 @@ Global MCP server configuration managed by chezmoi — defines which MCP servers
 - **WHEN** the install script pre-scans MCP servers for outdated pins
 - **THEN** the `fallow` entry SHALL participate in presence detection only, not in the `pkg@version` outdated-check
 
-### Requirement: MCP registration is idempotent and follows install script patterns
-
-The MCP server registration group SHALL use the existing `run_claude_step` helper, `confirm` prompt pattern, and pre-scan idiom consistent with other install groups.
-
-#### Scenario: Pre-scan shows installed vs pending count
-
-- **WHEN** the install script reaches the MCP servers group
-- **THEN** it SHALL display the count of already-registered vs pending servers (e.g., "MCP servers: 7/10 registered")
-
-#### Scenario: Already-registered servers are skipped
-
-- **WHEN** a server is already registered in `~/.claude.json`
-- **THEN** the install script SHALL skip it with an "already registered, skipping" message
-
-#### Scenario: Registration continues on individual failure
-
-- **WHEN** `claude mcp add` fails for one server
-- **THEN** the script SHALL log an error and continue registering remaining servers (non-fatal)
-
-#### Scenario: Claude CLI not available
-
-- **WHEN** `claude` is not in PATH during `chezmoi apply`
-- **THEN** the MCP registration group SHALL be skipped with a warning (same guard as CC plugins group)
-
-### Requirement: Atlassian, Figma, Linear, Notion, and Storybook included as HTTP servers with auth/setup notes
-
-The install script SHALL register `atlassian`, `figma`, `linear`, `notion`, and `storybook` as HTTP MCP servers. The manual instructions section SHALL note authentication and setup requirements for each.
-
-#### Scenario: HTTP servers registered with correct transport
-
-- **WHEN** the install script registers `atlassian`, `figma`, `linear`, `notion`, and `storybook`
-- **THEN** it SHALL use `claude mcp add --scope user --transport http <name> <url>`
-
-#### Scenario: Manual auth instructions printed for OAuth servers
-
-- **WHEN** the install script reaches the manual instructions section
-- **THEN** it SHALL include a line noting that `atlassian`, `figma`, `linear`, and `notion` MCP servers require OAuth authentication via `/mcp` or first use
-
-#### Scenario: Manual setup instructions printed for Storybook
-
-- **WHEN** the install script reaches the manual instructions section
-- **THEN** it SHALL include a line noting that `storybook` MCP requires `@storybook/addon-mcp` installed in each Storybook project and `storybook dev` running on port 6006
-
-#### Scenario: Storybook gracefully fails when not running
-
-- **WHEN** `storybook dev` is NOT running on localhost:6006
-- **THEN** `claude mcp list` SHALL show `storybook` as failed to connect
-- **AND** no error SHALL affect other MCP server connections
-
 ### Requirement: Template uses no machine-specific conditionals for MCP
 
 The MCP server list in `run_onchange_install-packages.sh.tmpl` SHALL be plain bash arrays without chezmoi template conditionals (`{{ if }}`, `{{ else }}`). All 15 Claude Code servers are registered identically on every machine.
@@ -125,6 +72,8 @@ The MCP server list in `run_onchange_install-packages.sh.tmpl` SHALL be plain ba
 
 - **WHEN** reading `run_onchange_install-packages.sh.tmpl`
 - **THEN** the MCP server arrays SHALL contain no chezmoi template directives
+
+## ADDED Requirements
 
 ### Requirement: DeepWiki is available in every managed coding agent
 
@@ -235,17 +184,3 @@ DeepWiki SHALL be classified as a provider-managed remote service. The setup SHA
 - **WHEN** the install script, Renovate configuration, and `update-extra` workflow are inspected
 - **THEN** DeepWiki SHALL appear only as remote MCP configuration and documentation
 - **AND** no local DeepWiki update action SHALL exist
-
-### Requirement: Expect MCP server is registered globally in OpenCode config
-
-`dot_config/opencode/opencode.jsonc` SHALL contain an `mcp` key with an `expect` server entry using the OpenCode local MCP format.
-
-#### Scenario: Expect MCP server present in OpenCode config after chezmoi apply
-
-- **WHEN** `chezmoi apply` is run on a new machine
-- **THEN** `~/.config/opencode/opencode.jsonc` SHALL contain an `mcp` object with an `expect` entry of type `"local"`, command `["npx", "-y", "expect-cli@latest", "mcp"]`, and `enabled: true`
-
-#### Scenario: OpenCode MCP section does not affect existing config keys
-
-- **WHEN** `chezmoi apply` deploys the updated OpenCode config
-- **THEN** the `model`, `tui`, `plugin`, `formatter`, and `permission` keys SHALL remain unchanged
