@@ -43,6 +43,21 @@ Alternatives considered:
 
 Alternative: keep the bare name and rely on tap precedence. Rejected — precedence runs the other way. Alternative: a dedicated install group (the shape `fallow` and `opencode` use). Rejected — those exist because of ordering constraints and self-updating installers; llmfit has neither.
 
+Implementation surfaced a second, independent reason the qualified name is required (see D7).
+
+### D7: Homebrew 6's trust gate — accept the failing tap, rely on the qualified install
+
+Verified on the host at Homebrew 6.0.22: formulae from non-official taps are refused unless the tap or formula is in `brew trust`'s store (`~/.homebrew/trust.json`), which is empty here. Two consequences, pulling in opposite directions:
+
+- `brew tap AlexsJones/llmfit` on an untapped host **fails**. It clones, the post-tap audit cannot load the formula for any bottle platform, and brew reports `Error: Cannot tap alexsjones/llmfit: invalid syntax in tap!` before rolling the clone back. The message is misleading — the formula is valid Ruby (`ruby -c` passes) and matches what this design describes; "invalid syntax" is how the audit surfaces the trust refusal.
+- `brew install AlexsJones/llmfit/llmfit` **succeeds** and registers the tap on the way. A fully-qualified reference is exempt from the gate; a bare name resolving into a third-party tap is not.
+
+So on a fresh host the script's first run prints one non-fatal `Failed to tap AlexsJones/llmfit`, then installs llmfit correctly; every later run taps silently. That is the behaviour the tap loop's `error` path was built for, so nothing else changes.
+
+Rejected: adding `brew trust AlexsJones/llmfit` to the tap loop. It would trade one cosmetic error line for a script that silently grants a third-party tap the right to run arbitrary Ruby on every host these dotfiles provision — a security decision that belongs to the user, not to an unattended `chezmoi apply`.
+
+Out of scope but worth recording: the gate already breaks the repo's two older tap entries, which are listed bare. `brew install tickrs` and `brew install ticker` are both refused on this host today. Their installed binaries keep working, so nothing is broken in practice, but a fresh provision would fail. Fixing that means qualifying both names and giving each a `pkg_bin` arm — the same shape this change introduces for llmfit — and belongs in its own change.
+
 ### D3: Never migrate an existing install automatically
 
 The group's skip check is `command -v llmfit`, so on this host — where core's 1.1.11 is linked — the tap formula is simply never installed, and no conflict occurs. Making the script *fix* that would mean uninstalling and reinstalling a working binary during an unattended apply, which breaks the group's "install only what is missing" contract, and would be wrong on Apple Silicon hosts where the core bottle is perfectly good. The switch is therefore a printed manual step: `brew uninstall llmfit && brew install AlexsJones/llmfit/llmfit`.

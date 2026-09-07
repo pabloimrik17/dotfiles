@@ -11,7 +11,7 @@ The install script `run_onchange_install-packages.sh.tmpl` SHALL install llmfit 
 - `BREW_TAPS` SHALL contain `AlexsJones/llmfit`, so the tap is registered by the existing tap loop before the `BREW_PACKAGES` pre-scan runs.
 - `BREW_PACKAGES` SHALL contain the fully-qualified formula name `AlexsJones/llmfit/llmfit` and SHALL NOT contain the bare name `llmfit`.
 
-The qualified name is normative, not stylistic: `brew install llmfit` resolves to the `homebrew/core` formula, which declares `rust` as a build dependency and publishes no `x86_64` macOS bottle, so on an Intel host it compiles from source on install and on every upgrade. The tap formula downloads the prebuilt release tarball for the running OS/arch, pinned by `sha256`, and installs a single binary with no build or runtime dependencies.
+The qualified name is normative, not stylistic, for two independent reasons. First, `brew install llmfit` resolves to the `homebrew/core` formula, which declares `rust` as a build dependency and publishes no `x86_64` macOS bottle, so on an Intel host it compiles from source on install and on every upgrade. Second, Homebrew 6 refuses to resolve a *bare* name into a non-official tap at all (`Refusing to load formula … from untrusted tap`); only the fully-qualified reference is exempt. The tap formula downloads the prebuilt release tarball for the running OS/arch, pinned by `sha256`, and installs a single binary with no build or runtime dependencies.
 
 #### Scenario: Tap registered before the pre-scan
 
@@ -52,10 +52,13 @@ The `pkg_bin()` function SHALL contain a dedicated `case` arm returning `llmfit`
 
 llmfit SHALL be installed with the same handling applied to every other entry in `BREW_PACKAGES`: a `command -v` skip check before installing, and a non-fatal error path.
 
+Homebrew 6 gates non-official taps behind `brew trust`. Registering the tap and installing from it are gated differently, and the group SHALL rely only on the ungated path: `brew tap AlexsJones/llmfit` fails on a host where the tap is neither trusted nor already registered, while `brew install AlexsJones/llmfit/llmfit` resolves the formula and registers the tap as a side effect. The `BREW_TAPS` entry is therefore an optimisation, not a precondition, and the change SHALL NOT add a `brew trust` step.
+
 #### Scenario: Idempotent re-run
 
-- **WHEN** the brew packages group runs on a host where `command -v llmfit` already succeeds
+- **WHEN** the brew packages group's install loop runs on a host where `command -v llmfit` already succeeds
 - **THEN** the script logs `AlexsJones/llmfit/llmfit — already installed, skipping` and does NOT invoke `brew install`
+- **AND** on a host where every entry is already present the pre-scan short-circuits before the loop, reporting `Brew packages: 29/29 installed` instead
 
 #### Scenario: Installation failure is non-fatal
 
@@ -65,7 +68,14 @@ llmfit SHALL be installed with the same handling applied to every other entry in
 #### Scenario: Tap registration failure is non-fatal
 
 - **WHEN** `brew tap AlexsJones/llmfit` fails
-- **THEN** the existing tap loop logs `Failed to tap AlexsJones/llmfit` and the script continues; only the llmfit install itself fails later
+- **THEN** the existing tap loop logs `Failed to tap AlexsJones/llmfit`, increments the error counter, and the script continues to the pre-scan and install loop
+
+#### Scenario: Untrusted tap does not block the install
+
+- **WHEN** the brew group runs on a Homebrew 6 host where `AlexsJones/llmfit` is neither trusted nor registered
+- **THEN** `brew tap AlexsJones/llmfit` exits non-zero with `Refusing to load formula … from untrusted tap`, leaves the tap unregistered, and is absorbed by the tap loop's error path
+- **AND** `brew install AlexsJones/llmfit/llmfit` still resolves the tap formula, installs the binary and registers the tap, because a fully-qualified reference is not gated
+- **AND** on the next run `brew tap AlexsJones/llmfit` exits 0 without output
 
 ### Requirement: A pre-existing llmfit install is never modified automatically
 

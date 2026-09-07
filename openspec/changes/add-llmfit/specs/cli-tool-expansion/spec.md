@@ -196,6 +196,24 @@ The install script SHALL declare a `BREW_TAPS` array immediately above `BREW_PAC
 
 The value of `BREW_TAPS` SHALL be `(tarkah/tickrs achannarasappa/tap AlexsJones/llmfit)` — the taps currently required (for the `tickrs`, `ticker` and `llmfit` formulas respectively).
 
+Homebrew 6 refuses to load formulae from a tap that is not listed in `brew trust`'s store. This
+splits the loop's behaviour by host state, and the array SHALL be treated as an optimisation rather
+than a precondition:
+
+- On a host where the tap is **already registered**, `brew tap "$tap"` short-circuits and exits 0
+  silently — the idempotency guarantee above still holds.
+- On a host where it is **not**, `brew tap "$tap"` clones, fails its post-tap formula audit with
+  `Refusing to load formula … from untrusted tap`, rolls the clone back and exits non-zero. The
+  loop's existing `error` path absorbs it; the script continues.
+
+Installing by **fully-qualified** name is not gated, so `brew install AlexsJones/llmfit/llmfit`
+resolves the formula and registers the tap as a side effect. Bare names that would resolve into a
+third-party tap **are** gated: on an untrusted host `brew install tickrs` and `brew install ticker`
+now fail. That is a pre-existing defect of those two entries, not introduced here, and is out of
+scope for this change.
+
+No `brew trust` step SHALL be added by this change.
+
 #### Scenario: Tap loop runs before package install loop
 
 - **WHEN** the install script reaches the brew packages group
@@ -220,3 +238,15 @@ The value of `BREW_TAPS` SHALL be `(tarkah/tickrs achannarasappa/tap AlexsJones/
 
 - **WHEN** the install script runs on a host where every entry in `BREW_TAPS` is already tapped
 - **THEN** each `brew tap "$tap"` exits successfully without printing a warning and the script continues
+
+#### Scenario: Untrusted tap fails the loop without failing the run
+
+- **WHEN** the tap loop runs on a Homebrew 6 host where a `BREW_TAPS` entry is neither trusted nor already registered
+- **THEN** `brew tap "$tap"` exits non-zero, the tap is left unregistered, the loop logs `Failed to tap $tap` and increments the error counter
+- **AND** the script continues to the pre-scan and install loop rather than aborting
+
+#### Scenario: Fully-qualified install bypasses the trust gate
+
+- **WHEN** the install loop runs `brew install AlexsJones/llmfit/llmfit` on that same host
+- **THEN** the formula resolves from the `alexsjones/llmfit` tap, the binary installs, and the tap becomes registered as a side effect
+- **AND** no `brew trust` invocation is required or performed
