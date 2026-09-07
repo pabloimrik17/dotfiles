@@ -2441,6 +2441,66 @@
             >
                 <summary>11. Claude Code</summary>
                 <div class="section-content">
+                    <h3>Fullscreen TUI</h3>
+                    <p>
+                        Chezmoi sets <code>"tui": "fullscreen"</code> in
+                        <code>~/.claude/settings.json</code>. This research preview uses the
+                        terminal's alternate screen; it does not maximize the window.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command / shortcut</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/tui</code></td>
+                                <td>Show the active renderer</td>
+                            </tr>
+                            <tr>
+                                <td><code>/tui fullscreen</code></td>
+                                <td>Switch to fullscreen rendering</td>
+                            </tr>
+                            <tr>
+                                <td><code>/tui default</code></td>
+                                <td>
+                                    Switch to classic rendering; the next chezmoi apply restores
+                                    fullscreen
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Ctrl</kbd>+<kbd>o</kbd>, then <kbd>/</kbd></td>
+                                <td>
+                                    Search the transcript; native terminal scrollback search cannot
+                                    see it
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>PgUp</kbd> / <kbd>PgDn</kbd></td>
+                                <td>Scroll the conversation</td>
+                            </tr>
+                            <tr>
+                                <td><code>CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1 claude</code></td>
+                                <td>
+                                    Use classic rendering for one directly launched interactive
+                                    session
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        For a persistent managed opt-out, change <code>tui</code> to
+                        <code>"default"</code> in <code>dot_claude/modify_settings.json.tmpl</code>
+                        and apply it. Ordinary tmux sessions need mouse mode for wheel scrolling
+                        (already enabled by these dotfiles); fullscreen is incompatible with
+                        <code>tmux -CC</code>. See the
+                        <a href="https://code.claude.com/docs/en/fullscreen"
+                            >official fullscreen guide</a
+                        >
+                        for compatibility and selection controls.
+                    </p>
                     <h3>Slash commands (from plugins)</h3>
                     <table>
                         <thead>
