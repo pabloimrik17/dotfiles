@@ -96,8 +96,12 @@ fi
 # ------------------------------------------------------------------
 # Group 1: Brew packages
 # ------------------------------------------------------------------
-BREW_TAPS=(tarkah/tickrs achannarasappa/tap)
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tickrs ticker age mole aoe glow mdfried)
+BREW_TAPS=(tarkah/tickrs achannarasappa/tap AlexsJones/llmfit)
+# llmfit is listed fully qualified on purpose: a bare `llmfit` resolves to the
+# homebrew/core formula, which declares `rust` as a build dependency and ships no
+# x86_64 macOS bottle — an Intel host would compile it on install and on every
+# upgrade. The tap formula unpacks a sha256-pinned prebuilt release tarball.
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tickrs ticker age mole aoe glow mdfried AlexsJones/llmfit/llmfit)
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -107,6 +111,9 @@ pkg_bin() {
         worktrunk) echo "wt" ;;
         beads)     echo "bd" ;;
         television) echo "tv" ;;
+        # Tap-qualified formula: the binary is not renamed, but the identity
+        # mapping would probe for a binary named AlexsJones/llmfit/llmfit.
+        AlexsJones/llmfit/llmfit) echo "llmfit" ;;
         *)         echo "$1" ;;
     esac
 }
@@ -1643,6 +1650,9 @@ info "  - Notion MCP: requires OAuth authentication — run 'claude mcp get noti
 info "  - PostHog MCP: requires OAuth authentication — in Claude Code run '/mcp' and authenticate 'plugin:posthog:posthog'; in OpenCode run 'opencode mcp auth'"
 info "  - Sentry MCP: provided by the sentry-mcp plugin from the sentry-mcp marketplace — requires OAuth authentication; run '/mcp' inside Claude Code, or 'opencode mcp auth sentry' in OpenCode"
 info "  - Storybook MCP: requires @storybook/addon-mcp installed in each Storybook project and 'storybook dev' running on port 6006"
+info "  - llmfit: if an existing llmfit came from homebrew/core, switch it to the tap once with 'brew uninstall llmfit && brew install AlexsJones/llmfit/llmfit'"
+info "      Why: the core formula publishes no x86_64 macOS bottle and depends on rust, so it builds from source on install and on every upgrade; the tap ships a prebuilt binary"
+info "      Not automated: the install script never uninstalls, unlinks or relinks an llmfit that is already present"
 info ""
 
 {{ else -}}
@@ -1654,7 +1664,7 @@ info "This system is not macOS. Automatic installation is not supported."
 info ""
 info "Please install the following packages manually:"
 info ""
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe, glow, mdfried"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe, glow, mdfried, llmfit"
 info "    - terminal-notifier: macOS-only (skip on Linux)"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
@@ -1670,6 +1680,7 @@ print_linear_mcp_guidance
 info "    - aoe: cargo install aoe (Linux supported by upstream; brew is macOS-only)"
 info "    - glow: brew install glow (or your distro's package manager, or 'go install github.com/charmbracelet/glow@latest')"
 info "    - mdfried: brew install mdfried (or cargo install mdfried); its image / mermaid / Big-Header rendering needs a terminal with a graphics protocol (Kitty, iTerm2, or Sixel) and otherwise degrades to character rendering"
+info "    - llmfit: brew install AlexsJones/llmfit/llmfit (upstream tap; prebuilt Linux and macOS binaries) OR, without brew, uv tool install -U llmfit"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: zsh, then oh-my-zsh (https://ohmyz.sh/)"
 info "    - zsh: install it first — the oh-my-zsh installer aborts when zsh is missing (apt install zsh, dnf install zsh, …)"
@@ -1724,7 +1735,7 @@ fi
 
 info "Installation complete!"
 {{ if eq .chezmoi.os "darwin" -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, mole, aoe, glow, mdfried"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, mole, aoe, glow, mdfried, llmfit"
 {{ else -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, aoe, glow, mdfried"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, aoe, glow, mdfried, llmfit"
 {{ end -}}
