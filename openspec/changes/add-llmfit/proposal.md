@@ -28,7 +28,7 @@ The core formula is the wrong channel *for this host*. `llmfit` 1.1.14 in `homeb
 
 **Nothing else is wired:**
 
-- No chezmoi-managed configuration. llmfit reads no dotfile; its only optional user input is a `custom_models.json` under `~/Library/Application Support/llmfit/` (or `LLMFIT_CUSTOM_MODELS`), which this change does not ship.
+- No chezmoi-managed configuration. llmfit's optional user inputs — a `custom_models.json` under `~/Library/Application Support/llmfit/` (or `LLMFIT_CUSTOM_MODELS`) and `OLLAMA_CONTEXT_LENGTH` — are user-owned and machine-specific, and this change ships none of them.
 - No automatic invocation from any script, hook, alias or shell startup file. `download`, `run`, `serve` and `bench` move gigabytes, start servers and saturate the machine; `update` refreshes the catalog from HuggingFace. Every one of those is a user-typed command.
 - No `update-extra` step. `update-extra` exists for tools that brew does not own; the binary is brew-managed, and the catalog refresh is a deliberate network action, not maintenance.
 

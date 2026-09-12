@@ -116,7 +116,7 @@ The `{{ else -}}` (non-macOS) branch SHALL include `llmfit` in its CLI-tools lis
 
 ### Requirement: No chezmoi-managed configuration is shipped for llmfit
 
-The dotfiles source tree SHALL NOT contain a chezmoi-managed llmfit configuration file: no `dot_config/llmfit/`, no `custom_models.json`, no encrypted variant. No template SHALL export `LLMFIT_CUSTOM_MODELS` or `OLLAMA_CONTEXT_LENGTH` on llmfit's behalf. llmfit reads no dotfile; hardware detection is automatic and every override is a command-line flag.
+The dotfiles source tree SHALL NOT contain a chezmoi-managed llmfit configuration file: no `dot_config/llmfit/`, no `custom_models.json`, no encrypted variant. No template SHALL export `LLMFIT_CUSTOM_MODELS` or `OLLAMA_CONTEXT_LENGTH` on llmfit's behalf. Hardware detection is automatic, and llmfit's optional inputs — a `custom_models.json` under `~/Library/Application Support/llmfit/`, `LLMFIT_CUSTOM_MODELS`, and `OLLAMA_CONTEXT_LENGTH` — are user-owned and machine-specific, so a repo that provisions machines generically has nothing to ship.
 
 #### Scenario: Source tree has no llmfit config
 

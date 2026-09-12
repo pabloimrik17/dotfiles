@@ -66,7 +66,7 @@ Alternative: detect the providing tap (`brew info --json` → `tap`) and prompt.
 
 ### D4: No chezmoi-managed configuration
 
-There is nothing to manage. Hardware detection is automatic, every override is a flag, and the only file llmfit would read — `custom_models.json` — is a personal catalog of models the user has, which does not belong in a dotfiles repo that provisions machines generically. `OLLAMA_CONTEXT_LENGTH` is deliberately not exported either: it changes llmfit's memory estimates *and* Ollama's runtime behaviour, and setting it globally to please one tool would silently reshape the other.
+There is nothing for this repo to manage. Hardware detection is automatic, and llmfit's only file input — `custom_models.json` — is a personal catalog of models the user has, which does not belong in a dotfiles repo that provisions machines generically. `OLLAMA_CONTEXT_LENGTH`, which llmfit reads when `--max-context` is absent, is deliberately not exported either: it changes llmfit's memory estimates *and* Ollama's runtime behaviour, and setting it globally to please one tool would silently reshape the other.
 
 ### D5: No automatic invocation, and no `update-extra` step
 
@@ -88,7 +88,7 @@ Two audiences, two places. The install script's "Manual Installation Required" s
 ## Migration Plan
 
 1. Add the tap entry, the qualified package entry and the `pkg_bin` arm in one edit to `run_onchange_install-packages.sh.tmpl`; add the summary token, the manual-migration line and the non-macOS entry.
-2. Verify by re-running the script's brew group on this host: it must report llmfit as already installed and perform no brew action.
+2. Verify by re-running the script's brew group on this host: it must report llmfit as already installed and perform no install, uninstall, unlink or relink. The tap loop runs on every pass, so the `brew tap` calls it makes are expected; verify those separately.
 3. Verify the fresh-install path without mutating the host: `brew info AlexsJones/llmfit/llmfit` resolves the tap formula, and `pkg_bin` returns `llmfit` for the qualified name.
 4. Optional, user-run, out of band: `brew uninstall llmfit && brew install AlexsJones/llmfit/llmfit`.
 
