@@ -5,9 +5,9 @@ See proposal.md — Why. The design question is not *whether* to install llmfit 
 Facts the design has to work with:
 
 - **The brew group.** `run_onchange_install-packages.sh.tmpl` installs CLI tools through one group: `BREW_TAPS` is tapped in a loop, then a pre-scan counts how many entries of `BREW_PACKAGES` are missing (`command -v "$(pkg_bin "$pkg")"`), then a single `confirm` prompt gates the install loop. Failures call `error` (increments a counter, never exits). Everything is inside `{{ if eq .chezmoi.os "darwin" }}`; the `{{ else -}}` branch only prints manual instructions.
-- **`homebrew/core`.** `llmfit` 1.1.14 declares `rust` as a build dependency and publishes bottles for `arm64_sequoia`, `arm64_sonoma`, `arm64_tahoe`, `arm64_linux`, `x86_64_linux`. There is no `x86_64` macOS bottle.
-- **The host.** macOS 15.7.9, `x86_64`, brew prefix `/usr/local`. `llmfit` 1.1.11 is already installed from core and linked; `brew info` shows `1.1.11 → 1.1.14` pending, which on this arch means a Rust source build.
-- **The tap.** `AlexsJones/homebrew-llmfit`'s formula pins version 1.1.14 with four `sha256`-pinned release tarballs (macOS/Linux × arm64/x86_64) and a body of `bin.install "llmfit"`. No `depends_on`.
+- **`homebrew/core`.** `llmfit` 1.1.15 (version as of writing; nothing in this repo pins it) declares `rust` as a build dependency and publishes bottles for `arm64_sequoia`, `arm64_sonoma`, `arm64_tahoe`, `arm64_linux`, `x86_64_linux`. There is no `x86_64` macOS bottle (tags read from `formulae.brew.sh/api/formula/llmfit.json`; `brew info --json=v2` shows only this host's tag and so reports `bottle: {}` here — that is the absence of an Intel-macOS bottle, not the absence of bottles).
+- **The host.** macOS 15.7.9, `x86_64`, brew prefix `/usr/local`. `llmfit` 1.1.11 is already installed from core and linked; `brew info` shows `1.1.11 → 1.1.15` pending, which on this arch means a Rust source build.
+- **The tap.** `AlexsJones/homebrew-llmfit`'s formula pins version 1.1.15 with four `sha256`-pinned release tarballs (macOS/Linux × arm64/x86_64) and a body of `bin.install "llmfit"`. No `depends_on`.
 - **The tool.** No config file. Optional `custom_models.json` under `~/Library/Application Support/llmfit/` (or `LLMFIT_CUSTOM_MODELS`). Reads `OLLAMA_CONTEXT_LENGTH` when `--max-context` is absent. Writes its own state (`filters.json`, catalog cache) into the same directory.
 
 ## Goals / Non-Goals
@@ -45,19 +45,6 @@ Alternative: keep the bare name and rely on tap precedence. Rejected — precede
 
 Implementation surfaced a second, independent reason the qualified name is required (see D7).
 
-### D7: Homebrew 6's trust gate — accept the failing tap, rely on the qualified install
-
-Verified on the host at Homebrew 6.0.22: formulae from non-official taps are refused unless the tap or formula is in `brew trust`'s store (`~/.homebrew/trust.json`), which is empty here. Two consequences, pulling in opposite directions:
-
-- `brew tap AlexsJones/llmfit` on an untapped host **fails**. It clones, the post-tap audit cannot load the formula for any bottle platform, and brew reports `Error: Cannot tap alexsjones/llmfit: invalid syntax in tap!` before rolling the clone back. The message is misleading — the formula is valid Ruby (`ruby -c` passes) and matches what this design describes; "invalid syntax" is how the audit surfaces the trust refusal.
-- `brew install AlexsJones/llmfit/llmfit` **succeeds** and registers the tap on the way. A fully-qualified reference is exempt from the gate; a bare name resolving into a third-party tap is not.
-
-So on a fresh host the script's first run prints one non-fatal `Failed to tap AlexsJones/llmfit`, then installs llmfit correctly; every later run taps silently. That is the behaviour the tap loop's `error` path was built for, so nothing else changes.
-
-Rejected: adding `brew trust AlexsJones/llmfit` to the tap loop. It would trade one cosmetic error line for a script that silently grants a third-party tap the right to run arbitrary Ruby on every host these dotfiles provision — a security decision that belongs to the user, not to an unattended `chezmoi apply`.
-
-Out of scope but worth recording: the gate already breaks the repo's two older tap entries, which are listed bare. `brew install tickrs` and `brew install ticker` are both refused on this host today. Their installed binaries keep working, so nothing is broken in practice, but a fresh provision would fail. Fixing that means qualifying both names and giving each a `pkg_bin` arm — the same shape this change introduces for llmfit — and belongs in its own change.
-
 ### D3: Never migrate an existing install automatically
 
 The group's skip check is `command -v llmfit`, so on this host — where core's 1.1.11 is linked — the tap formula is simply never installed, and no conflict occurs. Making the script *fix* that would mean uninstalling and reinstalling a working binary during an unattended apply, which breaks the group's "install only what is missing" contract, and would be wrong on Apple Silicon hosts where the core bottle is perfectly good. The switch is therefore a printed manual step: `brew uninstall llmfit && brew install AlexsJones/llmfit/llmfit`.
@@ -75,6 +62,19 @@ llmfit's read-only subcommands are cheap, but the same binary also downloads GGU
 ### D6: Documentation carries the migration and the usage entry point
 
 Two audiences, two places. The install script's "Manual Installation Required" section carries the one-time core→tap switch, because that is where the script already tells the user what it deliberately did not do. `README.md` gets a `**CLI Tools**` row and `docs/manual.html` the usage entry, generated through the existing `update-readme` / `update-manual` skills so the surrounding tables stay consistent. The manual entry leads with the bare `llmfit` TUI and names `fit` / `recommend --json` as the scriptable surface, since the TUI-by-default behaviour is the thing a first-time user gets wrong.
+
+### D7: Homebrew 6's trust gate — accept the failing tap, rely on the qualified install
+
+Verified on the host at Homebrew 6.0.22: formulae from non-official taps are refused unless the tap or formula is in `brew trust`'s store (`$XDG_CONFIG_HOME/homebrew/trust.json` when that variable is set — `~/.config/homebrew/trust.json` here — and `~/.homebrew/trust.json` otherwise). It does not list `AlexsJones/llmfit`. Two consequences, pulling in opposite directions:
+
+- `brew tap AlexsJones/llmfit` on an untapped host **fails**. It clones, the post-tap audit cannot load the formula on any simulated platform, and brew reports `Error: Cannot tap alexsjones/llmfit: invalid syntax in tap!` before rolling the clone back. The message is misleading — the formula is valid Ruby (`ruby -c` passes) and matches what this design describes; "invalid syntax" is how the audit surfaces the trust refusal.
+- `brew install AlexsJones/llmfit/llmfit` **succeeds** and registers the tap on the way. A fully-qualified reference is exempt from the gate; a bare name resolving into a third-party tap is not.
+
+So on a fresh host the script's first run prints one non-fatal `Failed to tap AlexsJones/llmfit`, then installs llmfit correctly; every later run re-taps successfully without re-fetching the tap, though brew may still refresh its API data on the first call of a session. That is the behaviour the tap loop's `error` path was built for, so nothing else changes.
+
+Rejected: adding `brew trust AlexsJones/llmfit` to the tap loop. It would trade one cosmetic error line for a script that silently grants a third-party tap the right to run arbitrary Ruby on every host these dotfiles provision — a security decision that belongs to the user, not to an unattended `chezmoi apply`.
+
+Out of scope but worth recording: the gate also reaches the repo's two older tap entries, which are listed bare. They resolve on this host only because the trust store already lists `tarkah/tickrs` and `achannarasappa/tap` — trusted by hand, out of band. That is the same user action this decision declines to automate. On a host that has not trusted them, both bare names are refused and a fresh provision fails. Fixing that means qualifying both names and giving each a `pkg_bin` arm — the same shape this change introduces for llmfit — and belongs in its own change.
 
 ## Risks / Trade-offs
 

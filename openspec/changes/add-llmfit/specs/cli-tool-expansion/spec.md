@@ -200,8 +200,9 @@ Homebrew 6 refuses to load formulae from a tap that is not listed in `brew trust
 splits the loop's behaviour by host state, and the array SHALL be treated as an optimisation rather
 than a precondition:
 
-- On a host where the tap is **already registered**, `brew tap "$tap"` short-circuits and exits 0
-  silently — the idempotency guarantee above still holds.
+- On a host where the tap is **already registered**, `brew tap "$tap"` exits 0 without re-fetching
+  the tap, though Homebrew may still refresh its API data on the first call of a session — the
+  idempotency guarantee above still holds.
 - On a host where it is **not**, `brew tap "$tap"` clones, fails its post-tap formula audit with
   `Refusing to load formula … from untrusted tap`, rolls the clone back and exits non-zero. The
   loop's existing `error` path absorbs it; the script continues.

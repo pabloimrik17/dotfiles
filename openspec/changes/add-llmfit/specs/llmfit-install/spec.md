@@ -13,7 +13,7 @@ The install script `run_onchange_install-packages.sh.tmpl` SHALL install llmfit 
 
 The qualified name is normative, not stylistic, for two independent reasons. First, `brew install llmfit` resolves to the `homebrew/core` formula, which declares `rust` as a build dependency and publishes no `x86_64` macOS bottle, so on an Intel host it compiles from source on install and on every upgrade. Second, Homebrew 6 refuses to resolve a *bare* name into a non-official tap at all (`Refusing to load formula … from untrusted tap`); only the fully-qualified reference is exempt. The tap formula downloads the prebuilt release tarball for the running OS/arch, pinned by `sha256`, and installs a single binary with no build or runtime dependencies.
 
-#### Scenario: Tap registered before the pre-scan
+#### Scenario: Tap loop runs before the pre-scan
 
 - **WHEN** the brew packages group runs on a macOS host
 - **THEN** `brew tap AlexsJones/llmfit` has been executed before any `brew install` invocation of the group
@@ -73,9 +73,9 @@ Homebrew 6 gates non-official taps behind `brew trust`. Registering the tap and 
 #### Scenario: Untrusted tap does not block the install
 
 - **WHEN** the brew group runs on a Homebrew 6 host where `AlexsJones/llmfit` is neither trusted nor registered
-- **THEN** `brew tap AlexsJones/llmfit` exits non-zero with `Refusing to load formula … from untrusted tap`, leaves the tap unregistered, and is absorbed by the tap loop's error path
+- **THEN** `brew tap AlexsJones/llmfit` exits non-zero: its post-tap audit prints the `Refusing to load formula … from untrusted tap` diagnostic once per simulated platform and the command terminates with `Error: Cannot tap alexsjones/llmfit: invalid syntax in tap!`, leaving the tap unregistered and absorbed by the tap loop's error path
 - **AND** `brew install AlexsJones/llmfit/llmfit` still resolves the tap formula, installs the binary and registers the tap, because a fully-qualified reference is not gated
-- **AND** on the next run `brew tap AlexsJones/llmfit` exits 0 without output
+- **AND** on the next run `brew tap AlexsJones/llmfit` exits 0 without re-fetching the tap, though Homebrew may still refresh its API data on the first call of a session
 
 ### Requirement: A pre-existing llmfit install is never modified automatically
 
