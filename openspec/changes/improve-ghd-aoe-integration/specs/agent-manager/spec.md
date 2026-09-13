@@ -1,6 +1,6 @@
 ## RENAMED Requirements
 
-- FROM: `### Requirement: No automated invocations of `aoe` from any chezmoi-managed script`
+- FROM: ``### Requirement: No automated invocations of `aoe` from any chezmoi-managed script``
 - TO: `### Requirement: AoE interactive startup remains user-initiated`
 
 ## MODIFIED Requirements

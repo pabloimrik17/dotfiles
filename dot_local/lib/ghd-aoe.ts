@@ -5,6 +5,8 @@ import { homedir } from "node:os";
 import path from "node:path";
 
 export const DEFAULT_INFERENCE_TIMEOUT_MS = 10_000;
+export const DEFAULT_COMMAND_TIMEOUT_MS = 30_000;
+export const WORKTREE_COMMAND_TIMEOUT_MS = 120_000;
 
 type Modality = "normal" | "review";
 
@@ -247,6 +249,7 @@ export const runProcess: ProcessRunner = async (command, args, options = {}) => 
 };
 
 function commandFailure(label: string, result: ProcessResult): Error {
+    if (result.timedOut) return new Error(`${label}: timed out`);
     const detail = result.stderr.trim() || result.stdout.trim() || `exit ${result.exitCode}`;
     return new Error(`${label}: ${detail}`);
 }
@@ -400,21 +403,10 @@ function repositorySlug(repository: string): string {
     return repositoryParts(repository).at(-1) ?? repository;
 }
 
-function repositoryWithHost(
-    repository: string,
-    metadata: PullRequestMetadata | undefined,
-    env: NodeJS.ProcessEnv,
-): string {
+function repositoryWithHost(repository: string, env: NodeJS.ProcessEnv): string {
     const normalized = repository.replace(/\.git$/, "");
     if (repositoryParts(normalized).length === 3) return normalized;
-    let host = env.GH_HOST || "github.com";
-    if (metadata?.url) {
-        try {
-            host = new URL(metadata.url).hostname;
-        } catch {
-            // The configured/default GitHub host keeps identity stable on an unusable URL.
-        }
-    }
+    const host = env.GH_HOST || "github.com";
     return /^[A-Za-z0-9.-]+$/.test(host) ? host + "/" + normalized : normalized;
 }
 
@@ -428,7 +420,10 @@ async function resolveProfile(
         validateProfile(selected);
         return selected;
     }
-    const result = await runner("aoe", ["profile", "default"], { env });
+    const result = await runner("aoe", ["profile", "default"], {
+        env,
+        timeoutMs: DEFAULT_COMMAND_TIMEOUT_MS,
+    });
     if (result.exitCode !== 0) throw commandFailure("Unable to resolve AoE profile", result);
     const match = result.stdout.match(/Default profile:\s*(.+?)\s*$/m);
     if (!match?.[1]) throw new Error("Unable to resolve AoE profile from aoe output");
@@ -445,7 +440,7 @@ async function prepareWorktree(
     const result = await runner(
         "wt",
         ["-C", repoPath, "switch", `pr:${prNumber}`, "-x", "pwd", "--", "-P"],
-        { env },
+        { env, timeoutMs: WORKTREE_COMMAND_TIMEOUT_MS },
     );
     if (result.exitCode !== 0) throw commandFailure("Worktree preparation failed", result);
     const outputPath = result.stdout
@@ -475,10 +470,14 @@ async function fetchMetadata(
             "--json",
             "title,body,headRefName,url",
         ],
-        { cwd: repoPath, env },
+        { cwd: repoPath, env, timeoutMs: DEFAULT_COMMAND_TIMEOUT_MS },
     );
     if (result.exitCode !== 0) {
-        console.error("ghd-aoe: GitHub metadata unavailable; using deterministic fallback");
+        console.error(
+            result.timedOut
+                ? "ghd-aoe: GitHub metadata timed out; using deterministic fallback"
+                : "ghd-aoe: GitHub metadata unavailable; using deterministic fallback",
+        );
         return undefined;
     }
     try {
@@ -505,7 +504,10 @@ async function listSessions(
     env: NodeJS.ProcessEnv,
     runner: ProcessRunner,
 ): Promise<AoESession[]> {
-    const result = await runner("aoe", aoeArgs(profile, "list", "--json"), { env });
+    const result = await runner("aoe", aoeArgs(profile, "list", "--json"), {
+        env,
+        timeoutMs: DEFAULT_COMMAND_TIMEOUT_MS,
+    });
     if (result.exitCode !== 0) throw commandFailure("Unable to list AoE sessions", result);
     const sessions = parseJson<AoESession[]>(result.stdout, "aoe list");
     if (!Array.isArray(sessions)) throw new Error("aoe list returned an incompatible JSON shape");
@@ -517,7 +519,10 @@ async function listGroups(
     env: NodeJS.ProcessEnv,
     runner: ProcessRunner,
 ): Promise<string[]> {
-    const result = await runner("aoe", aoeArgs(profile, "group", "list", "--json"), { env });
+    const result = await runner("aoe", aoeArgs(profile, "group", "list", "--json"), {
+        env,
+        timeoutMs: DEFAULT_COMMAND_TIMEOUT_MS,
+    });
     if (result.exitCode !== 0) throw commandFailure("Unable to list AoE groups", result);
     const groups = parseJson<AoEGroup[]>(result.stdout, "aoe group list");
     if (!Array.isArray(groups))
@@ -684,7 +689,14 @@ export async function inferNaming(options: {
         return { durationMs, timedOut: true, diagnostic: "Haiku naming timed out; using fallback" };
     }
     if (result.exitCode !== 0) {
-        return { durationMs, timedOut: false, diagnostic: "Haiku naming failed; using fallback" };
+        const detail = result.stderr.trim();
+        return {
+            durationMs,
+            timedOut: false,
+            diagnostic: detail
+                ? `Haiku naming failed: ${detail}; using fallback`
+                : "Haiku naming failed; using fallback",
+        };
     }
     const choice = parseInferenceChoice(result.stdout, options.repository, options.groups);
     return choice
@@ -820,7 +832,10 @@ async function registerSession(options: {
     if (options.modality === "review") {
         args.push("--extra-args", `/review-team ${options.reviewRef}`);
     }
-    const result = await options.runner("aoe", args, { env: options.env });
+    const result = await options.runner("aoe", args, {
+        env: options.env,
+        timeoutMs: DEFAULT_COMMAND_TIMEOUT_MS,
+    });
     if (result.exitCode !== 0) throw commandFailure("AoE registration failed", result);
 
     const sessions = await listSessions(options.profile, options.env, options.runner);
@@ -854,7 +869,10 @@ async function showSession(
     env: NodeJS.ProcessEnv,
     runner: ProcessRunner,
 ): Promise<SessionDetail> {
-    const result = await runner("aoe", aoeArgs(profile, "session", "show", id, "--json"), { env });
+    const result = await runner("aoe", aoeArgs(profile, "session", "show", id, "--json"), {
+        env,
+        timeoutMs: DEFAULT_COMMAND_TIMEOUT_MS,
+    });
     if (result.exitCode !== 0) throw commandFailure("Unable to inspect AoE session", result);
     return parseJson<SessionDetail>(result.stdout, "aoe session show");
 }
@@ -864,7 +882,10 @@ async function runningSessionIds(
     env: NodeJS.ProcessEnv,
     runner: ProcessRunner,
 ): Promise<Set<string>> {
-    const result = await runner("aoe", aoeArgs(profile, "ps", "--json"), { env });
+    const result = await runner("aoe", aoeArgs(profile, "ps", "--json"), {
+        env,
+        timeoutMs: DEFAULT_COMMAND_TIMEOUT_MS,
+    });
     if (result.exitCode !== 0) throw commandFailure("Unable to inspect AoE processes", result);
     const rows = parseJson<Array<{ session?: string }>>(result.stdout, "aoe ps");
     if (!Array.isArray(rows)) throw new Error("aoe ps returned an incompatible JSON shape");
@@ -933,7 +954,7 @@ async function manageReview(options: {
     const result = await options.runner(
         "aoe",
         aoeArgs(options.profile, "session", "start", options.association.id),
-        { env: options.env },
+        { env: options.env, timeoutMs: DEFAULT_COMMAND_TIMEOUT_MS },
     );
     if (result.exitCode !== 0) throw commandFailure("AoE review launch failed", result);
 
@@ -962,7 +983,7 @@ export async function runIntegration(
     const profile = await resolveProfile(cli.profile, env, runner);
     const worktree = await prepareWorktree(repoPath, cli.prNumber, env, runner);
     const metadata = await fetchMetadata(cli.repository, cli.prNumber, repoPath, env, runner);
-    const repository = repositoryWithHost(cli.repository, metadata, env);
+    const repository = repositoryWithHost(cli.repository, env);
     const root = stateRoot(env);
     const key = identityHash(profile, repository, cli.prNumber);
     const release = await acquireLock(root, key);

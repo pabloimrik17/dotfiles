@@ -14,12 +14,16 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
+    DEFAULT_COMMAND_TIMEOUT_MS,
     DEFAULT_INFERENCE_TIMEOUT_MS,
+    WORKTREE_COMMAND_TIMEOUT_MS,
     fallbackNaming,
     humanizeRepository,
     inferNaming,
     normalizeTitle,
     parseCliArgs,
+    runIntegration,
+    runProcess,
 } from "../dot_local/lib/ghd-aoe.ts";
 
 const repositoryRoot = path.resolve(import.meta.dir, "..");
@@ -53,6 +57,7 @@ interface FixtureState {
     lastCommandOverride?: string;
     inference: {
         output?: string;
+        stderr?: string;
         exitCode?: number;
         delayMs?: number;
         spawnChild?: boolean;
@@ -314,6 +319,39 @@ describe("CLI contract and isolated handoff", () => {
             ),
         ).toBe(false);
     });
+
+    test("bounds infrastructure commands separately from Haiku inference", async () => {
+        const harness = await setup();
+        const observed: Array<{ command: string; timeoutMs?: number }> = [];
+        const result = await runIntegration(
+            {
+                repoPath: harness.repo,
+                repository: "owner/dotfiles",
+                prNumber: 123,
+                modality: "normal",
+            },
+            {
+                env: harness.env,
+                runner: async (command, args, options) => {
+                    observed.push({ command, timeoutMs: options?.timeoutMs });
+                    return await runProcess(command, args, options);
+                },
+            },
+        );
+
+        expect(result.action).toBe("queued");
+        expect(observed.find((call) => call.command === "wt")?.timeoutMs).toBe(
+            WORKTREE_COMMAND_TIMEOUT_MS,
+        );
+        for (const call of observed.filter(
+            (candidate) => candidate.command === "aoe" || candidate.command === "gh",
+        )) {
+            expect(call.timeoutMs).toBe(DEFAULT_COMMAND_TIMEOUT_MS);
+        }
+        expect(
+            observed.find((call) => call.command === harness.env.GHD_AOE_CLAUDE_BIN)?.timeoutMs,
+        ).toBe(DEFAULT_INFERENCE_TIMEOUT_MS);
+    });
 });
 
 describe("group and title selection", () => {
@@ -412,20 +450,26 @@ describe("group and title selection", () => {
             "Improve api login redirect",
         );
 
-        const failed = await setup({ inference: { exitCode: 7 } });
+        const failed = await setup({
+            inference: { exitCode: 7, stderr: "error: unknown option --safe-mode" },
+        });
         const failedResult = await run(failed);
         expect(failedResult.exitCode).toBe(0);
         expect(failedResult.stderr).toContain("Haiku naming failed");
+        expect(failedResult.stderr).toContain("error: unknown option --safe-mode");
         expect((await readFixture(failed)).sessions[0]?.title).toBe("Improve api login redirect");
     });
 
     test("keeps hosted identity stable across a temporary metadata failure", async () => {
         const harness = await setup();
-        expect((await run(harness)).exitCode).toBe(0);
         const fixture = await readFixture(harness);
-        fixture.metadata = undefined;
-        fixture.failures.gh = true;
+        fixture.metadata!.url = "https://git.example/owner/dotfiles/pull/123";
         await writeFixture(harness, fixture);
+        expect((await run(harness)).exitCode).toBe(0);
+        const persisted = await readFixture(harness);
+        persisted.metadata = undefined;
+        persisted.failures.gh = true;
+        await writeFixture(harness, persisted);
         expect((await run(harness)).exitCode).toBe(0);
         const recorded = await calls(harness);
         expect(recorded.filter((call) => call.command === "claude")).toHaveLength(1);

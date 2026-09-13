@@ -33,6 +33,7 @@ interface Fixture {
     lastCommandOverride?: string;
     inference?: {
         output?: string;
+        stderr?: string;
         exitCode?: number;
         delayMs?: number;
         spawnChild?: boolean;
@@ -102,6 +103,7 @@ if (command === "claude") {
         await Bun.sleep(inference.delayMs);
     }
     if (inference.output) console.log(inference.output);
+    if (inference.stderr) console.error(inference.stderr);
     process.exit(inference.exitCode ?? 0);
 }
 
