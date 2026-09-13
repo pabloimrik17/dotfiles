@@ -2,7 +2,11 @@
     "$schema": "./node_modules/fallow/schema.json",
     // commitlint + lint-staged configs are auto-detected by built-in plugins;
     // oxfmt has no fallow plugin, so its config must be an explicit entry
-    "entry": ["oxfmt.config.ts"],
+    "entry": [
+        "oxfmt.config.ts",
+        "tests/benchmarks/ghd-aoe-haiku.ts",
+        "tests/fixtures/ghd-aoe-cli.ts",
+    ],
     "ignorePatterns": [
         "**/*.tmpl",
         "dot_config/**",

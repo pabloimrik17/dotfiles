@@ -88,26 +88,15 @@ keybindings:
         - key: T
           name: CI checks (tmux)
           command: tmux split-window -h 'ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}'
-        # AoE queue bindings: create the worktree via worktrunk and register it as
-        # an Agent of Empires session WITHOUT launching (fill the fleet, open later).
-        # `aoe add` returns immediately, so there's no interactive tmux variant.
-        # Titles use a deterministic repo#pr token (not {{.Title}}): gh-dash renders
-        # the template before the shell runs, so a PR title with a ' could break out
-        # of the single-quoted -x payload and inject commands.
+        # AoE lifecycle commands return without attaching, so these direct
+        # bindings do not need tmux variants. The helper owns Worktrunk handoff,
+        # stable session identity, naming, registration, and review startup.
         - key: f
-          name: Queue in AoE
-          command: wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x 'aoe add . -t "pr {{.RepoName}}#{{.PrNumber}}"'
+          name: Queue/reuse AoE session
+          command: ghd-aoe --repo-path "{{.RepoPath}}" --repo "{{.RepoName}}" --pr "{{.PrNumber}}" --mode normal
         - key: F
-          name: Queue AoE review team
-          # Auto-launches (-l): the review runs in background immediately and
-          # control returns to gh-dash (aoe add -l does a background start, no
-          # attach). The review prompt lives in a versioned slash command
-          # (~/.claude/commands/review-team.md) passed as a single token via
-          # --extra-args, because aoe whitespace-splits --extra-args (it's built
-          # for flags like "--port 8080"), so an inline multi-word prompt
-          # truncates to its first word. {{.RepoName}}#{{.PrNumber}} is the
-          # command's $ARGUMENTS.
-          command: wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x 'aoe add . -t "review {{.RepoName}}#{{.PrNumber}}" -g "reviews/{{.RepoName}}" -l --extra-args "/review-team {{.RepoName}}#{{.PrNumber}}"'
+          name: Start/resume AoE review team
+          command: ghd-aoe --repo-path "{{.RepoPath}}" --repo "{{.RepoName}}" --pr "{{.PrNumber}}" --mode review
 
 pager:
     diff: delta

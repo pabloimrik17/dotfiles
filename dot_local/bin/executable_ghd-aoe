@@ -1,0 +1,5 @@
+#!/usr/bin/env bun
+
+import { cliMain } from "../lib/ghd-aoe.ts";
+
+process.exitCode = await cliMain();

@@ -22,6 +22,10 @@ set -u
 REAL_CLAUDE="$HOME/.local/bin/claude"
 NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 NODES="$NVM_DIR/versions/node"
+AOE_PROFILE=${AOE_PROFILE-}
+AOE_INSTANCE_ID=${AOE_INSTANCE_ID-}
+GHD_AOE_STATE_HOME=${GHD_AOE_STATE_HOME-}
+XDG_STATE_HOME=${XDG_STATE_HOME-}
 
 # 1) Locate .nvmrc. First walk UP from $PWD (builtin path manipulation, no
 #    `dirname` forks), covering the launch dir, the worktree root, and ancestors.
@@ -107,7 +111,71 @@ if [ -n "$nvmrc" ]; then
   fi
 fi
 
-# 3) Delegate to the real claude by absolute path — never via PATH (that would
+# 3) A managed gh-dash review may carry its persisted bootstrap arguments into
+#    every AoE start. Only trust a marker whose profile, instance, and canonical
+#    worktree all match this launch. On explicit resume, remove the exact
+#    bootstrap prefix; a genuine first launch keeps it.
+managed_review=false
+review_ref=""
+review_launch_state=""
+case "$AOE_INSTANCE_ID" in
+  [A-Za-z0-9]*)
+    case "$AOE_INSTANCE_ID" in
+      *[!A-Za-z0-9._-]*) ;;
+      *)
+        if [ -n "$AOE_PROFILE" ] && command -v jq >/dev/null 2>&1; then
+          review_state_root=$GHD_AOE_STATE_HOME
+          if [ -z "$review_state_root" ]; then
+            if [ -n "$XDG_STATE_HOME" ]; then
+              review_state_root="$XDG_STATE_HOME/ghd-aoe"
+            else
+              review_state_root="$HOME/.local/state/ghd-aoe"
+            fi
+          fi
+          review_marker="$review_state_root/reviews/$AOE_INSTANCE_ID.json"
+          if [ -r "$review_marker" ]; then
+            marker_profile=$(jq -er '.profile | select(type == "string")' "$review_marker" 2>/dev/null) || marker_profile=""
+            marker_instance=$(jq -er '.instanceId | select(type == "string")' "$review_marker" 2>/dev/null) || marker_instance=""
+            marker_worktree=$(jq -er '.worktree | select(type == "string")' "$review_marker" 2>/dev/null) || marker_worktree=""
+            review_ref=$(jq -er '.reviewRef | select(type == "string")' "$review_marker" 2>/dev/null) || review_ref=""
+            review_launch_state=$(jq -er '.launchState | select(type == "string")' "$review_marker" 2>/dev/null) || review_launch_state=""
+            current_worktree=$(pwd -P)
+            if [ "$marker_profile" = "$AOE_PROFILE" ] &&
+              [ "$marker_instance" = "$AOE_INSTANCE_ID" ] &&
+              [ "$marker_worktree" = "$current_worktree" ] &&
+              [ -n "$review_ref" ]; then
+              managed_review=true
+            fi
+          fi
+        fi
+        ;;
+    esac
+    ;;
+esac
+
+if [ "$managed_review" = true ]; then
+  has_resume=false
+  has_fresh_session=false
+  for argument in "$@"; do
+    [ "$argument" = "--resume" ] && has_resume=true
+    [ "$argument" = "--session-id" ] && has_fresh_session=true
+  done
+
+  if [ "$review_launch_state" = "started" ] && [ "$has_fresh_session" = true ]; then
+    printf 'claude shim: cannot resume managed review %s; AoE supplied a fresh session\n' "$AOE_INSTANCE_ID" >&2
+    exit 65
+  fi
+
+  if [ "$has_resume" = true ]; then
+    if [ "${1-}" = "/review-team $review_ref" ]; then
+      shift
+    elif [ "${1-}" = "/review-team" ] && [ "${2-}" = "$review_ref" ]; then
+      shift 2
+    fi
+  fi
+fi
+
+# 4) Delegate to the real claude by absolute path — never via PATH (that would
 #    re-enter this shim). exec replaces the process, so the exit status passes
 #    through unchanged.
 if [ ! -x "$REAL_CLAUDE" ]; then
