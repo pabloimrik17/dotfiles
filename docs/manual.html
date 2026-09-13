@@ -2218,7 +2218,14 @@
                         <tbody>
                             <tr>
                                 <td><code>bubu</code></td>
-                                <td>Full update cycle: update + outdated + upgrade + cleanup</td>
+                                <td>
+                                    Full update cycle: update + outdated + upgrade + cleanup.
+                                    <strong>Not the maintenance path here</strong> &mdash; it
+                                    upgrades every outdated formula in one bulk step, which skips
+                                    the changelog review each package is supposed to get and cannot
+                                    express a version that must be held back. Use <code>bubo</code>,
+                                    then <code>brew upgrade &lt;pkg&gt;</code> one at a time
+                                </td>
                             </tr>
                             <tr>
                                 <td><code>bubo</code></td>
@@ -2230,7 +2237,14 @@
                             </tr>
                             <tr>
                                 <td><code>brewsp</code></td>
-                                <td>List pinned packages</td>
+                                <td>
+                                    List held packages. Holds are declared in
+                                    <code>run_onchange_install-packages.sh.tmpl</code> with a reason
+                                    and an exit condition, and applied on every
+                                    <code>chezmoi apply</code>, so both machines reach the same
+                                    state &mdash; a bare <code>brew pin</code> is invisible to the
+                                    repo
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -2257,8 +2271,10 @@
                     </table>
                     <div class="flow-only">
                         <strong>Flow: Full tool maintenance</strong><br />
-                        <code>bubu</code> &rarr; <code>update-extra</code> &rarr; everything current
-                        (self-updating tools handle themselves; pinned tools via Renovate)
+                        <code>bubo</code> &rarr; <code>brew upgrade &lt;pkg&gt;</code> (one at a
+                        time, after reading its changelog) &rarr; <code>update-extra</code> &rarr;
+                        everything current (self-updating tools handle themselves; pinned tools via
+                        Renovate; held packages stay put by declaration)
                     </div>
                 </div>
             </details>
