@@ -363,3 +363,11 @@ overlap in `cli-tool-expansion`, `gh-dash-keybindings` and `llmfit-install`.
       **Done.** `openspec validate apply-brew-update-2026-09 --strict`: valid. `openspec validate
       --all --strict`: 22 failures, the same 22 as an extract of `origin/main` — pre-existing, none
       introduced. `bun test`: 40 pass. `oxfmt --check`: clean.
+- [x] 9.7 Pass CI's pinned validator (`bunx @fission-ai/openspec@1.2.0 validate --changes`), not only
+      the local 1.11.0 `--strict`.
+      **Done.** The merge commit got this PR's first CI run — GitHub runs no `pull_request` workflow
+      while a PR has conflicts — and it failed. The same three errors reproduce on the pre-merge
+      commit 75842ad, so the merge did not cause them: 1.2.0 requires SHALL or MUST in the opening
+      text of each ADDED requirement, and *Version holds are declared in the repo…*, *The Intel bottle
+      end-of-life is recorded…* and *A managed step SHALL NOT report success…* opened with context.
+      Each now leads with its SHALL clause, meaning unchanged; 1.2.0 and 1.11.0 `--strict` both pass.

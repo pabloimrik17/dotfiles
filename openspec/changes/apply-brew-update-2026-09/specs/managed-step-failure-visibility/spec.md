@@ -8,10 +8,10 @@ in six unrelated places.
 
 ### Requirement: A managed step SHALL NOT report success when its effect did not occur
 
-Every step this repo manages — a rendered config value, a merge script, an install group, a hook —
-SHALL either fail with a non-zero exit and a message naming what failed, or expose a check that an
-operator or agent can run to observe whether the effect landed. Silent success is the prohibited
-outcome.
+Every step this repo manages SHALL either fail with a non-zero exit and a message naming what
+failed, or expose a check that an operator or agent can run to observe whether the effect landed —
+whether the step is a rendered config value, a merge script, an install group or a hook. Silent
+success is the prohibited outcome.
 
 This requirement exists because the same failure shape recurred independently: a status line assigned
 with an eager-expansion flag baked an empty string and went unnoticed for five months; the three

@@ -8,10 +8,11 @@ machine-local state. Also records the platform constraint that governs upgrade c
 
 ### Requirement: Version holds are declared in the repo, not left as local brew state
 
-A `brew pin` writes only to `$(brew --prefix)/var/homebrew/pinned/`, which neither git nor chezmoi
-observes. Any package this repo deliberately holds back SHALL therefore be declared in the install
-script, and the script SHALL apply every declared hold on each run so a second host reaches the same
-state. Applying a hold SHALL be idempotent: re-running on a host where the package is already held
+Any package this repo deliberately holds back SHALL be declared in the install script, and the
+script SHALL apply every declared hold on each run so a second host reaches the same state. A
+`brew pin` writes only to `$(brew --prefix)/var/homebrew/pinned/`, which neither git nor chezmoi
+observes, so a hold made by hand protects only the host it was typed on. Applying a hold SHALL be
+idempotent: re-running on a host where the package is already held
 SHALL succeed without error.
 
 A declared hold SHALL carry two things in the source: the reason the package is held, and the
@@ -90,9 +91,10 @@ The exit condition SHALL be a `beads` release whose schema cursor reaches versio
 
 ### Requirement: The Intel bottle end-of-life is recorded as a dated platform constraint
 
-Homebrew stopped producing `x86_64` macOS bottles in September 2026; the notice prints on every
-`brew upgrade --dry-run` on such a host and directs users to MacPorts. The repo SHALL record this as
-a dated constraint rather than leaving it implicit in per-package deferral notes.
+The repo SHALL record the Intel `x86_64` bottle end-of-life as a dated constraint rather than
+leaving it implicit in per-package deferral notes. Homebrew stopped producing `x86_64` macOS bottles
+in September 2026; the notice prints on every `brew upgrade --dry-run` on such a host and directs
+users to MacPorts.
 
 The recorded constraint SHALL state that on `amd64` macOS hosts every future formula upgrade is a
 source build, that the bottles still available are a residual stock built before the cutoff rather
