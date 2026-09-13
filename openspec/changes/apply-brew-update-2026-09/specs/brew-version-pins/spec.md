@@ -33,6 +33,32 @@ from an oversight.
 - **WHEN** the declared hold list is read
 - **THEN** each entry carries both a reason and the condition under which the hold is lifted
 
+### Requirement: Lifting a declaration actually lifts the hold
+
+The script SHALL reconcile holds, not merely apply them: a hold it previously applied that is no
+longer declared SHALL be released on the next run. A script that only ever adds holds makes removing
+a declaration do nothing observable — the host stays frozen at a version nobody asked to freeze, with
+no message — which is the same silent-success shape this capability exists to remove.
+
+Reconciliation requires the script to know which holds are its own, so it SHALL record the holds it
+applied and consult that record on the next run, rather than releasing every pin present on the host.
+
+#### Scenario: Removing a declaration releases the hold
+
+- **WHEN** a package is removed from the declared hold list and the install script runs again
+- **THEN** the script releases that hold and reports which packages it released, and
+  `brew list --pinned` no longer lists the package
+
+#### Scenario: Holds the script did not apply are left alone
+
+- **WHEN** a package is pinned on the host by hand and was never declared
+- **THEN** the script leaves that pin in place
+
+#### Scenario: An unchanged declaration is not churned
+
+- **WHEN** the install script runs twice with the declared list unchanged
+- **THEN** no hold is released, and `brew list --pinned` reports the same set after both runs
+
 ### Requirement: beads is held at the last release whose schema matches the local databases
 
 `beads` SHALL be held. Version `1.2.2` is `v1.1.2` republished under a higher version number: its

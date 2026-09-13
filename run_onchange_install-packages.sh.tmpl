@@ -120,6 +120,24 @@ BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit w
 #     is expensive is an amd64 statement, not a property of the package.
 # ---------------------------------------------------------------------------
 
+# ---- Declared version holds ----------------------------------------------
+# A `brew pin` writes only to $(brew --prefix)/var/homebrew/pinned/, which
+# neither git nor chezmoi observes: pinning by hand protects the host you typed
+# it on and leaves the other one exposed. Declaring holds here makes them
+# reproducible across the fleet.
+#
+# Format: "package|reason|exit condition". Both text fields are mandatory — a
+# hold with no stated exit condition is indistinguishable from an oversight.
+BREW_HOLDS=(
+    "beads|1.2.2 is v1.1.2 republished under a higher version number: its binary knows schema v53 while the local Dolt databases are migrated to v65, so every bd command fails and the bd prime session hook drops memories from injected context without erroring|a beads release whose schema cursor reaches v65 or higher"
+)
+
+# Record of the holds this script applied, so removing a declaration actually
+# releases the hold instead of leaving the host frozen with no message. A script
+# that only ever adds holds is the same silent-success shape this repo is fixing
+# elsewhere: the declaration disappears and nothing happens.
+BREW_HOLDS_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-holds"
+
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
     case "$1" in
@@ -137,6 +155,76 @@ pkg_bin() {
         *)         echo "$1" ;;
     esac
 }
+
+# Apply declared holds before anything else in this group, so no later step can
+# advance a package that is deliberately frozen. Reconciles in both directions:
+# declared holds are applied, and holds this script previously applied that are
+# no longer declared are released.
+apply_brew_holds() {
+    local entry pkg reason exit_condition pinned
+    local declared=() previously=() released=()
+
+    if ! mkdir -p "$(dirname "$BREW_HOLDS_STATE")"; then
+        error "Failed to create hold state directory: $(dirname "$BREW_HOLDS_STATE")"
+        return 1
+    fi
+
+    pinned="$(brew list --pinned 2>/dev/null)"
+
+    for entry in "${BREW_HOLDS[@]}"; do
+        IFS='|' read -r pkg reason exit_condition <<< "$entry"
+        if [ -z "$pkg" ] || [ -z "$reason" ] || [ -z "$exit_condition" ]; then
+            error "Malformed BREW_HOLDS entry (want package|reason|exit condition): $entry"
+            continue
+        fi
+        declared+=("$pkg")
+        if ! brew list --formula "$pkg" &>/dev/null; then
+            info "  $pkg — not installed, nothing to hold"
+            continue
+        fi
+        # Check first: `brew pin` on an already-pinned formula still exits 0 but
+        # prints "Warning: <pkg> already pinned", and a weekly warning about a
+        # deliberate hold trains the reader to ignore the script's output.
+        if printf '%s\n' "$pinned" | grep -qx "$pkg"; then
+            continue
+        fi
+        if ! brew pin "$pkg"; then
+            error "Failed to hold $pkg"
+        fi
+    done
+
+    if [ -f "$BREW_HOLDS_STATE" ]; then
+        while IFS= read -r pkg; do
+            [ -n "$pkg" ] || continue
+            previously+=("$pkg")
+        done < "$BREW_HOLDS_STATE"
+    fi
+
+    for pkg in "${previously[@]:-}"; do
+        [ -n "$pkg" ] || continue
+        case " ${declared[*]:-} " in
+            *" $pkg "*) continue ;;
+        esac
+        info "  Releasing hold on $pkg (no longer declared)"
+        if ! brew unpin "$pkg"; then
+            error "Failed to release hold on $pkg"
+            continue
+        fi
+        released+=("$pkg")
+    done
+
+    if [ "${#declared[@]}" -gt 0 ]; then
+        printf '%s\n' "${declared[@]}" > "$BREW_HOLDS_STATE"
+        info "Brew holds: ${declared[*]} — verify with \`brew list --pinned\`"
+    else
+        : > "$BREW_HOLDS_STATE"
+    fi
+
+    if [ "${#released[@]}" -gt 0 ]; then
+        info "Brew holds released: ${released[*]}"
+    fi
+}
+apply_brew_holds
 
 # Register third-party Homebrew taps before the pre-scan, and trust them in the
 # same loop. Homebrew 6 gates third-party taps behind a trust decision: an
