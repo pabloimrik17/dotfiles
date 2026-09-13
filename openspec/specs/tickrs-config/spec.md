@@ -44,18 +44,18 @@ These values control how `tickrs` renders charts at launch (one-month candle vie
 - **WHEN** the contents of `~/Library/Application Support/tickrs/config.yml` are read
 - **THEN** the five top-level keys (`chart_type`, `time_frame`, `update_interval`, `enable_pre_post`, `show_volumes`) appear with the values from the table above
 
-### Requirement: Symbol watchlist is the curated 42-ticker list
+### Requirement: Symbol watchlist is the curated 37-ticker list
 
-The `config.yml` SHALL define a `symbols:` YAML sequence containing exactly the following 42 US-equity ticker symbols, in this order:
+The `config.yml` SHALL define a `symbols:` YAML sequence containing exactly the following 37 US-equity ticker symbols, in this order:
 
-`ACM, ADBE, ADSK, AVTR, BAH, BMI, BRBR, BSX, CMG, COO, CPNG, CPRT, CRM, CRTO, DOCS, DPZ, DT, DUOL, FISV, HLI, HLNE, HRL, IPAR, JJSF, LULU, MORN, MSFT, NKE, NOMD, ODD, PAYX, PCTY, PINS, PLNT, POOL, QLYS, RACE, RMD, SMCI, SMPL, VEEV, VITL`
+`ACM, ADBE, AMT, BAH, BMI, BSX, CDNS, CMG, CPNG, CPRT, DUOL, EXLS, HLI, HLNE, INTU, IPAR, ISRG, JKHY, LII, LMAT, LVS, MCD, MSFT, NKE, NOMD, ODD, OTIS, PAYX, PEP, PLNT, PNR, PODD, RMBS, ROL, SYK, UHS, VEEV`
 
 #### Scenario: tickrs loads the curated watchlist on launch
 
 - **WHEN** the user runs `tickrs` after `chezmoi apply`
-- **THEN** the dashboard streams quotes for all 42 tickers above and no others
+- **THEN** the dashboard streams quotes for all 37 tickers above and no others
 
 #### Scenario: Symbol order is preserved
 
 - **WHEN** the YAML `symbols:` sequence is parsed
-- **THEN** the tickers appear in the order shown above (ACM first, VITL last)
+- **THEN** the tickers appear in the order shown above (ACM first, VEEV last)

@@ -11,6 +11,7 @@ symbols:
     - BAH
     - BMI
     - BSX
+    - CDNS
     - CMG
     - CPNG
     - CPRT
@@ -24,13 +25,12 @@ symbols:
     - JKHY
     - LII
     - LMAT
+    - LVS
     - MCD
-    - MORN
     - MSFT
     - NKE
     - NOMD
     - ODD
-    - OLED
     - OTIS
     - PAYX
     - PEP
@@ -39,5 +39,6 @@ symbols:
     - PODD
     - RMBS
     - ROL
+    - SYK
     - UHS
     - VEEV
