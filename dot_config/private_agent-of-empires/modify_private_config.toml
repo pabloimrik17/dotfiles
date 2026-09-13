@@ -127,15 +127,24 @@ sys.stdout.write(tomlkit.dumps(doc))
 PYEOF
 
 # Buffer the merge, then gate it: the result reaches the target only if the merge
-# exited zero, wrote something, and that something re-parses as TOML. Every other
-# path emits the live config unchanged, so `chezmoi apply` never hard-fails and the
-# next apply self-heals (offline cold cache, dep-resolution error, engine killed
-# mid-write). stderr is deliberately NOT redirected -- chezmoi surfaces it, and it
-# is the only indication that an apply silently changed nothing.
+# exited zero, wrote something, and that something re-parses as TOML.
+#
+# A merge that cannot complete fails loudly rather than passing the live file
+# through under a successful apply. chezmoi leaves the target untouched and
+# reports the status when a modify_ script exits non-zero, so the live file is
+# still safe — what changes is that the operator now learns the managed keys did
+# not land. The trade is deliberate: a transient engine failure (offline cold
+# cache, a dep-resolution error) now fails `chezmoi apply` instead of producing a
+# silent no-op that looks identical to success. The cold-start paths above (no
+# stdin yet, `uv` not installed) stay pass-through — those are a machine that has
+# not bootstrapped, not a failure.
+#
+# stderr is deliberately NOT redirected -- chezmoi surfaces it.
 if uv run --no-project --quiet --with 'tomlkit==0.15.1' python "$prog" <"$infile" >"$outfile" \
   && [ -s "$outfile" ] \
   && uv run --no-project --quiet --with 'tomlkit==0.15.1' python "$prog" --validate <"$outfile"; then
   cat "$outfile"
 else
-  cat "$infile"
+  echo "modify_private_config.toml: merge failed for ~/.config/agent-of-empires/config.toml -- the managed keys were NOT applied and the live file is unchanged" >&2
+  exit 1
 fi
