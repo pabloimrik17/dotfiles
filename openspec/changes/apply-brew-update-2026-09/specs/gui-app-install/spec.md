@@ -87,8 +87,14 @@ available as a cask.
 
 The script SHALL provide a `cask_to_app()` function that maps cask tokens to the path of their
 installed application relative to `/Applications`, so the existing-app check resolves. All casks in
-`ALL_CASKS` with non-trivial branding, casing, or directory nesting SHALL be explicitly mapped. The
-following mappings SHALL be hardcoded:
+`ALL_CASKS` with non-trivial branding, casing, or directory nesting SHALL be explicitly mapped.
+
+The mappings SHALL be carried in the `AppName` field of each `ALL_CASKS` row and read through
+`cask_to_app()`, rather than duplicated into a second table inside the function. The array is
+already the place a cask is added or removed, so a separate table is a second source of truth that
+drifts the moment a row changes — and the requirement below that no mapping outlives its cask is
+then satisfied structurally instead of by remembering to edit two places. The following mappings
+SHALL be hardcoded in those rows:
 
 | Cask                   | App path (relative to `/Applications`) |
 | ---------------------- | -------------------------------------- |
@@ -115,6 +121,9 @@ The mapping SHALL be able to express a nested path, not only a top-level bundle 
 installs to `/Applications/WhatsApp.localized/WhatsApp.app`, so a mapping that can only yield
 `WhatsApp` produces a path that never exists and the app is reported pending on every single run.
 The `transmission-remote-gui` row is removed along with its cask.
+
+For a cask token that appears in no `ALL_CASKS` row, `cask_to_app()` SHALL fall back to deriving the
+name by capitalizing each word of the token (replacing hyphens with spaces).
 
 #### Scenario: Known mapping resolves correctly
 

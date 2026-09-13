@@ -633,9 +633,7 @@ if command -v gh &>/dev/null; then
         # in ~/.agents/skills/<name> and leaves ~/.claude/skills/<name> as a
         # symlink to it. `gh skill list` reports the resolved path, so these come
         # back under the agent hosts `cline, universal, warp`, never
-        # `claude-code`. From gh 2.99.0 `codex` joins that list too: 2.99.0
-        # moved Codex skills from ~/.codex/skills to ~/.agents/skills without
-        # migrating anything. So an --agent-filtered check never matched, the script
+        # `claude-code`. So an --agent-filtered check never matched, the script
         # reinstalled on every run, and `gh skill install` stopped at its
         # "already exists, overwrite?" prompt — which then died on the
         # terminal's OSC 11 reply ("could not prompt: unexpected escape
@@ -788,10 +786,16 @@ fi
 # ------------------------------------------------------------------
 # Group 4: Brew casks (GUI apps) — unified structured list
 # Format: "cask-name|AppName|Category|Description"
+#
+# AppName is the cask-to-app mapping: it is resolved as /Applications/<AppName>.app,
+# so it may carry a nested path when the installer creates a directory. WhatsApp
+# installs to /Applications/WhatsApp.localized/WhatsApp.app, and a mapping that
+# could only yield "WhatsApp" produced a path that never exists — the app was
+# reported pending on every run.
 # ------------------------------------------------------------------
 ALL_CASKS=(
     "visual-studio-code|Visual Studio Code|Dev|IDE"
-    "docker|Docker|Dev|Container runtime"
+    "docker-desktop|Docker|Dev|Container runtime"
     "ghostty|Ghostty|Dev|GPU-accelerated terminal"
     "jetbrains-toolbox|JetBrains Toolbox|Dev|JetBrains IDE manager"
     "dbeaver-community|DBeaver|Dev|Database GUI client"
@@ -804,7 +808,7 @@ ALL_CASKS=(
     "the-unarchiver|The Unarchiver|Productivity|Archive extraction utility"
     "claude|Claude|AI|Claude desktop app"
     "chatgpt|ChatGPT|AI|ChatGPT desktop app"
-    "ollama|Ollama|AI|Local LLM runner"
+    "ollama-app|Ollama|AI|Local LLM runner"
 {{ if eq .chezmoi.arch "arm64" -}}
     "conductor|Conductor|AI|Claude code parallelisation"
 {{ end -}}
@@ -814,21 +818,39 @@ ALL_CASKS=(
     "superwhisper|superwhisper|AI|Voice-to-text via Whisper"
     "adobe-acrobat-reader|Adobe Acrobat Reader|Productivity|PDF reader"
     "telegram|Telegram|Optional|Messaging"
-    "whatsapp|WhatsApp|Optional|Messaging"
+    "whatsapp|WhatsApp.localized/WhatsApp|Optional|Messaging"
     "microsoft-teams|Microsoft Teams|Optional|Video conferencing"
     "stremio|Stremio|Optional|Streaming aggregator"
     "appcleaner|AppCleaner|Optional|App uninstaller"
-    "spark|Spark|Optional|Email client"
     "vnc-viewer|VNC Viewer|Optional|Remote desktop"
     "raspberry-pi-imager|Raspberry Pi Imager|Optional|SD card flasher"
-    "transmission-remote-gui|Transmission Remote GUI|Optional|Torrent remote UI"
     "folx|Folx|Optional|Download manager"
     "philips-hue-sync|Hue Sync|Optional|Philips Hue screen sync"
 )
 
+# Resolve a cask token to its application path relative to /Applications.
+# The AppName field of each ALL_CASKS row is the mapping, and this is the only
+# thing that reads it: the array is where a cask is added or removed, so a
+# second table inside this function would drift the moment a row changes — and
+# a mapping could then outlive its cask. May return a nested path; WhatsApp
+# installs to /Applications/WhatsApp.localized/WhatsApp.app.
+cask_to_app() {
+    local token="$1" entry cask app_name rest
+    for entry in "${ALL_CASKS[@]}"; do
+        IFS='|' read -r cask app_name rest <<< "$entry"
+        if [ "$cask" = "$token" ]; then
+            echo "$app_name"
+            return 0
+        fi
+    done
+    # Not in ALL_CASKS: last-resort derivation, capitalize each hyphen-word.
+    echo "$token" | tr '-' ' ' | awk '{for (i = 1; i <= NF; i++) $i = toupper(substr($i, 1, 1)) substr($i, 2)} 1'
+}
+
 is_cask_installed() {
     local cask="$1"
-    local app_name="$2"
+    local app_name
+    app_name="$(cask_to_app "$cask")"
     if [ -n "$app_name" ] && [ -d "/Applications/$app_name.app" ]; then
         return 0
     fi
@@ -837,8 +859,7 @@ is_cask_installed() {
 
 install_cask() {
     local cask="$1"
-    local app_name="$2"
-    if is_cask_installed "$cask" "$app_name"; then
+    if is_cask_installed "$cask"; then
         info "  $cask — already installed, skipping"
     else
         info "  Installing $cask..."
@@ -852,7 +873,7 @@ install_cask() {
 PENDING_CASKS=()
 for entry in "${ALL_CASKS[@]}"; do
     IFS='|' read -r cask app_name category description <<< "$entry"
-    if ! is_cask_installed "$cask" "$app_name"; then
+    if ! is_cask_installed "$cask"; then
         PENDING_CASKS+=("$entry")
     fi
 done
@@ -870,7 +891,7 @@ elif [ "$PENDING_COUNT" -le 3 ]; then
     for entry in "${PENDING_CASKS[@]}"; do
         IFS='|' read -r cask app_name category description <<< "$entry"
         if confirm "Install $cask ($description)?"; then
-            install_cask "$cask" "$app_name"
+            install_cask "$cask"
         else
             info "  Skipping $cask."
         fi
@@ -902,7 +923,7 @@ else
                 for entry in "${PENDING_CASKS[@]}"; do
                     IFS='|' read -r cask app_name category description <<< "$entry"
                     if [ "$cask" = "$selected_cask" ]; then
-                        install_cask "$cask" "$app_name"
+                        install_cask "$cask"
                         break
                     fi
                 done
@@ -919,7 +940,7 @@ else
         if confirm "Install all $PENDING_COUNT pending GUI apps?"; then
             for entry in "${PENDING_CASKS[@]}"; do
                 IFS='|' read -r cask app_name category description <<< "$entry"
-                install_cask "$cask" "$app_name"
+                install_cask "$cask"
             done
         else
             info "  Skipping GUI apps."
