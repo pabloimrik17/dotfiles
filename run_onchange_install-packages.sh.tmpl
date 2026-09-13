@@ -633,7 +633,9 @@ if command -v gh &>/dev/null; then
         # in ~/.agents/skills/<name> and leaves ~/.claude/skills/<name> as a
         # symlink to it. `gh skill list` reports the resolved path, so these come
         # back under the agent hosts `cline, universal, warp`, never
-        # `claude-code`. So an --agent-filtered check never matched, the script
+        # `claude-code`. From gh 2.99.0 `codex` joins that list too: 2.99.0
+        # moved Codex skills from ~/.codex/skills to ~/.agents/skills without
+        # migrating anything. So an --agent-filtered check never matched, the script
         # reinstalled on every run, and `gh skill install` stopped at its
         # "already exists, overwrite?" prompt — which then died on the
         # terminal's OSC 11 reply ("could not prompt: unexpected escape
