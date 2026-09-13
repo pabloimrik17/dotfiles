@@ -97,7 +97,28 @@ fi
 # Group 1: Brew packages
 # ------------------------------------------------------------------
 BREW_TAPS=(tarkah/tickrs achannarasappa/tap)
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tickrs ticker age mole aoe glow mdfried)
+# Tap-sourced formulae are listed fully qualified (<user>/<tap>/<formula>).
+# Homebrew 6 refuses to load a bare-named formula from a third-party tap, so a
+# bare entry is uninstallable on a fresh host — and an untrusted tap is omitted
+# from `brew outdated` entirely, which is how ticker reached three months of
+# undetected drift. Each qualified entry needs its own pkg_bin arm below.
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tarkah/tickrs/tickrs achannarasappa/tap/ticker age mole aoe glow mdfried llmfit)
+
+# ---- Platform constraint: Intel x86_64 bottle EOL -------------------------
+# Homebrew stopped producing x86_64 macOS bottles in September 2026 (announced
+# August 2025); the notice prints on every `brew upgrade --dry-run` on such a
+# host and points at MacPorts. Scope: amd64 macOS only.
+#
+# Consequences, in the order they bite:
+#   - On amd64 every future formula upgrade is a source build, and each one
+#     leaves its build dependencies (go, node, python@3.14, cmake, protobuf, …)
+#     installed afterwards; `brew autoremove` does not reclaim them.
+#   - The bottles that still pour here are residual stock built before the
+#     cutoff, not an ongoing guarantee. The pour set shrinks with every release.
+#   - Upgrade-cost reasoning written on this host does NOT transfer to arm64,
+#     where the same package still pours. Any deferral recorded because a build
+#     is expensive is an amd64 statement, not a property of the package.
+# ---------------------------------------------------------------------------
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -107,15 +128,32 @@ pkg_bin() {
         worktrunk) echo "wt" ;;
         beads)     echo "bd" ;;
         television) echo "tv" ;;
+        # Qualified tap entries: the identity mapping would yield
+        # "achannarasappa/tap/ticker", and `command -v` on that can never
+        # succeed — the idempotency check would fail on every run and the
+        # script would reinstall a package that is already present.
+        tarkah/tickrs/tickrs)      echo "tickrs" ;;
+        achannarasappa/tap/ticker) echo "ticker" ;;
         *)         echo "$1" ;;
     esac
 }
 
-# Register third-party Homebrew taps before the pre-scan.
-# `brew tap` is idempotent: returns 0 without re-fetching if already tapped.
+# Register third-party Homebrew taps before the pre-scan, and trust them in the
+# same loop. Homebrew 6 gates third-party taps behind a trust decision: an
+# untrusted tap's formulae are refused when addressed by bare name AND omitted
+# from `brew outdated`, so an untrusted package can fall arbitrarily far behind
+# without ever being reported. Trust is granted per tap for the whole array, so
+# no entry runs on a weaker baseline than its siblings.
+#
+# Both commands are idempotent: `brew tap` returns 0 without re-fetching if
+# already tapped, `brew trust --tap` returns 0 if the tap is already trusted.
 for tap in "${BREW_TAPS[@]}"; do
     if ! brew tap "$tap"; then
         error "Failed to tap $tap"
+        continue
+    fi
+    if ! brew trust --tap "$tap"; then
+        error "Failed to trust tap $tap"
     fi
 done
 
@@ -507,7 +545,9 @@ if command -v gh &>/dev/null; then
         # in ~/.agents/skills/<name> and leaves ~/.claude/skills/<name> as a
         # symlink to it. `gh skill list` reports the resolved path, so these come
         # back under the agent hosts `cline, universal, warp`, never
-        # `claude-code`. So an --agent-filtered check never matched, the script
+        # `claude-code`. From gh 2.99.0 `codex` joins that list too: 2.99.0
+        # moved Codex skills from ~/.codex/skills to ~/.agents/skills without
+        # migrating anything. So an --agent-filtered check never matched, the script
         # reinstalled on every run, and `gh skill install` stopped at its
         # "already exists, overwrite?" prompt — which then died on the
         # terminal's OSC 11 reply ("could not prompt: unexpected escape
