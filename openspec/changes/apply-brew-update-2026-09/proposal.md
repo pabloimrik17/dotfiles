@@ -22,8 +22,29 @@ first.
 - `brew cleanup`.
 - Then, one package at a time against a written disk floor that aborts: `uv`, `mole`, `gh`,
   `worktrunk`, `ticker`, `lazygit`, `atuin`, `fd`, `age`.
-- Deferred with a written reason: `aoe`, `terminal-notifier`, `tmux`, `dolt`, `chezmoi`,
-  `little-cms2`, `aom`, `pcre2`.
+- Deferred, each with its reason and the architecture that reason belongs to. Homebrew stopped
+  producing `x86_64` macOS bottles in **September 2026** (announced August 2025), so on `amd64`
+  every one of these is a source build; on `arm64` the same packages pour and the cost half of each
+  reason does not transfer. The constraint is recorded in the install script above `BREW_HOLDS`.
+  - `terminal-notifier` 3.1.0 — `amd64` cost, plus a hard prerequisite: the build needs a global
+    `sudo xcode-select` pointed at Xcode rather than the Command Line Tools, and the signature
+    changes from unsigned. The one thing worth having from 3.x, `-group`, lands on the installed
+    2.0.0 in this change.
+  - `aoe` 1.16.0 — not a cost deferral and not `amd64`-specific: migration v026 rewrites the
+    chezmoi-managed `config.toml`, and the new `session.pre_trust_agent_folders` key is a decision
+    about AoE's unmanaged security keys as a class, which this change declares out of scope.
+  - `tmux` 3.7c — `amd64` cost, and the fixes do not reach the running 3.7b server on any
+    architecture: they need `tmux kill-server` from outside tmux. The `fill=` workaround in
+    `dot_tmux.conf` is still required either way.
+  - `dolt` 2.3.3 — buys nothing at any cost on any architecture: everything relevant in the range
+    is `sql-server` work, and `bd` serves this repo's data from a dolt vendored inside its own
+    binary, not from brew's.
+  - `chezmoi` 2.72.1 — an innocuous patch, deferred on `amd64` cost alone. The open question is
+    governance, not this release: chezmoi is the engine of the whole repo and has no managed
+    version path.
+  - `little-cms2`, `aom`, `pcre2` — transitive dependencies with no direct consumer here, deferred
+    on `amd64` cost. pcre2's CVE-2026-86145 was checked and is unreachable: no linked consumer
+    imports `pcre2_dfa_match()`.
 
 **A declared pin list**, because a pin today is machine-local state under
 `$(brew --prefix)/var/homebrew/pinned/` that neither git nor chezmoi sees — so pinning `beads` here
@@ -62,10 +83,17 @@ template references `{{ user_guidance }}`. Managed steps must fail loudly or exp
 verification, and the Intel bottle EOL is recorded as a dated constraint rather than left implicit
 in per-package deferral reasons.
 
+One item on that list is repaired here rather than only named: the three `modify_` merge scripts
+(Claude's `settings.json`, the AoE config, Junie's `mcp.json`) exit non-zero and name the file when
+their merge engine fails or emits output that does not re-parse, instead of passing the live file
+through under a successful `chezmoi apply`. Their empty-stdin and `uv`-absent branches stay
+pass-through — those are cold-start paths on a machine that has not bootstrapped yet, not failures.
+
 **Doctrine fix.** `.agents/skills/classify-tool-updates/SKILL.md:25` currently reads *"brew-managed →
 no action. `brew upgrade` (omz `bubu`) covers it."* That sentence instructs agents not to read brew
-changelogs, and it is the mechanical cause of the backlog. `bubu` has zero invocations across 8262
-recorded commands and two machines.
+changelogs, and it is the mechanical cause of the backlog. `bubu` had zero invocations across 8262
+recorded commands and two machines when this was written; the three interrupted runs on 2026-09-12
+(see `design.md`) did not dent the backlog.
 
 **BREAKING** — `worktrunk` 0.76 changed `wt switch -x` from a shell string to a program plus literal
 argv. Four gh-dash bindings (`config.yml:74,84,99,110`) pass multi-word strings and break the moment
@@ -127,3 +155,53 @@ no opt-out — the cache flag is hardcoded, so `--no-cache` does not disable it 
 footer refresh timer with an update notice that becomes permanent once 5.4.0 ships, since this repo
 installs ticker via brew and never auto-upgrades. Accepted deliberately in exchange for
 `minor currency support (#372)`.
+
+## Execution status — 2026-09-12
+
+Groups 1–4 and 7 are done and verified; group 5 is done; group 6 was **started and stopped** after
+one package. Resume from `openspec instructions apply --change apply-brew-update-2026-09 --json`.
+
+**State left on the host (all reversible, nothing half-applied):**
+
+- `beads` is held (`brew list --pinned`), state recorded in `~/.local/state/dotfiles/brew-holds`.
+- Taps `tarkah/tickrs` and `achannarasappa/tap` are trusted; the stale `alexsjones/llmfit/llmfit`
+  formula-trust entry is gone and `~/.config/homebrew/trust.json` now holds only `trustedtaps`.
+- Poured: `fd` 10.5.0, `gdk-pixbuf` 2.44.8, `harfbuzz` 14.4.0, `imath` 3.2.3, `libdeflate` 1.26,
+  `openexr` 3.4.15. Both Nerd Font casks at 3.5.1. `brew cleanup` freed 128.4 MB.
+- `~/.tmux.conf`, `~/.config/atuin/config.toml` and `~/.zshrc` were applied from this worktree
+  (`chezmoi apply --source .`). **The running tmux server still holds the old empty `status-right`**
+  — it needs a `tmux kill-server` from outside tmux to pick the fix up.
+- `uv` was left **unlinked** by the interrupted build and has been relinked (0.12.3), along with
+  `rust` 1.98.0. `brew doctor` reports no unlinked kegs. See the Rollback correction in `design.md`.
+
+**Blocking finding — group 6 must not resume as written.** A single `uv` upgrade consumed 4.65 GiB
+against an 8 GiB floor that is only checked between packages. Fix the floor before continuing; see
+the Risks correction in `design.md`.
+
+**Task 5.4, changelog deltas beyond what this change researched** (read before upgrading; none
+forces a config change, two are worth knowing):
+
+- `fzf` 0.74.3→0.74.4 — nothing touching a managed file, and #4899 (an escape sequence split across
+  reads, e.g. a late `DECRQM` reply leaving `?2004;2$y`) **is** the bracketed-paste leak this repo
+  hits, so the extra patch delivers the fix rather than risking it.
+- `uv` 0.12.10→0.12.13 — 0.12.12 code-signs and notarizes the macOS executable; no change to
+  `uv run --no-project` semantics, which is all the three `modify_` scripts use.
+- `atuin` 18.21.0→18.22.0 — adds an `[output_capture]` section and command-*output* capture. It is
+  driven by the PTY proxy (`atuin pty`), which this repo never invokes, so it is unreachable here;
+  worth a look if `atuin pty` is ever adopted. `atuin ai init` became a no-op instead of erroring.
+- `worktrunk` 0.76→0.77.0 — **two breaking changes touching the managed config.**
+  `wt list --format=json` now defaults to schema 2, so the explicit `json-schema = 2` pin is
+  redundant but still a correct guard; and `wt config show` now exits non-zero on a broken config,
+  an invalid `[list] columns`, or an invalid `approvals.toml`, where it always exited 0 before.
+  **Run `wt config show` immediately after upgrading worktrunk** — it is the check that the repo's
+  `columns = ["branch", "working-diff", "branch-diff", "ci", "summary"]` is still valid in 0.77.
+
+**Outstanding verifications that need a human at a terminal:**
+
+- The four gh-dash keys pressed on a real PR. The payloads were exercised end-to-end through the
+  installed `wt` 0.72.0 with a recorder in place of `claude`/`aoe`, and each delivered its intended
+  argv — `-t` kept its multi-word title as one argument, and `-g`/`-l`/`--extra-args` reached `aoe`
+  rather than being consumed by `wt` — but no key was physically pressed.
+- Two AoE state transitions in one session, and two sessions side by side, to see `-group` replace
+  rather than stack.
+- `tmux kill-server` from outside tmux, then confirm the right-hand status bar renders.

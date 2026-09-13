@@ -10,6 +10,11 @@ See `proposal.md` — Why. Constraints that shape everything below, all verified
 - **`brew cleanup` frees 117 MB now, ~520 MB after upgrading**, because it refuses to remove kegs for
   a formula whose newest version is not installed. The 4.4× difference is what makes ordering a
   design decision rather than a preference.
+  **Measured after the pours (2026-09-12): 128.4 MB, not ~520 MB.** The estimate assumed the whole
+  outdated set had advanced; six small bottles moved and the nine source builds had not run, so
+  almost every superseded keg was still the newest installed. The ordering decision stands — cleanup
+  after the pours is still strictly better than before them — but the headroom it buys is ~128 MB,
+  not half a gigabyte, which is a rounding error against a 4.65 GiB build.
 - **`brew outdated` lists held packages.** Verified by holding `fd` and re-running. A report that
   does not annotate holds nags weekly about packages that are deliberately frozen.
 - **A hold is invisible to the repo.** It is a symlink under `$(brew --prefix)/var/homebrew/pinned/`;
@@ -59,9 +64,14 @@ script therefore releases holds it manages that are no longer declared.
 is wrong for this repo, applies to every host) from a *cost* hold (the version is fine, building it
 here is not worth it). Only `beads` ships, as a correction hold. *Alternative:* also hold `aoe`,
 `terminal-notifier`, `llmfit` and `dolt` on `amd64`. Rejected because a cost hold only defends against
-a bulk-upgrade path, and this change adds none — `bubu` has zero invocations across 8262 recorded
-commands on both hosts. Their deferral reasons are recorded in prose instead, where they cost nothing
-and cannot silently freeze a package.
+a bulk-upgrade path, and this change adds none — `bubu` had zero invocations across 8262 recorded
+commands on both hosts when this was written. Their deferral reasons are recorded in prose instead,
+where they cost nothing and cannot silently freeze a package.
+
+**Premise correction, 2026-09-12.** `bubu` ran three times on this host during execution (17:56:22,
+17:56:53, 18:04:47), each interrupted, and moved two deferred packages: `dolt` 2.2.3 → 2.3.3 and
+`chezmoi` 2.72.0 → 2.72.1. Both landed versions are ones this change researched, and the `beads` hold
+held against all three runs. The decision stands as an accepted risk rather than an absent one.
 
 **No new detection mechanism.** *Alternatives considered:* a `Brewfile` plus `brew bundle check`; a
 weekly LaunchAgent; a step folded into `update-extra`. All rejected. `brew bundle check` cannot express
@@ -92,6 +102,26 @@ correct a count, it makes the script attempt `brew install --cask` over 24 appli
 hand or by the App Store, which forces a per-application ownership decision. That is a migration, and
 it is the surface with no adversarial review at all.
 
+**A drifted version is closed by reading the gap, not by pinning back.** Between writing this change
+and executing it, four packages moved past the versions its changelog work covered (`fzf`
+0.74.3→0.74.4, `uv` 0.12.10→0.12.13, `atuin` 18.21.0→18.22.0, `worktrunk` 0.76→0.77.0), and `fzf`
+additionally lost its bottle, so the pour set is six rather than seven. *Alternative:* install the
+researched versions exactly. Rejected on mechanics: none of the four has a versioned formula, so
+this would mean `brew extract`-ing formula revisions `homebrew/core` no longer serves into a local
+tap and building them from source — four extra `amd64` compiles against the same disk floor, plus a
+tap this repo would then own. What the intent actually asks for is that nothing unreviewed lands, so
+the extra delta is read before each upgrade and the available version is taken. That is also what
+this change's own doctrine fix demands of a brew-managed package.
+
+**The cask-to-app mapping is the array column, read through `cask_to_app()`.** The spec described a
+function holding its own hardcoded table; the implementation had moved the same data into the
+`AppName` field of each `ALL_CASKS` row and dropped the function. *Alternative:* reintroduce the
+function with its own table, as written. Rejected because the array is where a cask is added or
+removed, so a second table drifts the moment a row changes — and the requirement that no mapping
+outlives its cask would then depend on remembering to edit two places. `cask_to_app()` is restored
+as a lookup over `ALL_CASKS` with a capitalize-the-token fallback, which keeps both specs that name
+it true (`gui-app-install` and `fzf-cask-picker`) without duplicating a byte.
+
 **Scenarios must be able to fail.** Three requirements this change touches previously asserted only
 that configuration text rendered. Each gains a scenario that asserts the effect: `status-right`
 non-empty after full config load, the two notification sounds differing from each other, keybinding
@@ -102,6 +132,18 @@ change rather than stated abstractly.
 
 - **Disk exhaustion mid-compile** → cleanup runs before any compile, compiles run one at a time, and a
   written floor aborts before starting the next one.
+  **Measured 2026-09-12, and the floor is too low.** The `uv` upgrade alone — it pulls a `rust`
+  upgrade with it — consumed **4.65 GiB**, taking the volume from 13.00 GiB to 8.35 GiB before it had
+  finished. An 8 GiB floor checked *between* packages cannot stop a single package from crossing it
+  *during* a build, which is the failure it was written to prevent. **Resolved 2026-09-12:** the
+  floor is now a per-package headroom estimate sized to the toolchain each build pulls, recorded in
+  `tasks.md` 6.1. The compilers this group needs are unbottled on every platform, so `rust`
+  compiles for `uv`/`worktrunk`/`atuin`, `protobuf` compiles for `atuin`, and `go` — not installed at
+  all — compiles for `mole`/`gh`/`lazygit`/`age`/`fzf`; `cmake`, `ninja` and `python@3.14` still
+  pour, and only `ticker` has no build dependency at all. Both classes
+  therefore require ≥ 13 GiB free, the largest observed build plus margin. The host stands at
+  8.4 GiB and `brew cleanup` reclaims 119 MB, so the estimate stops group 6 rather than sizing it:
+  every compile waits on ~5 GiB freed from outside Homebrew.
 - **Qualified tap names break the idempotency check** — `command -v achannarasappa/tap/ticker` can
   never succeed, so a missing `pkg_bin` mapping makes the script reinstall on every run → both
   qualified entries get explicit mappings, with scenarios covering them.
@@ -132,10 +174,49 @@ change rather than stated abstractly.
 5. Verify the repaired silent failures: `status-right` non-empty, the two sounds differing, each
    rewritten key pressed against a real PR.
 
-**Rollback.** Every upgrade in step 4 is individually revertible by re-installing the previous keg,
-and a failed compile leaves the existing keg linked and working — Homebrew builds in a temporary
-directory. The config edits are chezmoi-managed and revert with the source. The hold is released by
-removing its declaration, which the reconciliation step then applies.
+**Rollback.** Every upgrade in step 4 is individually revertible by re-installing the previous keg.
+The config edits are chezmoi-managed and revert with the source. The hold is released by removing its
+declaration, which the reconciliation step then applies.
+
+**Correction, verified 2026-09-12.** This section previously claimed that "a failed compile leaves the
+existing keg linked and working — Homebrew builds in a temporary directory". That is false for an
+*interrupted* upgrade. `brew upgrade` unlinks the installed keg before the replacement lands, so a
+build that is killed mid-flight leaves the formula **unlinked**: after stopping the `uv` build, both
+`uv` and its `rust` dependency had no symlinks in `$(brew --prefix)/bin`, and `uv` was simply gone
+from `PATH`. The keg itself survives and the binary runs from the Cellar, so the repair is
+`brew link <formula>` and `brew doctor` names every formula needing it.
+
+This matters more here than a tidy-up would suggest: `uv` is the merge engine for all three `modify_`
+scripts. A silently unlinked `uv` sends every one of them down its `uv`-absent branch, which passes
+the live file through and exits 0 — the exact silent-success shape this change exists to remove, and
+one that the fail-loud repair in group 2 deliberately does **not** catch, because "no `uv`" is
+classified as a cold-start path rather than a failure. Any interrupted group 6 build must therefore
+be followed by `brew doctor` and a relink before anything else.
+
+**Second correction, observed 2026-09-12.** An upgrade can also fail *after* its dependency builds
+successfully, leaving a third state that neither the original plan nor the correction above
+describes: **built but not linked.** A `brew upgrade uv` that had just finished compiling and
+installing its `rust` dependency died with
+
+    Error: uv: No such file or directory @ rb_sysopen - .../<hash>--rust.rb
+
+naming the cached formula file that the same run had logged as `Already downloaded` when it started,
+nearly two hours earlier. This host runs Homebrew's automatic post-install cleanup
+(`HOMEBREW_NO_INSTALL_CLEANUP` is unset), which prunes cached downloads after an install completes —
+a plausible cause for the file disappearing mid-run, though not one this change confirmed directly.
+
+The resulting state is worth naming because it reads as healthy: `rust` 1.98.1 was in the Cellar,
+`rust` 1.98.0 was still the linked version, `uv` was untouched at 0.12.3, and `brew doctor` reported
+**no** unlinked kegs — because the *old* keg was still correctly linked. So the check the correction
+above prescribes (`brew doctor`, then relink) finds nothing to do here, while `brew outdated` keeps
+reporting `rust` as outdated and the newly built keg sits inert. The failure itself was loud — a
+non-zero exit naming the error — so nothing silent happened; what is easy to miss is that the
+recovery is a *link*, not a rebuild.
+
+Two consequences for the remaining group 6 work: run each upgrade with
+`HOMEBREW_NO_INSTALL_CLEANUP=1` so a long build cannot have its own cache pruned underneath it, and
+after any failed upgrade check `brew list --versions` against the linked version rather than trusting
+`brew doctor` alone.
 
 ## Open Questions
 
