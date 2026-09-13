@@ -58,10 +58,12 @@ Tracked as `WebstormProjects-d2x`. The tap-qualification work is also tracked as
 - [x] 3.3 Rewrite the `f` binding (`:99`) to `-x aoe -- add . -t "pr {{.RepoName}}#{{.PrNumber}}"`.
       Verify by pressing `f` and confirming the queued AoE session's title is the full multi-word
       token, not just its first word.
+      *Superseded on merge with `main` (task 9.4): `f` now calls the `ghd-aoe` helper.*
 - [x] 3.4 Rewrite the `F` binding (`:110`) to pass `aoe` to `-x` and `add . -t … -g … -l
       --extra-args …` after `--`. Verify by pressing `F` and confirming the session is grouped,
       launched, and carries the `/review-team` argument — i.e. that `-g`, `-l` and `--extra-args`
       reached `aoe` rather than being consumed by `wt`.
+      *Superseded on merge with `main` (task 9.4): `F` now calls the `ghd-aoe` helper.*
 - [x] 3.5 Confirm the `i` and `I` bindings are unchanged, since `-x claude` is already a bare program
       name. Verify by diffing `dot_config/gh-dash/config.yml`.
 
@@ -77,8 +79,10 @@ Tracked as `WebstormProjects-d2x`. The tap-qualification work is also tracked as
       untrusted-tap warning.
 - [x] 4.4 Add `llmfit` to `BREW_PACKAGES` (no tap entry — `homebrew/core`). Verify the rendered array
       has 29 entries and `brew info llmfit` confirms the core source.
+      *Superseded on merge with `main` (task 9.1): the entry is `AlexsJones/llmfit/llmfit`, from the tap.*
 - [x] 4.5 Remove the `alexsjones/llmfit` entry from `~/.config/homebrew/trust.json`. Verify the file
       no longer names that tap and `brew install llmfit` still resolves.
+      *Reversed on merge with `main` (tasks 9.2, 9.3): the tap is declared again, and trusted.*
 - [x] 4.6 Remove the `transmission-remote-gui` and `spark` rows from `ALL_CASKS`, plus the
       `transmission-remote-gui` row from `cask_to_app()`. Verify the rendered array has 9 `Optional`
       rows and no prompt offers either cask.
@@ -316,3 +320,46 @@ Tracked as `WebstormProjects-d2x`. The tap-qualification work is also tracked as
       - `agentic-task-a4n` (P3) — the three unread atuin 18.20.0 betas.
       - `agentic-task-b1x` (P2, decision) — AoE's three unmanaged security keys as a class, which is
         what actually blocks the deferred `aoe` 1.16.0 upgrade.
+
+## 9. Merge with `main` — 2026-09-13
+
+`main` gained `add-claude-code-fullscreen-tui` (#196), `add-llmfit` (#197) and
+`improve-ghd-aoe-integration` (#198) while this change was open. Git conflicts in
+`run_onchange_install-packages.sh.tmpl`, `dot_config/gh-dash/config.yml` and `README.md`; spec
+overlap in `cli-tool-expansion`, `gh-dash-keybindings` and `llmfit-install`.
+
+- [x] 9.1 Resolve llmfit toward `main`: `AlexsJones/llmfit/llmfit` in `BREW_PACKAGES`,
+      `AlexsJones/llmfit` in `BREW_TAPS`, and its `pkg_bin` arm beside tickrs and ticker. Decided by
+      the user: the tap ships a prebuilt binary, while core is a Rust build on every `amd64` upgrade.
+      Verify the rendered script has 29 entries, no bare `llmfit`/`tickrs`/`ticker`, and `pkg_bin`
+      returns the bare binary for all three qualified entries.
+      **Done.** `chezmoi execute-template` then `bash -n` is clean; 29 entries; all three arms map.
+- [x] 9.2 Trust every `BREW_TAPS` entry, before tapping it. Decided by the user, superseding
+      `add-llmfit` D7. Verify with a stubbed `brew` that the loop runs trust then tap for each entry,
+      skips the tap when trust fails, and logs both failures.
+      **Done.** `trust --tap` precedes `tap` for all three; a failed trust logs `Failed to trust tap`
+      and never taps; a failed tap logs `Failed to tap`. Against a scratch `XDG_CONFIG_HOME`,
+      `brew trust --tap` succeeds for a tap that was never registered and a second call reports
+      `Already trusted tap` — which is what lets trust come before `brew tap`.
+- [x] 9.3 Apply the trust decision on this host for `AlexsJones/llmfit`.
+      **Done, with a limit.** The tap was registered but untrusted, the state 4.5 left. `brew trust
+      --tap` then `brew tap` ran with no untrusted-tap refusal, a second pass was a no-op, and
+      `brew doctor` no longer warns about the tap. The fresh-host path — `brew tap` on a tap never
+      registered — was **not** exercised: simulating it needs `brew untap`, and `brew untap` on an
+      untrusted tap is itself refused (`Refusing to load formula … from untrusted tap`). That path
+      rests on the scratch trust write in 9.2 and on `add-llmfit` D7's account of the gate.
+      This host's `llmfit` is still the core build. Switching it is manual (`add-llmfit` D3) and is
+      filed as `agentic-task-l60`.
+- [x] 9.4 Resolve gh-dash toward `main` for `f` and `F` (the `ghd-aoe` helper) and keep this change's
+      `b`/`B` rewrite. Drop the `f`/`F` `MODIFIED` blocks from the `gh-dash-keybindings` delta, which
+      would otherwise overwrite `main`'s newer requirements on archive.
+      **Done.** `README.md` takes `main`'s llmfit row. `agentic-task-4wv` now asks for `b` and `B`
+      only.
+- [x] 9.5 Rewrite the `cli-tool-expansion` delta against `main`'s spec, keeping every scenario name
+      `main` has; add an `llmfit-install` delta replacing its no-trust contract; move the ticker and
+      tickrs deltas to the trust-then-tap order.
+      **Done.**
+- [x] 9.6 Run the quality gates on the merged tree.
+      **Done.** `openspec validate apply-brew-update-2026-09 --strict`: valid. `openspec validate
+      --all --strict`: 22 failures, the same 22 as an extract of `origin/main` — pre-existing, none
+      introduced. `bun test`: 40 pass. `oxfmt --check`: clean.

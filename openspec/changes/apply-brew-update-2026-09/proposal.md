@@ -62,9 +62,10 @@ condition (a release whose schema cursor reaches v65).
 
 **Data corrections:**
 
-- `llmfit` joins `BREW_PACKAGES`. It resolves to `homebrew/core` (its install receipt says so), needs
-  no tap and no trust entry, and the vestigial `alexsjones/llmfit/llmfit` row in `trust.json` — the
-  only entry there, pointing at a tap that no longer serves the formula — is removed.
+- `llmfit` is installed as `AlexsJones/llmfit/llmfit` from its upstream tap. **Superseded on merge
+  with `main`, 2026-09-13:** this change first adopted the `homebrew/core` formula its install receipt
+  pointed at, while `add-llmfit` landed with the tap, because core ships no `x86_64` bottle and every
+  upgrade there is a Rust build. See `design.md`.
 - `tickrs` and `ticker` gain fully-qualified tap names and tap trust. Homebrew 6's trust gate hides
   untrusted taps from `brew outdated`, and bare names mean a fresh machine cannot install them at
   all. Tracked as `WebstormProjects-tvi`.
@@ -96,8 +97,10 @@ recorded commands and two machines when this was written; the three interrupted 
 (see `design.md`) did not dent the backlog.
 
 **BREAKING** — `worktrunk` 0.76 changed `wt switch -x` from a shell string to a program plus literal
-argv. Four gh-dash bindings (`config.yml:74,84,99,110`) pass multi-word strings and break the moment
-worktrunk advances, so they are rewritten first and then verified by pressing each key.
+argv. Four gh-dash bindings (`config.yml:74,84,99,110`) passed multi-word strings and would break the
+moment worktrunk advanced, so they were rewritten first and verified by invocation. On merge with
+`main`, `f` and `F` moved to the `ghd-aoe` helper (`improve-ghd-aoe-integration`), which does not use
+`wt -x`; only `b` and `B` keep this change's rewrite.
 
 ## Capabilities
 
@@ -112,8 +115,10 @@ worktrunk advances, so they are rewritten first and then verified by pressing ea
 
 ### Modified Capabilities
 
-- `cli-tool-expansion`: `BREW_PACKAGES` gains `llmfit`; `BREW_TAPS` registration adds tap trust and
-  the array carries fully-qualified names for tap-sourced packages, with matching `pkg_bin` entries.
+- `cli-tool-expansion`: `BREW_TAPS` registration trusts each tap before tapping it, and the array
+  carries fully-qualified names for every tap-sourced package, with matching `pkg_bin` entries.
+- `llmfit-install`: the tap loop trusts `AlexsJones/llmfit` before registering it, replacing the
+  contract that declined a `brew trust` step.
 - `ticker-install`: ticker is referenced by its qualified tap name and its tap is trusted.
 - `tickrs-install`: same for tickrs.
 - `gui-app-install`: cask-to-app-name mapping covers `WhatsApp.localized`; four incorrect cask tokens
@@ -125,7 +130,7 @@ worktrunk advances, so they are rewritten first and then verified by pressing ea
   verifying the expansion is non-empty at runtime.
 - `atuin-config`: `ai.tips` is pinned to `false`.
 - `markdown-viewer`: the directory preview passes `--` before the placeholder.
-- `gh-dash-keybindings`: the four `-x` payloads use worktrunk 0.76 argv semantics.
+- `gh-dash-keybindings`: the `b` and `B` `-x` payloads use worktrunk 0.76 argv semantics.
 - `classify-tool-updates-skill`: the brew-managed classification no longer defers to a bulk
   `brew upgrade`.
 
@@ -134,7 +139,7 @@ worktrunk advances, so they are rewritten first and then verified by pressing ea
 **Files:** `run_onchange_install-packages.sh.tmpl` (BREW_PACKAGES, BREW_TAPS, pkg_bin, ALL_CASKS,
 tap trust, pin application, `:509` comment) · `dot_tmux.conf:22` · `dot_config/atuin/config.toml` ·
 `dot_zshrc.tmpl:153` · `dot_config/private_agent-of-empires/modify_private_config.toml:81-86` ·
-`dot_config/gh-dash/config.yml:74,84,99,110` · `.agents/skills/classify-tool-updates/SKILL.md:25` ·
+`dot_config/gh-dash/config.yml` (`b`, `B`) · `.agents/skills/classify-tool-updates/SKILL.md:25` ·
 `~/.config/homebrew/trust.json`.
 
 **Fleet.** Two hosts in daily use: this `amd64` machine and an `arm64` M3, both bootstrapped and
@@ -158,14 +163,17 @@ installs ticker via brew and never auto-upgrades. Accepted deliberately in excha
 
 ## Execution status — 2026-09-12
 
-Groups 1–4 and 7 are done and verified; group 5 is done; group 6 was **started and stopped** after
-one package. Resume from `openspec instructions apply --change apply-brew-update-2026-09 --json`.
+All tasks are done. Group 6 stopped after its first package on 2026-09-12, the disk floor was
+re-specified (task 6.1), and the group completed the same day; tasks 6.1–6.8 carry the results. The
+notes below were written at the stop and are kept for the state they record. Merged with `main` on
+2026-09-13 — see task group 9.
 
 **State left on the host (all reversible, nothing half-applied):**
 
 - `beads` is held (`brew list --pinned`), state recorded in `~/.local/state/dotfiles/brew-holds`.
 - Taps `tarkah/tickrs` and `achannarasappa/tap` are trusted; the stale `alexsjones/llmfit/llmfit`
   formula-trust entry is gone and `~/.config/homebrew/trust.json` now holds only `trustedtaps`.
+  *Reversed on merge with `main`: `AlexsJones/llmfit` is a declared tap again, and trusted (task 9.3).*
 - Poured: `fd` 10.5.0, `gdk-pixbuf` 2.44.8, `harfbuzz` 14.4.0, `imath` 3.2.3, `libdeflate` 1.26,
   `openexr` 3.4.15. Both Nerd Font casks at 3.5.1. `brew cleanup` freed 128.4 MB.
 - `~/.tmux.conf`, `~/.config/atuin/config.toml` and `~/.zshrc` were applied from this worktree
@@ -174,7 +182,7 @@ one package. Resume from `openspec instructions apply --change apply-brew-update
 - `uv` was left **unlinked** by the interrupted build and has been relinked (0.12.3), along with
   `rust` 1.98.0. `brew doctor` reports no unlinked kegs. See the Rollback correction in `design.md`.
 
-**Blocking finding — group 6 must not resume as written.** A single `uv` upgrade consumed 4.65 GiB
+**Blocking finding at the stop, since resolved by task 6.1.** A single `uv` upgrade consumed 4.65 GiB
 against an 8 GiB floor that is only checked between packages. Fix the floor before continuing; see
 the Risks correction in `design.md`.
 
@@ -198,10 +206,10 @@ forces a config change, two are worth knowing):
 
 **Outstanding verifications that need a human at a terminal:**
 
-- The four gh-dash keys pressed on a real PR. The payloads were exercised end-to-end through the
-  installed `wt` 0.72.0 with a recorder in place of `claude`/`aoe`, and each delivered its intended
-  argv — `-t` kept its multi-word title as one argument, and `-g`/`-l`/`--extra-args` reached `aoe`
-  rather than being consumed by `wt` — but no key was physically pressed.
+- `b` and `B` pressed on a real PR. All four original payloads were exercised end-to-end through
+  `wt` 0.72.0 and 0.77.0 with a recorder in place of `claude`/`aoe`, but no key was physically
+  pressed. `f` and `F` left this list on merge with `main`: they now call `ghd-aoe`, owned by
+  `improve-ghd-aoe-integration`.
 - Two AoE state transitions in one session, and two sessions side by side, to see `-group` replace
   rather than stack.
 - `tmux kill-server` from outside tmux, then confirm the right-hand status bar renders.

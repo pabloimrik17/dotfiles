@@ -1468,15 +1468,21 @@
                             <tr>
                                 <td><kbd>f</kbd></td>
                                 <td>
-                                    Queue PR as AoE session &mdash; worktrunk creates the worktree,
-                                    <code>aoe add</code> registers it (no launch; opens later)
+                                    Queue or reuse the PR's AoE session (no launch). Haiku selects
+                                    the project group and an English title of up to four words. New
+                                    groups use a human-readable repository name. After a 10-second
+                                    timeout or inference failure, use a repo-based group and a short
+                                    PR-title fallback.
                                 </td>
                             </tr>
                             <tr>
                                 <td><kbd>F</kbd></td>
                                 <td>
-                                    Queue AoE review team &mdash; auto-launches a background
-                                    <code>/review-team</code> (3 agents; none post to the PR)
+                                    Launch or resume the PR's AoE review team in the background as
+                                    <code>Review - &lt;title&gt;</code>, sharing the normal
+                                    session's group and base title. Reuses the conversation without
+                                    repeating <code>/review-team</code> (3 agents; none post to the
+                                    PR).
                                 </td>
                             </tr>
                         </tbody>
@@ -2095,6 +2101,59 @@
                         </tbody>
                     </table>
 
+                    <h3>Model sizing (llmfit)</h3>
+                    <p class="note">
+                        Installed from the <code>AlexsJones/llmfit</code> tap, not
+                        <code>homebrew/core</code> &mdash; the core formula publishes no
+                        <code>x86_64</code> macOS bottle and would build from source on every
+                        upgrade. Running <code>llmfit</code> with no arguments opens the interactive
+                        TUI; the subcommands below are the scriptable surface and are all read-only.
+                        Every invocation is user-initiated &mdash; the dotfiles never call
+                        <code>llmfit</code> from any script, hook, or alias, and
+                        <code>download</code>, <code>run</code>, <code>serve</code>,
+                        <code>bench</code> and <code>update</code> move data or start processes.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>llmfit</code></td>
+                                <td>
+                                    Launch the interactive TUI &mdash; the default with no arguments
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>llmfit fit</code></td>
+                                <td>
+                                    Ranked table of the models that fit the detected RAM / CPU / GPU
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>llmfit recommend --json</code></td>
+                                <td>
+                                    Top-N recommendations as JSON &mdash; the agent-facing surface;
+                                    <code>--json</code> is global and works on every subcommand
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>llmfit info &lt;model&gt;</code></td>
+                                <td>
+                                    Full specs plus a fit analysis for one model &mdash; partial
+                                    names match
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>llmfit doctor</code></td>
+                                <td>Markdown hardware-detection report for upstream bug reports</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h3>Encrypted files (chezmoi + age)</h3>
                     <table>
                         <thead>
@@ -2457,6 +2516,66 @@
             >
                 <summary>11. Claude Code</summary>
                 <div class="section-content">
+                    <h3>Fullscreen TUI</h3>
+                    <p>
+                        Chezmoi sets <code>"tui": "fullscreen"</code> in
+                        <code>~/.claude/settings.json</code>. This research preview uses the
+                        terminal's alternate screen; it does not maximize the window.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command / shortcut</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/tui</code></td>
+                                <td>Show the active renderer</td>
+                            </tr>
+                            <tr>
+                                <td><code>/tui fullscreen</code></td>
+                                <td>Switch to fullscreen rendering</td>
+                            </tr>
+                            <tr>
+                                <td><code>/tui default</code></td>
+                                <td>
+                                    Switch to classic rendering; the next chezmoi apply restores
+                                    fullscreen
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Ctrl</kbd>+<kbd>o</kbd>, then <kbd>/</kbd></td>
+                                <td>
+                                    Search the transcript; native terminal scrollback search cannot
+                                    see it
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>PgUp</kbd> / <kbd>PgDn</kbd></td>
+                                <td>Scroll the conversation</td>
+                            </tr>
+                            <tr>
+                                <td><code>CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1 claude</code></td>
+                                <td>
+                                    Use classic rendering for one directly launched interactive
+                                    session
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        For a persistent managed opt-out, change <code>tui</code> to
+                        <code>"default"</code> in <code>dot_claude/modify_settings.json.tmpl</code>
+                        and apply it. Ordinary tmux sessions need mouse mode for wheel scrolling
+                        (already enabled by these dotfiles); fullscreen is incompatible with
+                        <code>tmux -CC</code>. See the
+                        <a href="https://code.claude.com/docs/en/fullscreen"
+                            >official fullscreen guide</a
+                        >
+                        for compatibility and selection controls.
+                    </p>
                     <h3>Slash commands (from plugins)</h3>
                     <table>
                         <thead>

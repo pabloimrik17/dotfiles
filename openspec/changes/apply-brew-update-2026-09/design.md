@@ -128,6 +128,23 @@ non-empty after full config load, the two notification sounds differing from eac
 payloads verified by pressing the key. This is the cross-cutting requirement applied to its own
 change rather than stated abstractly.
 
+**Reconciled with two changes merged from `main` on 2026-09-13.** Both landed while this one was
+open.
+
+- *llmfit channel.* This change adopted the `homebrew/core` formula, which the host's install receipt
+  pointed at. `add-llmfit` chose the `AlexsJones/llmfit` tap: core ships no `x86_64` bottle and
+  depends on `rust`, so every upgrade on `amd64` is a Rust build. The tap wins on this change's own
+  Intel bottle EOL reasoning. `AlexsJones/llmfit/llmfit` replaces the bare entry, and task 4.5's
+  removal of the tap's trust entry is reversed by the tap loop. The host keeps its core-built
+  `llmfit` until the user switches it by hand (`add-llmfit` D3).
+- *Tap trust.* `add-llmfit` D7 declined a `brew trust` step and left the call to the user. The user
+  chose to trust every `BREW_TAPS` entry, so the class shares one baseline instead of two taps
+  trusted by hand and one not. This supersedes D7. A trusted tap can run arbitrary Ruby on every
+  provisioned host; accepted for the declared taps only.
+- *gh-dash `f`/`F`.* `improve-ghd-aoe-integration` moved both to the `ghd-aoe` helper, which does not
+  go through `wt -x`. This change's rewrites of those payloads are dropped; its
+  `gh-dash-keybindings` delta keeps `b` and `B`.
+
 ## Risks / Trade-offs
 
 - **Disk exhaustion mid-compile** → cleanup runs before any compile, compiles run one at a time, and a
@@ -147,8 +164,12 @@ change rather than stated abstractly.
 - **Qualified tap names break the idempotency check** — `command -v achannarasappa/tap/ticker` can
   never succeed, so a missing `pkg_bin` mapping makes the script reinstall on every run → both
   qualified entries get explicit mappings, with scenarios covering them.
-- **Trust must precede install** — a qualified name alone still fails on an untrusted tap → trust is
-  granted in the same loop that taps, before the package pre-scan.
+- **Trust must precede the tap, not only the install** — `brew tap` is gated too: on a host where a
+  tap is neither trusted nor registered, its post-tap audit refuses the formulae and rolls the clone
+  back (`add-llmfit` D7). The loop runs `brew trust --tap` before `brew tap`; the trust store accepts
+  a tap that is not registered yet (checked 2026-09-13 against a scratch `XDG_CONFIG_HOME`). That
+  also makes moot whether a fully-qualified install is exempt from the gate: this change and
+  `add-llmfit` recorded opposite observations, and the loop no longer depends on either.
 - **The `arm64` host's drift is unknown** → nothing in this change reads or asserts its state; the
   first run there reports it. The `beads` hold is written to be correct without knowing it.
 - **Holds are brew-local state that outlives its declaration** → the script reconciles rather than
