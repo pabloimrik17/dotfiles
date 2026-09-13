@@ -78,12 +78,18 @@ MANAGED = [
     (("updates", "update_check_mode"), "off", False),
     (("sound", "enabled"), True, False),
     (("status_hooks", "enabled"), True, False),
+    # -group keyed on the session title: a new notification for a session
+    # replaces that session's previous one instead of stacking beside it, while
+    # two different sessions stay independent. Without it every transition
+    # leaves a notification behind, and AoE supervises a fleet. Already
+    # supported by the installed terminal-notifier 2.0.0; in 3.x the absence of
+    # a group is what makes them accumulate.
     (("status_hooks", "on_waiting"),
-     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "needs input" -sound Glass', True),
+     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "needs input" -sound Glass -group "aoe-$AOE_SESSION_TITLE"', True),
     (("status_hooks", "on_idle"),
-     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "done"', True),
+     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "done" -group "aoe-$AOE_SESSION_TITLE"', True),
     (("status_hooks", "on_error"),
-     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "errored" -sound Basso', True),
+     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "errored" -sound Basso -group "aoe-$AOE_SESSION_TITLE"', True),
     # NVM_DIR lets the claude-node-launch shim resolve the project's Node from
     # $NVM_DIR/versions/node/ when AoE runs claude inside the sandbox (the shim
     # needs the dir, not the nvm shell function). Outside the sandbox (the
