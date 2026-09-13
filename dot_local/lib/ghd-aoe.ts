@@ -186,6 +186,14 @@ function validateProfile(profile: string): void {
     }
 }
 
+// gh-dash renders {{.RepoPath}} from repoPaths, which keeps a literal `~`, and the
+// quoted keybinding stops the shell from expanding it.
+function expandHome(input: string, env: NodeJS.ProcessEnv): string {
+    if (input !== "~" && !input.startsWith("~/")) return input;
+    const home = env.HOME || homedir();
+    return input === "~" ? home : path.join(home, input.slice(2));
+}
+
 async function validateDirectory(input: string, label: string): Promise<string> {
     if (/\0|\r|\n/.test(input)) throw new Error(`Invalid ${label}`);
     const resolved = await realpath(input).catch(() => "");
@@ -979,7 +987,7 @@ export async function runIntegration(
 ): Promise<IntegrationResult> {
     const env = { ...process.env, ...options.env };
     const runner = options.runner ?? runProcess;
-    const repoPath = await validateDirectory(cli.repoPath, "repository path");
+    const repoPath = await validateDirectory(expandHome(cli.repoPath, env), "repository path");
     const profile = await resolveProfile(cli.profile, env, runner);
     const worktree = await prepareWorktree(repoPath, cli.prNumber, env, runner);
     const metadata = await fetchMetadata(cli.repository, cli.prNumber, repoPath, env, runner);

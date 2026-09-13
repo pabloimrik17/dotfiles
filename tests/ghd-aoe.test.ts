@@ -256,6 +256,33 @@ describe("CLI contract and isolated handoff", () => {
         }
     });
 
+    test("expands a leading ~ in the repository path against HOME", async () => {
+        const harness = await setup();
+        const homeRepo = path.join(harness.env.HOME!, "WebstormProjects", "dotfiles");
+        await mkdir(homeRepo, { recursive: true });
+        const result = await runIntegration(
+            {
+                repoPath: "~/WebstormProjects/dotfiles",
+                repository: "owner/dotfiles",
+                prNumber: 123,
+                modality: "normal",
+            },
+            { env: harness.env },
+        );
+
+        expect(result.action).toBe("queued");
+        expect((await calls(harness)).find((call) => call.command === "wt")?.args).toEqual([
+            "-C",
+            await realpath(homeRepo),
+            "switch",
+            "pr:123",
+            "-x",
+            "pwd",
+            "--",
+            "-P",
+        ]);
+    });
+
     test("reproduces the legacy repeated launch defect in the AoE fixture", async () => {
         const harness = await setup();
         const arguments_ = [
