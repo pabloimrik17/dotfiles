@@ -22,12 +22,16 @@ From the diff or conversation: what installs the tool, and is its version pinned
 
 ### Step 2: Classify — exactly one class, first match wins
 
-1. **brew-managed** — brew formula or cask → **no action**. `brew upgrade` (omz `bubu`) covers it.
+1. **brew-managed** — brew formula or cask → **read the changelog for the version range** and propose any adoption it warrants. The upgrade is applied **per package**, never by a bulk `brew upgrade`. Two outcomes a bulk upgrade cannot express, and that this class must reach:
+   - the new version is wrong for this repo → propose a declared hold in `BREW_HOLDS` (`run_onchange_install-packages.sh.tmpl`) carrying a reason and an exit condition;
+   - the upgrade cost depends on the host architecture → state the architecture, not a property of the package. On `amd64` macOS every formula upgrade is a source build (see the Intel bottle EOL note in the install script); on `arm64` the same package pours.
 2. **self-updating** — ships its own updater (opencode, CodeRabbit CLI, Claude Code, oh-my-zsh) → **no action**. Never wrap or duplicate a self-updater; several tools were deliberately moved off brew so their self-update works.
 3. **repo-pinned** — version pinned in the repo: Renovate-managed pins (MCP servers), hardcoded installer tags (nvm, tmux Catppuccin) → update path is **pin bump + `chezmoi apply`**, never `update-extra`.
 4. **manual** — none of the above → **add a step to `update-extra`** in `dot_zshrc.tmpl`.
 
 Settled exclusions, do not re-litigate: mas apps (App Store auto-updates), Node LTS/nvm (runtime management), superpowers-opencode plugin, tmux Catppuccin (pinned by design).
+
+**brew-managed is not an exemption from changelog review.** This step used to read "no action — `brew upgrade` (omz `bubu`) covers it". Withdrawn: it told readers not to open brew changelogs at all, which is the mechanical cause of a backlog that reached 26 outdated packages carrying unadopted improvements — and `bubu` has zero invocations across the recorded shell history of both hosts. A command nobody runs is not coverage. Where the changelog shows a behavior change, a removed flag, or a new key that touches a chezmoi-managed file, that finding **is** the output of the classification.
 
 ### Step 3: Propose the update-extra edit (manual class only)
 
@@ -53,5 +57,6 @@ Never edit `README.md` or `docs/manual.html` here. After an `update-extra` chang
 - **Never edit `dot_zshrc.tmpl` without user confirmation**
 - Every new tool gets exactly one class; when ambiguous (e.g. curl installer that also self-updates), ask instead of guessing
 - `update-extra` must never invoke `brew`, a self-updater, or a repo-pinned tool's update path
+- Never propose a bulk `brew upgrade` as a tool's update path: on `amd64` it is a batch of source builds against a finite disk, and its safety would rest on holds being applied first
 - Step add/remove proposals always carry the matching `extra-updates-command` spec delta
 - This skill is repo tooling: `.agents/` is never applied by chezmoi
