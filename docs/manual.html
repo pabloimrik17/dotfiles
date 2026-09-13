@@ -1468,15 +1468,21 @@
                             <tr>
                                 <td><kbd>f</kbd></td>
                                 <td>
-                                    Queue PR as AoE session &mdash; worktrunk creates the worktree,
-                                    <code>aoe add</code> registers it (no launch; opens later)
+                                    Queue or reuse the PR's AoE session (no launch). Haiku selects
+                                    the project group and an English title of up to four words. New
+                                    groups use a human-readable repository name. After a 10-second
+                                    timeout or inference failure, use a repo-based group and a short
+                                    PR-title fallback.
                                 </td>
                             </tr>
                             <tr>
                                 <td><kbd>F</kbd></td>
                                 <td>
-                                    Queue AoE review team &mdash; auto-launches a background
-                                    <code>/review-team</code> (3 agents; none post to the PR)
+                                    Launch or resume the PR's AoE review team in the background as
+                                    <code>Review - &lt;title&gt;</code>, sharing the normal
+                                    session's group and base title. Reuses the conversation without
+                                    repeating <code>/review-team</code> (3 agents; none post to the
+                                    PR).
                                 </td>
                             </tr>
                         </tbody>
