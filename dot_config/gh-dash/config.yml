@@ -71,8 +71,8 @@ keybindings:
         # Direct execution (suspends TUI)
         # worktrunk treats -x as a program plus literal argv, so a multi-word
         # string is looked up as one executable name and fails. Arguments go
-        # after --, where wt template-expands then POSIX shell-escapes them —
-        # which also removes the need to quote them defensively here.
+        # after --; wt template-expands each one and passes it as literal argv,
+        # with no shell parsing, so they need no defensive quoting for wt.
         - key: b
           name: Code review with Claude
           command: wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude -- /code-review:code-review {{.RepoName}}#{{.PrNumber}}

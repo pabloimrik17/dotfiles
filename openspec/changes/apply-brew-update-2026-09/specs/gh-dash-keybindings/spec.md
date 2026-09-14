@@ -6,9 +6,9 @@ The PR keybindings SHALL include a `b` key that checks out a worktree for the PR
 
 The command SHALL pass the program to `-x` and its arguments after a `--` separator, rather than
 passing a single multi-word string to `-x`. worktrunk treats `-x` as a program plus literal argv, so
-a multi-word string is looked up as one executable name and fails. Arguments after `--` are
-template-expanded and then POSIX shell-escaped by worktrunk, which also removes the need for the
-caller to quote them defensively.
+a multi-word string is looked up as one executable name and fails. worktrunk template-expands each
+argument after `--` and passes it to the program as literal argv, without shell parsing, so the
+caller need not quote them for worktrunk.
 
 #### Scenario: Code review launches for a PR (direct)
 
@@ -44,8 +44,8 @@ The inner `wt` invocation SHALL use the same program-plus-argv form as the `b` b
 Each PR keybinding that passes a program and arguments through `wt -x` SHALL be verified by actually
 pressing the key and observing the launched program receive its arguments. Reading the rendered
 command is not sufficient evidence: the payload passes through gh-dash template rendering, then the
-shell, then worktrunk's own argument handling and shell-escaping, and a defect in any of those three
-layers produces a command that looks correct in the config file.
+shell (for `B`, tmux's shell as well), then worktrunk's template expansion, and a defect in any of
+those layers produces a command that looks correct in the config file.
 
 #### Scenario: Each argv-passing binding is exercised
 
