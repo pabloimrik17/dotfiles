@@ -2,7 +2,7 @@
 
 ### Requirement: tickrs is installed via the tarkah/tickrs Homebrew tap
 
-The install script SHALL install the `tickrs` binary on macOS by granting `tarkah/tickrs` trust, tapping it, and then running `brew install tarkah/tickrs/tickrs`. The tap step SHALL run unconditionally on every script invocation, relying on `brew tap`'s native idempotency — re-runs SHALL exit 0 without re-fetching the tap. The install step SHALL participate in the existing brew packages group's confirm prompt and idempotency logic — re-runs on a host with `tickrs` already in PATH SHALL skip the install with an informational `already installed, skipping` message.
+The install script SHALL install the `tickrs` binary on macOS by granting `tarkah/tickrs` trust, tapping it, and then running `brew install tarkah/tickrs/tickrs`. The tap step SHALL run unconditionally on every script invocation, relying on `brew tap`'s native idempotency — re-runs SHALL exit 0 without re-fetching the tap. The install step SHALL participate in the existing brew packages group's confirm prompt and idempotency logic — re-runs on a host with `tickrs` already in PATH SHALL skip the install with an informational message.
 
 The formula SHALL be addressed by its fully-qualified name, for the same reason as `ticker`: Homebrew 6 refuses to load a bare-named formula from an untrusted tap, and omits untrusted taps from `brew outdated`.
 
@@ -13,8 +13,9 @@ The formula SHALL be addressed by its fully-qualified name, for the same reason 
 
 #### Scenario: tickrs already installed is skipped
 
-- **WHEN** the install script runs and `command -v tickrs` returns success
-- **THEN** the script logs `tickrs — already installed, skipping` and does not run the install again
+- **WHEN** the brew packages group's install loop runs on a host where `command -v tickrs` already succeeds
+- **THEN** the script logs `tarkah/tickrs/tickrs — already installed, skipping` and does not run the install again
+- **AND** on a host where every entry is already present the pre-scan short-circuits before the loop, reporting `Brew packages: 29/29 installed` instead
 
 #### Scenario: Tap is idempotent across runs
 
@@ -23,5 +24,5 @@ The formula SHALL be addressed by its fully-qualified name, for the same reason 
 
 #### Scenario: Bare formula name is not used
 
-- **WHEN** the install script's tickrs install command is read
-- **THEN** it addresses the formula as `tarkah/tickrs/tickrs`, not as `tickrs`
+- **WHEN** the install script's `BREW_PACKAGES` array is read
+- **THEN** it lists the formula as `tarkah/tickrs/tickrs`, not as `tickrs`, so the install loop runs `brew install tarkah/tickrs/tickrs`

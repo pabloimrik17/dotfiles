@@ -2,7 +2,7 @@
 
 ### Requirement: ticker is installed via the achannarasappa/tap Homebrew tap
 
-The install script SHALL install the `ticker` binary on macOS by granting `achannarasappa/tap` trust, tapping it, and then running `brew install achannarasappa/tap/ticker`. The tap step SHALL run unconditionally on every script invocation, relying on `brew tap`'s native idempotency — re-runs SHALL exit 0 without re-fetching the tap. The install step SHALL participate in the existing brew packages group's confirm prompt and idempotency logic — re-runs on a host with `ticker` already in PATH SHALL skip the install with an informational `already installed, skipping` message.
+The install script SHALL install the `ticker` binary on macOS by granting `achannarasappa/tap` trust, tapping it, and then running `brew install achannarasappa/tap/ticker`. The tap step SHALL run unconditionally on every script invocation, relying on `brew tap`'s native idempotency — re-runs SHALL exit 0 without re-fetching the tap. The install step SHALL participate in the existing brew packages group's confirm prompt and idempotency logic — re-runs on a host with `ticker` already in PATH SHALL skip the install with an informational message.
 
 The formula SHALL be addressed by its fully-qualified name. Homebrew 6 refuses to load a formula from an untrusted tap addressed by bare name (`brew install ticker` fails with `Refusing to load formula...`), and it omits untrusted taps from `brew outdated` entirely — which is how `ticker` reached three months of undetected drift.
 
@@ -13,8 +13,9 @@ The formula SHALL be addressed by its fully-qualified name. Homebrew 6 refuses t
 
 #### Scenario: ticker already installed is skipped
 
-- **WHEN** the install script runs and `command -v ticker` returns success
-- **THEN** the script logs `ticker — already installed, skipping` and does not run the install again
+- **WHEN** the brew packages group's install loop runs on a host where `command -v ticker` already succeeds
+- **THEN** the script logs `achannarasappa/tap/ticker — already installed, skipping` and does not run the install again
+- **AND** on a host where every entry is already present the pre-scan short-circuits before the loop, reporting `Brew packages: 29/29 installed` instead
 
 #### Scenario: Tap is idempotent across runs
 
@@ -23,8 +24,8 @@ The formula SHALL be addressed by its fully-qualified name. Homebrew 6 refuses t
 
 #### Scenario: Bare formula name is not used
 
-- **WHEN** the install script's ticker install command is read
-- **THEN** it addresses the formula as `achannarasappa/tap/ticker`, not as `ticker`
+- **WHEN** the install script's `BREW_PACKAGES` array is read
+- **THEN** it lists the formula as `achannarasappa/tap/ticker`, not as `ticker`, so the install loop runs `brew install achannarasappa/tap/ticker`
 
 #### Scenario: ticker drift is reported
 
