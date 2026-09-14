@@ -17,24 +17,24 @@ Tracked as `WebstormProjects-d2x`. The tap-qualification work is also tracked as
 
 ## 2. Config adoptions — independent of every upgrade
 
-- [x] 2.1 Change `dot_tmux.conf:22` from `set -gF status-right` to `set -g`. Verify after
+- [x] 2.1 Change `dot_tmux.conf` from `set -gF status-right` to `set -g`. Verify after
       `chezmoi apply` and a fresh tmux server that `tmux show -gv status-right` is non-empty and the
       right-hand bar renders application and session.
 - [x] 2.2 Add `tips = false` under the existing `[ai]` section of `dot_config/atuin/config.toml`.
       Verify the rendered `~/.config/atuin/config.toml` contains it and `atuin` starts without
       surfacing a tip.
-- [x] 2.3 Add `--` immediately before `{}` in `FZF_ALT_C_OPTS` (`dot_zshrc.tmpl:153`). Verify by
+- [x] 2.3 Add `--` immediately before `{}` in `FZF_ALT_C_OPTS` (`dot_zshrc.tmpl`). Verify by
       creating a directory whose name starts with `-` and previewing it in the `Alt+C` picker without
       an unknown-option error.
-- [x] 2.4 Add `-group` to all three `terminal-notifier` invocations in
-      `dot_config/private_agent-of-empires/modify_private_config.toml:89-94`, keyed on the per-session
+- [x] 2.4 Add `-group` to all three `terminal-notifier` invocations in the `status_hooks` of
+      `dot_config/private_agent-of-empires/modify_private_config.toml`, keyed on the per-session
       `$AOE_SESSION_ID` (AoE allows duplicate titles). Verify two transitions in one AoE session
       replace each other while two different sessions notify independently.
 - [x] 2.5 Confirm the two AoE sounds are distinct in the rendered config (`on_waiting` → `Glass`,
       `on_error` → `Basso`) and that neither omits its sound argument. Verify by reading the rendered
       `~/.config/agent-of-empires/config.toml`.
-- [x] 2.6 Add `codex` to the agent-host list in the `gh skill list` comment at
-      `run_onchange_install-packages.sh.tmpl:509`. Verify the comment matches what
+- [x] 2.6 Add `codex` to the agent-host list in the `gh skill list` comment in
+      `run_onchange_install-packages.sh.tmpl`. Verify the comment matches what
       `gh skill list` actually reports.
 - [x] 2.7 Add a comment to `dot_config/worktrunk/config.toml` recording that neither `template` nor
       `squash-template` references `{{ user_guidance }}` or `{{ project_guidance }}`, so any
@@ -53,16 +53,16 @@ Tracked as `WebstormProjects-d2x`. The tap-qualification work is also tracked as
 
 ## 3. worktrunk `-x` payloads — rewrite and exercise on the installed 0.72.0
 
-- [x] 3.1 Rewrite the `b` binding (`dot_config/gh-dash/config.yml:74`) to
+- [x] 3.1 Rewrite the `b` binding (`dot_config/gh-dash/config.yml`) to
       `-x claude -- /code-review:code-review {{.RepoName}}#{{.PrNumber}}`. Verify by pressing `b` on a
       real PR and observing Claude start with the review prompt.
-- [x] 3.2 Rewrite the `B` binding (`:84`), keeping the `tmux split-window` wrapper and matching `b`'s
+- [x] 3.2 Rewrite the `B` binding, keeping the `tmux split-window` wrapper and matching `b`'s
       `wt` portion exactly. Verify by pressing `B` inside tmux and observing the split pane.
-- [x] 3.3 Rewrite the `f` binding (`:99`) to `-x aoe -- add . -t "pr {{.RepoName}}#{{.PrNumber}}"`.
+- [x] 3.3 Rewrite the `f` binding to `-x aoe -- add . -t "pr {{.RepoName}}#{{.PrNumber}}"`.
       Verify by pressing `f` and confirming the queued AoE session's title is the full multi-word
       token, not just its first word.
       *Superseded on merge with `main` (task 9.4): `f` now calls the `ghd-aoe` helper.*
-- [x] 3.4 Rewrite the `F` binding (`:110`) to pass `aoe` to `-x` and `add . -t … -g … -l
+- [x] 3.4 Rewrite the `F` binding to pass `aoe` to `-x` and `add . -t … -g … -l
       --extra-args …` after `--`. Verify by pressing `F` and confirming the session is grouped,
       launched, and carries the `/review-team` argument — i.e. that `-g`, `-l` and `--extra-args`
       reached `aoe` rather than being consumed by `wt`.
@@ -72,7 +72,7 @@ Tracked as `WebstormProjects-d2x`. The tap-qualification work is also tracked as
 
 ## 4. Package and cask data corrections
 
-- [x] 4.1 Qualify the tap-sourced entries in `BREW_PACKAGES:100`: `tickrs` → `tarkah/tickrs/tickrs`,
+- [x] 4.1 Qualify the tap-sourced entries in `BREW_PACKAGES`: `tickrs` → `tarkah/tickrs/tickrs`,
       `ticker` → `achannarasappa/tap/ticker`. Verify `brew outdated achannarasappa/tap/ticker` runs
       without `Refusing to load formula`.
 - [x] 4.2 Add `pkg_bin` cases mapping both qualified entries to `tickrs` and `ticker`. Verify a second
@@ -200,8 +200,8 @@ Tracked as `WebstormProjects-d2x`. The tap-qualification work is also tracked as
         recorded in the proposal's outstanding verifications and in 8.2.
       - False alarm worth recording: `wt` printed *"Shell wrapper is out of date"* during the test.
         It is an artefact of running in a non-interactive shell that never sourced `~/.zshrc`. The
-        repo evals `wt config shell init zsh` at every shell start (`dot_zshrc.tmpl:179`, live at
-        `~/.zshrc:163`, `chezmoi diff` clean), so the wrapper regenerates from the installed binary
+        repo evals `wt config shell init zsh` at every shell start (`dot_zshrc.tmpl`, live in
+        `~/.zshrc`, `chezmoi diff` clean), so the wrapper regenerates from the installed binary
         and cannot go stale. Same shape as the lazygit/PATH incident already on record.
 - [x] 6.6 `brew upgrade achannarasappa/tap/ticker`. Verify `ticker` renders the portfolio and spot-check
       prices for any holding quoted in a minor currency; the encrypted portfolio is not read by this
@@ -224,7 +224,7 @@ Tracked as `WebstormProjects-d2x`. The tap-qualification work is also tracked as
         regression.
       - atuin: `atuin daemon restart` replaced the long-lived process, which is the whole point of
         the step — the old daemon kept running unpatched crates. New daemon reports 18.22.0, sync
-        against `api.atuin.sh` works, `tips = false` survives at line 14 and `chezmoi diff` is clean.
+        against `api.atuin.sh` works, `tips = false` survives under `[ai]` and `chezmoi diff` is clean.
       - age: verified through the job it actually does here — `chezmoi diff ~/.ticker.yaml` is clean,
         so the repo's `encrypted_dot_ticker.yaml.age` still decrypts.
       - fzf: 0.74.4 carries the #4899 fix. The `--` guard from 2.3 was re-verified against a real
@@ -267,9 +267,9 @@ Tracked as `WebstormProjects-d2x`. The tap-qualification work is also tracked as
 
 ## 7. Doctrine and documentation
 
-- [x] 7.1 Rewrite `.agents/skills/classify-tool-updates/SKILL.md:25` so brew-managed no longer means
-      "no action" and no longer points at a bulk upgrade. Verify the step describes changelog review
-      per package plus the declared-hold outcome.
+- [x] 7.1 Rewrite Step 2 of `.agents/skills/classify-tool-updates/SKILL.md` so brew-managed no longer
+      means "no action" and no longer points at a bulk upgrade. Verify the step describes changelog
+      review per package plus the declared-hold outcome.
 - [x] 7.2 Record the Intel bottle EOL as a dated constraint with its architecture scope, and scope the
       deferral reasons for `aoe`, `terminal-notifier`, `tmux`, `dolt` and `chezmoi` to `amd64` rather
       than stating them as properties of the packages. Verify a reader can find the date and the
