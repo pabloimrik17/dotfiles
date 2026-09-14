@@ -143,6 +143,8 @@ which does not use `wt -x`; only `b` and `B` keep this change's rewrite.
 - `gh-dash-keybindings`: the `b` and `B` `-x` payloads use worktrunk 0.76 argv semantics.
 - `classify-tool-updates-skill`: the brew-managed classification no longer defers to a bulk
   `brew upgrade`.
+- `claude-hooks`: while `beads` is held and not installed, the brew group prints its hold warning
+  instead of installing `bd`; the requirement names `run_onchange_install-packages.sh.tmpl`.
 
 ## Impact
 
