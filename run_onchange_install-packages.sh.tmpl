@@ -140,7 +140,10 @@ BREW_HOLDS=(
 # Record of the holds this script applied, so removing a declaration actually
 # releases the hold instead of leaving the host frozen with no message. A script
 # that only ever adds holds is the same silent-success shape this repo is fixing
-# elsewhere: the declaration disappears and nothing happens.
+# elsewhere: the declaration disappears and nothing happens. A declared package
+# that is not installed, or was already pinned by hand, is never recorded, so
+# removing its declaration never releases a hand-made pin. A recorded package
+# that is no longer installed is dropped from the record without `brew unpin`.
 BREW_HOLDS_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-holds"
 
 # Resolve the binary name for a given package (bash 3 compatible)
@@ -168,16 +171,26 @@ pkg_bin() {
 # no longer declared are released.
 apply_brew_holds() {
     local entry pkg reason exit_condition pinned
-    local declared=() previously=() released=()
+    local previously=() declared=() applied=() released=()
 
     if ! mkdir -p "$(dirname "$BREW_HOLDS_STATE")"; then
         error "Failed to create hold state directory: $(dirname "$BREW_HOLDS_STATE")"
         return 1
     fi
 
+    # Read the previous record before the declared loop: an already-pinned
+    # package counts as this script's hold only if this script recorded it.
+    if [ -f "$BREW_HOLDS_STATE" ]; then
+        while IFS= read -r pkg; do
+            [ -n "$pkg" ] || continue
+            previously+=("$pkg")
+        done < "$BREW_HOLDS_STATE"
+    fi
+
     pinned="$(brew list --pinned 2>/dev/null)"
 
-    for entry in "${BREW_HOLDS[@]}"; do
+    for entry in "${BREW_HOLDS[@]:-}"; do
+        [ -n "$entry" ] || continue
         IFS='|' read -r pkg reason exit_condition <<< "$entry"
         if [ -z "$pkg" ] || [ -z "$reason" ] || [ -z "$exit_condition" ]; then
             error "Malformed BREW_HOLDS entry (want package|reason|exit condition): $entry"
@@ -192,36 +205,42 @@ apply_brew_holds() {
         # prints "Warning: <pkg> already pinned", and a weekly warning about a
         # deliberate hold trains the reader to ignore the script's output.
         if printf '%s\n' "$pinned" | grep -qx "$pkg"; then
+            case " ${previously[*]:-} " in
+                *" $pkg "*) applied+=("$pkg") ;;
+                *) info "  $pkg — already pinned by hand, not recorded" ;;
+            esac
             continue
         fi
         if ! brew pin "$pkg"; then
             error "Failed to hold $pkg"
+            continue
         fi
+        applied+=("$pkg")
     done
-
-    if [ -f "$BREW_HOLDS_STATE" ]; then
-        while IFS= read -r pkg; do
-            [ -n "$pkg" ] || continue
-            previously+=("$pkg")
-        done < "$BREW_HOLDS_STATE"
-    fi
 
     for pkg in "${previously[@]:-}"; do
         [ -n "$pkg" ] || continue
         case " ${declared[*]:-} " in
             *" $pkg "*) continue ;;
         esac
+        # `brew unpin` on an absent package exits 1; drop its record instead.
+        if ! brew list --formula "$pkg" &>/dev/null; then
+            info "  $pkg — no longer installed, dropping its hold record"
+            continue
+        fi
         info "  Releasing hold on $pkg (no longer declared)"
         if ! brew unpin "$pkg"; then
             error "Failed to release hold on $pkg"
+            # Still this script's hold: keep it recorded so the next run retries.
+            applied+=("$pkg")
             continue
         fi
         released+=("$pkg")
     done
 
-    if [ "${#declared[@]}" -gt 0 ]; then
-        printf '%s\n' "${declared[@]}" > "$BREW_HOLDS_STATE"
-        info "Brew holds: ${declared[*]} — verify with \`brew list --pinned\`"
+    if [ "${#applied[@]}" -gt 0 ]; then
+        printf '%s\n' "${applied[@]}" > "$BREW_HOLDS_STATE"
+        info "Brew holds: ${applied[*]} — verify with \`brew list --pinned\`"
     else
         : > "$BREW_HOLDS_STATE"
     fi

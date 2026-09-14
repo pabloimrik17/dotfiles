@@ -41,8 +41,14 @@ longer declared SHALL be released on the next run. A script that only ever adds 
 a declaration do nothing observable — the host stays frozen at a version nobody asked to freeze, with
 no message — which is the same silent-success shape this capability exists to remove.
 
-Reconciliation requires the script to know which holds are its own, so it SHALL record the holds it
-applied and consult that record on the next run, rather than releasing every pin present on the host.
+Reconciliation requires the script to know which holds are its own, so it SHALL record only the holds
+it applied and consult that record on the next run, rather than releasing every pin present on the
+host. A declared package enters the record when that run's `brew pin` succeeds, or when it was
+already in the previous record and is still pinned; a hold whose release fails stays recorded. A
+package that is not installed, or that was already pinned by hand, SHALL NOT be recorded, so lifting
+its declaration never releases a hand-made pin. A recorded package that is no longer installed SHALL
+be dropped from the record without calling `brew unpin`, so lifting a declaration never calls
+`brew unpin` on a package that is absent.
 
 #### Scenario: Removing a declaration releases the hold
 
@@ -54,6 +60,26 @@ applied and consult that record on the next run, rather than releasing every pin
 
 - **WHEN** a package is pinned on the host by hand and was never declared
 - **THEN** the script leaves that pin in place
+
+#### Scenario: A declared package already pinned by hand is not claimed
+
+- **WHEN** a package already pinned by hand is declared, the install script runs, and the declaration
+  is then removed and the script runs again
+- **THEN** the script does not record the package as its hold, and the pin is still in place after
+  the second run
+
+#### Scenario: A declared package that is not installed is not recorded
+
+- **WHEN** a declared package is not installed when the install script runs, and the declaration is
+  then removed and the script runs again
+- **THEN** the script does not record the package, does not call `brew unpin` on it, and reports no
+  error
+
+#### Scenario: A recorded hold whose package was uninstalled is dropped
+
+- **WHEN** a package the script recorded is uninstalled, its declaration is then removed, and the
+  install script runs again
+- **THEN** the script does not call `brew unpin` on it, drops it from the record, and reports no error
 
 #### Scenario: An unchanged declaration is not churned
 
