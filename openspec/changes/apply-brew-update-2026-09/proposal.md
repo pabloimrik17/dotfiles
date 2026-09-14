@@ -1,9 +1,10 @@
 ## Why
 
-Brew provisioning in this repo is install-only: the loop in `run_onchange_install-packages.sh.tmpl:150`
-installs a package only when its binary is absent from PATH, and `brew upgrade` appears nowhere
-executable. Twenty-six packages are outdated, `ticker` has been three months behind without being
-reported, and the changelogs in that backlog carry adoptable improvements nobody has read.
+Brew provisioning in this repo is install-only: the `BREW_PACKAGES` install loop in
+`run_onchange_install-packages.sh.tmpl` installs a package only when its binary is absent from PATH,
+and `brew upgrade` appears nowhere executable. Twenty-six packages are outdated, `ticker` has been
+three months behind without being reported, and the changelogs in that backlog carry adoptable
+improvements nobody has read.
 
 Two facts found while auditing make this cycle different from the five before it. **Homebrew ended
 Intel x86_64 bottle production in September 2026** — the warning prints on every `brew upgrade
@@ -75,7 +76,7 @@ condition (a release whose schema cursor reaches v65).
   for failing Gatekeeper), `spark` (resolves to a shortcut manager, not the mail client),
   `docker` → `docker-desktop`, `ollama` → `ollama-app`; plus `whatsapp`, which can never match
   because the app lives at `/Applications/WhatsApp.localized/WhatsApp.app`.
-- The `gh skill list` comment at `install-packages.sh.tmpl:509` gains `codex`, added in gh 2.99.0.
+- The `gh skill list` comment in `install-packages.sh.tmpl` gains `codex`, added in gh 2.99.0.
 
 **Two cross-cutting requirements**, because the audit found the same defect six times in unrelated
 places — a step reports success and the effect does not occur: `set -gF` baking an empty string for
@@ -101,19 +102,20 @@ changelogs, and it is the mechanical cause of the backlog. Shell history records
 2026-09-12 (see `design.md`) moved only `dolt` and `chezmoi`.
 
 **BREAKING** — `worktrunk` 0.76 changed `wt switch -x` from a shell string to a program plus literal
-argv. Four gh-dash bindings (`config.yml:74,84,99,110`) passed multi-word strings and would break the
-moment worktrunk advanced, so they were rewritten first and verified by invocation. On merge with
-`main`, `f` and `F` moved to the `ghd-aoe` helper (`improve-ghd-aoe-integration`), which does not use
-`wt -x`; only `b` and `B` keep this change's rewrite.
+argv. Four gh-dash bindings (`b`, `B`, `f`, `F` in `config.yml`) passed multi-word strings and
+would break the moment worktrunk advanced, so they were rewritten first and verified by invocation.
+On merge with `main`, `f` and `F` moved to the `ghd-aoe` helper (`improve-ghd-aoe-integration`),
+which does not use `wt -x`; only `b` and `B` keep this change's rewrite.
 
 ## Capabilities
 
 ### New Capabilities
 
 - `brew-version-pins`: a repo-declared list of Homebrew packages held at their installed version,
-  each with a written reason and exit condition, applied by the install script so pins are
-  reproducible across hosts instead of local folklore. Records the dated Intel x86_64 bottle EOL as
-  the platform constraint that governs upgrade cost on `amd64` hosts.
+  each with a written reason and exit condition, applied by the install script and released when
+  its declaration is removed, so pins are reproducible across hosts instead of local folklore.
+  Records the dated Intel x86_64 bottle EOL as the platform constraint that governs upgrade cost on
+  `amd64` hosts.
 - `managed-step-failure-visibility`: chezmoi-managed steps either fail loudly or expose an
   observable verification, so a step cannot report success while its effect is absent.
 
@@ -125,11 +127,15 @@ moment worktrunk advanced, so they were rewritten first and verified by invocati
   contract that declined a `brew trust` step.
 - `ticker-install`: ticker is referenced by its qualified tap name and its tap is trusted.
 - `tickrs-install`: same for tickrs.
-- `gui-app-install`: cask-to-app-name mapping covers `WhatsApp.localized`; four incorrect cask tokens
-  corrected or removed.
-- `agent-manager`: the three `[status_hooks]` pass `-group`; the existing distinct-sound requirement
-  gains a scenario that actually verifies distinctness, which today's rendering-only scenario does
-  not.
+- `gui-app-install`: `cask_to_app` reads each `ALL_CASKS` row's `AppName`, which can be a nested
+  path (`WhatsApp.localized/WhatsApp`); four incorrect cask tokens corrected or removed.
+- `agent-manager`: the three `[status_hooks]` pass `-group` keyed on `$AOE_SESSION_ID`, not the
+  title; the existing distinct-sound requirement gains a scenario that actually verifies
+  distinctness, which today's rendering-only scenario does not; a failing config merge exits
+  non-zero naming the target instead of passing the live config through.
+- `claude-settings-merge`: a failing merge exits non-zero naming `~/.claude/settings.json`
+  instead of passing the live file through; only a missing `uv` still passes it through.
+- `linear-mcp-access`: the Junie MCP merge fails the same way, naming `~/.junie/mcp/mcp.json`.
 - `tmux-catppuccin`: `status-right` is assigned with `set -g`, and the requirement gains a scenario
   verifying the expansion is non-empty at runtime.
 - `atuin-config`: `ai.tips` is pinned to `false`.
@@ -140,10 +146,15 @@ moment worktrunk advanced, so they were rewritten first and verified by invocati
 
 ## Impact
 
-**Files:** `run_onchange_install-packages.sh.tmpl` (BREW_PACKAGES, BREW_TAPS, pkg_bin, ALL_CASKS,
-tap trust, pin application, `:509` comment) · `dot_tmux.conf:22` · `dot_config/atuin/config.toml` ·
-`dot_zshrc.tmpl:153` · `dot_config/private_agent-of-empires/modify_private_config.toml:81-86` ·
-`dot_config/gh-dash/config.yml` (`b`, `B`) · `.agents/skills/classify-tool-updates/SKILL.md:25` ·
+**Files:** `run_onchange_install-packages.sh.tmpl` (BREW_PACKAGES, BREW_TAPS, pkg_bin, tap trust,
+`BREW_HOLDS` and hold reconciliation, the Intel bottle EOL note, ALL_CASKS and `cask_to_app`, the
+gh 2.99.0 `codex` comment) · `dot_tmux.conf` (`status-right`) · `dot_config/atuin/config.toml`
+(`ai.tips`) · `dot_zshrc.tmpl` (`FZF_ALT_C_OPTS`) ·
+`dot_config/private_agent-of-empires/modify_private_config.toml` (`-group`, merge failure) ·
+`dot_claude/modify_settings.json.tmpl` and `dot_junie/mcp/modify_mcp.json.tmpl` (merge failure) ·
+`dot_config/gh-dash/config.yml` (`b`, `B`) · `.agents/skills/classify-tool-updates/SKILL.md`
+(brew-managed class) · `dot_config/worktrunk/config.toml` (`template-append` comment) ·
+`README.md` and `docs/manual.html` (per-package upgrades, declared holds) ·
 `~/.config/homebrew/trust.json`.
 
 **Fleet.** Two hosts in daily use: this `amd64` machine and an `arm64` M3, both bootstrapped and
@@ -152,12 +163,13 @@ so the deferral reasons in this change are `amd64`-specific by construction whil
 fleet-wide — on `arm64` it matters more, because there `beads` is a pour and lands more easily. The
 M3's brew drift is unknown to this audit and will be learned on its first run.
 
-**Explicitly out of scope**, recorded so the next audit does not reopen them: the `is_cask_installed`
-directory-test bug and the ownership question for the 24 manually installed apps · AoE's unmanaged
-security keys (`yolo_mode_default`, `sandbox.enabled_by_default`, `pre_trust_agent_folders`) ·
-`rust`/`tuicr` leaf drift · auditing `docs/manual.html` · adversarial verification of the eight
-transitive formulae · five unread pcre2 security entries · three unread atuin 18.20.0 betas · any new
-brew drift-detection mechanism or bulk-upgrade path.
+**Explicitly out of scope**, recorded so the next audit does not reopen them: the
+`is_cask_installed` directory-test bug and the ownership question for the 24 manually installed
+apps · AoE's unmanaged security keys (`yolo_mode_default`, `sandbox.enabled_by_default`,
+`pre_trust_agent_folders`) · `rust`/`tuicr` leaf drift · auditing the rest of
+`docs/manual.html` · adversarial verification of the transitive formulae this change poured or
+deferred · five unread pcre2 security entries · three unread atuin 18.20.0 betas · any new brew
+drift-detection mechanism or bulk-upgrade path.
 
 **Accepted trade-off.** ticker 5.3.0 adds an updater that makes an HTTP request on every start with
 no opt-out — the cache flag is hardcoded, so `--no-cache` does not disable it — and replaces the
