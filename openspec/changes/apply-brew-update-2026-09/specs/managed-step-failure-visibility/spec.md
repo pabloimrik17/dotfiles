@@ -15,8 +15,8 @@ success is the prohibited outcome.
 
 This requirement exists because the same failure shape recurred independently: a status line assigned
 with an eager-expansion flag baked an empty string and went unnoticed for five months; the three
-`modify_` merge scripts pass the live file through unchanged when their merge engine errors, and
-`chezmoi apply` still exits 0; the `bd prime` session hook drops memories from injected context
+`modify_` merge scripts passed the live file through unchanged when their merge engine errored, and
+`chezmoi apply` still exited 0; the `bd prime` session hook drops memories from injected context
 without an error when the binary's schema is skewed; the cask install group reports every entry
 installed while the package manager owns two of them; and a worktrunk `template-append` fragment
 would be discarded because neither template references the placeholder it renders into.

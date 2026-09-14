@@ -42,11 +42,14 @@ Tracked as `WebstormProjects-d2x`. The tap-qualification work is also tracked as
       be discarded without a warning. Verify the comment names both placeholders.
 - [x] 2.8 Make `dot_config/private_agent-of-empires/modify_private_config.toml` exit non-zero and name
       the target file when the uv merge engine fails or its output does not re-parse as TOML, instead
-      of passing the live config through while `chezmoi apply` still exits 0. The empty-stdin and
-      uv-absent branches stay pass-through: those are cold-start paths, not failures. Verify by forcing
-      the engine to fail and observing a non-zero exit whose message names the file.
-- [x] 2.9 Same for `dot_claude/modify_settings.json.tmpl`. Verify the same way.
-- [x] 2.10 Same for `dot_junie/mcp/modify_mcp.json.tmpl`. Verify the same way.
+      of passing the live config through while `chezmoi apply` still exits 0. Only the uv-absent
+      branch stays pass-through (a cold-start path, not a failure); empty stdin runs the merge like any
+      other input. Verify by forcing the engine to fail and observing a non-zero exit whose message
+      names the file.
+- [x] 2.9 Same for `dot_claude/modify_settings.json.tmpl`, whose uv-absent branch emits `{}` when there
+      is no live file. Verify the same way.
+- [x] 2.10 Same for `dot_junie/mcp/modify_mcp.json.tmpl`, whose uv-absent branch emits `{}` when there
+      is no live file. Verify the same way.
 
 ## 3. worktrunk `-x` payloads — rewrite and exercise on the installed 0.72.0
 

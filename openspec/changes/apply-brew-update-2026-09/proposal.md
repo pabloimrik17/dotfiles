@@ -87,8 +87,10 @@ in per-package deferral reasons.
 One item on that list is repaired here rather than only named: the three `modify_` merge scripts
 (Claude's `settings.json`, the AoE config, Junie's `mcp.json`) exit non-zero and name the file when
 their merge engine fails or emits output that does not re-parse, instead of passing the live file
-through under a successful `chezmoi apply`. Their empty-stdin and `uv`-absent branches stay
-pass-through — those are cold-start paths on a machine that has not bootstrapped yet, not failures.
+through under a successful `chezmoi apply`. Empty stdin is not exempt: it runs the merge, which
+emits the managed baseline or fails the same way. Only a missing `uv` still exits 0 without merging:
+the live file passes through unchanged, and with no live file Claude and Junie emit `{}` while AoE
+emits nothing. That is a machine that has not bootstrapped yet, not a failure.
 
 **Doctrine fix.** `.agents/skills/classify-tool-updates/SKILL.md:25` currently reads *"brew-managed →
 no action. `brew upgrade` (omz `bubu`) covers it."* That sentence instructs agents not to read brew

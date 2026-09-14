@@ -3,8 +3,9 @@
 # mcpServers.deepwiki and mcpServers.linear entries and preserves every other
 # valid value in the live file.
 # The merge is buffered and validated before stdout reaches chezmoi; a merge that
-# fails exits non-zero naming the target rather than passing the live file
-# through, while a cold start (no `uv`, or no live file) receives `{}`.
+# fails exits non-zero naming the target. Only a missing `uv` skips the merge:
+# the live file passes through unchanged, or `{}` when there is none. Empty stdin
+# with `uv` present runs the merge and yields only the managed entries.
 set -eu
 
 work="$(mktemp -d)"
@@ -86,9 +87,9 @@ PYEOF
 # still safe — what changes is that the operator now learns the managed keys did
 # not land. The trade is deliberate: a transient engine failure (offline cold
 # cache, a dep-resolution error) now fails `chezmoi apply` instead of producing a
-# silent no-op that looks identical to success. The cold-start paths above (no
-# stdin yet, `uv` not installed) stay pass-through — those are a machine that has
-# not bootstrapped, not a failure.
+# silent no-op that looks identical to success. Only the `uv`-absent branch above
+# skips the merge and exits 0 — a machine that has not bootstrapped, not a
+# failure. Empty stdin has no such exemption: it runs this merge and this gate.
 if uv run --no-project --quiet python "$prog" <"$infile" >"$outfile" \
   && [ -s "$outfile" ] \
   && uv run --no-project --quiet python "$prog" --validate <"$outfile"; then
