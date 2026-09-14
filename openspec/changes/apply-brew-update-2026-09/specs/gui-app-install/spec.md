@@ -4,10 +4,11 @@
 
 The script SHALL declare its casks in a single `ALL_CASKS` array whose rows are
 `token|AppName|Category|Description`. A row whose `Category` is anything other than `Optional` is a
-core cask. Core casks SHALL comprise the following 21 rows:
+core cask. Core casks SHALL comprise the following 21 rows on `arm64` (20 on `amd64`, without
+`conductor`), listed by `Category`:
 
 - Dev: `visual-studio-code`, `docker-desktop`, `ghostty`, `jetbrains-toolbox`, `dbeaver-community`
-- Browsers: `google-chrome`, `firefox`
+- Browser: `google-chrome`, `firefox`
 - Productivity: `raycast`, `rectangle`, `ticktick`, `numi`, `the-unarchiver`, `tailscale-app`,
   `adobe-acrobat-reader`
 - AI: `claude`, `chatgpt`, `ollama-app`, `superwhisper`, and `conductor` on `arm64` hosts only
