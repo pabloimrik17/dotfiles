@@ -13,9 +13,9 @@ The skill SHALL classify each new tool into exactly one of four classes and pres
 The brew-managed class previously prescribed **no action**, on the stated grounds that
 `brew upgrade` covers it. That instruction is withdrawn for two reasons. It told readers not to look
 at brew changelogs at all, which is the mechanical cause of a backlog that reached 26 outdated
-packages carrying unadopted improvements. And the command it deferred to has never been run: zero
-invocations across the recorded shell history of both hosts. "Covered by a command nobody runs" is
-not coverage.
+packages carrying unadopted improvements. And shell history records no bulk upgrade (`brew upgrade`
+or `bubu`) between 2026-05-01 and 2026-09-08. "Covered by an upgrade that skips four months" is not
+coverage.
 
 A brew-managed classification SHALL NOT be treated as an exemption from changelog review. Where the
 changelog shows a behavior change, a removed flag, or a new key that interacts with a

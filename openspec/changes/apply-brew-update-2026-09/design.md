@@ -64,8 +64,8 @@ script therefore releases holds it manages that are no longer declared.
 is wrong for this repo, applies to every host) from a *cost* hold (the version is fine, building it
 here is not worth it). Only `beads` ships, as a correction hold. *Alternative:* also hold `aoe`,
 `terminal-notifier`, `llmfit` and `dolt` on `amd64`. Rejected because a cost hold only defends against
-a bulk-upgrade path, and this change adds none — `bubu` had zero invocations across 8262 recorded
-commands on both hosts when this was written. Their deferral reasons are recorded in prose instead,
+a bulk-upgrade path, and this change adds none — shell history records no bulk upgrade (`brew upgrade`
+or `bubu`) between 2026-05-01 and 2026-09-08. Their deferral reasons are recorded in prose instead,
 where they cost nothing and cannot silently freeze a package.
 
 **Premise correction, 2026-09-12.** `bubu` ran three times on this host during execution (17:56:22,

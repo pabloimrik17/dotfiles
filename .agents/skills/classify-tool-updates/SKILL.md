@@ -31,7 +31,7 @@ From the diff or conversation: what installs the tool, and is its version pinned
 
 Settled exclusions, do not re-litigate: mas apps (App Store auto-updates), Node LTS/nvm (runtime management), superpowers-opencode plugin, tmux Catppuccin (pinned by design).
 
-**brew-managed is not an exemption from changelog review.** This step used to read "no action — `brew upgrade` (omz `bubu`) covers it". Withdrawn: it told readers not to open brew changelogs at all, which is the mechanical cause of a backlog that reached 26 outdated packages carrying unadopted improvements — and `bubu` has zero invocations across the recorded shell history of both hosts. A command nobody runs is not coverage. Where the changelog shows a behavior change, a removed flag, or a new key that touches a chezmoi-managed file, that finding **is** the output of the classification.
+**brew-managed is not an exemption from changelog review.** This step used to read "no action — `brew upgrade` (omz `bubu`) covers it". Withdrawn: it told readers not to open brew changelogs at all, which is the mechanical cause of a backlog that reached 26 outdated packages carrying unadopted improvements — and shell history records no bulk upgrade (`brew upgrade` or `bubu`) between 2026-05-01 and 2026-09-08. An upgrade that skips four months is not coverage. Where the changelog shows a behavior change, a removed flag, or a new key that touches a chezmoi-managed file, that finding **is** the output of the classification.
 
 ### Step 3: Propose the update-extra edit (manual class only)
 

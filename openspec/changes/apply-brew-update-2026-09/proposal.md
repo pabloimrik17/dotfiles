@@ -94,9 +94,9 @@ emits nothing. That is a machine that has not bootstrapped yet, not a failure.
 
 **Doctrine fix.** `.agents/skills/classify-tool-updates/SKILL.md:25` currently reads *"brew-managed →
 no action. `brew upgrade` (omz `bubu`) covers it."* That sentence instructs agents not to read brew
-changelogs, and it is the mechanical cause of the backlog. `bubu` had zero invocations across 8262
-recorded commands and two machines when this was written; the three interrupted runs on 2026-09-12
-(see `design.md`) did not dent the backlog.
+changelogs, and it is the mechanical cause of the backlog. Shell history records no bulk upgrade
+(`brew upgrade` or `bubu`) between 2026-05-01 and 2026-09-08; the three interrupted runs on
+2026-09-12 (see `design.md`) moved only `dolt` and `chezmoi`.
 
 **BREAKING** — `worktrunk` 0.76 changed `wt switch -x` from a shell string to a program plus literal
 argv. Four gh-dash bindings (`config.yml:74,84,99,110`) passed multi-word strings and would break the
