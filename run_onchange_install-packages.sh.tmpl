@@ -178,11 +178,6 @@ apply_brew_holds() {
     local entry pkg reason exit_condition pinned
     local previously=() declared=() applied=() released=()
 
-    if ! mkdir -p "$(dirname "$BREW_HOLDS_STATE")"; then
-        error "Failed to create hold state directory: $(dirname "$BREW_HOLDS_STATE")"
-        return 1
-    fi
-
     # Read the previous record before the declared loop: an already-pinned
     # package counts as this script's hold only if this script recorded it.
     if [ -f "$BREW_HOLDS_STATE" ]; then
@@ -244,11 +239,20 @@ apply_brew_holds() {
         released+=("$pkg")
     done
 
-    if [ "${#applied[@]}" -gt 0 ]; then
-        printf '%s\n' "${applied[@]}" > "$BREW_HOLDS_STATE"
-        info "Brew holds: ${applied[*]} — verify with \`brew list --pinned\`"
+    # Only the record write needs the state directory. The loops above run
+    # regardless: they fill BREW_HOLDS_ABSENT, which keeps held packages out of
+    # the install loop.
+    if mkdir -p "$(dirname "$BREW_HOLDS_STATE")"; then
+        if [ "${#applied[@]}" -gt 0 ]; then
+            printf '%s\n' "${applied[@]}" > "$BREW_HOLDS_STATE"
+        else
+            : > "$BREW_HOLDS_STATE"
+        fi
     else
-        : > "$BREW_HOLDS_STATE"
+        error "Failed to create hold state directory: $(dirname "$BREW_HOLDS_STATE")"
+    fi
+    if [ "${#applied[@]}" -gt 0 ]; then
+        info "Brew holds: ${applied[*]} — verify with \`brew list --pinned\`"
     fi
 
     if [ "${#released[@]}" -gt 0 ]; then
