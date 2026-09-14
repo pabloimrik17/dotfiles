@@ -27,9 +27,9 @@ Tracked as `WebstormProjects-d2x`. The tap-qualification work is also tracked as
       creating a directory whose name starts with `-` and previewing it in the `Alt+C` picker without
       an unknown-option error.
 - [x] 2.4 Add `-group` to all three `terminal-notifier` invocations in
-      `dot_config/private_agent-of-empires/modify_private_config.toml:81-86`, using a per-session
-      identifier. Verify two transitions in one AoE session replace each other while two different
-      sessions notify independently.
+      `dot_config/private_agent-of-empires/modify_private_config.toml:89-94`, keyed on the per-session
+      `$AOE_SESSION_ID` (AoE allows duplicate titles). Verify two transitions in one AoE session
+      replace each other while two different sessions notify independently.
 - [x] 2.5 Confirm the two AoE sounds are distinct in the rendered config (`on_waiting` → `Glass`,
       `on_error` → `Basso`) and that neither omits its sound argument. Verify by reading the rendered
       `~/.config/agent-of-empires/config.toml`.

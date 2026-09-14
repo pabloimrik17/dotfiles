@@ -31,8 +31,9 @@ so a new notification for a session replaces that session's previous one instead
 it. Without a group identifier each state transition leaves a separate notification behind, and AoE
 supervises a fleet of sessions, so the pile grows with every transition.
 
-The group identifier SHALL distinguish sessions from one another, so a transition in one session does
-not replace the notification for a different session.
+The group identifier SHALL be the per-session id AoE exports to hooks (`$AOE_SESSION_ID`), not the
+session title, which AoE does not require to be unique, so a transition in one session does not
+replace the notification for a different session.
 
 This is adoptable on the currently installed `terminal-notifier` 2.0.0, which already documents the
 option, and it is a prerequisite for 3.x, where the absence of a group identifier is what makes
@@ -50,5 +51,5 @@ notifications accumulate.
 
 #### Scenario: Different sessions do not collide
 
-- **WHEN** two AoE sessions transition state
+- **WHEN** two AoE sessions, even two with the same title, transition state
 - **THEN** each session's notification is independent, so neither replaces the other
