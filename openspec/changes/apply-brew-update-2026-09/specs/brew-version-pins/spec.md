@@ -8,8 +8,9 @@ machine-local state. Also records the platform constraint that governs upgrade c
 
 ### Requirement: Version holds are declared in the repo, not left as local brew state
 
-Any package this repo deliberately holds back SHALL be declared in the install script, and the
-script SHALL apply every declared hold on each run so a second host reaches the same state. A
+Any package this repo deliberately holds back SHALL be declared in the install script. On each run
+the script SHALL hold every declared package that is installed and SHALL NOT install one that is
+not, so no host installs or advances a held package. A
 `brew pin` writes only to `$(brew --prefix)/var/homebrew/pinned/`, which neither git nor chezmoi
 observes, so a hold made by hand protects only the host it was typed on. Applying a hold SHALL be
 idempotent: re-running on a host where the package is already held
@@ -33,6 +34,12 @@ from an oversight.
 
 - **WHEN** the declared hold list is read
 - **THEN** each entry carries both a reason and the condition under which the hold is lifted
+
+#### Scenario: A declared package that is missing is skipped with a warning
+
+- **WHEN** the install script runs on a host where a declared package is not installed
+- **THEN** the script does not install it or count it as pending, holds nothing for it, and prints
+  one warning naming the package, its reason and its exit condition
 
 ### Requirement: Lifting a declaration actually lifts the hold
 
@@ -102,7 +109,8 @@ The exit condition SHALL be a `beads` release whose schema cursor reaches versio
 
 #### Scenario: beads is held on any architecture
 
-- **WHEN** the install script runs on either an `amd64` or an `arm64` macOS host
+- **WHEN** the install script runs on either an `amd64` or an `arm64` macOS host where `beads` is
+  installed
 - **THEN** `beads` is held, and the hold is not conditional on architecture
 
 #### Scenario: A bulk upgrade cannot advance beads

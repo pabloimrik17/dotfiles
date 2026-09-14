@@ -146,6 +146,11 @@ BREW_HOLDS=(
 # that is no longer installed is dropped from the record without `brew unpin`.
 BREW_HOLDS_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-holds"
 
+# Declared packages that are not installed. The pre-scan and install loop skip
+# them: a hold means the version brew would install is wrong for this repo, so
+# installing it lands exactly what the hold exists to avoid.
+BREW_HOLDS_ABSENT=()
+
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
     case "$1" in
@@ -198,7 +203,8 @@ apply_brew_holds() {
         fi
         declared+=("$pkg")
         if ! brew list --formula "$pkg" &>/dev/null; then
-            info "  $pkg — not installed, nothing to hold"
+            warn "$pkg is held and not installed; not installing it. Reason: $reason. Exit condition: $exit_condition"
+            BREW_HOLDS_ABSENT+=("$pkg")
             continue
         fi
         # Check first: `brew pin` on an already-pinned formula still exits 0 but
@@ -275,9 +281,14 @@ for tap in "${BREW_TAPS[@]}"; do
     fi
 done
 
-# Pre-scan: check which brew packages are already installed
+# Pre-scan: check which brew packages are already installed. A held package that
+# is not installed is neither installed nor pending; apply_brew_holds warned.
 BREW_PENDING=0
+BREW_HELD_ABSENT=0
 for pkg in "${BREW_PACKAGES[@]}"; do
+    case " ${BREW_HOLDS_ABSENT[*]:-} " in
+        *" $pkg "*) BREW_HELD_ABSENT=$((BREW_HELD_ABSENT + 1)); continue ;;
+    esac
     if [ "$pkg" = "git" ]; then
         brew list git &>/dev/null || BREW_PENDING=$((BREW_PENDING + 1))
     else
@@ -287,10 +298,13 @@ for pkg in "${BREW_PACKAGES[@]}"; do
 done
 
 if [ "$BREW_PENDING" -eq 0 ]; then
-    info "Brew packages: ${#BREW_PACKAGES[@]}/${#BREW_PACKAGES[@]} installed"
+    info "Brew packages: $((${#BREW_PACKAGES[@]} - BREW_HELD_ABSENT))/${#BREW_PACKAGES[@]} installed"
 elif confirm "Install brew packages ($BREW_PENDING/${#BREW_PACKAGES[@]} pending)?"; then
     info "Installing brew packages..."
     for pkg in "${BREW_PACKAGES[@]}"; do
+        case " ${BREW_HOLDS_ABSENT[*]:-} " in
+            *" $pkg "*) continue ;;
+        esac
         if [ "$pkg" = "git" ]; then
             # Always install brew git — system git at /usr/bin/git is outdated
             if brew list git &>/dev/null; then

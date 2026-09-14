@@ -2242,10 +2242,11 @@
                                     <code>run_onchange_install-packages.sh.tmpl</code> with a reason
                                     and an exit condition, and applied each time that script runs;
                                     chezmoi re-runs it whenever its rendered content changes,
-                                    including any <code>BREW_HOLDS</code> edit, so both machines
-                                    reach the same state. A <code>chezmoi apply</code> with an
-                                    unchanged script does not re-apply holds, and a bare
-                                    <code>brew pin</code> is invisible to the repo
+                                    including any <code>BREW_HOLDS</code> edit. An installed held
+                                    package is pinned; a missing one is skipped with a warning, not
+                                    installed. A <code>chezmoi apply</code> with an unchanged script
+                                    does not re-apply holds, and a bare <code>brew pin</code> is
+                                    invisible to the repo
                                 </td>
                             </tr>
                         </tbody>

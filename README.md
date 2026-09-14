@@ -201,6 +201,6 @@ brewsp                # list held packages (declared in the install script)
 update-extra          # the rest: gh extensions, omz plugins, skills, plannotator, themes, tv channels
 ```
 
-Brew packages are upgraded **per package**, not in bulk: a changelog can carry a behaviour change, a removed flag, or a new key that lands in a chezmoi-managed file, and a version that is wrong for this repo is held instead — see the `classify-tool-updates` skill. Holds are declared in `run_onchange_install-packages.sh.tmpl` rather than pinned by hand, so both machines reach the same state.
+Brew packages are upgraded **per package**, not in bulk: a changelog can carry a behaviour change, a removed flag, or a new key that lands in a chezmoi-managed file, and a version that is wrong for this repo is held instead — see the `classify-tool-updates` skill. Holds are declared in `run_onchange_install-packages.sh.tmpl` rather than pinned by hand, so they apply on both machines: an installed held package is pinned, and a missing one is not installed.
 
 Self-updating tools (Claude Code, Codex, OpenCode, CodeRabbit) and repo-pinned versions (Renovate-managed) take care of themselves.
