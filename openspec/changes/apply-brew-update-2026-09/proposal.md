@@ -18,10 +18,12 @@ first.
 **Upgrades, executed in a fixed order** because `brew cleanup` frees 117 MB before the cycle and
 ~520 MB after it, on a volume at 94% with 14 GiB free:
 
-- Eight bottled pours plus the two Nerd Font casks.
+- Six bottled pours — `fd`, `gdk-pixbuf`, `harfbuzz`, `imath`, `libdeflate`, `openexr` — plus the
+  two Nerd Font casks. `beads` still pours but is held; `fzf` 0.74.4 has no `amd64` bottle and
+  joins the list below.
 - `brew cleanup`.
 - Then, one package at a time against a written disk floor that aborts: `uv`, `mole`, `gh`,
-  `worktrunk`, `ticker`, `lazygit`, `atuin`, `fd`, `age`.
+  `worktrunk`, `ticker`, `lazygit`, `atuin`, `age`, `fzf`.
 - Deferred, each with its reason and the architecture that reason belongs to. Homebrew stopped
   producing `x86_64` macOS bottles in **September 2026** (announced August 2025), so on `amd64`
   every one of these is a source build; on `arm64` the same packages pour and the cost half of each
