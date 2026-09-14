@@ -92,7 +92,7 @@ installed application relative to `/Applications`, so the existing-app check res
 The mappings SHALL be carried in the `AppName` field of each `ALL_CASKS` row and read through
 `cask_to_app()`, rather than duplicated into a second table inside the function. The array is
 already the place a cask is added or removed, so a separate table is a second source of truth that
-drifts the moment a row changes — and the requirement below that no mapping outlives its cask is
+drifts the moment a row changes — and the scenario below that no mapping outlives its cask is
 then satisfied structurally instead of by remembering to edit two places. The following mappings
 SHALL be hardcoded in those rows:
 
@@ -114,16 +114,14 @@ SHALL be hardcoded in those rows:
 | `appcleaner`           | `AppCleaner`                           |
 | `whatsapp`             | `WhatsApp.localized/WhatsApp`          |
 
-For unmapped casks, the function MAY derive the name by capitalizing each word of the cask token
-(replacing hyphens with spaces) as a last-resort fallback.
-
 The mapping SHALL be able to express a nested path, not only a top-level bundle name. WhatsApp
 installs to `/Applications/WhatsApp.localized/WhatsApp.app`, so a mapping that can only yield
 `WhatsApp` produces a path that never exists and the app is reported pending on every single run.
 The `transmission-remote-gui` row is removed along with its cask.
 
-For a cask token that appears in no `ALL_CASKS` row, `cask_to_app()` SHALL fall back to deriving the
-name by capitalizing each word of the token (replacing hyphens with spaces).
+For a cask token that appears in no `ALL_CASKS` row, `cask_to_app()` SHALL fall back to the token
+with each hyphen replaced by a space and the first letter of each word upper-cased; the rest of each
+word is unchanged.
 
 #### Scenario: Known mapping resolves correctly
 
