@@ -22,6 +22,26 @@ noticing.
 - **THEN** the sound named by `on_error` differs from the sound named by `on_waiting`, and neither
   omits its sound argument
 
+### Requirement: The config merge runs isolated from the invoking directory
+
+The mechanism that merges managed keys into the AoE config SHALL resolve its own runtime dependencies without reference to any project rooted at the current working directory.
+
+`chezmoi apply` inherits the directory it was invoked from. Without isolation the merge engine walks upward looking for a project to attach to, with two observed consequences: from a directory whose project cannot be resolved, the merge exits non-zero without applying the managed keys; and from a directory whose project does resolve, the engine writes environment and lockfile artifacts into that unrelated repository.
+
+This is a pre-existing defect, not a consequence of any version in this upgrade.
+
+#### Scenario: Apply from inside an unrelated project
+
+- **WHEN** `chezmoi apply` is run from a working directory belonging to another project
+- **THEN** the managed AoE keys SHALL be applied to the config
+- **AND** no files SHALL be created in that other project
+
+#### Scenario: Merge failure is reported
+
+- **WHEN** the merge engine fails for any reason
+- **THEN** the merge SHALL exit non-zero with nothing on standard output instead of passing the live config through
+- **AND** a diagnostic SHALL reach standard error rather than being suppressed
+
 ## ADDED Requirements
 
 ### Requirement: AoE notifications replace rather than accumulate
