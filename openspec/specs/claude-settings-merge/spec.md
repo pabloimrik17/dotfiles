@@ -3,6 +3,7 @@
 ## Purpose
 Produce `~/.claude/settings.json` by merging chezmoi-managed keys into the live file rather than replacing it, so that keys written by Claude Code and Agent of Empires survive `chezmoi apply` instead of being clobbered on every run.
 ## Requirements
+
 ### Requirement: Settings are merged, not replaced
 
 The chezmoi source SHALL produce `~/.claude/settings.json` by overlaying a defined set of managed keys onto the live on-disk file, rather than emitting the whole file from a template. Keys present in the live file that are not in the managed set SHALL be preserved with their values intact.
@@ -28,7 +29,7 @@ Three independent writers touch this file: chezmoi, Claude Code (via `/config` a
 
 ### Requirement: The merge never emits an empty or invalid file
 
-The merge SHALL never replace `~/.claude/settings.json` with empty or malformed content. If the merge engine is unavailable, exits non-zero, or produces output that is not valid JSON, the process SHALL emit the unmodified live file instead — and where there is no live file to emit, a valid empty JSON object.
+The merge SHALL never replace `~/.claude/settings.json` with empty or malformed content. If the merge engine is unavailable, the process SHALL emit the unmodified live file instead — and where there is no live file to emit, a valid empty JSON object. If the merge engine exits non-zero, or produces no output or output that is not valid JSON, the process SHALL exit non-zero with nothing on standard output and name the target on standard error (`managed-step-failure-visibility`).
 
 This is a hard requirement rather than a nicety: chezmoi writes a modify-script's standard output to the target verbatim, and a script that exits zero having written nothing causes chezmoi to REMOVE the target — losing the user's entire Claude Code configuration. A script that exits non-zero is the safe case: chezmoi leaves the target untouched and reports the status. The requirement therefore binds on the zero-exit path.
 
@@ -44,7 +45,7 @@ Passing the live file through is only a fallback where a live file exists. On a 
 
 #### Scenario: A fallback path has no live file to pass through
 
-- **WHEN** any fallback path is taken — the merge engine is absent, exits non-zero, or emits output that is not valid JSON
+- **WHEN** the fallback path is taken because the merge engine is absent from `PATH`
 - **AND** no `~/.claude/settings.json` exists, so there is nothing to pass through
 - **THEN** the process SHALL emit a valid empty JSON object rather than zero bytes
 - **AND** the managed keys SHALL land on the next apply, once the merge engine is available
@@ -52,12 +53,14 @@ Passing the live file through is only a fallback where a live file exists. On a 
 #### Scenario: Merge engine exits non-zero
 
 - **WHEN** the merge engine is present but exits with a non-zero status
-- **THEN** the live file SHALL be passed through unchanged
+- **THEN** the process SHALL exit non-zero with nothing on standard output, whether or not a live file exists
+- **AND** standard error SHALL name `~/.claude/settings.json` as the file that was not merged
 
 #### Scenario: Merge output is not valid JSON
 
-- **WHEN** the merge engine exits zero but its output does not parse as JSON
-- **THEN** the live file SHALL be passed through unchanged rather than written
+- **WHEN** the merge engine exits zero but its output is empty or does not parse as JSON
+- **THEN** the process SHALL exit non-zero with nothing on standard output rather than writing that output
+- **AND** standard error SHALL name `~/.claude/settings.json` as the file that was not merged
 
 ### Requirement: Fresh machines produce a valid baseline
 
@@ -96,4 +99,3 @@ The managed key set SHALL be declared explicitly in the source, so that a reader
 
 - **WHEN** a maintainer reads the chezmoi source for the settings file
 - **THEN** the set of keys chezmoi enforces SHALL be enumerable from the source text alone
-

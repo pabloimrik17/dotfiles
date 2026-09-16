@@ -4,6 +4,7 @@
 
 Install the llmfit CLI — the terminal tool that scores which LLM models fit this machine's RAM, CPU and GPU — from its upstream Homebrew tap so every host gets a prebuilt binary, and keep it a purely on-demand tool: no chezmoi-managed configuration, no automated invocation, no automated migration of a pre-existing install.
 ## Requirements
+
 ### Requirement: llmfit is installed from the upstream Homebrew tap
 
 The install script `run_onchange_install-packages.sh.tmpl` SHALL install llmfit from the `AlexsJones/llmfit` tap, not from `homebrew/core`. Two coordinated entries are required under the `{{ if eq .chezmoi.os "darwin" }}` branch:
@@ -52,7 +53,12 @@ The `pkg_bin()` function SHALL contain a dedicated `case` arm returning `llmfit`
 
 llmfit SHALL be installed with the same handling applied to every other entry in `BREW_PACKAGES`: a `command -v` skip check before installing, and a non-fatal error path.
 
-Homebrew 6 gates non-official taps behind `brew trust`. Registering the tap and installing from it are gated differently, and the group SHALL rely only on the ungated path: `brew tap AlexsJones/llmfit` fails on a host where the tap is neither trusted nor already registered, while `brew install AlexsJones/llmfit/llmfit` resolves the formula and registers the tap as a side effect. The `BREW_TAPS` entry is therefore an optimisation, not a precondition, and the change SHALL NOT add a `brew trust` step.
+Homebrew 6 gates non-official taps behind `brew trust`. The tap loop SHALL trust `AlexsJones/llmfit`
+before registering it, as it does every `BREW_TAPS` entry (see `cli-tool-expansion`), so
+`brew tap AlexsJones/llmfit` passes its post-tap audit on a fresh host and `brew outdated` reports
+the formula. This replaces the earlier contract, which relied on `brew install
+AlexsJones/llmfit/llmfit` registering the tap as a side effect and declined to add a `brew trust`
+step.
 
 #### Scenario: Idempotent re-run
 
@@ -67,15 +73,19 @@ Homebrew 6 gates non-official taps behind `brew trust`. Registering the tap and 
 
 #### Scenario: Tap registration failure is non-fatal
 
-- **WHEN** `brew tap AlexsJones/llmfit` fails
-- **THEN** the existing tap loop logs `Failed to tap AlexsJones/llmfit`, increments the error counter, and the script continues to the pre-scan and install loop
+- **WHEN** `brew trust --tap AlexsJones/llmfit` or `brew tap AlexsJones/llmfit` fails
+- **THEN** the tap loop logs `Failed to trust tap AlexsJones/llmfit` or
+  `Failed to tap AlexsJones/llmfit`, increments the error counter, and the script continues to the
+  pre-scan and install loop
 
 #### Scenario: Untrusted tap does not block the install
 
 - **WHEN** the brew group runs on a Homebrew 6 host where `AlexsJones/llmfit` is neither trusted nor registered
-- **THEN** `brew tap AlexsJones/llmfit` exits non-zero: its post-tap audit prints the `Refusing to load formula … from untrusted tap` diagnostic once per simulated platform and the command terminates with `Error: Cannot tap alexsjones/llmfit: invalid syntax in tap!`, leaving the tap unregistered and absorbed by the tap loop's error path
-- **AND** `brew install AlexsJones/llmfit/llmfit` still resolves the tap formula, installs the binary and registers the tap, because a fully-qualified reference is not gated
-- **AND** on the next run `brew tap AlexsJones/llmfit` exits 0 without re-fetching the tap, though Homebrew may still refresh its API data on the first call of a session
+- **THEN** `brew trust --tap AlexsJones/llmfit` records the tap in the trust store first, and
+  `brew tap AlexsJones/llmfit` then registers it without the
+  `Refusing to load formula … from untrusted tap` refusal
+- **AND** `brew install AlexsJones/llmfit/llmfit` installs the binary from the registered tap
+- **AND** on the next run both commands exit 0 without re-fetching the tap
 
 ### Requirement: A pre-existing llmfit install is never modified automatically
 

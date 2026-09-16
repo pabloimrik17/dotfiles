@@ -3,6 +3,7 @@
 ## Purpose
 TBD - created by archiving change add-markdown-viewer. Update Purpose after archive.
 ## Requirements
+
 ### Requirement: glow is the default terminal Markdown viewer
 
 `glow` SHALL be the default tool for viewing rendered Markdown in the terminal. Installed via
@@ -114,6 +115,13 @@ The `fzf` preview commands (`FZF_DEFAULT_OPTS` and `FZF_CTRL_T_OPTS`) SHALL rend
 or `}}` sequences (which chezmoi interprets as template delimiters); only `fzf`'s single-brace
 `{}` placeholder and shell parameter expansions are permitted.
 
+Every configured `fzf` preview command — including `FZF_ALT_C_OPTS`, which previews directories with
+`eza` rather than rendering Markdown — SHALL pass `--` immediately before the `{}` placeholder, so a
+selection whose name begins with `-` is treated as an operand and not parsed as an option by the
+preview program. The Markdown previews already do this; the directory preview is the one place the
+guard is missing, which `fd`'s change to `--strip-cwd-prefix` (it now keeps a leading `./` precisely
+when stripping it would leave a path starting with `-`) makes reachable rather than theoretical.
+
 #### Scenario: Markdown file preview
 
 - **WHEN** a `.md` file is focused in an `fzf` picker that uses the configured preview
@@ -128,6 +136,16 @@ or `}}` sequences (which chezmoi interprets as template delimiters); only `fzf`'
 
 - **WHEN** `dot_zshrc.tmpl` is rendered by chezmoi
 - **THEN** the resulting `~/.zshrc` contains the intended preview commands with no stray template artifacts
+
+#### Scenario: Directory preview guards the placeholder
+
+- **WHEN** the rendered `FZF_ALT_C_OPTS` preview command is read
+- **THEN** it passes `--` immediately before the `{}` placeholder
+
+#### Scenario: A leading-dash selection previews as an operand
+
+- **WHEN** a directory whose name begins with `-` is focused in the `Alt+C` picker
+- **THEN** the preview renders that directory rather than failing with an unknown-option error
 
 ### Requirement: lazygit opens Markdown via mdview
 
@@ -164,4 +182,3 @@ it degrades to character rendering.
 
 - **WHEN** `mdfried` runs without terminal graphics support
 - **THEN** it falls back to character rendering rather than failing
-

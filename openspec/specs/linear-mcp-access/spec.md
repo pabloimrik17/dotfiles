@@ -86,7 +86,8 @@ Chezmoi SHALL merge a `linear` remote server at the official endpoint into Junie
 #### Scenario: Junie merge cannot produce valid JSON
 
 - **WHEN** the merge engine is unavailable or cannot produce valid JSON
-- **THEN** the live Junie MCP file SHALL remain unchanged, or a valid empty object SHALL be emitted when no live file exists
+- **THEN** an unavailable engine SHALL leave the live Junie MCP file unchanged, or a valid empty object SHALL be emitted when no live file exists
+- **AND** an engine that runs but cannot produce valid JSON SHALL make the merge exit non-zero with nothing on standard output and name `~/.junie/mcp/mcp.json` on standard error
 - **AND** chezmoi SHALL NOT replace it with empty or malformed content
 
 #### Scenario: Junie OAuth limitation is recorded safely
