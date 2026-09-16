@@ -97,11 +97,59 @@ fi
 # Group 1: Brew packages
 # ------------------------------------------------------------------
 BREW_TAPS=(tarkah/tickrs achannarasappa/tap AlexsJones/llmfit)
-# llmfit is listed fully qualified on purpose: a bare `llmfit` resolves to the
+# Tap-sourced formulae are listed fully qualified (<user>/<tap>/<formula>).
+# Homebrew 6 refuses to load a bare-named formula from a third-party tap, so a
+# bare entry is uninstallable on a fresh host — and an untrusted tap is omitted
+# from `brew outdated` entirely, which is how ticker reached three months of
+# undetected drift. Each qualified entry needs its own pkg_bin arm below.
+#
+# llmfit is qualified for a further reason: a bare `llmfit` resolves to the
 # homebrew/core formula, which declares `rust` as a build dependency and ships no
 # x86_64 macOS bottle — an Intel host would compile it on install and on every
 # upgrade. The tap formula unpacks a sha256-pinned prebuilt release tarball.
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tickrs ticker age mole aoe glow mdfried AlexsJones/llmfit/llmfit)
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tarkah/tickrs/tickrs achannarasappa/tap/ticker age mole aoe glow mdfried AlexsJones/llmfit/llmfit)
+
+# ---- Platform constraint: Intel x86_64 bottle EOL -------------------------
+# Homebrew stopped producing x86_64 macOS bottles in September 2026 (announced
+# August 2025); the notice prints on every `brew upgrade --dry-run` on such a
+# host and points at MacPorts. Scope: amd64 macOS only.
+#
+# Consequences, in the order they bite:
+#   - On amd64 every future formula upgrade is a source build, and each one
+#     leaves its build dependencies (go, node, python@3.14, cmake, protobuf, …)
+#     installed afterwards; `brew autoremove` does not reclaim them.
+#   - The bottles that still pour here are residual stock built before the
+#     cutoff, not an ongoing guarantee. The pour set shrinks with every release.
+#   - Upgrade-cost reasoning written on this host does NOT transfer to arm64,
+#     where the same package still pours. Any deferral recorded because a build
+#     is expensive is an amd64 statement, not a property of the package.
+# ---------------------------------------------------------------------------
+
+# ---- Declared version holds ----------------------------------------------
+# A `brew pin` writes only to $(brew --prefix)/var/homebrew/pinned/, which
+# neither git nor chezmoi observes: pinning by hand protects the host you typed
+# it on and leaves the other one exposed. Declaring holds here makes them
+# reproducible across the fleet.
+#
+# Format: "package|reason|exit condition". Both text fields are mandatory — a
+# hold with no stated exit condition is indistinguishable from an oversight.
+BREW_HOLDS=(
+    "beads|1.2.2 is v1.1.2 republished under a higher version number: its binary knows schema v53 while the local Dolt databases are migrated to v65, so every bd command fails and the bd prime session hook drops memories from injected context without erroring|a beads release whose schema cursor reaches v65 or higher"
+)
+
+# Record of the holds this script applied, so removing a declaration actually
+# releases the hold instead of leaving the host frozen with no message. A script
+# that only ever adds holds is the same silent-success shape this repo is fixing
+# elsewhere: the declaration disappears and nothing happens. A declared package
+# that is not installed, or was already pinned by hand, is never recorded, so
+# removing its declaration never releases a hand-made pin. A recorded package
+# that is no longer installed is dropped from the record without `brew unpin`.
+BREW_HOLDS_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-holds"
+
+# Declared packages that are not installed. The pre-scan and install loop skip
+# them: a hold means the version brew would install is wrong for this repo, so
+# installing it lands exactly what the hold exists to avoid.
+BREW_HOLDS_ABSENT=()
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -111,24 +159,140 @@ pkg_bin() {
         worktrunk) echo "wt" ;;
         beads)     echo "bd" ;;
         television) echo "tv" ;;
-        # Tap-qualified formula: the binary is not renamed, but the identity
-        # mapping would probe for a binary named AlexsJones/llmfit/llmfit.
-        AlexsJones/llmfit/llmfit) echo "llmfit" ;;
+        # Qualified tap entries: the identity mapping would yield
+        # "achannarasappa/tap/ticker", and `command -v` on that can never
+        # succeed — the idempotency check would fail on every run and the
+        # script would reinstall a package that is already present.
+        tarkah/tickrs/tickrs)      echo "tickrs" ;;
+        achannarasappa/tap/ticker) echo "ticker" ;;
+        AlexsJones/llmfit/llmfit)  echo "llmfit" ;;
         *)         echo "$1" ;;
     esac
 }
 
-# Register third-party Homebrew taps before the pre-scan.
-# `brew tap` is idempotent: returns 0 without re-fetching if already tapped.
+# Apply declared holds before anything else in this group, so no later step can
+# advance a package that is deliberately frozen. Reconciles in both directions:
+# declared holds are applied, and holds this script previously applied that are
+# no longer declared are released.
+apply_brew_holds() {
+    local entry pkg reason exit_condition pinned
+    local previously=() declared=() applied=() released=()
+
+    # Read the previous record before the declared loop: an already-pinned
+    # package counts as this script's hold only if this script recorded it.
+    if [ -f "$BREW_HOLDS_STATE" ]; then
+        while IFS= read -r pkg; do
+            [ -n "$pkg" ] || continue
+            previously+=("$pkg")
+        done < "$BREW_HOLDS_STATE"
+    fi
+
+    pinned="$(brew list --pinned 2>/dev/null)"
+
+    for entry in "${BREW_HOLDS[@]:-}"; do
+        [ -n "$entry" ] || continue
+        IFS='|' read -r pkg reason exit_condition <<< "$entry"
+        if [ -z "$pkg" ] || [ -z "$reason" ] || [ -z "$exit_condition" ]; then
+            error "Malformed BREW_HOLDS entry (want package|reason|exit condition): $entry"
+            continue
+        fi
+        declared+=("$pkg")
+        if ! brew list --formula "$pkg" &>/dev/null; then
+            warn "$pkg is held and not installed; not installing it. Reason: $reason. Exit condition: $exit_condition"
+            BREW_HOLDS_ABSENT+=("$pkg")
+            continue
+        fi
+        # Check first: `brew pin` on an already-pinned formula still exits 0 but
+        # prints "Warning: <pkg> already pinned", and a weekly warning about a
+        # deliberate hold trains the reader to ignore the script's output.
+        if printf '%s\n' "$pinned" | grep -qx "$pkg"; then
+            case " ${previously[*]:-} " in
+                *" $pkg "*) applied+=("$pkg") ;;
+                *) info "  $pkg — already pinned by hand, not recorded" ;;
+            esac
+            continue
+        fi
+        if ! brew pin "$pkg"; then
+            error "Failed to hold $pkg"
+            continue
+        fi
+        applied+=("$pkg")
+    done
+
+    for pkg in "${previously[@]:-}"; do
+        [ -n "$pkg" ] || continue
+        case " ${declared[*]:-} " in
+            *" $pkg "*) continue ;;
+        esac
+        # `brew unpin` on an absent package exits 1; drop its record instead.
+        if ! brew list --formula "$pkg" &>/dev/null; then
+            info "  $pkg — no longer installed, dropping its hold record"
+            continue
+        fi
+        info "  Releasing hold on $pkg (no longer declared)"
+        if ! brew unpin "$pkg"; then
+            error "Failed to release hold on $pkg"
+            # Still this script's hold: keep it recorded so the next run retries.
+            applied+=("$pkg")
+            continue
+        fi
+        released+=("$pkg")
+    done
+
+    # Only the record write needs the state directory. The loops above run
+    # regardless: they fill BREW_HOLDS_ABSENT, which keeps held packages out of
+    # the install loop.
+    if mkdir -p "$(dirname "$BREW_HOLDS_STATE")"; then
+        if [ "${#applied[@]}" -gt 0 ]; then
+            printf '%s\n' "${applied[@]}" > "$BREW_HOLDS_STATE"
+        else
+            : > "$BREW_HOLDS_STATE"
+        fi
+    else
+        error "Failed to create hold state directory: $(dirname "$BREW_HOLDS_STATE")"
+    fi
+    if [ "${#applied[@]}" -gt 0 ]; then
+        info "Brew holds: ${applied[*]} — verify with \`brew list --pinned\`"
+    fi
+
+    if [ "${#released[@]}" -gt 0 ]; then
+        info "Brew holds released: ${released[*]}"
+    fi
+}
+apply_brew_holds
+
+# Trust, then register, every third-party Homebrew tap before the pre-scan.
+# Homebrew 6 gates third-party taps behind a trust decision: an untrusted tap's
+# formulae are refused when addressed by bare name AND omitted from `brew
+# outdated`, so an untrusted package can fall arbitrarily far behind without ever
+# being reported. Trust is granted per tap for the whole array, so no entry runs
+# on a weaker baseline than its siblings.
+#
+# Trust comes first because `brew tap` is gated too: on a host where the tap is
+# neither trusted nor registered, its post-tap audit refuses the formulae and
+# rolls the clone back. `brew trust --tap` only writes the trust store, so it
+# succeeds for a tap that is not registered yet.
+#
+# Both commands are idempotent: `brew trust --tap` returns 0 if the tap is
+# already trusted, `brew tap` returns 0 without re-fetching if already tapped.
 for tap in "${BREW_TAPS[@]}"; do
+    if ! brew trust --tap "$tap"; then
+        error "Failed to trust tap $tap"
+        continue
+    fi
     if ! brew tap "$tap"; then
         error "Failed to tap $tap"
     fi
 done
 
-# Pre-scan: check which brew packages are already installed
+# Pre-scan: check which brew packages are already installed. A held package that
+# is not installed is neither installed nor pending; apply_brew_holds warned.
 BREW_PENDING=0
+BREW_HELD_ABSENT=0
 for pkg in "${BREW_PACKAGES[@]}"; do
+    case " ${BREW_HOLDS_ABSENT[*]:-} " in
+        *" $pkg "*) BREW_HELD_ABSENT=$((BREW_HELD_ABSENT + 1)); continue ;;
+    esac
     if [ "$pkg" = "git" ]; then
         brew list git &>/dev/null || BREW_PENDING=$((BREW_PENDING + 1))
     else
@@ -138,10 +302,13 @@ for pkg in "${BREW_PACKAGES[@]}"; do
 done
 
 if [ "$BREW_PENDING" -eq 0 ]; then
-    info "Brew packages: ${#BREW_PACKAGES[@]}/${#BREW_PACKAGES[@]} installed"
+    info "Brew packages: $((${#BREW_PACKAGES[@]} - BREW_HELD_ABSENT))/${#BREW_PACKAGES[@]} installed"
 elif confirm "Install brew packages ($BREW_PENDING/${#BREW_PACKAGES[@]} pending)?"; then
     info "Installing brew packages..."
     for pkg in "${BREW_PACKAGES[@]}"; do
+        case " ${BREW_HOLDS_ABSENT[*]:-} " in
+            *" $pkg "*) continue ;;
+        esac
         if [ "$pkg" = "git" ]; then
             # Always install brew git — system git at /usr/bin/git is outdated
             if brew list git &>/dev/null; then
@@ -514,7 +681,9 @@ if command -v gh &>/dev/null; then
         # in ~/.agents/skills/<name> and leaves ~/.claude/skills/<name> as a
         # symlink to it. `gh skill list` reports the resolved path, so these come
         # back under the agent hosts `cline, universal, warp`, never
-        # `claude-code`. So an --agent-filtered check never matched, the script
+        # `claude-code`. From gh 2.99.0 `codex` joins that list too: 2.99.0
+        # moved Codex skills from ~/.codex/skills to ~/.agents/skills without
+        # migrating anything. So an --agent-filtered check never matched, the script
         # reinstalled on every run, and `gh skill install` stopped at its
         # "already exists, overwrite?" prompt — which then died on the
         # terminal's OSC 11 reply ("could not prompt: unexpected escape
@@ -667,10 +836,16 @@ fi
 # ------------------------------------------------------------------
 # Group 4: Brew casks (GUI apps) — unified structured list
 # Format: "cask-name|AppName|Category|Description"
+#
+# AppName is the cask-to-app mapping: it is resolved as /Applications/<AppName>.app,
+# so it may carry a nested path when the installer creates a directory. WhatsApp
+# installs to /Applications/WhatsApp.localized/WhatsApp.app, and a mapping that
+# could only yield "WhatsApp" produced a path that never exists — the app was
+# reported pending on every run.
 # ------------------------------------------------------------------
 ALL_CASKS=(
     "visual-studio-code|Visual Studio Code|Dev|IDE"
-    "docker|Docker|Dev|Container runtime"
+    "docker-desktop|Docker|Dev|Container runtime"
     "ghostty|Ghostty|Dev|GPU-accelerated terminal"
     "jetbrains-toolbox|JetBrains Toolbox|Dev|JetBrains IDE manager"
     "dbeaver-community|DBeaver|Dev|Database GUI client"
@@ -683,7 +858,7 @@ ALL_CASKS=(
     "the-unarchiver|The Unarchiver|Productivity|Archive extraction utility"
     "claude|Claude|AI|Claude desktop app"
     "chatgpt|ChatGPT|AI|ChatGPT desktop app"
-    "ollama|Ollama|AI|Local LLM runner"
+    "ollama-app|Ollama|AI|Local LLM runner"
 {{ if eq .chezmoi.arch "arm64" -}}
     "conductor|Conductor|AI|Claude code parallelisation"
 {{ end -}}
@@ -693,21 +868,39 @@ ALL_CASKS=(
     "superwhisper|superwhisper|AI|Voice-to-text via Whisper"
     "adobe-acrobat-reader|Adobe Acrobat Reader|Productivity|PDF reader"
     "telegram|Telegram|Optional|Messaging"
-    "whatsapp|WhatsApp|Optional|Messaging"
+    "whatsapp|WhatsApp.localized/WhatsApp|Optional|Messaging"
     "microsoft-teams|Microsoft Teams|Optional|Video conferencing"
     "stremio|Stremio|Optional|Streaming aggregator"
     "appcleaner|AppCleaner|Optional|App uninstaller"
-    "spark|Spark|Optional|Email client"
     "vnc-viewer|VNC Viewer|Optional|Remote desktop"
     "raspberry-pi-imager|Raspberry Pi Imager|Optional|SD card flasher"
-    "transmission-remote-gui|Transmission Remote GUI|Optional|Torrent remote UI"
     "folx|Folx|Optional|Download manager"
     "philips-hue-sync|Hue Sync|Optional|Philips Hue screen sync"
 )
 
+# Resolve a cask token to its application path relative to /Applications.
+# The AppName field of each ALL_CASKS row is the mapping, and this is the only
+# thing that reads it: the array is where a cask is added or removed, so a
+# second table inside this function would drift the moment a row changes — and
+# a mapping could then outlive its cask. May return a nested path; WhatsApp
+# installs to /Applications/WhatsApp.localized/WhatsApp.app.
+cask_to_app() {
+    local token="$1" entry cask app_name rest
+    for entry in "${ALL_CASKS[@]}"; do
+        IFS='|' read -r cask app_name rest <<< "$entry"
+        if [ "$cask" = "$token" ]; then
+            echo "$app_name"
+            return 0
+        fi
+    done
+    # Not in ALL_CASKS: last-resort derivation, capitalize each hyphen-word.
+    echo "$token" | tr '-' ' ' | awk '{for (i = 1; i <= NF; i++) $i = toupper(substr($i, 1, 1)) substr($i, 2)} 1'
+}
+
 is_cask_installed() {
     local cask="$1"
-    local app_name="$2"
+    local app_name
+    app_name="$(cask_to_app "$cask")"
     if [ -n "$app_name" ] && [ -d "/Applications/$app_name.app" ]; then
         return 0
     fi
@@ -716,8 +909,7 @@ is_cask_installed() {
 
 install_cask() {
     local cask="$1"
-    local app_name="$2"
-    if is_cask_installed "$cask" "$app_name"; then
+    if is_cask_installed "$cask"; then
         info "  $cask — already installed, skipping"
     else
         info "  Installing $cask..."
@@ -731,7 +923,7 @@ install_cask() {
 PENDING_CASKS=()
 for entry in "${ALL_CASKS[@]}"; do
     IFS='|' read -r cask app_name category description <<< "$entry"
-    if ! is_cask_installed "$cask" "$app_name"; then
+    if ! is_cask_installed "$cask"; then
         PENDING_CASKS+=("$entry")
     fi
 done
@@ -749,7 +941,7 @@ elif [ "$PENDING_COUNT" -le 3 ]; then
     for entry in "${PENDING_CASKS[@]}"; do
         IFS='|' read -r cask app_name category description <<< "$entry"
         if confirm "Install $cask ($description)?"; then
-            install_cask "$cask" "$app_name"
+            install_cask "$cask"
         else
             info "  Skipping $cask."
         fi
@@ -781,7 +973,7 @@ else
                 for entry in "${PENDING_CASKS[@]}"; do
                     IFS='|' read -r cask app_name category description <<< "$entry"
                     if [ "$cask" = "$selected_cask" ]; then
-                        install_cask "$cask" "$app_name"
+                        install_cask "$cask"
                         break
                     fi
                 done
@@ -798,7 +990,7 @@ else
         if confirm "Install all $PENDING_COUNT pending GUI apps?"; then
             for entry in "${PENDING_CASKS[@]}"; do
                 IFS='|' read -r cask app_name category description <<< "$entry"
-                install_cask "$cask" "$app_name"
+                install_cask "$cask"
             done
         else
             info "  Skipping GUI apps."

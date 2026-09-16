@@ -2,8 +2,10 @@
 # chezmoi modify_ script for ~/.junie/mcp/mcp.json. It owns only the
 # mcpServers.deepwiki and mcpServers.linear entries and preserves every other
 # valid value in the live file.
-# The merge is buffered and validated before stdout reaches chezmoi; failures
-# pass the live file through unchanged, while a fresh machine receives `{}`.
+# The merge is buffered and validated before stdout reaches chezmoi; a merge that
+# fails exits non-zero naming the target. Only a missing `uv` skips the merge:
+# the live file passes through unchanged, or `{}` when there is none. Empty stdin
+# with `uv` present runs the merge and yields only the managed entries.
 set -eu
 
 work="$(mktemp -d)"
@@ -79,10 +81,20 @@ else:
     main()
 PYEOF
 
+# A merge that cannot complete fails loudly rather than passing the live file
+# through under a successful apply. chezmoi leaves the target untouched and
+# reports the status when a modify_ script exits non-zero, so the live file is
+# still safe — what changes is that the operator now learns the managed keys did
+# not land. The trade is deliberate: a transient engine failure (offline cold
+# cache, a dep-resolution error) now fails `chezmoi apply` instead of producing a
+# silent no-op that looks identical to success. Only the `uv`-absent branch above
+# skips the merge and exits 0 — a machine that has not bootstrapped, not a
+# failure. Empty stdin has no such exemption: it runs this merge and this gate.
 if uv run --no-project --quiet python "$prog" <"$infile" >"$outfile" \
   && [ -s "$outfile" ] \
   && uv run --no-project --quiet python "$prog" --validate <"$outfile"; then
   cat "$outfile"
 else
-  passthrough
+  echo "modify_mcp.json: merge failed for ~/.junie/mcp/mcp.json -- the managed entries were NOT applied and the live file is unchanged" >&2
+  exit 1
 fi

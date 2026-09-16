@@ -2218,7 +2218,14 @@
                         <tbody>
                             <tr>
                                 <td><code>bubu</code></td>
-                                <td>Full update cycle: update + outdated + upgrade + cleanup</td>
+                                <td>
+                                    Full update cycle: update + outdated + upgrade + cleanup.
+                                    <strong>Not the maintenance path here</strong> &mdash; it
+                                    upgrades every outdated formula in one bulk step, which skips
+                                    the changelog review each package is supposed to get and cannot
+                                    express a version that must be held back. Use <code>bubo</code>,
+                                    then <code>brew upgrade &lt;pkg&gt;</code> one at a time
+                                </td>
                             </tr>
                             <tr>
                                 <td><code>bubo</code></td>
@@ -2230,7 +2237,17 @@
                             </tr>
                             <tr>
                                 <td><code>brewsp</code></td>
-                                <td>List pinned packages</td>
+                                <td>
+                                    List held packages. Holds are declared in
+                                    <code>run_onchange_install-packages.sh.tmpl</code> with a reason
+                                    and an exit condition, and applied each time that script runs;
+                                    chezmoi re-runs it whenever its rendered content changes,
+                                    including any <code>BREW_HOLDS</code> edit. An installed held
+                                    package is pinned; a missing one is skipped with a warning, not
+                                    installed. A <code>chezmoi apply</code> with an unchanged script
+                                    does not re-apply holds, and a bare <code>brew pin</code> is
+                                    invisible to the repo
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -2257,8 +2274,10 @@
                     </table>
                     <div class="flow-only">
                         <strong>Flow: Full tool maintenance</strong><br />
-                        <code>bubu</code> &rarr; <code>update-extra</code> &rarr; everything current
-                        (self-updating tools handle themselves; pinned tools via Renovate)
+                        <code>bubo</code> &rarr; <code>brew upgrade &lt;pkg&gt;</code> (one at a
+                        time, after reading its changelog) &rarr; <code>update-extra</code> &rarr;
+                        everything current (self-updating tools handle themselves; pinned tools via
+                        Renovate; held packages stay put by declaration)
                     </div>
                 </div>
             </details>
@@ -3706,7 +3725,9 @@
                                 <td>
                                     <code>terminal-notifier</code> on waiting/idle/error &mdash;
                                     distinct sounds (Glass / &mdash; / Basso),
-                                    <code>$AOE_SESSION_TITLE</code>
+                                    <code>$AOE_SESSION_TITLE</code>;
+                                    <code>-group "aoe-$AOE_SESSION_ID"</code> replaces the session's
+                                    previous notification
                                 </td>
                             </tr>
                             <tr>

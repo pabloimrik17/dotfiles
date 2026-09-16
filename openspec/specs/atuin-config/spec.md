@@ -4,6 +4,7 @@
 
 Atuin shell history configuration managed by chezmoi — daemon mode, autostart, AI features, and history import on fresh machines.
 ## Requirements
+
 ### Requirement: Chezmoi-managed atuin configuration
 
 A configuration file SHALL be managed by chezmoi at `dot_config/atuin/config.toml`, targeting `~/.config/atuin/config.toml`. The file SHALL only set non-default values — atuin defaults are not replicated.
@@ -43,6 +44,12 @@ The config SHALL enable AI features via `ai.enabled = true` under the `[ai]` sec
 
 `ai.enabled = true` matches the compiled default and would otherwise fall foul of this file's "only non-default values" convention. It is retained deliberately as a stated exception: with the separate AI init line removed, this key is the only thing keeping the `?` widget alive, so pinning it guards against an upstream default flip silently removing the binding.
 
+The config SHALL additionally set `ai.tips = false`. The key was introduced with a compiled default of
+`true`, and the tips it surfaces prompt the user to run `atuin config set`, which writes
+`~/.config/atuin/config.toml` directly — a chezmoi-managed target. Accepting that prompt produces an
+unmanaged edit that the next `chezmoi apply` reverts, so the value is pinned to suppress the
+invitation rather than to change a preference.
+
 #### Scenario: AI command generation available
 
 - **WHEN** the user runs `atuin ai "find large files modified this week"`
@@ -57,6 +64,12 @@ The config SHALL enable AI features via `ai.enabled = true` under the `[ai]` sec
 
 - **WHEN** a future atuin release changes the compiled default for `ai.enabled`
 - **THEN** the managed config SHALL continue to enable AI features, and the `?` widget SHALL remain bound
+
+#### Scenario: Tips do not invite unmanaged edits
+
+- **WHEN** atuin runs with the managed config
+- **THEN** `ai.tips` is `false`, so atuin does not prompt the user toward `atuin config set` against a
+  chezmoi-managed file
 
 ### Requirement: AI shell integration in .zshrc
 
@@ -110,4 +123,3 @@ The file records standing, no-prompt capability grants to the AI assistant. Left
 
 - **WHEN** chezmoi materializes the file
 - **THEN** it SHALL have permissions `0600` or stricter
-

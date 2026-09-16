@@ -21,16 +21,17 @@
 # `--no-project` because `chezmoi apply` inherits the directory it was invoked
 # from, and without it uv walks upward looking for a project to attach to. Both
 # outcomes are bad and both were reproduced on 0.11.26 (pre-existing, not a 0.12.x
-# regression): from a project whose deps do not resolve the merge is skipped while
-# apply still exits 0, so managed keys silently do not land; from a healthy project
-# uv writes `.venv/` and `uv.lock` into that unrelated repo.
+# regression): from a project whose deps do not resolve the merge cannot run, so
+# the managed keys do not land; from a healthy project uv writes `.venv/` and
+# `uv.lock` into that unrelated repo.
 #
-# Fallbacks: empty stdin (fresh machine) -> managed-only baseline; `uv` absent (cold
-# start before the brew bootstrap), the merge exiting non-zero, or output that does
-# not re-parse as TOML -> pass the live config through unchanged (the next `chezmoi
-# apply` self-heals). The merge is buffered rather than streamed to stdout: chezmoi
-# takes a modify_ script's stdout verbatim, so an engine that dies mid-serialization
-# would otherwise hand it a truncated document with the whole live file appended.
+# Fallbacks: `uv` absent (cold start before the brew bootstrap) -> echo stdin
+# unchanged and exit 0, which on a fresh machine is nothing at all. Every other
+# input runs the merge, empty stdin (fresh machine) included, where it yields the
+# managed-only baseline. A merge that exits non-zero, writes nothing, or does not
+# re-parse as TOML exits non-zero naming the target, with nothing on stdout. The
+# merge is buffered rather than streamed: chezmoi takes a modify_ script's stdout
+# verbatim, so nothing reaches stdout until the output has re-parsed.
 set -eu
 
 work="$(mktemp -d)"
@@ -78,12 +79,19 @@ MANAGED = [
     (("updates", "update_check_mode"), "off", False),
     (("sound", "enabled"), True, False),
     (("status_hooks", "enabled"), True, False),
+    # -group keyed on $AOE_SESSION_ID, which is unique and survives a rename;
+    # AoE lets two sessions share a title. A new notification for a session
+    # replaces that session's previous one instead of stacking beside it, while
+    # two different sessions stay independent. Without it every transition
+    # leaves a notification behind, and AoE supervises a fleet. Already
+    # supported by the installed terminal-notifier 2.0.0; in 3.x the absence of
+    # a group is what makes them accumulate.
     (("status_hooks", "on_waiting"),
-     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "needs input" -sound Glass', True),
+     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "needs input" -sound Glass -group "aoe-$AOE_SESSION_ID"', True),
     (("status_hooks", "on_idle"),
-     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "done"', True),
+     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "done" -group "aoe-$AOE_SESSION_ID"', True),
     (("status_hooks", "on_error"),
-     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "errored" -sound Basso', True),
+     'terminal-notifier -title "aoe: $AOE_SESSION_TITLE" -message "errored" -sound Basso -group "aoe-$AOE_SESSION_ID"', True),
     # NVM_DIR lets the claude-node-launch shim resolve the project's Node from
     # $NVM_DIR/versions/node/ when AoE runs claude inside the sandbox (the shim
     # needs the dir, not the nvm shell function). Outside the sandbox (the
@@ -127,15 +135,24 @@ sys.stdout.write(tomlkit.dumps(doc))
 PYEOF
 
 # Buffer the merge, then gate it: the result reaches the target only if the merge
-# exited zero, wrote something, and that something re-parses as TOML. Every other
-# path emits the live config unchanged, so `chezmoi apply` never hard-fails and the
-# next apply self-heals (offline cold cache, dep-resolution error, engine killed
-# mid-write). stderr is deliberately NOT redirected -- chezmoi surfaces it, and it
-# is the only indication that an apply silently changed nothing.
+# exited zero, wrote something, and that something re-parses as TOML.
+#
+# A merge that cannot complete fails loudly rather than passing the live file
+# through under a successful apply. chezmoi leaves the target untouched and
+# reports the status when a modify_ script exits non-zero, so the live file is
+# still safe — what changes is that the operator now learns the managed keys did
+# not land. The trade is deliberate: a transient engine failure (offline cold
+# cache, a dep-resolution error) now fails `chezmoi apply` instead of producing a
+# silent no-op that looks identical to success. Only the `uv`-absent branch above
+# skips the merge and exits 0 — a machine that has not bootstrapped, not a
+# failure. Empty stdin has no such exemption: it runs this merge and this gate.
+#
+# stderr is deliberately NOT redirected -- chezmoi surfaces it.
 if uv run --no-project --quiet --with 'tomlkit==0.15.1' python "$prog" <"$infile" >"$outfile" \
   && [ -s "$outfile" ] \
   && uv run --no-project --quiet --with 'tomlkit==0.15.1' python "$prog" --validate <"$outfile"; then
   cat "$outfile"
 else
-  cat "$infile"
+  echo "modify_private_config.toml: merge failed for ~/.config/agent-of-empires/config.toml -- the managed keys were NOT applied and the live file is unchanged" >&2
+  exit 1
 fi
