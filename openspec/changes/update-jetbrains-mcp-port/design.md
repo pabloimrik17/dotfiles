@@ -46,7 +46,7 @@ The stale `64342` is IDEA's default — the value published in most JetBrains MC
 
 - **IDE auto-configure overwrites a managed entry** → The plugin's settings screen offers per-client "configure" actions for Claude Code, Codex, and Junie. Nothing runs them unattended, so the realistic failure is the user clicking one and reintroducing an `/sse` entry. The next `chezmoi apply` reconciles it back; the spec's drift scenario covers the outcome.
 - **A second JetBrains IDE would bind a different port** → Out of scope by decision above. Symptom is a connection failure, not silent misrouting, since no other product's default collides with `64542`.
-- **Port is occupied by an unrelated process** → The plugin falls back rather than binding, so the agent-side error is a connection failure. Diagnosis: `lsof -iTCP:64542 -sTCP:LISTEN`.
+- **Port is occupied by an unrelated process** → The plugin falls back rather than binding, so requests still reach the squatter: the agent gets an unexpected protocol response from an unintended local service, not a connection failure. Diagnosis: `lsof -iTCP:64542 -sTCP:LISTEN`.
 - **`storybook` precedent** → A second `localhost` entry that fails when its process is down. Already-accepted behavior; the spec states it explicitly so it is not re-diagnosed later.
 - **Junie merge regression** → `modify_mcp.json.tmpl` gains a third key. Its existing failure mode is deliberate and loud (non-zero exit, target untouched), so a malformed merge cannot land silently.
 
