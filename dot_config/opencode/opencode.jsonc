@@ -25,6 +25,11 @@
             "url": "https://mcp.deepwiki.com/mcp",
             "enabled": true,
         },
+        "jetbrains": {
+            "type": "remote",
+            "url": "http://localhost:64542/stream",
+            "enabled": true,
+        },
         "linear": {
             "type": "remote",
             "url": "https://mcp.linear.app/mcp",
