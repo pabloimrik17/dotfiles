@@ -63,7 +63,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 
 ## MCP Servers
 
-The install script registers 15 user-scope Claude Code MCP servers in runtime-owned `~/.claude.json`. Similarly named OpenCode servers are declared separately in repo-local `opencode.json` or the managed user configuration; Claude Code's list is not automatically shared with OpenCode, Codex, or Junie. Stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and separate remote entries in the OpenCode config, so neither is part of that count.
+The install script registers 16 user-scope Claude Code MCP servers in runtime-owned `~/.claude.json`. Similarly named OpenCode servers are declared separately in repo-local `opencode.json` or the managed user configuration; Claude Code's list is not automatically shared with OpenCode, Codex, or Junie. Stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and separate remote entries in the OpenCode config, so neither is part of that count.
 
 Claude Code, OpenCode, and Codex support Linear through its official read-write endpoint, `https://mcp.linear.app/mcp`, while keeping registration and OAuth state client-specific. Junie is configured for the same endpoint, but its current OAuth token exchange is not compatible with Linear:
 
@@ -93,6 +93,7 @@ The [interactive manual](docs/manual.html) contains the complete acceptance flow
 | linear                                                         | http      | Linear issues & projects                           | Per-client native OAuth; see the client matrix above                    |
 | notion                                                         | http      | Notion pages & databases                           | OAuth on first use                                                      |
 | storybook                                                      | http      | Local Storybook component context                  | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
+| jetbrains                                                      | http      | JetBrains IDE context & actions on :64542          | Needs Settings → Tools → MCP Server enabled in the IDE + IDE running    |
 | posthog                                                        | http      | Product analytics, feature flags, errors           | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
 | sentry                                                         | http      | Issues, traces, and Seer root-cause runs           | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
 
