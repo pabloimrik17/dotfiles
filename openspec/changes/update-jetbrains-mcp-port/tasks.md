@@ -11,7 +11,7 @@
 ## 3. OpenCode
 
 - [x] 3.1 Add an `mcp.jetbrains` entry to `dot_config/opencode/opencode.jsonc` with `"type": "remote"`, the managed URL, and `"enabled": true`, matching the formatting of the neighbouring `deepwiki`/`linear` entries
-- [x] 3.2 Run `chezmoi apply`; verify `~/.config/opencode/opencode.jsonc` parses and that `model`, `tui`, `plugin`, `formatter`, `permission`, and the four pre-existing `mcp` entries are byte-identical to before
+- [x] 3.2 Run `chezmoi apply`; verify `~/.config/opencode/opencode.jsonc` parses and that `model`, `tui`, `plugin`, `formatter`, `permission`, and the five pre-existing `mcp` entries are byte-identical to before
 
 ## 4. Junie
 
