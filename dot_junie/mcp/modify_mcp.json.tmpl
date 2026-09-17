@@ -1,7 +1,7 @@
 #!/bin/sh
 # chezmoi modify_ script for ~/.junie/mcp/mcp.json. It owns only the
-# mcpServers.deepwiki and mcpServers.linear entries and preserves every other
-# valid value in the live file.
+# mcpServers.deepwiki, mcpServers.jetbrains and mcpServers.linear entries and
+# preserves every other valid value in the live file.
 # The merge is buffered and validated before stdout reaches chezmoi; a merge that
 # fails exits non-zero naming the target. Only a missing `uv` skips the merge:
 # the live file passes through unchanged, or `{}` when there is none. Empty stdin
@@ -41,6 +41,10 @@ DEEPWIKI = OrderedDict([
     ("url", "https://mcp.deepwiki.com/mcp"),
 ])
 
+JETBRAINS = OrderedDict([
+    ("url", "http://localhost:64542/stream"),
+])
+
 LINEAR = OrderedDict([
     ("url", "https://mcp.linear.app/mcp"),
 ])
@@ -65,6 +69,8 @@ def main():
 
     if servers.get("deepwiki") != DEEPWIKI:
         servers["deepwiki"] = DEEPWIKI
+    if servers.get("jetbrains") != JETBRAINS:
+        servers["jetbrains"] = JETBRAINS
     if servers.get("linear") != LINEAR:
         servers["linear"] = LINEAR
 

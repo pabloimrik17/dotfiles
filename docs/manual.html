@@ -2891,6 +2891,17 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>jetbrains</td>
+                                <td>
+                                    JetBrains IDE context &amp; actions at
+                                    <code>http://localhost:64542/stream</code>
+                                </td>
+                                <td>
+                                    Needs Settings &rarr; Tools &rarr; MCP Server enabled in the IDE
+                                    + the IDE running
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>posthog</td>
                                 <td>Product analytics, feature flags, experiments, errors</td>
                                 <td>
@@ -3178,6 +3189,15 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>jetbrains</td>
+                                <td>
+                                    JetBrains IDE context &amp; actions through the remote
+                                    <code>mcp.jetbrains</code> entry in
+                                    <code>~/.config/opencode/opencode.jsonc</code>; answers only
+                                    while the IDE is running
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>linear</td>
                                 <td>
                                     Linear issues &amp; projects through the native remote
@@ -3400,6 +3420,29 @@
                         </tbody>
                     </table>
 
+                    <h3>JetBrains MCP</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Server</th>
+                                <th>Registration &amp; ownership</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>jetbrains</td>
+                                <td>
+                                    The installer drives
+                                    <code
+                                        >codex mcp add jetbrains --url
+                                        http://localhost:64542/stream</code
+                                    >; needs Settings &rarr; Tools &rarr; MCP Server enabled in the
+                                    IDE + the IDE running
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <div class="flow-only">
                         <strong>Flow: Route documentation and source questions</strong><br />
                         <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
@@ -3585,7 +3628,9 @@
                                 <td>
                                     <code>chezmoi apply</code> merge-manages only
                                     <code>mcpServers.deepwiki</code> at
-                                    <code>https://mcp.deepwiki.com/mcp</code> and
+                                    <code>https://mcp.deepwiki.com/mcp</code>,
+                                    <code>mcpServers.jetbrains</code> at
+                                    <code>http://localhost:64542/stream</code> and
                                     <code>mcpServers.linear</code> at
                                     <code>https://mcp.linear.app/mcp</code>; unrelated servers and
                                     unknown top-level values remain untouched
@@ -3596,6 +3641,13 @@
                                 <td>
                                     Credential-free access to already-indexed public GitHub
                                     repositories. Use <code>/mcp</code> to check its runtime status.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>JetBrains</td>
+                                <td>
+                                    Credential-free local IDE server. Answers only while the IDE is
+                                    running with Settings &rarr; Tools &rarr; MCP Server enabled.
                                 </td>
                             </tr>
                             <tr>

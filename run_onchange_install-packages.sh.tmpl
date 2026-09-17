@@ -1361,6 +1361,7 @@ MCP_HTTP_SERVERS=(
     "linear:https://mcp.linear.app/mcp"
     "notion:https://mcp.notion.com/mcp"
     "storybook:http://localhost:6006/mcp"
+    "jetbrains:http://localhost:64542/stream"
 )
 
 if ! command -v claude &>/dev/null; then
@@ -1477,6 +1478,7 @@ fi
 CODEX_HTTP_MCP_SERVERS=(
     "deepwiki:https://mcp.deepwiki.com/mcp"
     "linear:https://mcp.linear.app/mcp"
+    "jetbrains:http://localhost:64542/stream"
 )
 
 codex_mcp_read_json() {
@@ -1842,6 +1844,7 @@ info "  - Notion MCP: requires OAuth authentication — run 'claude mcp get noti
 info "  - PostHog MCP: requires OAuth authentication — in Claude Code run '/mcp' and authenticate 'plugin:posthog:posthog'; in OpenCode run 'opencode mcp auth'"
 info "  - Sentry MCP: provided by the sentry-mcp plugin from the sentry-mcp marketplace — requires OAuth authentication; run '/mcp' inside Claude Code, or 'opencode mcp auth sentry' in OpenCode"
 info "  - Storybook MCP: requires @storybook/addon-mcp installed in each Storybook project and 'storybook dev' running on port 6006"
+info "  - JetBrains MCP: requires Settings → Tools → MCP Server enabled in the JetBrains IDE, and the IDE running — the server answers only while it is open (WebStorm serves port 64542)"
 info "  - llmfit: if an existing llmfit came from homebrew/core, switch it to the tap once with 'brew uninstall llmfit && brew install AlexsJones/llmfit/llmfit'"
 info "      Why: the core formula publishes no x86_64 macOS bottle and depends on rust, so it builds from source on install and on every upgrade; the tap ships a prebuilt binary"
 info "      Not automated: the install script never uninstalls, unlinks or relinks an llmfit that is already present"
