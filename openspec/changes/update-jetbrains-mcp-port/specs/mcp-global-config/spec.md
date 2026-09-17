@@ -86,11 +86,11 @@ The `jetbrains` server SHALL be classified as an IDE-provided local service. The
 
 | Name            | Type  | Command/URL                                            |
 | --------------- | ----- | ------------------------------------------------------ |
-| eslint          | stdio | `npx -y @eslint/mcp@0.3.0`                             |
+| eslint          | stdio | `npx -y @eslint/mcp@0.3.10`                            |
 | context7        | stdio | `npx -y @upstash/context7-mcp@2.1.2`                   |
-| knip            | stdio | `npx -y @knip/mcp@0.0.19`                              |
-| memory          | stdio | `npx -y @modelcontextprotocol/server-memory@2026.1.26` |
-| playwright      | stdio | `npx -y @playwright/mcp@0.0.68`                        |
+| knip            | stdio | `npx -y @knip/mcp@0.0.34`                              |
+| memory          | stdio | `npx -y @modelcontextprotocol/server-memory@2026.7.4`  |
+| playwright      | stdio | `npx -y @playwright/mcp@0.0.79`                        |
 | chrome-devtools | stdio | `npx -y chrome-devtools-mcp@0.18.1`                    |
 | expect          | stdio | `npx -y expect-cli@0.1.3 mcp`                          |
 | fallow          | stdio | `fallow-mcp` (PATH binary from the global npm install) |
