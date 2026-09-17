@@ -25,6 +25,7 @@
 - [x] 5.1 Add a manual-instructions line next to the Storybook one (`run_onchange_install-packages.sh.tmpl:1844`) noting that `jetbrains` MCP requires Settings → Tools → MCP Server enabled and the IDE running; verify it prints during apply
 - [x] 5.2 Add a `JetBrains MCP` row to `.agents/skills/sync-agent-config/parity.md` covering all four agents, recording the `64342 + per-product offset` derivation and that IDE-side enablement is unmanaged
 - [x] 5.3 Check whether `docs/manual.html` documents the MCP server roster; if it does, update it via the `docs:manual` skill, otherwise record that no update was needed
+- [x] 5.4 Bump the MCP server count from 15 to 16 in `README.md`'s MCP Servers section and add a `jetbrains` roster row after the `storybook` one, recording the `:64542` endpoint and the IDE-side enablement requirement
 
 ## 6. Verification
 
