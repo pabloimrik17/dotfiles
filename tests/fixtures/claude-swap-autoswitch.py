@@ -174,6 +174,13 @@ def main() -> None:
         results["threshold"] = outcome.name
 
         outcome, events, _, _, _ = run_scenario(
+            root, "all-above-threshold", {"1": 4.0, "2": 14.0}
+        )
+        assert outcome is TickOutcome.SWITCHED
+        assert_event(events, "switch", trigger="proactive", dryRun=True)
+        results["allAboveThreshold"] = outcome.name
+
+        outcome, events, _, _, _ = run_scenario(
             root, "hysteresis", {"1": 15.0, "2": 24.0}
         )
         assert outcome is TickOutcome.BLOCKED

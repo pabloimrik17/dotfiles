@@ -29,6 +29,7 @@ const autoswitchFixture = path.join(
     "claude-swap-autoswitch.py",
 );
 const temporaryDirectories: string[] = [];
+const shellIntegrationTimeoutMs = 20_000;
 
 afterEach(async () => {
     await Promise.all(
@@ -931,47 +932,63 @@ describe("re-runnable claude-swap setup", () => {
 });
 
 describe("post-apply claude-swap setup offer", () => {
-    test("does not prompt when role-specific setup is complete", async () => {
-        const result = await runOfferFixture({ checkExitCode: 0, forceTty: true });
+    test(
+        "does not prompt when role-specific setup is complete",
+        async () => {
+            const result = await runOfferFixture({ checkExitCode: 0, forceTty: true });
 
-        expect(result.exitCode, result.stderr).toBe(0);
-        expect(result.stdout).toContain("already complete");
-        expect(result.stdout).not.toContain("Run the guided setup now?");
-        expect(result.log).toEqual(["check"]);
-    });
+            expect(result.exitCode, result.stderr).toBe(0);
+            expect(result.stdout).toContain("already complete");
+            expect(result.stdout).not.toContain("Run the guided setup now?");
+            expect(result.log).toEqual(["check"]);
+        },
+        shellIntegrationTimeoutMs,
+    );
 
-    test("offers and runs the wizard for an incomplete TTY setup", async () => {
-        const result = await runOfferFixture({
-            checkExitCode: 2,
-            forceTty: true,
-            input: "y\n",
-        });
+    test(
+        "offers and runs the wizard for an incomplete TTY setup",
+        async () => {
+            const result = await runOfferFixture({
+                checkExitCode: 2,
+                forceTty: true,
+                input: "y\n",
+            });
 
-        expect(result.exitCode, result.stderr).toBe(0);
-        expect(result.stdout).toContain("Run the guided setup now?");
-        expect(result.stdout).toContain("guided setup ran");
-        expect(result.log).toEqual(["check", "run"]);
-    });
+            expect(result.exitCode, result.stderr).toBe(0);
+            expect(result.stdout).toContain("Run the guided setup now?");
+            expect(result.stdout).toContain("guided setup ran");
+            expect(result.log).toEqual(["check", "run"]);
+        },
+        shellIntegrationTimeoutMs,
+    );
 
-    test("prints the re-runnable command without blocking a non-TTY apply", async () => {
-        const result = await runOfferFixture({ checkExitCode: 2 });
+    test(
+        "prints the re-runnable command without blocking a non-TTY apply",
+        async () => {
+            const result = await runOfferFixture({ checkExitCode: 2 });
 
-        expect(result.exitCode, result.stderr).toBe(0);
-        expect(result.stdout).toContain("non-interactive apply will not prompt");
-        expect(result.stdout).toContain(".local/bin/claude-swap-setup");
-        expect(result.log).toEqual(["check"]);
-    });
+            expect(result.exitCode, result.stderr).toBe(0);
+            expect(result.stdout).toContain("non-interactive apply will not prompt");
+            expect(result.stdout).toContain(".local/bin/claude-swap-setup");
+            expect(result.log).toEqual(["check"]);
+        },
+        shellIntegrationTimeoutMs,
+    );
 
-    test("keys rendered content to role, pin, and setup revision", async () => {
-        const personal = await renderOffer("personal");
-        const work = await renderOffer("work");
+    test(
+        "keys rendered content to role, pin, and setup revision",
+        async () => {
+            const personal = await renderOffer("personal");
+            const work = await renderOffer("work");
 
-        expect(personal).not.toBe(work);
-        expect(personal).toContain('MACHINE_TYPE="personal"');
-        expect(work).toContain('MACHINE_TYPE="work"');
-        expect(personal).toContain('CLAUDE_SWAP_VERSION="0.26.0"');
-        expect(personal).toContain('SETUP_COMMAND_REVISION="1"');
-    });
+            expect(personal).not.toBe(work);
+            expect(personal).toContain('MACHINE_TYPE="personal"');
+            expect(work).toContain('MACHINE_TYPE="work"');
+            expect(personal).toContain('CLAUDE_SWAP_VERSION="0.26.0"');
+            expect(personal).toContain('SETUP_COMMAND_REVISION="1"');
+        },
+        shellIntegrationTimeoutMs,
+    );
 });
 
 describe("claude-swap zsh aliases", () => {
@@ -1019,6 +1036,7 @@ describe("upstream claude-swap autoswitch policy", () => {
 
         expect(report.claudeSwap).toBe("0.26.0");
         expect(report.scenarios).toEqual({
+            allAboveThreshold: "SWITCHED",
             allExhausted: "BLOCKED",
             authenticationQuarantine: "BLOCKED",
             cooldown: "NO_ACTION",
