@@ -29,6 +29,7 @@ Validated with the installed `claude-swap 0.26.0` engine and isolated fake accou
 | Case | Observed outcome |
 | --- | --- |
 | Active reaches 85%; peer has 35% headroom | `SWITCHED` (`proactive`, dry run) |
+| Both accounts exceed 85%; peer has 14% versus 4% headroom | `SWITCHED` (`proactive`, dry run) |
 | Peer improves headroom by only 9 points | `BLOCKED` (`no-qualifying-candidate`) |
 | Proactive move inside the 300-second cooldown | `NO_ACTION` (`cooldown`) |
 | Both accounts have zero headroom | `BLOCKED` (`all-exhausted`) |
