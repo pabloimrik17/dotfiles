@@ -54,6 +54,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **Git**        | [gh-stack](https://github.com/github/gh-stack)                                  | Stacked pull requests from the terminal (`gs`)                                                             |
 | **Git**        | [Worktrunk](https://github.com/max-sixty/worktrunk)                             | Git worktree manager for parallel AI agent workflows                                                       |
 | **AI Tooling** | [Claude Code](https://code.claude.com/)                                         | AI coding assistant CLI with plugins                                                                       |
+| **AI Tooling** | [claude-swap](https://github.com/realiti4/claude-swap)                          | Pinned macOS account and quota manager for Claude Code                                                     |
 | **AI Tooling** | [Codex](https://developers.openai.com/codex/cli/)                               | OpenAI coding-agent CLI installed through its standalone installer                                         |
 | **AI Tooling** | [OpenCode](https://github.com/anomalyco/opencode)                               | AI code editor                                                                                             |
 | **AI Tooling** | [Junie](https://junie.jetbrains.com/)                                           | JetBrains coding agent installed separately; Linear is preconfigured, but OAuth is not currently supported |
@@ -100,7 +101,12 @@ DeepWiki uses the same user-scope endpoint in Claude Code, Codex, OpenCode, and 
 
 ## Setup
 
-**Prerequisite:** [Homebrew](https://brew.sh/) installed.
+**Prerequisite:** [Homebrew](https://brew.sh/) installed. The encrypted source files also need
+the machine's age identity at `~/.config/chezmoi/key.txt`; restore that file from the password
+manager with mode `0600` before applying. For the first identity, run `age-keygen -o
+~/.config/chezmoi/key.txt`, save the complete file to the password manager, and keep the committed
+recipient in `.chezmoi.toml.tmpl` in sync. Losing the identity makes encrypted artifacts such as
+`encrypted_dot_ticker.yaml.age` irrecoverable.
 
 1. Install [chezmoi](https://www.chezmoi.io/install/):
 
@@ -108,35 +114,27 @@ DeepWiki uses the same user-scope endpoint in Claude Code, Codex, OpenCode, and 
     brew install chezmoi
     ```
 
-2. Bootstrap encryption (per machine, one-time):
-
-    The repo carries encrypted secrets that `chezmoi apply` decrypts on the fly with [age](https://age-encryption.org/). Each machine needs your private key at `~/.config/chezmoi/key.txt`.
-
-    **First machine ever:**
-
-    ```sh
-    brew install age
-    mkdir -p ~/.config/chezmoi
-    age-keygen -o ~/.config/chezmoi/key.txt
-    chmod 600 ~/.config/chezmoi/key.txt
-    ```
-
-    Then save the file's full contents (public + private lines) to your password manager. The matching `recipient` is already committed in `.chezmoi.toml.tmpl`.
-
-    **Every additional machine:**
-
-    Restore `~/.config/chezmoi/key.txt` from your password manager (`chmod 600`).
-
-    > ⚠️ Lose this file without a backup and the encrypted artifacts in the repo (e.g. `encrypted_dot_ticker.yaml.age`) become **irrecoverable**.
-
-3. Initialize and apply:
+2. Initialize the source:
 
     ```sh
     chezmoi init pabloimrik17/dotfiles
+    ```
+
+    Initialization prompts once for name, email, and a required `personal` or `work` machine type;
+    the role has no default and is reused on later runs.
+
+3. Apply the dotfiles:
+
+    ```sh
     chezmoi apply
     ```
 
-    `chezmoi apply` triggers an interactive install script that sets up Homebrew packages, fonts, and CLI tools.
+    `chezmoi apply` triggers the interactive package installer. On macOS it may also offer the
+    re-runnable `~/.local/bin/claude-swap-setup` account guide when role-specific enrollment is
+    incomplete. claude-swap credentials and runtime state remain Keychain/application-owned, and
+    personal machines enable auto-switch once from the menu after the dry-run; see
+    [Section 11 of the manual](docs/manual.html#claude) for the complete account, toggle,
+    validation, and recovery workflow.
 
 ## Daily Workflows
 
@@ -203,4 +201,6 @@ update-extra          # the rest: gh extensions, omz plugins, skills, plannotato
 
 Brew packages are upgraded **per package**, not in bulk: a changelog can carry a behaviour change, a removed flag, or a new key that lands in a chezmoi-managed file, and a version that is wrong for this repo is held instead — see the `classify-tool-updates` skill. Holds are declared in `run_onchange_install-packages.sh.tmpl` rather than pinned by hand, so they apply on both machines: an installed held package is pinned, and a missing one is not installed.
 
-Self-updating tools (Claude Code, Codex, OpenCode, CodeRabbit) and repo-pinned versions (Renovate-managed) take care of themselves.
+Self-updating tools (Claude Code, Codex, OpenCode, CodeRabbit) use their own update paths.
+Repo-pinned tools such as claude-swap update through a reviewed pin change followed by
+`chezmoi apply`, never through `update-extra`.
