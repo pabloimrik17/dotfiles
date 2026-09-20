@@ -272,6 +272,12 @@ wsh() {
   echo "✓ Handoff to '$branch' — attach with: tmux attach -t $branch"
 }
 
+# claude-swap changes Claude Code's global active identity; these aliases do
+# not launch an isolated `cswap run` profile.
+alias cs-list='cswap ls'
+alias cs-current='cswap status'
+alias cs-global='cswap switch'
+
 # ripgrep shortcuts
 alias rgi="rg -i"  # Case insensitive
 alias rgf="rg --files | rg"  # Search in filenames

@@ -3036,6 +3036,219 @@
                         managed file.
                     </p>
 
+                    <h3>claude-swap accounts and quota (macOS)</h3>
+                    <p>
+                        Chezmoi pins
+                        <a href="https://github.com/realiti4/claude-swap">claude-swap</a>
+                        with its menu extra at <code>0.26.0</code>. The required no-default
+                        <code>personal</code>/<code>work</code> choice made during
+                        <code>chezmoi init</code> is machine-local and stable; an existing machine
+                        without it must re-run init rather than assuming a role. Run
+                        <code>~/.local/bin/claude-swap-setup</code> whenever enrollment, validation,
+                        or service repair is needed. After authenticating with <code>/login</code>,
+                        use <code>claude-swap-setup --reauth personal|work</code> to recapture an
+                        existing alias in its original slot.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias / command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>cs-list</code></td>
+                                <td>
+                                    <code>cswap ls</code> &mdash; list managed accounts and quota
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>cs-current</code></td>
+                                <td>
+                                    <code>cswap status</code> &mdash; inspect the globally active
+                                    Claude Code identity
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>cs-global personal|work</code></td>
+                                <td>
+                                    <code>cswap switch personal|work</code> &mdash; change Claude
+                                    Code&rsquo;s global default identity; this is not an isolated
+                                    <code>cswap run</code> session
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>claude-swap-setup</code></td>
+                                <td>
+                                    Re-runnable role-aware enrollment, validation, dry-run, and
+                                    upstream menu-service setup; normal runs reconcile the service
+                                    even when account setup is complete, while <code>--check</code>
+                                    only inspects account completeness
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Personal-machine enrollment</strong><br />
+                        Keep the current login &mdash; never run <code>/logout</code> before capture
+                        &rarr; use <code>/login</code> for each missing subscription &rarr; run
+                        <code>claude-swap-setup</code> to capture native <code>personal</code> and
+                        <code>work</code> aliases &rarr; verify <code>personal</code> is active
+                        &rarr; complete <code>cswap auto --once --dry-run</code> &rarr;
+                        install/check the menu service &rarr; enable
+                        <strong>Settings &rarr; Auto-switch accounts</strong>
+                        once in the menu
+                    </div>
+
+                    <div class="flow-only">
+                        <strong>Flow: Work-machine enrollment</strong><br />
+                        Capture only the native <code>work</code> alias &rarr; finish with
+                        <code>work</code> globally active &rarr; install/check the menu service
+                        &rarr; leave <strong>Auto-switch accounts</strong> disabled. If another
+                        account exists, setup exits non-zero without removing or disabling it;
+                        inspect with <code>cswap list</code> and use
+                        <code>cswap remove &lt;number-or-alias&gt;</code> only after explicit
+                        review.
+                    </div>
+
+                    <h4>Managed policy and menu service</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Setting / control</th>
+                                <th>Managed behavior</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Binding quota</td>
+                                <td>
+                                    Maximum of account-wide 5-hour and 7-day usage; no
+                                    model-specific limit and no paid API-key fallback
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Autoswitch</td>
+                                <td>
+                                    <code>85%</code> threshold, <code>best</code> strategy,
+                                    <code>60s</code> checks, <code>300s</code> cooldown,
+                                    <code>10</code>-point hysteresis, and failover after
+                                    <code>3</code> unhealthy ticks
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>cswap menubar --install-service</code></td>
+                                <td>
+                                    Install or refresh upstream&rsquo;s login LaunchAgent; chezmoi
+                                    never owns <code>com.cswap.menubar.plist</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>cswap menubar --service-status</code></td>
+                                <td>
+                                    Verify that the upstream menu service is installed and running
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Pause / resume</td>
+                                <td>
+                                    Toggle <strong>Auto-switch accounts</strong> in the menu; no
+                                    second dotfiles-managed watcher continues switching
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Update</td>
+                                <td>
+                                    Review and bump the repository pin, then run
+                                    <code>chezmoi apply</code>; the installer verifies the exact
+                                    version and refreshes an existing upstream service
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        On personal machines the healthy active account remains selected below 85%,
+                        even when an inactive account recovers. At the threshold, upstream selects a
+                        materially better eligible account; cooldown and hysteresis prevent
+                        flapping. When no account is usable, the menu exposes upstream&rsquo;s
+                        <code>BLOCKED</code> state and waits. A manual global switch and the active
+                        identity survive menu or Mac restarts; recovery of the inactive account
+                        alone does not force a switch. Work machines keep automatic switching off.
+                    </p>
+
+                    <h4>Ownership, recovery, and rollback</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Situation</th>
+                                <th>Safe response</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Credentials and policy</td>
+                                <td>
+                                    Chezmoi owns only private
+                                    <code>~/.claude-swap-backup/settings.json</code>. Claude Code /
+                                    claude-swap own credentials in Keychain, with upstream&rsquo;s
+                                    owner-only local fallback permitted. Never commit credentials,
+                                    exports, caches, quarantine data,
+                                    <code>autoswitch_state.json</code>, or
+                                    <code>menubar_settings.json</code>; a
+                                    <code>cswap export</code> is sensitive plaintext.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Authentication / alias repair</td>
+                                <td>
+                                    Authenticate with <code>/login</code> without first using
+                                    <code>/logout</code>, then run
+                                    <code>claude-swap-setup --reauth personal|work</code> with the
+                                    intended alias. It recaptures that alias in its existing slot;
+                                    the base command continues to fill only missing aliases.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Login agent cannot read Keychain</td>
+                                <td>
+                                    Check <code>cswap menubar --service-status</code>, open the menu
+                                    or run the upstream status flow from Terminal to grant access,
+                                    then reauthenticate/re-run setup if required.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>HTTP 429 / stale quota</td>
+                                <td>
+                                    Autoswitch is best effort: upstream
+                                    <a href="https://github.com/realiti4/claude-swap/issues/208"
+                                        >issue #208</a
+                                    >
+                                    can reuse stale usage and delay a switch. Inspect with
+                                    <code>cs-current</code>/<code>cs-list</code> and recover with
+                                    <code>cs-global &lt;alias&gt;</code>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Remote Control / Artifact affinity</td>
+                                <td>
+                                    A long-lived feature may remain attached to the previous
+                                    identity; restart or republish it under the active account.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Rollback without credential loss</td>
+                                <td>
+                                    Disable the menu toggle &rarr;
+                                    <code>cswap menubar --uninstall-service</code> &rarr; select the
+                                    desired global account &rarr; revert/apply the dotfiles change.
+                                    Do not delete Keychain accounts as part of rollback.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h3>Node version on launch (nvm-aware shim)</h3>
                     <p>
                         A shim named <code>claude</code> at
