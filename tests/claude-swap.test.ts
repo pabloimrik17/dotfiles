@@ -240,16 +240,28 @@ case "$1" in
         jq '{schemaVersion: 1, active: ((.activeAccountNumber as $number | [.accounts[] | select(.number == $number)][0]) // null)}' "$CSWAP_STATE"
         ;;
     add)
-        alias_name="$3"
-        jq --arg alias "$alias_name" '
-            if any(.accounts[]; (.alias // "") == $alias) then .
-            else
-                ((([.accounts[].number] | max) // 0) + 1) as $number |
-                .accounts += [{number: $number, email: ($alias + "@example.com"), alias: $alias, active: true}] |
-                .activeAccountNumber = $number |
-                .accounts |= map(.active = (.number == $number))
-            end
-        ' "$CSWAP_STATE" >"$CSWAP_STATE.tmp" && /bin/mv "$CSWAP_STATE.tmp" "$CSWAP_STATE"
+        if [ "$2" = "--slot" ]; then
+            slot="$3"
+            jq --argjson slot "$slot" '
+                if any(.accounts[]; .number == $slot) then
+                    .activeAccountNumber = $slot |
+                    .accounts |= map(.active = (.number == $slot))
+                else
+                    error("missing slot")
+                end
+            ' "$CSWAP_STATE" >"$CSWAP_STATE.tmp" && /bin/mv "$CSWAP_STATE.tmp" "$CSWAP_STATE"
+        else
+            alias_name="$3"
+            jq --arg alias "$alias_name" '
+                if any(.accounts[]; (.alias // "") == $alias) then .
+                else
+                    ((([.accounts[].number] | max) // 0) + 1) as $number |
+                    .accounts += [{number: $number, email: ($alias + "@example.com"), alias: $alias, active: true}] |
+                    .activeAccountNumber = $number |
+                    .accounts |= map(.active = (.number == $number))
+                end
+            ' "$CSWAP_STATE" >"$CSWAP_STATE.tmp" && /bin/mv "$CSWAP_STATE.tmp" "$CSWAP_STATE"
+        fi
         ;;
     switch)
         alias_name="$2"
@@ -738,6 +750,72 @@ describe("re-runnable claude-swap setup", () => {
         expect(result.log).toEqual(["--version", "list --json", "status --json"]);
     });
 
+    test("repairs the service for a complete personal setup without re-enrolling", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: [
+                { number: 1, email: "personal@example.com", alias: "personal", active: true },
+                { number: 2, email: "work@example.com", alias: "work", active: false },
+            ],
+            activeAccountNumber: 1,
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.log).toEqual([
+            "--version",
+            "list --json",
+            "status --json",
+            "auto --once --dry-run",
+            "menubar --install-service",
+            "menubar --service-status",
+        ]);
+    });
+
+    test("reauthenticates an existing alias in place and restores the required identity", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: [
+                { number: 1, email: "personal@example.com", alias: "personal", active: true },
+                { number: 2, email: "work@example.com", alias: "work", active: false },
+            ],
+            activeAccountNumber: 1,
+            args: ["--reauth", "work"],
+            input: "\n",
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.log).toContain("add --slot 2");
+        expect(result.log).toContain("switch personal");
+        expect(result.state.accounts.find((account) => account.alias === "work")?.number).toBe(2);
+        expect(result.state.activeAccountNumber).toBe(1);
+    });
+
+    test("rejects reauthentication aliases outside the machine policy", async () => {
+        const result = await runSetupFixture({
+            role: "work",
+            accounts: [{ number: 1, email: "work@example.com", alias: "work", active: true }],
+            activeAccountNumber: 1,
+            args: ["--reauth", "personal"],
+        });
+
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain("Cannot reauthenticate 'personal' on a work machine");
+        expect(result.log.some((command) => command.startsWith("add "))).toBe(false);
+    });
+
+    test("rejects unknown reauthentication aliases", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            args: ["--reauth", "other"],
+        });
+
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain(
+            "Usage: claude-swap-setup [--check | --reauth personal|work]",
+        );
+        expect(result.log.some((command) => command.startsWith("add "))).toBe(false);
+    });
+
     test("fills only the missing personal alias and finishes globally on personal", async () => {
         const result = await runSetupFixture({
             role: "personal",
@@ -989,6 +1067,7 @@ describe("claude-swap documentation", () => {
         for (const requiredText of [
             "claude-swap accounts and quota (macOS)",
             "claude-swap-setup",
+            "claude-swap-setup --reauth personal|work",
             "cs-list",
             "cs-current",
             "cs-global",

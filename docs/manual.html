@@ -3000,8 +3000,10 @@
                         <code>personal</code>/<code>work</code> choice made during
                         <code>chezmoi init</code> is machine-local and stable; an existing machine
                         without it must re-run init rather than assuming a role. Run
-                        <code>~/.local/bin/claude-swap-setup</code> whenever enrollment,
-                        reauthentication, or service repair is needed.
+                        <code>~/.local/bin/claude-swap-setup</code> whenever enrollment, validation,
+                        or service repair is needed. After authenticating with <code>/login</code>,
+                        use <code>claude-swap-setup --reauth personal|work</code> to recapture an
+                        existing alias in its original slot.
                     </p>
                     <table>
                         <thead>
@@ -3036,7 +3038,9 @@
                                 <td><code>claude-swap-setup</code></td>
                                 <td>
                                     Re-runnable role-aware enrollment, validation, dry-run, and
-                                    upstream menu-service setup
+                                    upstream menu-service setup; normal runs reconcile the service
+                                    even when account setup is complete, while <code>--check</code>
+                                    only inspects account completeness
                                 </td>
                             </tr>
                         </tbody>
@@ -3156,8 +3160,10 @@
                                 <td>Authentication / alias repair</td>
                                 <td>
                                     Authenticate with <code>/login</code> without first using
-                                    <code>/logout</code>, then re-run
-                                    <code>claude-swap-setup</code>; it fills only missing aliases.
+                                    <code>/logout</code>, then run
+                                    <code>claude-swap-setup --reauth personal|work</code> with the
+                                    intended alias. It recaptures that alias in its existing slot;
+                                    the base command continues to fill only missing aliases.
                                 </td>
                             </tr>
                             <tr>
