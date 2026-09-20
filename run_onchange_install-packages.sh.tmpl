@@ -336,6 +336,94 @@ else
 fi
 
 # ------------------------------------------------------------------
+# Group 1.25: claude-swap (repo-pinned uv tool, macOS only)
+# ------------------------------------------------------------------
+# BEGIN CLAUDE_SWAP_INSTALL_HELPERS
+CLAUDE_SWAP_VERSION="0.26.0"
+
+claude_swap_installed_version() {
+    local output
+    output="$(cswap --version 2>/dev/null)" || return 1
+    printf '%s\n' "${output##* }"
+}
+
+claude_swap_menubar_ready() {
+    local cswap_path first_line python_path
+    cswap_path="$(command -v cswap 2>/dev/null)" || return 1
+    IFS= read -r first_line < "$cswap_path" || return 1
+    case "$first_line" in
+        '#!'*) python_path="${first_line#\#!}" ;;
+        *) return 1 ;;
+    esac
+    [ -x "$python_path" ] || return 1
+    "$python_path" -c 'import rumps' >/dev/null 2>&1
+}
+
+claude_swap_install_satisfied() {
+    [ "$(claude_swap_installed_version 2>/dev/null || true)" = "$CLAUDE_SWAP_VERSION" ] &&
+        claude_swap_menubar_ready
+}
+
+install_claude_swap() {
+    local installed_version service_status service_was_installed=0
+    installed_version="$(claude_swap_installed_version 2>/dev/null || true)"
+    if [ "$installed_version" = "$CLAUDE_SWAP_VERSION" ] && claude_swap_menubar_ready; then
+        info "claude-swap $CLAUDE_SWAP_VERSION — already installed, skipping"
+        return 0
+    fi
+
+    if ! command -v uv >/dev/null 2>&1; then
+        error "claude-swap: uv is required for the pinned installation"
+        return 1
+    fi
+
+    if command -v cswap >/dev/null 2>&1; then
+        service_status="$(cswap menubar --service-status 2>/dev/null || true)"
+        case "$service_status" in
+            "Menu bar service:"*) service_was_installed=1 ;;
+        esac
+    fi
+
+    info "Installing claude-swap[menubar]==$CLAUDE_SWAP_VERSION with a uv-managed Python..."
+    if ! uv tool install --managed-python --force "claude-swap[menubar]==$CLAUDE_SWAP_VERSION"; then
+        error "claude-swap: uv tool installation failed"
+        return 1
+    fi
+    hash -r
+
+    installed_version="$(claude_swap_installed_version 2>/dev/null || true)"
+    if [ "$installed_version" != "$CLAUDE_SWAP_VERSION" ]; then
+        error "claude-swap: version verification failed (expected $CLAUDE_SWAP_VERSION, got ${installed_version:-missing})"
+        return 1
+    fi
+    if ! claude_swap_menubar_ready; then
+        error "claude-swap: menubar runtime verification failed (missing rumps)"
+        return 1
+    fi
+
+    if [ "$service_was_installed" -eq 1 ]; then
+        if ! cswap menubar --install-service; then
+            error "claude-swap: installed the pin but failed to refresh the existing menu bar service"
+            return 1
+        fi
+        info "claude-swap menu bar service refreshed through cswap"
+    fi
+
+    info "claude-swap $CLAUDE_SWAP_VERSION installed and verified"
+    return 0
+}
+# END CLAUDE_SWAP_INSTALL_HELPERS
+
+if claude_swap_install_satisfied; then
+    info "claude-swap $CLAUDE_SWAP_VERSION — already installed, skipping"
+elif confirm "Install claude-swap[menubar] $CLAUDE_SWAP_VERSION (repo-pinned, macOS only)?"; then
+    install_claude_swap || true
+else
+    info "Skipping claude-swap. Re-run chezmoi apply to install the repository pin later."
+fi
+info "claude-swap updates: review and change the repository pin, then run chezmoi apply"
+
+# ------------------------------------------------------------------
 # Group 1.5: opencode + CodeRabbit + Codex (official installers, self-updating)
 # ------------------------------------------------------------------
 # Installed via official scripts instead of brew/cask so their built-in
@@ -1856,6 +1944,7 @@ info "This system is not macOS. Automatic installation is not supported."
 info ""
 info "Please install the following packages manually:"
 info ""
+info "  claude-swap: skipped — the managed account-switching integration is macOS-only"
 info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe, glow, mdfried, llmfit"
 info "    - terminal-notifier: macOS-only (skip on Linux)"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"

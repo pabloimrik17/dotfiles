@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# The rendered role, pin, and revision deliberately participate in chezmoi's
+# run_onchange content hash. Bump SETUP_COMMAND_REVISION when the offer/check
+# contract changes even if its path stays the same.
+MACHINE_TYPE={{ get . "machineType" | default "" | quote }}
+CLAUDE_SWAP_VERSION="0.26.0"
+SETUP_COMMAND_REVISION="1"
+SETUP_COMMAND="$HOME/.local/bin/claude-swap-setup"
+
+info() {
+    printf '[dotfiles] %s\n' "$*"
+}
+
+case "$MACHINE_TYPE" in
+    personal|work) ;;
+    "")
+        echo "[dotfiles] ERROR: Machine type is not configured. Run 'chezmoi init', choose personal or work, then run 'chezmoi apply' again." >&2
+        exit 1
+        ;;
+    *)
+        echo "[dotfiles] ERROR: Invalid machine type '$MACHINE_TYPE'. Run 'chezmoi init', choose personal or work, then run 'chezmoi apply' again." >&2
+        exit 1
+        ;;
+esac
+
+if [ "$(uname -s)" != "Darwin" ]; then
+    info "claude-swap setup offer skipped — the integration is macOS-only"
+    exit 0
+fi
+
+if [ ! -x "$SETUP_COMMAND" ]; then
+    info "claude-swap setup is unavailable; re-run chezmoi apply, then run: $SETUP_COMMAND"
+    exit 0
+fi
+
+check_output="$($SETUP_COMMAND --check 2>&1)"
+check_status=$?
+case "$check_status" in
+    0)
+        info "claude-swap account setup is already complete for this $MACHINE_TYPE machine"
+        exit 0
+        ;;
+    2)
+        ;;
+    *)
+        printf '%s\n' "$check_output" >&2
+        info "claude-swap setup needs attention; repair it with: $SETUP_COMMAND"
+        exit 0
+        ;;
+esac
+
+# CLAUDE_SWAP_SETUP_FORCE_TTY is a narrow deterministic test seam; ordinary
+# applies rely only on the real stdin/stdout TTY checks.
+if { [ -t 0 ] && [ -t 1 ]; } || [ "${CLAUDE_SWAP_SETUP_FORCE_TTY:-0}" = "1" ]; then
+    printf "[dotfiles] claude-swap setup is incomplete for this %s machine. Run the guided setup now? [y/N] " "$MACHINE_TYPE"
+    if read -r reply && [[ "$reply" == [yY]* ]]; then
+        "$SETUP_COMMAND"
+        exit $?
+    fi
+    info "Skipped for now. Re-run anytime with: $SETUP_COMMAND"
+else
+    info "claude-swap setup is incomplete; non-interactive apply will not prompt"
+    info "Run the guided setup later with: $SETUP_COMMAND"
+fi
+
+# Referencing these values in output-free shell keeps the trigger inputs
+# explicit without changing user-visible behavior.
+: "$CLAUDE_SWAP_VERSION" "$SETUP_COMMAND_REVISION"

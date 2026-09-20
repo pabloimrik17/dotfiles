@@ -1,0 +1,274 @@
+#!/bin/bash
+
+# Re-runnable account enrollment for the repo-pinned claude-swap integration.
+# Credentials remain owned by Claude Code / claude-swap; this command reads only
+# public schema-v1 JSON and never removes or disables an account.
+
+MACHINE_TYPE={{ get . "machineType" | default "" | quote }}
+CLAUDE_SWAP_VERSION="0.26.0"
+
+info() {
+    printf '[claude-swap-setup] %s\n' "$*"
+}
+
+error() {
+    printf '[claude-swap-setup] ERROR: %s\n' "$*" >&2
+}
+
+recovery_instruction() {
+    printf "Run 'chezmoi init', choose personal or work, then run 'chezmoi apply' again."
+}
+
+require_command() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        error "Missing prerequisite: $1"
+        return 1
+    fi
+}
+
+cswap_version() {
+    local output
+    output="$(cswap --version 2>/dev/null)" || return 1
+    printf '%s\n' "${output##* }"
+}
+
+preflight() {
+    case "$MACHINE_TYPE" in
+        personal|work) ;;
+        "")
+            error "Machine type is not configured. $(recovery_instruction)"
+            return 1
+            ;;
+        *)
+            error "Invalid machine type '$MACHINE_TYPE'. $(recovery_instruction)"
+            return 1
+            ;;
+    esac
+
+    if [ "$(uname -s)" != "Darwin" ]; then
+        error "claude-swap setup is supported only on macOS"
+        return 1
+    fi
+
+    require_command jq || return 1
+    require_command claude || return 1
+    require_command cswap || return 1
+
+    local installed_version
+    installed_version="$(cswap_version 2>/dev/null || true)"
+    if [ "$installed_version" != "$CLAUDE_SWAP_VERSION" ]; then
+        error "Expected cswap $CLAUDE_SWAP_VERSION, found ${installed_version:-missing}. Run 'chezmoi apply' to restore the repository pin."
+        return 1
+    fi
+}
+
+load_public_state() {
+    if ! LIST_JSON="$(cswap list --json)"; then
+        error "Could not inspect managed accounts with 'cswap list --json'"
+        return 1
+    fi
+    if ! printf '%s\n' "$LIST_JSON" | jq -e '
+        .schemaVersion == 1 and
+        (.accounts | type == "array") and
+        ([.accounts[] | (.number | type == "number")] | all)
+    ' >/dev/null 2>&1; then
+        error "Malformed or unsupported JSON from 'cswap list --json'"
+        return 1
+    fi
+
+    if ! STATUS_JSON="$(cswap status --json)"; then
+        error "Could not inspect the active account with 'cswap status --json'"
+        return 1
+    fi
+    if ! printf '%s\n' "$STATUS_JSON" | jq -e '
+        .schemaVersion == 1 and
+        (has("active")) and
+        (.active == null or (.active | type == "object"))
+    ' >/dev/null 2>&1; then
+        error "Malformed or unsupported JSON from 'cswap status --json'"
+        return 1
+    fi
+}
+
+alias_count() {
+    printf '%s\n' "$LIST_JSON" | jq -r --arg alias "$1" '[.accounts[] | select((.alias // "") == $alias)] | length'
+}
+
+account_count() {
+    printf '%s\n' "$LIST_JSON" | jq -r '.accounts | length'
+}
+
+active_alias() {
+    printf '%s\n' "$STATUS_JSON" | jq -r '.active.alias // ""'
+}
+
+reject_unexpected_work_accounts() {
+    [ "$MACHINE_TYPE" = "work" ] || return 0
+
+    local unexpected
+    unexpected="$(printf '%s\n' "$LIST_JSON" | jq -r '[.accounts[] | select((.alias // "") != "work")] | length')"
+    if [ "$unexpected" -eq 0 ]; then
+        return 0
+    fi
+
+    error "Work-machine policy found managed accounts other than the native 'work' alias:"
+    printf '%s\n' "$LIST_JSON" | jq -r '
+        .accounts[] |
+        select((.alias // "") != "work") |
+        "  - account \(.number): \(.email // "<unknown>") (alias: \(.alias // "<none>"))"
+    '
+    error "Review each identity with 'cswap list', then remove it explicitly with 'cswap remove <number-or-alias>' if appropriate. Nothing was removed or disabled."
+    return 1
+}
+
+setup_is_complete() {
+    local active
+    active="$(active_alias)"
+    if [ "$MACHINE_TYPE" = "personal" ]; then
+        [ "$(alias_count personal)" -eq 1 ] &&
+            [ "$(alias_count work)" -eq 1 ] &&
+            [ "$active" = "personal" ]
+        return
+    fi
+
+    [ "$(account_count)" -eq 1 ] &&
+        [ "$(alias_count work)" -eq 1 ] &&
+        [ "$active" = "work" ]
+}
+
+describe_incomplete_setup() {
+    if [ "$MACHINE_TYPE" = "personal" ]; then
+        info "Incomplete personal setup: required aliases are 'personal' and 'work', with 'personal' active."
+    else
+        info "Incomplete work setup: the only managed alias must be 'work', and it must be active."
+    fi
+}
+
+enroll_alias() {
+    local alias="$1"
+    if [ "$(alias_count "$alias")" -eq 1 ]; then
+        info "Account alias '$alias' is already enrolled; leaving it unchanged."
+        return 0
+    fi
+
+    info "Enroll the '$alias' Claude subscription now."
+    info "Do NOT run /logout: it can revoke the refresh token that claude-swap must preserve."
+    info "In Claude Code, use /login to authenticate '$alias', then return here."
+    printf "[claude-swap-setup] Press Enter after '$alias' is the current Claude login... "
+    if ! read -r _reply; then
+        printf '\n' >&2
+        error "Enrollment requires an interactive terminal; re-run claude-swap-setup later."
+        return 1
+    fi
+    if ! cswap add --alias "$alias"; then
+        error "Could not capture the current Claude login as '$alias'"
+        return 1
+    fi
+    load_public_state || return 1
+    if [ "$(alias_count "$alias")" -ne 1 ]; then
+        error "cswap did not report exactly one '$alias' account after capture"
+        return 1
+    fi
+    info "Captured '$alias'."
+}
+
+select_final_account() {
+    local required="$1"
+    if ! cswap switch "$required"; then
+        error "Could not switch the global Claude Code identity to '$required'"
+        return 1
+    fi
+    load_public_state || return 1
+    if [ "$(active_alias)" != "$required" ]; then
+        error "Expected '$required' to be globally active after the switch"
+        return 1
+    fi
+    info "Global Claude Code identity is '$required'."
+}
+
+run_personal_dry_run() {
+    [ "$MACHINE_TYPE" = "personal" ] || return 0
+
+    info "Running a side-effect-free autoswitch evaluation..."
+    cswap auto --once --dry-run
+    local dry_run_status=$?
+    case "$dry_run_status" in
+        0|2|3)
+            info "Autoswitch dry-run completed without changing the active account."
+            ;;
+        *)
+            error "Autoswitch dry-run failed (exit $dry_run_status)"
+            return 1
+            ;;
+    esac
+}
+
+install_menu_service() {
+    info "Installing or refreshing the upstream claude-swap menu service..."
+    if ! cswap menubar --install-service; then
+        error "Could not install the upstream menu service"
+        return 1
+    fi
+
+    local service_status
+    if ! service_status="$(cswap menubar --service-status)"; then
+        error "Could not query the upstream menu service"
+        return 1
+    fi
+    case "$service_status" in
+        "Menu bar service:"*) ;;
+        *)
+            error "Menu service verification did not report an installed service"
+            printf '%s\n' "$service_status" >&2
+            return 1
+            ;;
+    esac
+    printf '%s\n' "$service_status"
+}
+
+main() {
+    local check_only=0
+    case "${1:-}" in
+        --check) check_only=1 ;;
+        "") ;;
+        *)
+            error "Usage: claude-swap-setup [--check]"
+            return 2
+            ;;
+    esac
+
+    preflight || return 1
+    load_public_state || return 1
+    reject_unexpected_work_accounts || return 1
+
+    if setup_is_complete; then
+        info "Setup is complete for this $MACHINE_TYPE machine."
+        return 0
+    fi
+    describe_incomplete_setup
+    if [ "$check_only" -eq 1 ]; then
+        return 2
+    fi
+
+    if [ "$MACHINE_TYPE" = "personal" ]; then
+        enroll_alias personal || return 1
+        enroll_alias work || return 1
+        select_final_account personal || return 1
+    else
+        enroll_alias work || return 1
+        reject_unexpected_work_accounts || return 1
+        select_final_account work || return 1
+    fi
+
+    run_personal_dry_run || return 1
+    install_menu_service || return 1
+
+    if [ "$MACHINE_TYPE" = "personal" ]; then
+        info "Enable Settings → Auto-switch accounts in the claude-swap menu."
+    else
+        info "Leave Settings → Auto-switch accounts disabled on this work machine."
+    fi
+    info "Setup complete. Re-run this command later for repair or reauthentication."
+}
+
+main "$@"
