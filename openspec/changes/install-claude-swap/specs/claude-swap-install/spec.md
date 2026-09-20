@@ -14,10 +14,18 @@ On macOS, the install workflow SHALL install `claude-swap[menubar]` at the exact
 - **THEN** the installer installs `claude-swap[menubar]==0.26.0` with a uv-managed Python
 - **AND** `cswap --version` reports the exact pin
 
-#### Scenario: Exact version already installed
+#### Scenario: Exact menubar-capable version already installed
 
 - **WHEN** the installed `cswap` reports the repository-declared version
+- **AND** its uv-managed interpreter can load the menubar runtime
 - **THEN** the install workflow reports it satisfied and does not reinstall it
+
+#### Scenario: Exact base package lacks the menubar runtime
+
+- **WHEN** the installed `cswap` reports the repository-declared version
+- **AND** its interpreter cannot load the menubar runtime
+- **THEN** the install workflow reinstalls the exact `claude-swap[menubar]` requirement
+- **AND** verifies both the version and menubar runtime before reporting success
 
 #### Scenario: Linux apply
 
@@ -27,7 +35,7 @@ On macOS, the install workflow SHALL install `claude-swap[menubar]` at the exact
 
 ### Requirement: Installation failures are visible and recoverable
 
-The install workflow SHALL verify the executable and exact version after installation. A missing `uv`, failed installation, or version mismatch SHALL produce a named error and a non-success result for that managed step rather than reporting the tool installed.
+The install workflow SHALL verify the executable, exact version, and menubar runtime after installation. A missing `uv`, failed installation, version mismatch, or missing menubar runtime SHALL produce a named error and a non-success result for that managed step rather than reporting the tool installed.
 
 #### Scenario: uv is unavailable
 
@@ -101,4 +109,3 @@ The documented update path SHALL be a reviewed version-pin change followed by `c
 - **WHEN** claude-swap is upgraded across machines
 - **THEN** the repository pin changes first
 - **AND** applying that revision converges each Mac on the same version
-

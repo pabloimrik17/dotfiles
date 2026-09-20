@@ -45,7 +45,7 @@ The macOS installer group will converge on:
 uv tool install --managed-python --force 'claude-swap[menubar]==0.26.0'
 ```
 
-It will skip when `cswap --version` already reports the pin and will verify the executable/version after installation. A missing `uv` or failed verification feeds the install script's existing error counter. A future upgrade changes the single installer pin and re-applies the dotfiles; `cswap upgrade` is intentionally not added to `update-extra`.
+It will skip when `cswap --version` already reports the pin and `rumps` loads from the uv-tool interpreter referenced by the `cswap` shebang. This distinguishes the declared menubar extra from a base-only installation at the same version. After installation it verifies both the executable/version and menubar runtime; a missing `uv` or failed verification feeds the install script's existing error counter. A future upgrade changes the single installer pin and re-applies the dotfiles; `cswap upgrade` is intentionally not added to `update-extra`.
 
 Using a uv-managed Python avoids the known macOS menu-icon failure associated with some framework Python builds. The install group is absent on non-macOS; the Linux summary explains that this integration is intentionally unsupported rather than suggesting a weaker installation.
 

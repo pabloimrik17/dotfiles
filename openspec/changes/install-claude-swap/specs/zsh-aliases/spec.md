@@ -24,4 +24,3 @@ The zshrc SHALL define `cs-list` as `cswap ls`, `cs-current` as `cswap status`, 
 
 - **WHEN** a new interactive shell loads the managed zshrc
 - **THEN** all three aliases resolve to their intended claude-swap commands without overriding an existing managed command
-

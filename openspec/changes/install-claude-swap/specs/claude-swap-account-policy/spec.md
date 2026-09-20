@@ -180,4 +180,3 @@ The documented operating contract SHALL state that autoswitch is best effort. It
 
 - **WHEN** Remote Control or an Artifact remains associated with the prior account after a switch
 - **THEN** the manual warns that the feature may need to be restarted or republished under the active identity
-

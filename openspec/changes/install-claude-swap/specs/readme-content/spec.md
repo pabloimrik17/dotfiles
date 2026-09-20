@@ -25,4 +25,3 @@ README SHALL document setup in 3 steps: install chezmoi, `chezmoi init pabloimri
 
 - **WHEN** a user reads the setup section before enrolling Claude accounts
 - **THEN** the README identifies Keychain/runtime credential ownership and the manual-toggle step without exposing or asking them to commit a token
-
