@@ -183,6 +183,16 @@ $EDITOR ~/.ticker.yaml
 chezmoi re-add --encrypt ~/.ticker.yaml
 ```
 
+**Add or rotate a shell secret** (API keys exported to every interactive zsh):
+
+```sh
+# Opens the decrypted ~/.config/zsh/secrets.zsh and re-encrypts on save
+chezmoi edit ~/.config/zsh/secrets.zsh
+```
+
+The file holds only `export NAME=value` lines and deploys with mode `600`. After rotating a key,
+commit the `.age` file and run `chezmoi update` on every machine.
+
 **Commit and push:**
 
 ```sh
