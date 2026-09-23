@@ -96,6 +96,9 @@ export OPENCODE_ENABLE_EXA=true
 export OPENCODE_EXPERIMENTAL_OXFMT=true
 export OPENCODE_EXPERIMENTAL_FILEWATCHER=true
 
+# Secret env vars (age-encrypted source, mode 600). Edit with `chezmoi edit`.
+[[ -r "$XDG_CONFIG_HOME/zsh/secrets.zsh" ]] && source "$XDG_CONFIG_HOME/zsh/secrets.zsh"
+
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 # pnpm

@@ -116,6 +116,7 @@ MANAGED = json.loads(r'''
 {{- if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }}
     "superwhisper@superwhisper": true,
 {{- end }}
+    "typesafe@typesafe-ai": true,
     "typescript-lsp@claude-plugins-official": true,
     "worktrunk@worktrunk": true
   },
@@ -209,6 +210,13 @@ MANAGED = json.loads(r'''
       }
     },
 {{- end }}
+    "typesafe-ai": {
+      "autoUpdate": true,
+      "source": {
+        "repo": "typesafe-ai/skills",
+        "source": "github"
+      }
+    },
     "wakatime": {
       "autoUpdate": true,
       "source": {
