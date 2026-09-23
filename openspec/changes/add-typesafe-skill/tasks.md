@@ -6,7 +6,7 @@
 ## 2. skills.sh install
 
 - [x] 2.1 Add `install_skill "typesafe-ai/skills" "typesafe-ai" "opencode junie codex"` to Group 9. Verify: the rendered script (`chezmoi execute-template < run_onchange_install-packages.sh.tmpl | bash -n`) parses, and the line is present.
-- [x] 2.2 Add the two `claude plugin` commands and `npx -y skills add typesafe-ai/skills --skill typesafe-ai -g -y --agent opencode junie codex` to the non-macOS fallback. Verify with `grep -n 'typesafe' run_onchange_install-packages.sh.tmpl` (3 fallback hits).
+- [x] 2.2 Add the two `claude plugin` commands and `npx -y skills add typesafe-ai/skills --skill typesafe-ai -g -y --agent opencode junie codex` to the non-macOS fallback. Verify with `grep -n 'typesafe' run_onchange_install-packages.sh.tmpl` (2 fallback lines covering the 3 commands).
 
 ## 3. Shell secrets
 
