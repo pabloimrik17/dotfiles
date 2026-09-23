@@ -11,7 +11,7 @@
 ## 3. Shell secrets
 
 - [x] 3.1 Add a guarded `[[ -r "$XDG_CONFIG_HOME/zsh/secrets.zsh" ]] && source "$XDG_CONFIG_HOME/zsh/secrets.zsh"` after the `# User configuration` exports in `dot_zshrc.tmpl`. Verify: `zsh -n` on the rendered template passes, and `zsh -i -c exit` with the file absent prints nothing.
-- [x] 3.2 USER: write `~/.config/zsh/secrets.zsh` with `export TYPESAFE_API_KEY=...`, then run `! chezmoi add --encrypt ~/.config/zsh/secrets.zsh` so the plaintext never reaches the agent. Verify: `dot_config/zsh/encrypted_private_secrets.zsh.age` exists in the dev clone, starts with `age-encryption.org/v1`, and `git grep` finds no key prefix in tracked files.
+- [x] 3.2 USER: write `~/.config/zsh/secrets.zsh` with `export TYPESAFE_API_KEY=...`, then run `! chezmoi add --encrypt ~/.config/zsh/secrets.zsh` so the plaintext never reaches the agent. Verify: `dot_config/zsh/encrypted_private_secrets.zsh.age` exists in the dev clone, is age ciphertext (`-----BEGIN AGE ENCRYPTED FILE-----` armored header), and `git grep` finds no key prefix in tracked files.
 - [x] 3.3 Verify end to end: after `chezmoi apply`, `stat -f %Lp ~/.config/zsh/secrets.zsh` prints `600`, and `zsh -i -c '[[ -n $TYPESAFE_API_KEY ]] && echo ok'` prints `ok`.
 
 ## 4. Docs and apply
