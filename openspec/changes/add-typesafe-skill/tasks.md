@@ -16,6 +16,6 @@
 
 ## 4. Docs and apply
 
-- [x] 4.1 Update the README and `docs/manual.html` (via the update-readme / update-manual skills): list the TypeSafe skill with its agents, and document the secrets file (path, `chezmoi edit` to add keys, rotation). Verify the entries render.
+- [x] 4.1 Update docs (via the update-readme / update-manual skills): list the TypeSafe skill with its agents in `docs/manual.html`, and document the secrets file (path, `chezmoi edit` to add keys, rotation) in the README. The README lists no individual skills, so the skill goes only in the manual. Verify the entries render.
 - [x] 4.2 Run the install groups on this machine. Verify that `claude plugin list --json` includes `typesafe@typesafe-ai` and that `npx -y skills list -g --json | jq '.[] | select(.name=="typesafe-ai") | .agents'` shows OpenCode, Junie, and Codex but not Claude Code.
 - [x] 4.3 Run `openspec validate add-typesafe-skill --strict` and confirm it passes.
