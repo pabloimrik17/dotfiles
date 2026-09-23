@@ -1302,6 +1302,7 @@ CC_MARKETPLACES=(
     "gastownhall/beads"
     "fallow-rs/fallow-skills"
     "getsentry/sentry-mcp"
+    "typesafe-ai/skills"
 )
 
 CC_PLUGINS=(
@@ -1335,6 +1336,7 @@ CC_PLUGINS=(
     "fallow@fallow-skills"
     "posthog@claude-plugins-official"
     "sentry-mcp@sentry-mcp"
+    "typesafe@typesafe-ai"
 )
 
 if command -v claude &>/dev/null; then
@@ -1907,6 +1909,7 @@ if confirm "Install global agent skills via skills.sh?"; then
         install_skill "mattpocock/skills" "to-questionnaire" "opencode junie"
         install_skill "mattpocock/skills" "wait-what" "opencode junie"
         install_skill "mattpocock/skills" "writing-for-agents" "opencode junie"
+        install_skill "typesafe-ai/skills" "typesafe-ai" "opencode junie codex"
     else
         warn "npx is not available — skipping agent skills installation"
     fi
@@ -1995,6 +1998,7 @@ info "    - claude plugin marketplace add backnotprop/plannotator && claude plug
 info "    - claude plugin marketplace add max-sixty/worktrunk && claude plugin install worktrunk@worktrunk"
 info "    - claude plugin marketplace add getsentry/sentry-mcp && claude plugin install sentry-mcp@sentry-mcp"
 info "    - claude plugin install mattpocock-skills@claude-plugins-official"
+info "    - claude plugin marketplace add typesafe-ai/skills && claude plugin install typesafe@typesafe-ai"
 info "  Agent skills (requires npx/Node.js):"
 info "    npx -y skills add vercel-labs/skills --skill find-skills -g -y"
 info "    npx -y skills add vercel-labs/agent-skills --skill vercel-react-best-practices -g -y"
@@ -2011,6 +2015,7 @@ info "    npx -y skills add coderabbitai/skills --skill autofix -g -y"
 info "    npx -y skills add slidevjs/slidev --skill slidev -g -y"
 info "    npx -y skills add gluestack/agent-skills --skill gluestack-ui-v5 -g -y --agent claude-code opencode junie codex"
 info "    npx -y skills add mattpocock/skills --skill ask-matt --skill diagnosing-bugs --skill grill-with-docs --skill triage --skill improve-codebase-architecture --skill setup-matt-pocock-skills --skill tdd --skill to-spec --skill to-tickets --skill wayfinder --skill implement --skill prototype --skill research --skill domain-modeling --skill codebase-design --skill resolving-merge-conflicts --skill wizard --skill grill-me --skill grilling --skill handoff --skill teach --skill to-questionnaire --skill wait-what --skill writing-for-agents -g -y --agent opencode junie"
+info "    npx -y skills add typesafe-ai/skills --skill typesafe-ai -g -y --agent opencode junie codex"
 info ""
 
 {{ end -}}
