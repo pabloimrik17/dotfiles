@@ -2170,6 +2170,13 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td><code>chezmoi edit ~/.config/zsh/secrets.zsh</code></td>
+                                <td>
+                                    Add or rotate a shell secret (<code>export NAME=value</code>
+                                    only); zshrc sources it, deployed with mode 600
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>
                                     <code
                                         >mkdir -p ~/.config/chezmoi &amp;&amp; age-keygen -o
@@ -2189,6 +2196,12 @@
                         <code>$EDITOR ~/.ticker.yaml</code> &rarr;
                         <code>chezmoi re-add --encrypt ~/.ticker.yaml</code> &rarr;
                         <code>chezmoi git add encrypted_dot_ticker.yaml.age</code> &rarr; commit
+                    </div>
+                    <div class="flow-only">
+                        <strong>Flow: Add or rotate a shell secret</strong><br />
+                        <code>chezmoi edit ~/.config/zsh/secrets.zsh</code> &rarr; commit
+                        <code>dot_config/zsh/encrypted_private_secrets.zsh.age</code> &rarr;
+                        <code>chezmoi update</code> on every machine
                     </div>
                     <div class="flow-only">
                         <strong>Flow: Bootstrap new machine</strong><br />
@@ -2734,6 +2747,15 @@
                                     gluestack-ui v5 setup, component patterns, and
                                     <code>npx gluestack-ui add</code> for Claude Code, OpenCode,
                                     Junie, and Codex
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>typesafe-ai</td>
+                                <td>
+                                    TypeSafe System One API context; Claude Code via the
+                                    <code>typesafe@typesafe-ai</code> plugin
+                                    (<code>/typesafe:typesafe-ai</code>), OpenCode, Junie, and Codex
+                                    via skills.sh. Needs <code>TYPESAFE_API_KEY</code>
                                 </td>
                             </tr>
                             <tr>
