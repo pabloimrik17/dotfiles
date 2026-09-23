@@ -186,7 +186,7 @@ chezmoi re-add --encrypt ~/.ticker.yaml
 **Add or rotate a shell secret** (API keys exported to every interactive zsh):
 
 ```sh
-# Opens the decrypted ~/.config/zsh/secrets.zsh and re-encrypts on save
+# Opens the decrypted ~/.config/zsh/secrets.zsh and re-encrypts when the editor exits
 chezmoi edit ~/.config/zsh/secrets.zsh
 ```
 
