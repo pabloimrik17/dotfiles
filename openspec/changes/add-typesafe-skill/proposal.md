@@ -6,7 +6,7 @@ The TypeSafe skill (`typesafe-ai/skills`) gives agents the context to build with
 
 - Claude Code: register the `typesafe-ai` marketplace (`typesafe-ai/skills`) and install `typesafe@typesafe-ai`. The marketplace goes in `CC_MARKETPLACES`/`CC_PLUGINS` and in `modify_settings.json.tmpl` (`extraKnownMarketplaces` + `enabledPlugins`).
 - OpenCode, Junie, Codex: install the `typesafe-ai` skill through skills.sh (`--agent opencode junie codex`), leaving out `claude-code`. Upstream says to use one install method per agent.
-- Non-macOS fallback prints both install commands.
+- Non-macOS fallback prints the plugin and skills.sh install commands.
 - New age-encrypted shell secrets file at `~/.config/zsh/secrets.zsh` (source `dot_config/zsh/encrypted_private_secrets.zsh.age`), mode 600. It exports `TYPESAFE_API_KEY`, and future keys go in the same file.
 - `dot_zshrc.tmpl` sources the secrets file when it exists.
 
