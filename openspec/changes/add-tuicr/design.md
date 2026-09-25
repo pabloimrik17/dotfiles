@@ -77,7 +77,7 @@ Verifying this needs the wait: `source-file ~/.tmux.conf` followed by an immedia
 
 ### 7. Agent skill from upstream, not hand-written
 
-`install_skill "agavra/tuicr" "tuicr" "claude-code opencode junie codex"` in the existing agent-skills group — same helper, same single confirmation prompt, same `npx skills list -g --json` cache check and error counter as the other 14 skills. Precedent for a dedicated capability per skill: `gluestack-ui-v5-skill-install`, `slidev-skill-install`.
+`install_skill "agavra/tuicr" "tuicr" "claude-code opencode junie codex"` in the existing agent-skills group — same helper, same single confirmation prompt, same `npx skills list -g --json` cache check and error counter as the other skills in the group. Precedent for a dedicated capability per skill: `gluestack-ui-v5-skill-install`, `slidev-skill-install`.
 
 Upstream over vendored: the skill encodes the CLI contract (`review list` / `review comments` / `review add`, slug addressing, `"active": true` discovery) and tracks it as tuicr evolves. Vendoring would fork that contract.
 
