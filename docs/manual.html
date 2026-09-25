@@ -1554,8 +1554,12 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><code>:q</code></td>
-                                <td>Quit &mdash; <kbd>q</kbd> on its own does not</td>
+                                <td><code>:wq</code> / <kbd>ZZ</kbd> / <code>:q</code></td>
+                                <td>
+                                    <code>:wq</code> / <kbd>ZZ</kbd> save and quit (prompts to copy
+                                    comments); <code>:q</code> quits without saving and warns on
+                                    unsaved comments &mdash; <kbd>q</kbd> on its own does not quit
+                                </td>
                             </tr>
                             <tr>
                                 <td>Config</td>
@@ -1574,7 +1578,7 @@
                     <div class="flow-only">
                         <strong>Flow: Self-review before pushing</strong><br />
                         <code>lg</code> &rarr; <kbd>V</kbd> &rarr; comment with <kbd>c</kbd> &rarr;
-                        <code>:q</code> &rarr; <code>gcmsg</code>
+                        <code>:wq</code> &rarr; <code>gcmsg</code>
                     </div>
                     <div class="flow-only">
                         <strong>Flow: Full feature cycle</strong><br />
