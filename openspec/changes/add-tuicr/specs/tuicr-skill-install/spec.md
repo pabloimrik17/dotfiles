@@ -95,9 +95,9 @@ The tuicr install step SHALL NOT modify any file managed by chezmoi — notably 
 - **THEN** all newly created files or symlinks live under `~/.agents/skills/tuicr/` or in `skills.sh`-managed per-agent skill links
 - **AND** no chezmoi-managed path is created or modified
 
-### Requirement: The skill reads reviews, and only writes with explicit approval
+### Requirement: The skill reads reviews, and writes only in a user-requested agent review
 
-The installed skill SHALL be the agent-side half of the review loop: it discovers sessions with `tuicr review list` (selecting the row with `"active": true`), reads the human's feedback with `tuicr review comments`. Writes follow upstream's workflow split: in a user-led review the agent never runs `tuicr review add`; in an agent review the user asked for, it may add findings under an explicit `--username`, and asks first when the workflow or session is ambiguous. The skill is unpinned, so this gate is upstream's, not enforced locally. Unattended agent-authored comments are out of scope for this capability.
+The installed skill SHALL be the agent-side half of the review loop: it discovers sessions with `tuicr review list` (selecting the row with `"active": true`) and reads the human's feedback with `tuicr review comments`. Writes follow upstream's workflow split: in a user-led review the agent never runs `tuicr review add`; in an agent review the user asked for, it may add findings under an explicit `--username`, and asks first when the workflow or session is ambiguous. The skill is unpinned, so this gate is upstream's, not enforced locally. Unattended agent-authored comments are out of scope for this capability.
 
 #### Scenario: Agent reads a live review without being told the CLI shape
 

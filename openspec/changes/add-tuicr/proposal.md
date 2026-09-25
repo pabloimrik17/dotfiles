@@ -16,7 +16,7 @@ Code review today happens either in the browser or delegated to Claude (`b`/`B` 
 - tmux popup styling: `popup-border-lines rounded` + Catppuccin `popup-border-style` in `dot_tmux.conf` (benefits any future popup).
 - Docs: README What's Included entry + `assets/tuicr-overview.png` overview screenshot + docs/manual.html section (via docs:readme / docs:manual skills).
 
-Out of scope: a bespoke `--stdout`-piped handoff — superseded by the skill's `tuicr review` CLI, which reads comments as structured JSON instead of scraping an export. Also out of scope: unattended agent-authored comments (the skill gates `tuicr review add` behind explicit user approval).
+Out of scope: a bespoke `--stdout`-piped handoff — superseded by the skill's `tuicr review` CLI, which reads comments as structured JSON instead of scraping an export. Also out of scope: unattended agent-authored comments (the skill never runs `tuicr review add` in a user-led review, and adds findings only in a user-requested agent review).
 
 ## Capabilities
 
