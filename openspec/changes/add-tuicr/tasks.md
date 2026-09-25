@@ -18,8 +18,8 @@ Verification steps that need deployed files: run `chezmoi apply --source <this r
 
 ## 3. gh-dash keybindings
 
-- [x] 3.1 Add `z` (direct: `cd {{.RepoPath}} && tuicr pr {{.PrNumber}}`) and `Z` (tmux `display-popup -E -w 95% -h 95% -T " {{.RepoName}}#{{.PrNumber}} " 'cd {{.RepoPath}} && tuicr pr {{.PrNumber}}'` — see design §2 on why not `-d`) to the `prs` keybindings with `name` fields; verify both appear in the `?` help menu and shadow no built-ins
-- [x] 3.2 Press `z` on a real PR; verify gh-dash suspends, tuicr shows the PR diff with CI checks, and quitting resumes gh-dash at the same section/cursor
+- [x] 3.1 Add `z` (direct: `cd {{.RepoPath}} && tuicr pr {{.PrNumber}}`) and `Z` (tmux `display-popup -E -w 95% -h 95% -T " {{.RepoName}}#{{.PrNumber}} " 'cd {{.RepoPath}} && tuicr pr {{.PrNumber}}'` — see design §2 on why not `-d`) to the `prs` keybindings with `name` fields; verify both appear in the `?` help menu and shadow no built-ins (QA ran on the former n/N keys; payload unchanged, z/Z statically confirmed unbound in gh-dash v4.26.0)
+- [x] 3.2 Press `z` on a real PR; verify gh-dash suspends, tuicr shows the PR diff with CI checks, and quitting resumes gh-dash at the same section/cursor (QA ran on the former n/N keys; payload unchanged, z/Z statically confirmed unbound in gh-dash v4.26.0)
 - [ ] 3.3 Press `Z` on a real PR inside tmux; verify the popup opens over gh-dash with title and rounded border, that tuicr runs in the repo (the `cd` form, not `-d` — design §2), and that closing tuicr returns to gh-dash intact
 
 ## 4. lazygit
@@ -38,7 +38,7 @@ Verification steps that need deployed files: run `chezmoi apply --source <this r
 
 - [x] 7.1 Open a working-tree session (`tuicr -w`), leave it running, and from a second shell run `tuicr review list --repo .`; verify exactly one row with `kind: local`, a usable `slug`, and `"active": true`
 - [ ] 7.2 Ask Claude to read the review in that session; verify it invokes the skill, resolves the slug, and reports the comments without being told the CLI shape by hand
-- [x] 7.3 Open a PR session via the gh-dash `z` binding and run `tuicr review list --repo owner/repo`; verify the PR row appears with a `gh:owner/repo/pr/N` slug
+- [x] 7.3 Open a PR session via the gh-dash `z` binding and run `tuicr review list --repo owner/repo`; verify the PR row appears with a `gh:owner/repo/pr/N` slug (QA ran on the former n/N keys; payload unchanged, z/Z statically confirmed unbound in gh-dash v4.26.0)
 
 ## 8. AoE tool-session
 
