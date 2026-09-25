@@ -2,7 +2,7 @@
 
 ## Context
 
-See proposal.md — Why. tuicr 0.25.0 at implementation (the config keys used here are unchanged through 0.27.0), reads `~/.config/tuicr/config.toml` (static TOML), auths through the already-configured `gh`. Integration surfaces touched: install script, chezmoi config, gh-dash keybindings, lazygit customCommands, zshrc, tmux.conf. tmux here is 3.7b (`display-popup` needs ≥3.2).
+See proposal.md — Why. tuicr 0.25.0 at implementation (the config keys used here are unchanged through 0.27.0), reads `~/.config/tuicr/config.toml` (static TOML), auths through the already-configured `gh`. Integration surfaces touched: install script, chezmoi config, gh-dash keybindings, lazygit customCommands, zshrc, tmux.conf, AoE config, README, manual docs. tmux here is 3.7b (`display-popup` needs ≥3.2).
 
 ## Goals / Non-Goals
 
