@@ -2,7 +2,7 @@
 # Managed by chezmoi. Deploys to ~/.config/tuicr/config.toml.
 
 theme = "catppuccin-mocha"
-no_update_check = true # brew owns the binary; self-update would bypass it
+no_update_check = true # skip the startup update check; `brew upgrade` is the update path
 show_pr_checks = true
 username = "pabloimrik17"
 diff_view = "side-by-side" # runtime-togglable with `:diff`

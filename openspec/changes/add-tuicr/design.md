@@ -32,7 +32,7 @@ Single-user dotfiles; `username = "pabloimrik17"` hardcoded (same call as tickrs
 
 ```toml
 theme = "catppuccin-mocha"
-no_update_check = true      # brew owns updates; tuicr update would bypass it
+no_update_check = true      # skip the startup update check; `brew upgrade` is the update path
 show_pr_checks = true
 username = "pabloimrik17"
 diff_view = "side-by-side"  # runtime-togglable with `:diff`

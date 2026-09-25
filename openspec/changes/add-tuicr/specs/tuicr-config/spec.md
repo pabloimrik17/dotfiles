@@ -26,7 +26,7 @@ The config SHALL set `theme = "catppuccin-mocha"` (bundled theme), matching the 
 
 ### Requirement: Update check disabled
 
-The config SHALL set `no_update_check = true`. Homebrew owns the binary; tuicr's startup update check and self-update path must stay out of the way.
+The config SHALL set `no_update_check = true` to skip tuicr's startup update check; `brew upgrade` is the update path (`tuicr update`/`:update` remain available on demand).
 
 #### Scenario: No update prompt at startup
 
