@@ -4,7 +4,7 @@
 
 ### Requirement: Popup styling
 
-The tmux configuration SHALL style overlay popups with rounded border lines (`popup-border-lines rounded`) and a Catppuccin Mocha accent border color (`popup-border-style`), so popups launched by any tool (gh-dash tuicr review, future bindings) match the stack theme. The accent color SHALL hold both with and without the catppuccin plugin installed: the plugin sets `popup-border-style` itself from a deferred `run -b`, which lands after the plain `set -g` lines, so the configuration SHALL also re-set it at the tail of that chain.
+The tmux configuration SHALL style overlay popups with rounded border lines (`popup-border-lines rounded`) and a Catppuccin Mocha accent border color (`popup-border-style`), so popups launched by any tool (gh-dash tuicr review, future bindings) match the stack theme. The accent color SHALL hold both with and without the catppuccin plugin installed: the plugin sets `popup-border-style` itself from a deferred `run -b`, which lands after the plain `set -g` lines, so the configuration SHALL also re-set it at the tail of that chain. That chain is the one defined by the `tmux-catppuccin` capability's "tmux uses Catppuccin plugin with Mocha flavor" requirement; if that chain changes, the popup-border-style re-set at its tail SHALL be preserved.
 
 #### Scenario: Popup renders themed
 
