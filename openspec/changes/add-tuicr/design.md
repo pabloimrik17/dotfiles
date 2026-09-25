@@ -12,9 +12,9 @@ See proposal.md — Why. tuicr 0.25.0 (current homebrew-core stable), reads `~/.
 
 ## Decisions
 
-### 1. gh-dash keys `n`/`N` (not `e`/`E`)
+### 1. gh-dash keys `z`/`Z` (not `e`/`E` or `n`/`N`)
 
-`e` is a gh-dash built-in in the PRs section ("expand description", verified in `internal/tui/keys/prKeys.go`). House rule since fix-ghd-keybinding-collisions: never shadow built-ins. Full enumeration of the PRs section + universal defaults + existing custom keys leaves exactly two free lowercase/uppercase pairs: `n`/`N` and `z`/`Z`. Chosen `n`/`N` (mnemonic: aNnotate). Convention kept: lowercase = direct execution, uppercase = tmux variant.
+`e` is a gh-dash built-in in the PRs section ("expand description", verified in `internal/tui/keys/prKeys.go`). House rule since fix-ghd-keybinding-collisions: never shadow built-ins. Full enumeration of the PRs section + universal defaults + existing custom keys (gh-dash v4.26.0 `internal/tui/keys/`) leaves `z`/`Z` as the only free lowercase/uppercase pair. `n`/`N` looks unbound but is not: `n` is the second stroke of the built-in `ctrl+s n` (new section), and `internal/tui/ui.go` dispatches custom keys before section mode, so a custom `n` would swallow it and leave section mode armed. Convention kept: lowercase = direct execution, uppercase = tmux variant.
 
 ### 2. Popup over split for the tmux variant
 
@@ -22,7 +22,7 @@ See proposal.md — Why. tuicr 0.25.0 (current homebrew-core stable), reads `~/.
 
 - Working directory: the `-d "{{.RepoPath}}"` form was rejected on evidence. gh-dash renders `{{.RepoPath}}` as the literal `~/WebstormProjects/<repo>` (see gh-dash-repo-paths), and tmux does not tilde-expand a start-directory — it silently falls back to `$HOME` (probed on tmux 3.7b: `new-window -c '~/WebstormProjects'` lands in `/Users/etherless`). A wrong directory with no error is the worst failure mode here, so the binding uses the fallback form, `'cd {{.RepoPath}} && tuicr pr {{.PrNumber}}'`, which leaves the expansion to the shell. `wt -C {{.RepoPath}}` works in the existing bindings only because it is unquoted and the outer shell expands it first.
 - Injection: only deterministic tokens (`RepoPath`, `RepoName`, `PrNumber`); never `{{.Title}}` — same rationale documented on the AoE bindings.
-- Coexists with the skill: the skill ships its own `tuicr-wrapper.sh` that opens a tuicr pane when `$TMUX` is set. That is the agent-initiated path; `n`/`N` is the human-initiated one. Different entry points onto the same session store, no conflict.
+- Coexists with the skill: the skill ships its own `tuicr-wrapper.sh` that opens a tuicr pane when `$TMUX` is set. That is the agent-initiated path; `z`/`Z` is the human-initiated one. Different entry points onto the same session store, no conflict.
 
 ### 3. Static config.toml, no `.tmpl`
 
@@ -51,13 +51,13 @@ intro = "Address the review comments below. Treat 'issue' as required, 'suggesti
 
 The five ids are a superset of the four the skill's legend documents to the agent. Equivalences:
 
-| config id | skill legend | agent action |
-|-----------|--------------|--------------|
-| `issue` | `issue` | blocking; fix first |
-| `suggestion` | `suggestion` | implement or explain why not |
-| `question` | `note` | answer or acknowledge |
-| `nit` | (extends `suggestion`) | non-blocking; judgment call |
-| `praise` | `praise` | no action |
+| config id    | skill legend           | agent action                 |
+| ------------ | ---------------------- | ---------------------------- |
+| `issue`      | `issue`                | blocking; fix first          |
+| `suggestion` | `suggestion`           | implement or explain why not |
+| `question`   | `note`                 | answer or acknowledge        |
+| `nit`        | (extends `suggestion`) | non-blocking; judgment call  |
+| `praise`     | `praise`               | no action                    |
 
 Ids must stay self-describing in plain English, because `definition` does **not** travel to the agent: `tuicr review comments` emits `id`, `location`, `path`, `start_line`, `end_line`, `side`, `comment_type`, `lifecycle_state`, `content` — the curated definitions only reach a consumer through the `[export]` path, which the skill treats as legacy. `question` and `nit` are outside the skill's legend but read unambiguously on their own; that is the whole reason for keeping them rather than collapsing to the skill's four.
 
@@ -96,7 +96,7 @@ Skipping the hotkey is also what keeps this change small. An `Alt+<key>` binding
 ## Risks / Trade-offs
 
 - [tuicr pr resolves the forge from the local checkout; main checkout may be on any branch] → PR mode fetches the diff from the forge via `gh`, so local branch state is irrelevant; verify once during implementation with a dirty checkout.
-- [`n`/`N` shadow a future gh-dash built-in after an upgrade] → same exposure as every existing custom key; the collision-fix change documents the audit procedure (`?` menu).
+- [`z`/`Z` shadow a future gh-dash built-in after an upgrade] → same exposure as every existing custom key; the collision-fix change documents the audit procedure (`?` menu).
 - [Popup styling applies globally to all popups] → intended: benefits any future popup consumer.
 - [tuicr version drift vs config options] → brew, not a `gh` extension: all options used are present in 0.25.0; `no_update_check` keeps brew authoritative.
 - [Skill's CLI contract drifts from the brew-pinned binary] → the skill is fetched at install time and the binary at brew-upgrade time, so they can desync. Failure mode is loud (`tuicr review` errors), not silent; `brew upgrade tuicr` plus a skills re-add resyncs.

@@ -82,7 +82,9 @@ keybindings:
         - key: t
           name: CI checks (inline)
           command: ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}
-        - key: n
+        # z/Z, not n/N: custom keys dispatch before section mode, so `n` would
+        # swallow the second stroke of the built-in ctrl+s n (new section).
+        - key: z
           name: Review in tuicr
           command: cd {{.RepoPath}} && tuicr pr {{.PrNumber}}
         # Tmux variants (opens in split pane)
@@ -101,7 +103,7 @@ keybindings:
         # No -d: gh-dash renders {{.RepoPath}} as a literal ~/..., and tmux does
         # not tilde-expand its start-directory (it silently falls back to $HOME).
         # `cd` inside the payload leaves the expansion to the shell.
-        - key: N
+        - key: Z
           name: Review in tuicr (tmux popup)
           command: tmux display-popup -E -w 95% -h 95% -T " {{.RepoName}}#{{.PrNumber}} " 'cd {{.RepoPath}} && tuicr pr {{.PrNumber}}'
         # AoE lifecycle commands return without attaching, so these direct

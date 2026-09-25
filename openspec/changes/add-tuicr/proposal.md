@@ -9,7 +9,7 @@ Code review today happens either in the browser or delegated to Claude (`b`/`B` 
 - Install `tuicr` via Homebrew in `run_onchange_install-packages.sh.tmpl`.
 - Install the upstream `agavra/tuicr` agent skill via the existing `install_skill` helper, inside the confirmation-gated agent-skills group (targets `claude-code opencode junie codex`), plus its line in the non-macOS manual block. The skill owns the agent half of review: `tuicr review list` to discover sessions, `tuicr review comments` to read the human's feedback as JSON, `tuicr review add` for agent-authored findings.
 - New managed config at `dot_config/tuicr/config.toml`: catppuccin-mocha theme, `no_update_check` (brew owns updates), `show_pr_checks`, `username`, LLM-oriented `comment_types` (issue/suggestion/question/nit/praise with definitions), tuned `[export]` intro.
-- gh-dash PR keybindings: `n` opens `tuicr pr <n>` via direct execution (suspend/resume, like `L`), `N` opens it in a `tmux display-popup -E` overlay that returns to gh-dash untouched on exit. Only deterministic tokens (`{{.RepoPath}}`, `{{.PrNumber}}`, `{{.RepoName}}`) — same injection rule as the AoE bindings. Keys verified against built-ins before landing (see fix-ghd-keybinding-collisions).
+- gh-dash PR keybindings: `z` opens `tuicr pr <n>` via direct execution (suspend/resume, like `L`), `Z` opens it in a `tmux display-popup -E` overlay that returns to gh-dash untouched on exit. Only deterministic tokens (`{{.RepoPath}}`, `{{.PrNumber}}`, `{{.RepoName}}`) — same injection rule as the AoE bindings. Keys verified against built-ins before landing (see fix-ghd-keybinding-collisions).
 - lazygit customCommand in `files` context: launch `tuicr -w` for working-tree self-review before committing.
 - AoE tool-session: `[tools.tuicr]` with `command = "tuicr"` and **no hotkey** in the managed AoE config, so tuicr shows up in the `;` tool picker scoped to the selected session's worktree — the natural place to read what an agent just wrote.
 - zsh aliases: `tcr` (tuicr) and `tcrw` (tuicr -w).
@@ -29,7 +29,7 @@ Out of scope: a bespoke `--stdout`-piped handoff — superseded by the skill's `
 
 ### Modified Capabilities
 
-- `gh-dash-keybindings`: add PR keys `n` (direct tuicr review) and `N` (tmux popup tuicr review), following the lowercase-direct / uppercase-tmux convention. (`e` is a gh-dash built-in — expand description; see design §1.)
+- `gh-dash-keybindings`: add PR keys `z` (direct tuicr review) and `Z` (tmux popup tuicr review), following the lowercase-direct / uppercase-tmux convention. (`e` and `n` are gh-dash built-ins — expand description, `ctrl+s n` new section; see design §1.)
 - `zsh-aliases`: add `tcr` and `tcrw` aliases.
 - `tmux-config`: add popup border styling (rounded lines, Catppuccin border color).
 - `agent-manager`: add `[tools.tuicr]` to the AoE managed-keys set (it owns `[tools.*]` and the MANAGED enumeration).
