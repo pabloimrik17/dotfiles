@@ -97,9 +97,9 @@ keybindings:
         - key: T
           name: CI checks (tmux)
           command: tmux split-window -h 'ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}'
-        # Popup, not a split: a diff wants full width, and the popup overlays the
-        # pane so gh-dash keeps running underneath and is exactly where it was
-        # when tuicr exits (-E closes the popup on command exit).
+        # Popup, not a split: a diff wants full width, plus a frame and title.
+        # gh-dash is suspended until the popup closes (as with z), then resumes
+        # where it was (-E closes the popup on command exit).
         # No -d: gh-dash renders {{.RepoPath}} as a literal ~/..., and tmux does
         # not tilde-expand its start-directory (it silently falls back to $HOME).
         # `cd` inside the payload leaves the expansion to the shell.

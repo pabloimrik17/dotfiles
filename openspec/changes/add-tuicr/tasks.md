@@ -20,7 +20,7 @@ Verification steps that need deployed files: run `chezmoi apply --source <this r
 
 - [x] 3.1 Add `z` (direct: `cd {{.RepoPath}} && tuicr pr {{.PrNumber}}`) and `Z` (tmux `display-popup -E -w 95% -h 95% -T " {{.RepoName}}#{{.PrNumber}} " 'cd {{.RepoPath}} && tuicr pr {{.PrNumber}}'` — see design §2 on why not `-d`) to the `prs` keybindings with `name` fields; verify both appear in the `?` help menu and shadow no built-ins (QA ran on the former n/N keys; payload unchanged, z/Z statically confirmed unbound in gh-dash v4.26.0)
 - [x] 3.2 Press `z` on a real PR; verify gh-dash suspends, tuicr shows the PR diff with CI checks, and quitting resumes gh-dash at the same section/cursor (QA ran on the former n/N keys; payload unchanged, z/Z statically confirmed unbound in gh-dash v4.26.0)
-- [ ] 3.3 Press `Z` on a real PR inside tmux; verify the popup opens over gh-dash with title and rounded border, that tuicr runs in the repo (the `cd` form, not `-d` — design §2), and that closing tuicr returns to gh-dash intact
+- [ ] 3.3 Press `Z` on a real PR inside tmux; verify the popup opens with title and rounded border, that tuicr runs in the repo (the `cd` form, not `-d` — design §2), and that closing tuicr resumes gh-dash at the same section/cursor
 
 ## 4. lazygit
 

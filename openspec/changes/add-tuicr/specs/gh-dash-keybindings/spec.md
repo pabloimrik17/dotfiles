@@ -13,17 +13,17 @@ The PR keybindings SHALL include a `z` key that opens the selected PR in tuicr u
 
 ### Requirement: PR tuicr review keybinding (tmux popup)
 
-The PR keybindings SHALL include a `Z` key that opens the selected PR in tuicr inside a tmux overlay popup. The command SHALL use `tmux display-popup -E` with tuicr running in `{{.RepoPath}}`, a size of at least 90% x 90%, and a title carrying `{{.RepoName}}#{{.PrNumber}}`. The working directory SHALL be reached by a `cd` inside the popup payload, not by tmux's `-d` flag: gh-dash renders `{{.RepoPath}}` with an unexpanded `~`, and tmux silently falls back to `$HOME` rather than tilde-expanding a start-directory. Closing tuicr SHALL close the popup, leaving the gh-dash pane untouched (section, cursor, and scroll preserved — gh-dash keeps running under the popup).
+The PR keybindings SHALL include a `Z` key that opens the selected PR in tuicr inside a tmux popup. The command SHALL use `tmux display-popup -E` with tuicr running in `{{.RepoPath}}`, a size of at least 90% x 90%, and a title carrying `{{.RepoName}}#{{.PrNumber}}`. The working directory SHALL be reached by a `cd` inside the popup payload, not by tmux's `-d` flag: gh-dash renders `{{.RepoPath}}` with an unexpanded `~`, and tmux silently falls back to `$HOME` rather than tilde-expanding a start-directory. As with `z`, gh-dash is suspended while the popup is open: it runs custom commands in the foreground, and `display-popup` does not return until the popup closes. Closing tuicr SHALL close the popup and resume gh-dash with section and selection intact. The popup's gain over a split is a framed, titled, near-full-size view.
 
 #### Scenario: tuicr opens over gh-dash in a popup
 
 - **WHEN** the user presses `Z` on a PR while inside a tmux session
-- **THEN** a popup overlay opens running `tuicr pr <n>` on top of gh-dash
+- **THEN** a titled popup opens running `tuicr pr <n>`, and gh-dash stays suspended until it closes
 
 #### Scenario: Closing the popup returns to gh-dash intact
 
 - **WHEN** the user quits tuicr inside the popup
-- **THEN** the popup closes and gh-dash is exactly where it was, without refetching or losing selection
+- **THEN** the popup closes and gh-dash resumes on the same section and selection
 
 ## MODIFIED Requirements
 
