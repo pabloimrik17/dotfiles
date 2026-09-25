@@ -46,7 +46,7 @@ comment_types = [
 ]
 
 [export]
-intro = "Address the review comments below. Treat 'issue' as required, 'suggestion' as recommended, answer 'question's, use judgment on 'nit's."
+intro = "Address the review comments below. Treat 'issue' as required, 'suggestion' as recommended, answer each 'question', use judgment on each 'nit', and take no action on 'praise'."
 ```
 
 The five ids are a superset of the four the skill's legend documents to the agent. Equivalences:

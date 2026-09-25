@@ -97,7 +97,7 @@ The tuicr install step SHALL NOT modify any file managed by chezmoi — notably 
 
 ### Requirement: The skill reads reviews, and only writes with explicit approval
 
-The installed skill SHALL be the agent-side half of the review loop: it discovers sessions with `tuicr review list` (selecting the row with `"active": true`), reads the human's feedback with `tuicr review comments`, and gates `tuicr review add` behind explicit user approval. Unattended agent-authored comments are out of scope for this capability.
+The installed skill SHALL be the agent-side half of the review loop: it discovers sessions with `tuicr review list` (selecting the row with `"active": true`), reads the human's feedback with `tuicr review comments`. Writes follow upstream's workflow split: in a user-led review the agent never runs `tuicr review add`; in an agent review the user asked for, it may add findings under an explicit `--username`, and asks first when the workflow or session is ambiguous. The skill is unpinned, so this gate is upstream's, not enforced locally. Unattended agent-authored comments are out of scope for this capability.
 
 #### Scenario: Agent reads a live review without being told the CLI shape
 
@@ -105,10 +105,12 @@ The installed skill SHALL be the agent-side half of the review loop: it discover
 - **THEN** the agent invokes the skill, resolves the session slug from `tuicr review list`, and reports the comments
 - **AND** it does not require the CLI invocation to be dictated by hand
 
-#### Scenario: Agent-authored comments require approval
+#### Scenario: Agent-authored comments follow the workflow gate
 
 - **WHEN** an agent would add its own findings to a session via `tuicr review add`
-- **THEN** it asks for explicit user approval first
+- **THEN** it does so only in a user-requested agent review, under an explicit `--username`
+- **AND** it asks first when the workflow or target session is ambiguous
+- **AND** it never adds comments during a user-led review
 
 ### Requirement: The skill's comment-type vocabulary tolerates the curated ids
 
