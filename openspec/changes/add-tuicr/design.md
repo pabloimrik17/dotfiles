@@ -2,7 +2,7 @@
 
 ## Context
 
-See proposal.md — Why. tuicr 0.25.0 (current homebrew-core stable), reads `~/.config/tuicr/config.toml` (static TOML), auths through the already-configured `gh`. Integration surfaces touched: install script, chezmoi config, gh-dash keybindings, lazygit customCommands, zshrc, tmux.conf. tmux here is 3.7b (`display-popup` needs ≥3.2).
+See proposal.md — Why. tuicr 0.25.0 at implementation (config keys unchanged through 0.27.0), reads `~/.config/tuicr/config.toml` (static TOML), auths through the already-configured `gh`. Integration surfaces touched: install script, chezmoi config, gh-dash keybindings, lazygit customCommands, zshrc, tmux.conf. tmux here is 3.7b (`display-popup` needs ≥3.2).
 
 ## Goals / Non-Goals
 
@@ -81,7 +81,7 @@ Verifying this needs the wait: `source-file ~/.tmux.conf` followed by an immedia
 
 Upstream over vendored: the skill encodes the CLI contract (`review list` / `review comments` / `review add`, slug addressing, `"active": true` discovery) and tracks it as tuicr evolves. Vendoring would fork that contract.
 
-No version floor to enforce: slug-addressed sessions for agent discovery landed in 0.16.x (#339) and `review --repo` became a repo selector in 0.17.1 (#399), both far below the 0.25.0 brew ships. 0.25.0's Sessions tab (#669) is a TUI convenience, not a CLI dependency.
+No version floor to enforce: slug-addressed sessions for agent discovery landed in 0.16.x (#339) and `review --repo` became a repo selector in 0.17.1 (#399), both far below 0.25.0, the version at implementation. 0.25.0's Sessions tab (#669) is a TUI convenience, not a CLI dependency.
 
 Agent targets match the gluestack precedent (all four agents in use) rather than the Claude-Code-only default: the skill is agent-agnostic and OpenCode/Junie/Codex review the same repos.
 
@@ -99,7 +99,7 @@ Skipping the hotkey is also what keeps this change small. An `Alt+<key>` binding
 - [`z`/`Z` shadow a future gh-dash built-in after an upgrade] → same exposure as every existing custom key; the collision-fix change documents the audit procedure (`?` menu).
 - [Intel macOS: no bottle → each install/upgrade is a rust source build, rust stays installed] → accepted under the install script's Platform-constraint block; upstream tap (`agavra/homebrew-tap`) is stale (0.19.1 vs 0.27.0), no current prebuilt brew route.
 - [Popup styling applies globally to all popups] → intended: benefits any future popup consumer.
-- [tuicr version drift vs config options] → brew, not a `gh` extension: all options used are present in 0.25.0; `no_update_check` keeps brew authoritative.
+- [tuicr version drift vs config options] → brew, not a `gh` extension: all config keys used are present through 0.27.0 (checked at 0.25.0, 0.26.0, 0.27.0); `no_update_check` only skips the startup update check — brew (`brew upgrade`) stays the update path, and upstream `tuicr update` itself defers to brew when brew owns the binary.
 - [Skill's CLI contract drifts from the brew-pinned binary] → the skill is fetched at install time and the binary at brew-upgrade time, so they can desync. Failure mode is loud (`tuicr review` errors), not silent; `brew upgrade tuicr` plus a skills re-add resyncs.
 - [Skill overrides the curated `comment_types` semantics] → it does not write config, only reads `comment_type` strings; the two unmapped ids (`question`, `nit`) degrade to plain English, not to an error. The skill also has agents write `--type note`, absent from config: tuicr accepts it as an unconfigured type with a hardcoded fallback color, outside the Tab cycle, warning (not erroring) from 0.26.0. Accepted — no config change needed.
 
