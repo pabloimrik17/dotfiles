@@ -2593,11 +2593,13 @@
                         for compatibility and selection controls.
                     </p>
 
-                    <h3>Daily Agentic Task Force lab</h3>
+                    <h3>Daily Agentic Task Force</h3>
                     <p class="note">
                         <code>datf-lab@daily-agentic-task-force</code> is a provisional staging
                         plugin for Daily Agentic Task Force workflows, not a stable distribution
-                        channel.
+                        channel. <code>autonomous@daily-agentic-task-force</code> is the entry point
+                        of the autonomous loop; its step contract and
+                        <code>autonomous.run.v1</code> report are provisional.
                     </p>
                     <table>
                         <thead>
@@ -2616,14 +2618,49 @@
                                 <td>Guide a provisional workflow through promotion from the lab</td>
                             </tr>
                             <tr>
+                                <td>
+                                    <code
+                                        >/autonomous:run [--account &lt;provider-key&gt;] [--force]
+                                        [--json]</code
+                                    >
+                                </td>
+                                <td>
+                                    Run the loop's gate steps (today, a Claude quota gate) and
+                                    report whether it may proceed
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Exit codes</td>
+                                <td>
+                                    <code>0</code> advance, <code>2</code> wait, <code>3</code> not
+                                    evaluable, <code>1</code> usage or runner error
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Requirements</td>
+                                <td>
+                                    <code>bun</code> and the <code>openusage</code> CLI on
+                                    <code>PATH</code>. OpenUsage is installed manually; without it
+                                    the gate reports <code>not-evaluable</code>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Updates</td>
                                 <td>
-                                    Claude Code auto-updates the plugin through the
+                                    Claude Code auto-updates both plugins through the
                                     <code>daily-agentic-task-force</code> marketplace
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                    <p>
+                        See the
+                        <a
+                            href="https://github.com/pabloimrik17/daily-agentic-task-force/blob/main/plugins/autonomous/README.md"
+                            >autonomous README</a
+                        >
+                        for flags and the quota-gate rules.
+                    </p>
 
                     <h3>Slash commands (from plugins)</h3>
                     <table>
