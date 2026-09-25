@@ -14,7 +14,7 @@ Code review today happens either in the browser or delegated to Claude (`b`/`B` 
 - AoE tool-session: `[tools.tuicr]` with `command = "tuicr"` and **no hotkey** in the managed AoE config, so tuicr shows up in the `;` tool picker scoped to the selected session's worktree — the natural place to read what an agent just wrote.
 - zsh aliases: `tcr` (tuicr) and `tcrw` (tuicr -w).
 - tmux popup styling: `popup-border-lines rounded` + Catppuccin `popup-border-style` in `dot_tmux.conf` (benefits any future popup).
-- Docs: README What's Included entry + docs/manual.html section (via docs:readme / docs:manual skills).
+- Docs: README What's Included entry + `assets/tuicr-overview.png` overview screenshot + docs/manual.html section (via docs:readme / docs:manual skills).
 
 Out of scope: a bespoke `--stdout`-piped handoff — superseded by the skill's `tuicr review` CLI, which reads comments as structured JSON instead of scraping an export. Also out of scope: unattended agent-authored comments (the skill gates `tuicr review add` behind explicit user approval).
 
@@ -43,5 +43,5 @@ Out of scope: a bespoke `--stdout`-piped handoff — superseded by the skill's `
 - `dot_config/private_agent-of-empires/modify_private_config.toml`: one new MANAGED entry (already in `.oxfmtignore`, so the `modify_`-script-with-`.toml`-extension hazard is covered).
 - `dot_zshrc.tmpl`: two aliases.
 - `dot_tmux.conf`: popup styling lines.
-- `README.md`, `docs/manual.html`: new tool documented.
+- `README.md`, `docs/manual.html`: new tool documented, plus `assets/tuicr-overview.png` added to the README overview screenshot gallery.
 - No breaking changes. Apply reaches machines via `chezmoi update` (dual-dir layout).

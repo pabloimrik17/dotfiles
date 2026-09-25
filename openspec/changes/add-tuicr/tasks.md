@@ -49,6 +49,6 @@ Verification steps that need deployed files: run `chezmoi apply --source <this r
 
 ## 9. Docs & close
 
-- [x] 9.1 Update `README.md` What's Included via the docs:readme skill; verify the tuicr row is present and mentions the agent skill
+- [x] 9.1 Update `README.md` What's Included via the docs:readme skill, adding the `assets/tuicr-overview.png` overview screenshot; verify the tuicr row is present and mentions the agent skill
 - [x] 9.2 Update `docs/manual.html` via the docs:manual skill (tool section, the new keybindings/aliases, and the `tuicr review` agent loop); verify section renders
 - [x] 9.3 Run quality gates (`bun run` lint/format per repo config) and `openspec validate add-tuicr --strict`; verify both pass
