@@ -46,9 +46,11 @@ All custom PR keybindings that have both a direct and tmux variant SHALL use low
 
 No custom keybinding SHALL use a key that is assigned to a built-in gh-dash function in the same view context. Specifically, the following keys are reserved for built-ins:
 
-- Universal/Navigation: `g`, `G`, `j`, `k`, `h`, `l`, `r`, `R`, `s`, `q`, `?`, `/`, `p`, `o`, `y`, `Y`
-- PR view: `a`, `A`, `c`, `C`, `d`, `e`, `m`, `u`, `v`, `w`, `W`, `x`, `X`, `[`, `]`, `V`
-- Section mode (`ctrl+s` prefix): `n` (second stroke of `ctrl+s n`, new section; custom keys dispatch before section mode, so a custom `n` would shadow it)
+- Universal/Navigation: `g`, `G`, `j`, `k`, `h`, `l`, `r`, `R`, `s`, `q`, `?`, `/`, `p`, `P`, `o`, `y`, `Y`, `ctrl+c`, `ctrl+d`, `ctrl+u`, and the arrow/`home`/`end` aliases
+- PR view: `a`, `A`, `c`, `C`, `d`, `e`, `L`, `m`, `t`, `u`, `v`, `w`, `W`, `x`, `X`, `[`, `]`, `V`, `space`
+- Section mode (`ctrl+s` prefix): `n` (`ctrl+s n`, new section) and `x` (`ctrl+s x`, remove section); custom keys dispatch before section mode, so a custom `n` or `x` would shadow them
+
+Known pre-existing exceptions, out of this change's scope: the custom universal `L` and prs `t` shadow the built-ins `L` (label) and `t` (toggle smart filtering); rebinding them is a separate follow-up.
 
 #### Scenario: No collision with navigation defaults
 
