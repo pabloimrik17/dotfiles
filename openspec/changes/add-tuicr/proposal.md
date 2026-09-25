@@ -34,6 +34,7 @@ Out of scope: a bespoke `--stdout`-piped handoff — superseded by the skill's `
 - `tmux-config`: add popup border styling (rounded lines, Catppuccin border color).
 - `tmux-catppuccin`: document the `popup-border-style` re-set at the tail of the catppuccin `run -b` chain.
 - `agent-manager`: add `[tools.tuicr]` to the AoE managed-keys set (it owns `[tools.*]` and the MANAGED enumeration).
+- `cli-tool-expansion`: add `tuicr` to the `BREW_PACKAGES` requirement (29 → 30 entries; homebrew/core, identity `pkg_bin`).
 - `llmfit-install`, `ticker-install`, `tickrs-install`: brew pre-scan count made count-free (`N/N`); adding tuicr made the hard-coded 29/29 stale.
 
 ## Impact
