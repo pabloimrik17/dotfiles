@@ -26,7 +26,7 @@ The config SHALL set `theme = "catppuccin-mocha"` (bundled theme), matching the 
 
 ### Requirement: Update check disabled
 
-The config SHALL set `no_update_check = true` to skip tuicr's startup update check; `brew upgrade` is the update path (`tuicr update`/`:update` remain available on demand).
+The config SHALL set `no_update_check = true` to skip tuicr's startup update check (`:update` still checks on demand); `brew upgrade tuicr` is the update path. `tuicr update` is not used: on a Homebrew install it runs `brew upgrade agavra/tap/tuicr`, the upstream tap formula, not homebrew-core `tuicr`.
 
 #### Scenario: No update prompt at startup
 
