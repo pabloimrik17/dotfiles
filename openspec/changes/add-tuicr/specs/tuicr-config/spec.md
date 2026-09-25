@@ -58,7 +58,7 @@ The config SHALL define `comment_types` with ids `issue`, `suggestion`, `questio
 #### Scenario: Comment type cycling offers the curated set
 
 - **WHEN** the user creates a comment and cycles types with Tab
-- **THEN** the five curated types are offered in order
+- **THEN** the five curated types are offered in order, followed by untyped
 
 ### Requirement: Export intro tuned for agent handoff
 
