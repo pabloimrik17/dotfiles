@@ -13,7 +13,7 @@ Verification steps that need deployed files: run `chezmoi apply --source <this r
 ## 2. Config
 
 - [x] 2.1 Create `dot_config/tuicr/config.toml` with the design §4 contents (theme, no_update_check, show_pr_checks, username, diff_view, comment_types, [export] intro); verify `~/.config/tuicr/config.toml` deploys and `tuicr -w` launches catppuccin-mocha themed with no update check
-- [x] 2.2 In a dirty repo, open `tuicr -w`, Tab through comment types (issue/suggestion/question/nit/praise in order) and export with `y`; verify the export opens with the configured intro
+- [x] 2.2 In a dirty repo, open `tuicr -w`, Tab through comment types (issue/suggestion/question/nit/praise in order) and export with `y`; verify the export carries the configured intro right after the `## Session: <slug>` header
 - [x] 2.3 With comments of each type saved, run `tuicr review comments --repo . --session <slug>`; verify the JSON `comment_type` field carries the five ids verbatim (design §4 mapping holds without a `definition` field)
 
 ## 3. gh-dash keybindings

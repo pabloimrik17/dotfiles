@@ -67,7 +67,7 @@ The `[export]` section SHALL set an `intro` that addresses the review to an impl
 #### Scenario: Export carries the tuned intro
 
 - **WHEN** the user exports a review via `y` or `--stdout`
-- **THEN** the markdown opens with the configured intro line
+- **THEN** the markdown carries the configured intro line right after the `## Session: <slug>` header
 
 #### Scenario: CLI is preferred over export for agent handoff
 
