@@ -1,0 +1,4 @@
+# CODEOWNERS - defines who must review PRs
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+* @pabloimrik17
