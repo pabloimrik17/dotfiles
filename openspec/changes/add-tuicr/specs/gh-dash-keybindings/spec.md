@@ -50,7 +50,7 @@ No custom keybinding SHALL use a key that is assigned to a built-in gh-dash func
 - PR view: `a`, `A`, `c`, `C`, `d`, `e`, `L`, `m`, `t`, `u`, `v`, `w`, `W`, `x`, `X`, `[`, `]`, `V`, `space`
 - Section mode (`ctrl+s` prefix): `n` (`ctrl+s n`, new section) and `x` (`ctrl+s x`, remove section); custom keys dispatch before section mode, so a custom `n` or `x` would shadow them
 
-Known pre-existing exceptions, out of this change's scope: the custom universal `L` and prs `t` shadow the built-ins `L` (label) and `t` (toggle smart filtering); rebinding them is a separate follow-up.
+Known exceptions, pending a separate rebind: the custom universal `L` and prs `t` shadow the built-ins `L` (label) and `t` (toggle smart filtering).
 
 #### Scenario: No collision with navigation defaults
 
