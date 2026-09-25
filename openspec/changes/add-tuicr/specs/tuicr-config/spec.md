@@ -53,7 +53,7 @@ The config SHALL set `diff_view = "side-by-side"`, preserving the setting the un
 
 ### Requirement: LLM-oriented comment types
 
-The config SHALL define `comment_types` with ids `issue`, `suggestion`, `question`, `nit`, and `praise`, each with a `definition` (emitted only in the export's `Comment types:` legend — tuicr's TUI never renders it) and a color drawn from the Catppuccin Mocha palette. The ids SHALL be self-describing in plain English: `tuicr review comments` emits only the `comment_type` string to an agent, never the `definition`, so the id alone must carry the intent. The set is a superset of the four buckets the tuicr agent skill documents (`issue`, `suggestion`, `note`, `praise`), with `question` mapping to `note` and `nit` extending `suggestion`.
+The config SHALL define `comment_types` with ids `issue`, `suggestion`, `question`, `nit`, and `praise`, each with a `definition` (emitted only in the export's `Comment types:` legend — tuicr's TUI never renders it) and a color drawn from the Catppuccin Mocha palette. The ids SHALL be self-describing in plain English: `tuicr review comments` emits only the `comment_type` string to an agent, never the `definition`, so the id alone must carry the intent. The set covers the four buckets the tuicr agent skill documents (`issue`, `suggestion`, `note`, `praise`) via this mapping: `question` maps to `note`, and `nit` extends `suggestion`.
 
 #### Scenario: Comment type cycling offers the curated set
 
