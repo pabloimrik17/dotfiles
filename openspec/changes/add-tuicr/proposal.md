@@ -39,7 +39,7 @@ Out of scope: a bespoke `--stdout`-piped handoff — superseded by the skill's `
 
 ## Impact
 
-- `run_onchange_install-packages.sh.tmpl`: `BREW_PACKAGES` gains `tuicr` (dep `libgit2` pulled automatically); the agent-skills group gains one `install_skill` call and the non-macOS manual block one matching line; the non-macOS manual block's CLI-tools list and its annotated `tuicr` install hint (cargo/curl) each gain a line; both the macOS and non-macOS closing `Installation complete!` CLI-tools summary lines gain `tuicr`.
+- `run_onchange_install-packages.sh.tmpl`: `BREW_PACKAGES` gains `tuicr` (dep `libgit2` pulled automatically); the agent-skills group gains one `install_skill` call and the non-macOS manual block one matching line; the non-macOS manual block's CLI-tools list gains `tuicr` and a new annotated install hint line (cargo/curl) is added; both the macOS and non-macOS closing `Installation complete!` CLI-tools summary lines gain `tuicr`.
 - `dot_config/tuicr/config.toml`: new file (plain TOML — no oxfmt concern; only chezmoi `modify_`/`run_` scripts are at risk).
 - `dot_config/gh-dash/config.yml`: two new `prs` keybindings.
 - `dot_config/lazygit/config.yml.tmpl`: one new customCommand.
