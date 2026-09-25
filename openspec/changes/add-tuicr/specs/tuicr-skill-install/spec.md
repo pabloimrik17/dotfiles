@@ -114,13 +114,20 @@ The installed skill SHALL be the agent-side half of the review loop: it discover
 
 ### Requirement: The skill's comment-type vocabulary tolerates the curated ids
 
-The skill's documented legend (`issue`, `suggestion`, `note`, `praise`) SHALL NOT constrain the ids configured in `tuicr-config`. `tuicr review comments` emits the configured `comment_type` string verbatim and never the `definition`, so ids outside the legend — `question` and `nit` — reach the agent as plain English rather than as an error.
+The skill's documented legend (`issue`, `suggestion`, `note`, `praise`) SHALL NOT constrain the ids configured in `tuicr-config`. `tuicr review comments` emits the configured `comment_type` string verbatim and never the `definition`, so ids outside the legend — `question` and `nit` — reach the agent as plain English rather than as an error. The same tolerance covers writes: upstream also has agents write findings with `--type note`, an id absent from the curated config. tuicr accepts it as an unconfigured custom type — colored via its own hardcoded per-id fallback rather than a configured badge, and left out of the Tab cycle — and, from tuicr 0.26.0, prints a non-blocking stderr warning. No config change is required.
 
 #### Scenario: Unmapped ids degrade to plain English
 
 - **WHEN** an agent reads comments typed `question` or `nit`
 - **THEN** `comment_type` carries those ids verbatim
 - **AND** neither the CLI nor the skill errors on an id outside its documented legend
+
+#### Scenario: Agent-written note comments are accepted unconfigured
+
+- **WHEN** an agent runs `tuicr review add --type note`
+- **THEN** tuicr stores the comment as an unconfigured custom type rather than erroring
+- **AND** it renders with tuicr's hardcoded fallback color for `note`, outside the Tab-cycle set
+- **AND** tuicr 0.26.0+ prints a non-blocking warning to stderr instead of rejecting the write
 
 ### Requirement: Non-macOS manual instructions include tuicr
 

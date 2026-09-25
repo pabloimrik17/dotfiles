@@ -101,7 +101,7 @@ Skipping the hotkey is also what keeps this change small. An `Alt+<key>` binding
 - [Popup styling applies globally to all popups] → intended: benefits any future popup consumer.
 - [tuicr version drift vs config options] → brew, not a `gh` extension: all options used are present in 0.25.0; `no_update_check` keeps brew authoritative.
 - [Skill's CLI contract drifts from the brew-pinned binary] → the skill is fetched at install time and the binary at brew-upgrade time, so they can desync. Failure mode is loud (`tuicr review` errors), not silent; `brew upgrade tuicr` plus a skills re-add resyncs.
-- [Skill overrides the curated `comment_types` semantics] → it does not write config, only reads `comment_type` strings; the two unmapped ids (`question`, `nit`) degrade to plain English, not to an error.
+- [Skill overrides the curated `comment_types` semantics] → it does not write config, only reads `comment_type` strings; the two unmapped ids (`question`, `nit`) degrade to plain English, not to an error. The skill also has agents write `--type note`, absent from config: tuicr accepts it as an unconfigured type with a hardcoded fallback color, outside the Tab cycle, warning (not erroring) from 0.26.0. Accepted — no config change needed.
 
 ## Migration Plan
 
