@@ -24,3 +24,20 @@ The PR keybindings SHALL include a `Z` key that opens the selected PR in tuicr i
 
 - **WHEN** the user quits tuicr inside the popup
 - **THEN** the popup closes and gh-dash is exactly where it was, without refetching or losing selection
+
+## MODIFIED Requirements
+
+### Requirement: Lowercase/uppercase pattern for direct/tmux variants
+
+All custom PR keybindings that have both a direct and tmux variant SHALL use lowercase for direct execution and uppercase for the tmux variant of the same action. AoE keybindings SHALL remain exempt: their queue and background lifecycle operations do not take over the terminal and have no tmux variant. Instead, `f` queues or reuses a normal session and `F` starts or resumes a review-team session.
+
+#### Scenario: Pattern is consistent across interactive custom PR keybindings
+
+- **WHEN** inspecting the keybindings config
+- **THEN** `b`/`B` (review), `i`/`I` (worktree), `t`/`T` (CI checks), and `z`/`Z` (tuicr review) all follow lowercase=direct and uppercase=tmux
+
+#### Scenario: AoE queue keybindings use the session/review convention
+
+- **WHEN** inspecting the `f` and `F` keybindings
+- **THEN** `f` queues or reuses a normal AoE session and `F` starts or resumes an AoE review-team session
+- **AND** neither has a tmux variant
