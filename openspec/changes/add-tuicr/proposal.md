@@ -32,6 +32,7 @@ Out of scope: a bespoke `--stdout`-piped handoff — superseded by the skill's `
 - `gh-dash-keybindings`: add PR keys `z` (direct tuicr review) and `Z` (tmux popup tuicr review), following the lowercase-direct / uppercase-tmux convention. (`e` and `n` are gh-dash built-ins — expand description, `ctrl+s n` new section; see design §1.)
 - `zsh-aliases`: add `tcr` and `tcrw` aliases.
 - `tmux-config`: add popup border styling (rounded lines, Catppuccin border color).
+- `tmux-catppuccin`: document the `popup-border-style` re-set at the tail of the catppuccin `run -b` chain.
 - `agent-manager`: add `[tools.tuicr]` to the AoE managed-keys set (it owns `[tools.*]` and the MANAGED enumeration).
 
 ## Impact
