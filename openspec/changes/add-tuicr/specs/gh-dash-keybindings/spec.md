@@ -41,3 +41,21 @@ All custom PR keybindings that have both a direct and tmux variant SHALL use low
 - **WHEN** inspecting the `f` and `F` keybindings
 - **THEN** `f` queues or reuses a normal AoE session and `F` starts or resumes an AoE review-team session
 - **AND** neither has a tmux variant
+
+### Requirement: Custom keybindings SHALL NOT collide with built-in defaults
+
+No custom keybinding SHALL use a key that is assigned to a built-in gh-dash function in the same view context. Specifically, the following keys are reserved for built-ins:
+
+- Universal/Navigation: `g`, `G`, `j`, `k`, `h`, `l`, `r`, `R`, `s`, `q`, `?`, `/`, `p`, `o`, `y`, `Y`
+- PR view: `a`, `A`, `c`, `C`, `d`, `e`, `m`, `u`, `v`, `w`, `W`, `x`, `X`, `[`, `]`, `V`
+- Section mode (`ctrl+s` prefix): `n` (second stroke of `ctrl+s n`, new section; custom keys dispatch before section mode, so a custom `n` would shadow it)
+
+#### Scenario: No collision with navigation defaults
+
+- **WHEN** the config is loaded by gh-dash
+- **THEN** the built-in `g` (first item), `G` (last item), `R` (refresh all) navigation keys function as documented
+
+#### Scenario: No collision with PR defaults
+
+- **WHEN** user is in PR view
+- **THEN** the built-in `C` (checkout), `W` (mark ready for review) keys function as documented
