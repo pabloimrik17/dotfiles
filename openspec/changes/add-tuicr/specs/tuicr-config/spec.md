@@ -53,12 +53,17 @@ The config SHALL set `diff_view = "side-by-side"`, preserving the setting the un
 
 ### Requirement: LLM-oriented comment types
 
-The config SHALL define `comment_types` with ids `issue`, `suggestion`, `question`, `nit`, and `praise`, each with a `definition` (emitted only in the export's `Comment types:` legend — tuicr's TUI never renders it) and a color drawn from the Catppuccin Mocha palette. The ids SHALL be self-describing in plain English: `tuicr review comments` emits only the `comment_type` string to an agent, never the `definition`, so the id alone must carry the intent. The set covers the four buckets the tuicr agent skill documents (`issue`, `suggestion`, `note`, `praise`) via this mapping: `question` maps to `note`, and `nit` extends `suggestion`.
+The config SHALL define `comment_types` with ids `issue`, `suggestion`, `question`, `nit`, and `praise`, each with a `definition` (emitted only in the export's `Comment types:` legend — tuicr's TUI never renders it) and a color drawn from the Catppuccin Mocha palette. The ids SHALL be self-describing in plain English: `tuicr review comments` emits only the `comment_type` string to an agent, never the `definition`, so the id alone must carry the intent. The set covers the four buckets the tuicr agent skill documents (`issue`, `suggestion`, `note`, `praise`) via this mapping: `question` maps to `note`, and `nit` extends `suggestion`. `issue` SHALL be listed first, because tuicr uses the first configured type as the default for a new comment.
 
 #### Scenario: Comment type cycling offers the curated set
 
 - **WHEN** the user creates a comment and cycles types with Tab
 - **THEN** the five curated types are offered in order, followed by untyped
+
+#### Scenario: Default comment type is issue
+
+- **WHEN** the user creates a comment without pressing Tab
+- **THEN** it is typed `issue`
 
 ### Requirement: Export intro tuned for agent handoff
 

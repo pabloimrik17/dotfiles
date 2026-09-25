@@ -61,6 +61,8 @@ The five ids cover the four the skill's legend documents to the agent, via this 
 
 Ids must stay self-describing in plain English, because `definition` does **not** travel to the agent: `tuicr review comments` emits fields such as `id`, `location`, `path`, `start_line`, `end_line`, `side`, `comment_type`, `lifecycle_state`, `content` (plus `created_at`, and `author` from 0.26.0) — the curated definitions only reach a consumer through the `[export]` path, which the skill treats as legacy. `question` and `nit` are outside the skill's legend but read unambiguously on their own; that is the whole reason for keeping them rather than collapsing to the skill's four.
 
+tuicr uses the first configured type as the default for a new comment (`resolve_comment_types`/`default_comment_type` in `src/app/init.rs`), so a comment saved without pressing Tab is `issue`; kept first on purpose, since a reviewer comment should default to blocking unless downgraded with Tab.
+
 Colors are Catppuccin Mocha (red/blue/yellow/overlay/green). `diff_view = "side-by-side"` pins the setting that was already in the unmanaged config this file replaces; it stays togglable at runtime with `:diff`. Everything else stays at defaults: `transparent_background = true` matches the Ghostty transparency setup, `mouse = true` matches tmux `mouse on`.
 
 ### 5. lazygit binding `V` in files context
