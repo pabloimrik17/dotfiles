@@ -1554,11 +1554,16 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><code>:wq</code> / <kbd>ZZ</kbd> / <code>:q</code></td>
                                 <td>
-                                    <code>:wq</code> / <kbd>ZZ</kbd> save and quit (prompts to copy
-                                    comments); <code>:q</code> quits without saving and warns on
-                                    unsaved comments &mdash; <kbd>q</kbd> on its own does not quit
+                                    <code>:wq</code> / <kbd>ZZ</kbd> / <code>:q</code> /
+                                    <code>:q!</code>
+                                </td>
+                                <td>
+                                    <code>:wq</code> saves and quits, asking to copy the review;
+                                    <kbd>ZZ</kbd> saves, copies and quits without asking;
+                                    <code>:q</code> refuses while comments are unsaved,
+                                    <code>:q!</code> discards them &mdash; <kbd>q</kbd> on its own
+                                    only shows a hint
                                 </td>
                             </tr>
                             <tr>
