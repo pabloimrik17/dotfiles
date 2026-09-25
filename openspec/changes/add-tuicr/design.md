@@ -97,6 +97,7 @@ Skipping the hotkey is also what keeps this change small. An `Alt+<key>` binding
 
 - [tuicr pr resolves the forge from the local checkout; main checkout may be on any branch] → PR mode fetches the diff from the forge via `gh`, so local branch state is irrelevant; verify once during implementation with a dirty checkout.
 - [`z`/`Z` shadow a future gh-dash built-in after an upgrade] → same exposure as every existing custom key; the collision-fix change documents the audit procedure (`?` menu).
+- [Intel macOS: no bottle → each install/upgrade is a rust source build, rust stays installed] → accepted under the install script's Platform-constraint block; upstream tap (`agavra/homebrew-tap`) is stale (0.19.1 vs 0.27.0), no current prebuilt brew route.
 - [Popup styling applies globally to all popups] → intended: benefits any future popup consumer.
 - [tuicr version drift vs config options] → brew, not a `gh` extension: all options used are present in 0.25.0; `no_update_check` keeps brew authoritative.
 - [Skill's CLI contract drifts from the brew-pinned binary] → the skill is fetched at install time and the binary at brew-upgrade time, so they can desync. Failure mode is loud (`tuicr review` errors), not silent; `brew upgrade tuicr` plus a skills re-add resyncs.

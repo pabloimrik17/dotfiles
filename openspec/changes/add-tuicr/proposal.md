@@ -2,7 +2,7 @@
 
 ## Why
 
-Code review today happens either in the browser or delegated to Claude (`b`/`B` in gh-dash). There is no fast terminal path for a human to read a PR diff, leave line-level comments, and submit a real review. tuicr (homebrew-core, static binary, vim keybindings, bundled catppuccin-mocha theme, auth via the already-configured `gh`) fills that gap and also covers pre-commit self-review of the working tree.
+Code review today happens either in the browser or delegated to Claude (`b`/`B` in gh-dash). There is no fast terminal path for a human to read a PR diff, leave line-level comments, and submit a real review. tuicr (homebrew-core; bottled on arm64, source-built with `rust` on Intel macOS; vim keybindings, bundled catppuccin-mocha theme, auth via the already-configured `gh`) fills that gap and also covers pre-commit self-review of the working tree.
 
 ## What Changes
 

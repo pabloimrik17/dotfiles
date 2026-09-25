@@ -8,7 +8,7 @@ tuicr (code review TUI) brew installation during the install script, plus the ma
 
 ### Requirement: tuicr is installed via brew
 
-The `BREW_PACKAGES` array SHALL include `tuicr` so the binary is installed during the brew packages group (homebrew-core formula; `libgit2` arrives as its dependency). The entry SHALL participate in the group's existing confirm prompt and idempotency logic.
+The `BREW_PACKAGES` array SHALL include `tuicr` so the binary is installed during the brew packages group (homebrew-core formula; `libgit2` arrives as its dependency; ships no x86_64 macOS bottle, so an Intel host source-builds it with `rust` on every install/upgrade, per the script's Platform-constraint block). The entry SHALL participate in the group's existing confirm prompt and idempotency logic.
 
 #### Scenario: tuicr included in brew packages
 
