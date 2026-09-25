@@ -17,7 +17,7 @@ The `BREW_PACKAGES` array SHALL include `tuicr` so the binary is installed durin
 
 #### Scenario: tuicr already installed is skipped
 
-- **WHEN** the install script runs and `tuicr` is already installed via brew
+- **WHEN** the install script runs and `tuicr` is already on PATH (the group checks `command -v`, as for every `BREW_PACKAGES` entry)
 - **THEN** the script logs `tuicr — already installed, skipping` and does not reinstall
 
 ### Requirement: Non-macOS instructions mention tuicr
