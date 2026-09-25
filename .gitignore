@@ -1,6 +1,8 @@
 .idea/
 .worktrees/
 node_modules/
+# OpenCode-generated dependency state
+.opencode/package-lock.json
 .claude/settings.local.json
 .claude/.worktree-base
 # fallow analysis cache

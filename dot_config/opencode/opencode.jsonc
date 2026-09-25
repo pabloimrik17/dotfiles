@@ -8,17 +8,31 @@
             "enabled": true,
         },
     },
-    // websearch-cited must be LAST to avoid impacting other plugins' auth
     "plugin": [
         "@tarquinen/opencode-dcp@latest",
         "@plannotator/opencode@latest",
         "opencode-wakatime",
-        "opencode-websearch-cited@1.2.0",
+        "superpowers@git+https://github.com/obra/superpowers.git",
     ],
     "mcp": {
         "expect": {
             "type": "local",
             "command": ["npx", "-y", "expect-cli@latest", "mcp"],
+            "enabled": true,
+        },
+        "deepwiki": {
+            "type": "remote",
+            "url": "https://mcp.deepwiki.com/mcp",
+            "enabled": true,
+        },
+        "jetbrains": {
+            "type": "remote",
+            "url": "http://localhost:64542/stream",
+            "enabled": true,
+        },
+        "linear": {
+            "type": "remote",
+            "url": "https://mcp.linear.app/mcp",
             "enabled": true,
         },
         "posthog": {

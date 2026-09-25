@@ -1,0 +1,12 @@
+{
+    "schemaVersion": 1,
+    "autoswitch": {
+        "threshold": 85,
+        "intervalSeconds": 60,
+        "cooldownSeconds": 300,
+        "hysteresisPct": 10,
+        "strategy": "best",
+        "includeApiKeyAccounts": false,
+        "unhealthyTicks": 3
+    }
+}

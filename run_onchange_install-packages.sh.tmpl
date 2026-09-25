@@ -70,6 +70,19 @@ confirm() {
     esac
 }
 
+print_linear_mcp_guidance() {
+    info "  - Linear MCP uses https://mcp.linear.app/mcp; each supported client keeps its own OAuth grant outside the dotfiles"
+    info "    Claude Code: claude mcp add --scope user --transport http linear https://mcp.linear.app/mcp"
+    info "      Authenticate: claude mcp login linear (or /mcp); status: claude mcp get linear"
+    info "    OpenCode: chezmoi manages the native remote entry; authenticate with 'opencode mcp auth linear'"
+    info "      Status: opencode mcp list; OAuth state stays in OpenCode's native credential store"
+    info "    Codex: codex mcp add linear --url https://mcp.linear.app/mcp (this may open OAuth immediately)"
+    info "      Authenticate/recover: codex mcp login linear; status: codex mcp list --json"
+    info "    Junie: chezmoi merges a credential-free user entry into ~/.junie/mcp/mcp.json"
+    info "      Not currently supported: Linear OAuth returns '400 Bad Request: Client must not use multiple authentication methods'"
+    info "      Revisit after a Junie update: retry /mcp authorization and require Active before functional verification"
+}
+
 {{ if eq .chezmoi.os "darwin" -}}
 # ====================================================================
 # macOS — install via Homebrew
@@ -83,8 +96,60 @@ fi
 # ------------------------------------------------------------------
 # Group 1: Brew packages
 # ------------------------------------------------------------------
-BREW_TAPS=(tarkah/tickrs achannarasappa/tap)
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tickrs ticker age mole aoe glow mdfried tuicr)
+BREW_TAPS=(tarkah/tickrs achannarasappa/tap AlexsJones/llmfit)
+# Tap-sourced formulae are listed fully qualified (<user>/<tap>/<formula>).
+# Homebrew 6 refuses to load a bare-named formula from a third-party tap, so a
+# bare entry is uninstallable on a fresh host — and an untrusted tap is omitted
+# from `brew outdated` entirely, which is how ticker reached three months of
+# undetected drift. Each qualified entry needs its own pkg_bin arm below.
+#
+# llmfit is qualified for a further reason: a bare `llmfit` resolves to the
+# homebrew/core formula, which declares `rust` as a build dependency and ships no
+# x86_64 macOS bottle — an Intel host would compile it on install and on every
+# upgrade. The tap formula unpacks a sha256-pinned prebuilt release tarball.
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tarkah/tickrs/tickrs achannarasappa/tap/ticker age mole aoe glow mdfried AlexsJones/llmfit/llmfit tuicr)
+
+# ---- Platform constraint: Intel x86_64 bottle EOL -------------------------
+# Homebrew stopped producing x86_64 macOS bottles in September 2026 (announced
+# August 2025); the notice prints on every `brew upgrade --dry-run` on such a
+# host and points at MacPorts. Scope: amd64 macOS only.
+#
+# Consequences, in the order they bite:
+#   - On amd64 every future formula upgrade is a source build, and each one
+#     leaves its build dependencies (go, node, python@3.14, cmake, protobuf, …)
+#     installed afterwards; `brew autoremove` does not reclaim them.
+#   - The bottles that still pour here are residual stock built before the
+#     cutoff, not an ongoing guarantee. The pour set shrinks with every release.
+#   - Upgrade-cost reasoning written on this host does NOT transfer to arm64,
+#     where the same package still pours. Any deferral recorded because a build
+#     is expensive is an amd64 statement, not a property of the package.
+# ---------------------------------------------------------------------------
+
+# ---- Declared version holds ----------------------------------------------
+# A `brew pin` writes only to $(brew --prefix)/var/homebrew/pinned/, which
+# neither git nor chezmoi observes: pinning by hand protects the host you typed
+# it on and leaves the other one exposed. Declaring holds here makes them
+# reproducible across the fleet.
+#
+# Format: "package|reason|exit condition". Both text fields are mandatory — a
+# hold with no stated exit condition is indistinguishable from an oversight.
+BREW_HOLDS=(
+    "beads|1.2.2 is v1.1.2 republished under a higher version number: its binary knows schema v53 while the local Dolt databases are migrated to v65, so every bd command fails and the bd prime session hook drops memories from injected context without erroring|a beads release whose schema cursor reaches v65 or higher"
+)
+
+# Record of the holds this script applied, so removing a declaration actually
+# releases the hold instead of leaving the host frozen with no message. A script
+# that only ever adds holds is the same silent-success shape this repo is fixing
+# elsewhere: the declaration disappears and nothing happens. A declared package
+# that is not installed, or was already pinned by hand, is never recorded, so
+# removing its declaration never releases a hand-made pin. A recorded package
+# that is no longer installed is dropped from the record without `brew unpin`.
+BREW_HOLDS_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-holds"
+
+# Declared packages that are not installed. The pre-scan and install loop skip
+# them: a hold means the version brew would install is wrong for this repo, so
+# installing it lands exactly what the hold exists to avoid.
+BREW_HOLDS_ABSENT=()
 
 # Resolve the binary name for a given package (bash 3 compatible)
 pkg_bin() {
@@ -94,21 +159,140 @@ pkg_bin() {
         worktrunk) echo "wt" ;;
         beads)     echo "bd" ;;
         television) echo "tv" ;;
+        # Qualified tap entries: the identity mapping would yield
+        # "achannarasappa/tap/ticker", and `command -v` on that can never
+        # succeed — the idempotency check would fail on every run and the
+        # script would reinstall a package that is already present.
+        tarkah/tickrs/tickrs)      echo "tickrs" ;;
+        achannarasappa/tap/ticker) echo "ticker" ;;
+        AlexsJones/llmfit/llmfit)  echo "llmfit" ;;
         *)         echo "$1" ;;
     esac
 }
 
-# Register third-party Homebrew taps before the pre-scan.
-# `brew tap` is idempotent: returns 0 without re-fetching if already tapped.
+# Apply declared holds before anything else in this group, so no later step can
+# advance a package that is deliberately frozen. Reconciles in both directions:
+# declared holds are applied, and holds this script previously applied that are
+# no longer declared are released.
+apply_brew_holds() {
+    local entry pkg reason exit_condition pinned
+    local previously=() declared=() applied=() released=()
+
+    # Read the previous record before the declared loop: an already-pinned
+    # package counts as this script's hold only if this script recorded it.
+    if [ -f "$BREW_HOLDS_STATE" ]; then
+        while IFS= read -r pkg; do
+            [ -n "$pkg" ] || continue
+            previously+=("$pkg")
+        done < "$BREW_HOLDS_STATE"
+    fi
+
+    pinned="$(brew list --pinned 2>/dev/null)"
+
+    for entry in "${BREW_HOLDS[@]:-}"; do
+        [ -n "$entry" ] || continue
+        IFS='|' read -r pkg reason exit_condition <<< "$entry"
+        if [ -z "$pkg" ] || [ -z "$reason" ] || [ -z "$exit_condition" ]; then
+            error "Malformed BREW_HOLDS entry (want package|reason|exit condition): $entry"
+            continue
+        fi
+        declared+=("$pkg")
+        if ! brew list --formula "$pkg" &>/dev/null; then
+            warn "$pkg is held and not installed; not installing it. Reason: $reason. Exit condition: $exit_condition"
+            BREW_HOLDS_ABSENT+=("$pkg")
+            continue
+        fi
+        # Check first: `brew pin` on an already-pinned formula still exits 0 but
+        # prints "Warning: <pkg> already pinned", and a weekly warning about a
+        # deliberate hold trains the reader to ignore the script's output.
+        if printf '%s\n' "$pinned" | grep -qx "$pkg"; then
+            case " ${previously[*]:-} " in
+                *" $pkg "*) applied+=("$pkg") ;;
+                *) info "  $pkg — already pinned by hand, not recorded" ;;
+            esac
+            continue
+        fi
+        if ! brew pin "$pkg"; then
+            error "Failed to hold $pkg"
+            continue
+        fi
+        applied+=("$pkg")
+    done
+
+    for pkg in "${previously[@]:-}"; do
+        [ -n "$pkg" ] || continue
+        case " ${declared[*]:-} " in
+            *" $pkg "*) continue ;;
+        esac
+        # `brew unpin` on an absent package exits 1; drop its record instead.
+        if ! brew list --formula "$pkg" &>/dev/null; then
+            info "  $pkg — no longer installed, dropping its hold record"
+            continue
+        fi
+        info "  Releasing hold on $pkg (no longer declared)"
+        if ! brew unpin "$pkg"; then
+            error "Failed to release hold on $pkg"
+            # Still this script's hold: keep it recorded so the next run retries.
+            applied+=("$pkg")
+            continue
+        fi
+        released+=("$pkg")
+    done
+
+    # Only the record write needs the state directory. The loops above run
+    # regardless: they fill BREW_HOLDS_ABSENT, which keeps held packages out of
+    # the install loop.
+    if mkdir -p "$(dirname "$BREW_HOLDS_STATE")"; then
+        if [ "${#applied[@]}" -gt 0 ]; then
+            printf '%s\n' "${applied[@]}" > "$BREW_HOLDS_STATE"
+        else
+            : > "$BREW_HOLDS_STATE"
+        fi
+    else
+        error "Failed to create hold state directory: $(dirname "$BREW_HOLDS_STATE")"
+    fi
+    if [ "${#applied[@]}" -gt 0 ]; then
+        info "Brew holds: ${applied[*]} — verify with \`brew list --pinned\`"
+    fi
+
+    if [ "${#released[@]}" -gt 0 ]; then
+        info "Brew holds released: ${released[*]}"
+    fi
+}
+apply_brew_holds
+
+# Trust, then register, every third-party Homebrew tap before the pre-scan.
+# Homebrew 6 gates third-party taps behind a trust decision: an untrusted tap's
+# formulae are refused when addressed by bare name AND omitted from `brew
+# outdated`, so an untrusted package can fall arbitrarily far behind without ever
+# being reported. Trust is granted per tap for the whole array, so no entry runs
+# on a weaker baseline than its siblings.
+#
+# Trust comes first because `brew tap` is gated too: on a host where the tap is
+# neither trusted nor registered, its post-tap audit refuses the formulae and
+# rolls the clone back. `brew trust --tap` only writes the trust store, so it
+# succeeds for a tap that is not registered yet.
+#
+# Both commands are idempotent: `brew trust --tap` returns 0 if the tap is
+# already trusted, `brew tap` returns 0 without re-fetching if already tapped.
 for tap in "${BREW_TAPS[@]}"; do
+    if ! brew trust --tap "$tap"; then
+        error "Failed to trust tap $tap"
+        continue
+    fi
     if ! brew tap "$tap"; then
         error "Failed to tap $tap"
     fi
 done
 
-# Pre-scan: check which brew packages are already installed
+# Pre-scan: check which brew packages are already installed. A held package that
+# is not installed is neither installed nor pending; apply_brew_holds warned.
 BREW_PENDING=0
+BREW_HELD_ABSENT=0
 for pkg in "${BREW_PACKAGES[@]}"; do
+    case " ${BREW_HOLDS_ABSENT[*]:-} " in
+        *" $pkg "*) BREW_HELD_ABSENT=$((BREW_HELD_ABSENT + 1)); continue ;;
+    esac
     if [ "$pkg" = "git" ]; then
         brew list git &>/dev/null || BREW_PENDING=$((BREW_PENDING + 1))
     else
@@ -118,10 +302,13 @@ for pkg in "${BREW_PACKAGES[@]}"; do
 done
 
 if [ "$BREW_PENDING" -eq 0 ]; then
-    info "Brew packages: ${#BREW_PACKAGES[@]}/${#BREW_PACKAGES[@]} installed"
+    info "Brew packages: $((${#BREW_PACKAGES[@]} - BREW_HELD_ABSENT))/${#BREW_PACKAGES[@]} installed"
 elif confirm "Install brew packages ($BREW_PENDING/${#BREW_PACKAGES[@]} pending)?"; then
     info "Installing brew packages..."
     for pkg in "${BREW_PACKAGES[@]}"; do
+        case " ${BREW_HOLDS_ABSENT[*]:-} " in
+            *" $pkg "*) continue ;;
+        esac
         if [ "$pkg" = "git" ]; then
             # Always install brew git — system git at /usr/bin/git is outdated
             if brew list git &>/dev/null; then
@@ -147,6 +334,94 @@ elif confirm "Install brew packages ($BREW_PENDING/${#BREW_PACKAGES[@]} pending)
 else
     info "Skipping brew packages."
 fi
+
+# ------------------------------------------------------------------
+# Group 1.25: claude-swap (repo-pinned uv tool, macOS only)
+# ------------------------------------------------------------------
+# BEGIN CLAUDE_SWAP_INSTALL_HELPERS
+CLAUDE_SWAP_VERSION="0.26.0"
+
+claude_swap_installed_version() {
+    local output
+    output="$(cswap --version 2>/dev/null)" || return 1
+    printf '%s\n' "${output##* }"
+}
+
+claude_swap_menubar_ready() {
+    local cswap_path first_line python_path
+    cswap_path="$(command -v cswap 2>/dev/null)" || return 1
+    IFS= read -r first_line < "$cswap_path" || return 1
+    case "$first_line" in
+        '#!'*) python_path="${first_line#\#!}" ;;
+        *) return 1 ;;
+    esac
+    [ -x "$python_path" ] || return 1
+    "$python_path" -c 'import rumps' >/dev/null 2>&1
+}
+
+claude_swap_install_satisfied() {
+    [ "$(claude_swap_installed_version 2>/dev/null || true)" = "$CLAUDE_SWAP_VERSION" ] &&
+        claude_swap_menubar_ready
+}
+
+install_claude_swap() {
+    local installed_version service_status service_was_installed=0
+    installed_version="$(claude_swap_installed_version 2>/dev/null || true)"
+    if [ "$installed_version" = "$CLAUDE_SWAP_VERSION" ] && claude_swap_menubar_ready; then
+        info "claude-swap $CLAUDE_SWAP_VERSION — already installed, skipping"
+        return 0
+    fi
+
+    if ! command -v uv >/dev/null 2>&1; then
+        error "claude-swap: uv is required for the pinned installation"
+        return 1
+    fi
+
+    if command -v cswap >/dev/null 2>&1; then
+        service_status="$(cswap menubar --service-status 2>/dev/null || true)"
+        case "$service_status" in
+            "Menu bar service:"*) service_was_installed=1 ;;
+        esac
+    fi
+
+    info "Installing claude-swap[menubar]==$CLAUDE_SWAP_VERSION with a uv-managed Python..."
+    if ! uv tool install --managed-python --force "claude-swap[menubar]==$CLAUDE_SWAP_VERSION"; then
+        error "claude-swap: uv tool installation failed"
+        return 1
+    fi
+    hash -r
+
+    installed_version="$(claude_swap_installed_version 2>/dev/null || true)"
+    if [ "$installed_version" != "$CLAUDE_SWAP_VERSION" ]; then
+        error "claude-swap: version verification failed (expected $CLAUDE_SWAP_VERSION, got ${installed_version:-missing})"
+        return 1
+    fi
+    if ! claude_swap_menubar_ready; then
+        error "claude-swap: menubar runtime verification failed (missing rumps)"
+        return 1
+    fi
+
+    if [ "$service_was_installed" -eq 1 ]; then
+        if ! cswap menubar --install-service; then
+            error "claude-swap: installed the pin but failed to refresh the existing menu bar service"
+            return 1
+        fi
+        info "claude-swap menu bar service refreshed through cswap"
+    fi
+
+    info "claude-swap $CLAUDE_SWAP_VERSION installed and verified"
+    return 0
+}
+# END CLAUDE_SWAP_INSTALL_HELPERS
+
+if claude_swap_install_satisfied; then
+    info "claude-swap $CLAUDE_SWAP_VERSION — already installed, skipping"
+elif confirm "Install claude-swap[menubar] $CLAUDE_SWAP_VERSION (repo-pinned, macOS only)?"; then
+    install_claude_swap || true
+else
+    info "Skipping claude-swap. Re-run chezmoi apply to install the repository pin later."
+fi
+info "claude-swap updates: review and change the repository pin, then run chezmoi apply"
 
 # ------------------------------------------------------------------
 # Group 1.5: opencode + CodeRabbit + Codex (official installers, self-updating)
@@ -494,7 +769,9 @@ if command -v gh &>/dev/null; then
         # in ~/.agents/skills/<name> and leaves ~/.claude/skills/<name> as a
         # symlink to it. `gh skill list` reports the resolved path, so these come
         # back under the agent hosts `cline, universal, warp`, never
-        # `claude-code`. So an --agent-filtered check never matched, the script
+        # `claude-code`. From gh 2.99.0 `codex` joins that list too: 2.99.0
+        # moved Codex skills from ~/.codex/skills to ~/.agents/skills without
+        # migrating anything. So an --agent-filtered check never matched, the script
         # reinstalled on every run, and `gh skill install` stopped at its
         # "already exists, overwrite?" prompt — which then died on the
         # terminal's OSC 11 reply ("could not prompt: unexpected escape
@@ -647,10 +924,16 @@ fi
 # ------------------------------------------------------------------
 # Group 4: Brew casks (GUI apps) — unified structured list
 # Format: "cask-name|AppName|Category|Description"
+#
+# AppName is the cask-to-app mapping: it is resolved as /Applications/<AppName>.app,
+# so it may carry a nested path when the installer creates a directory. WhatsApp
+# installs to /Applications/WhatsApp.localized/WhatsApp.app, and a mapping that
+# could only yield "WhatsApp" produced a path that never exists — the app was
+# reported pending on every run.
 # ------------------------------------------------------------------
 ALL_CASKS=(
     "visual-studio-code|Visual Studio Code|Dev|IDE"
-    "docker|Docker|Dev|Container runtime"
+    "docker-desktop|Docker|Dev|Container runtime"
     "ghostty|Ghostty|Dev|GPU-accelerated terminal"
     "jetbrains-toolbox|JetBrains Toolbox|Dev|JetBrains IDE manager"
     "dbeaver-community|DBeaver|Dev|Database GUI client"
@@ -663,7 +946,7 @@ ALL_CASKS=(
     "the-unarchiver|The Unarchiver|Productivity|Archive extraction utility"
     "claude|Claude|AI|Claude desktop app"
     "chatgpt|ChatGPT|AI|ChatGPT desktop app"
-    "ollama|Ollama|AI|Local LLM runner"
+    "ollama-app|Ollama|AI|Local LLM runner"
 {{ if eq .chezmoi.arch "arm64" -}}
     "conductor|Conductor|AI|Claude code parallelisation"
 {{ end -}}
@@ -673,21 +956,39 @@ ALL_CASKS=(
     "superwhisper|superwhisper|AI|Voice-to-text via Whisper"
     "adobe-acrobat-reader|Adobe Acrobat Reader|Productivity|PDF reader"
     "telegram|Telegram|Optional|Messaging"
-    "whatsapp|WhatsApp|Optional|Messaging"
+    "whatsapp|WhatsApp.localized/WhatsApp|Optional|Messaging"
     "microsoft-teams|Microsoft Teams|Optional|Video conferencing"
     "stremio|Stremio|Optional|Streaming aggregator"
     "appcleaner|AppCleaner|Optional|App uninstaller"
-    "spark|Spark|Optional|Email client"
     "vnc-viewer|VNC Viewer|Optional|Remote desktop"
     "raspberry-pi-imager|Raspberry Pi Imager|Optional|SD card flasher"
-    "transmission-remote-gui|Transmission Remote GUI|Optional|Torrent remote UI"
     "folx|Folx|Optional|Download manager"
     "philips-hue-sync|Hue Sync|Optional|Philips Hue screen sync"
 )
 
+# Resolve a cask token to its application path relative to /Applications.
+# The AppName field of each ALL_CASKS row is the mapping, and this is the only
+# thing that reads it: the array is where a cask is added or removed, so a
+# second table inside this function would drift the moment a row changes — and
+# a mapping could then outlive its cask. May return a nested path; WhatsApp
+# installs to /Applications/WhatsApp.localized/WhatsApp.app.
+cask_to_app() {
+    local token="$1" entry cask app_name rest
+    for entry in "${ALL_CASKS[@]}"; do
+        IFS='|' read -r cask app_name rest <<< "$entry"
+        if [ "$cask" = "$token" ]; then
+            echo "$app_name"
+            return 0
+        fi
+    done
+    # Not in ALL_CASKS: last-resort derivation, capitalize each hyphen-word.
+    echo "$token" | tr '-' ' ' | awk '{for (i = 1; i <= NF; i++) $i = toupper(substr($i, 1, 1)) substr($i, 2)} 1'
+}
+
 is_cask_installed() {
     local cask="$1"
-    local app_name="$2"
+    local app_name
+    app_name="$(cask_to_app "$cask")"
     if [ -n "$app_name" ] && [ -d "/Applications/$app_name.app" ]; then
         return 0
     fi
@@ -696,8 +997,7 @@ is_cask_installed() {
 
 install_cask() {
     local cask="$1"
-    local app_name="$2"
-    if is_cask_installed "$cask" "$app_name"; then
+    if is_cask_installed "$cask"; then
         info "  $cask — already installed, skipping"
     else
         info "  Installing $cask..."
@@ -711,7 +1011,7 @@ install_cask() {
 PENDING_CASKS=()
 for entry in "${ALL_CASKS[@]}"; do
     IFS='|' read -r cask app_name category description <<< "$entry"
-    if ! is_cask_installed "$cask" "$app_name"; then
+    if ! is_cask_installed "$cask"; then
         PENDING_CASKS+=("$entry")
     fi
 done
@@ -729,7 +1029,7 @@ elif [ "$PENDING_COUNT" -le 3 ]; then
     for entry in "${PENDING_CASKS[@]}"; do
         IFS='|' read -r cask app_name category description <<< "$entry"
         if confirm "Install $cask ($description)?"; then
-            install_cask "$cask" "$app_name"
+            install_cask "$cask"
         else
             info "  Skipping $cask."
         fi
@@ -761,7 +1061,7 @@ else
                 for entry in "${PENDING_CASKS[@]}"; do
                     IFS='|' read -r cask app_name category description <<< "$entry"
                     if [ "$cask" = "$selected_cask" ]; then
-                        install_cask "$cask" "$app_name"
+                        install_cask "$cask"
                         break
                     fi
                 done
@@ -778,7 +1078,7 @@ else
         if confirm "Install all $PENDING_COUNT pending GUI apps?"; then
             for entry in "${PENDING_CASKS[@]}"; do
                 IFS='|' read -r cask app_name category description <<< "$entry"
-                install_cask "$cask" "$app_name"
+                install_cask "$cask"
             done
         else
             info "  Skipping GUI apps."
@@ -965,43 +1265,24 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Group 7: OpenCode plugins
+# Group 7: Plannotator CLI (serves OpenCode, Claude Code, and Codex)
 # ------------------------------------------------------------------
-if confirm "Install OpenCode plugin dependencies (plannotator, superpowers)?"; then
-    if command -v opencode &>/dev/null; then
-        if command -v plannotator &>/dev/null; then
-            info "  plannotator — already installed, skipping"
-        else
-            info "  Installing plannotator..."
-            if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
-                error "Failed to install plannotator"
-            fi
-            # plannotator installs to ~/.local/bin which may not be in PATH yet
-            export PATH="$HOME/.local/bin:$PATH"
-            if ! command -v plannotator &>/dev/null; then
-                error "plannotator installed but not found in PATH"
-            fi
-        fi
-
-        info "  Installing superpowers..."
-        SUPERPOWERS_DIR="$HOME/.config/opencode/superpowers"
-        if [ -d "$SUPERPOWERS_DIR" ]; then
-            info "  superpowers — already installed, skipping"
-        else
-            if git clone https://github.com/obra/superpowers.git "$SUPERPOWERS_DIR"; then
-                mkdir -p "$HOME/.config/opencode/plugins"
-                ln -sf "$SUPERPOWERS_DIR/.opencode/plugins/superpowers.js" "$HOME/.config/opencode/plugins/superpowers.js"
-                mkdir -p "$HOME/.config/opencode/skills"
-                ln -sf "$SUPERPOWERS_DIR/skills" "$HOME/.config/opencode/skills/superpowers"
-            else
-                error "Failed to clone superpowers"
-            fi
-        fi
+if confirm "Install the Plannotator CLI (serves OpenCode, Claude Code, and Codex)?"; then
+    if command -v plannotator &>/dev/null; then
+        info "  plannotator — already installed, skipping"
     else
-        warn "OpenCode is not installed — skipping plugin setup"
+        info "  Installing plannotator..."
+        if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
+            error "Failed to install plannotator"
+        fi
+        # plannotator installs to ~/.local/bin which may not be in PATH yet
+        export PATH="$HOME/.local/bin:$PATH"
+        if ! command -v plannotator &>/dev/null; then
+            error "plannotator installed but not found in PATH"
+        fi
     fi
 else
-    info "Skipping OpenCode plugin dependencies."
+    info "Skipping Plannotator."
 fi
 
 # ------------------------------------------------------------------
@@ -1012,6 +1293,7 @@ CC_MARKETPLACES=(
     "jarrodwatts/claude-hud"
     "expo/skills"
     "pabloimrik17/monolab"
+    "pabloimrik17/daily-agentic-task-force"
     "obra/superpowers-marketplace"
     "https://github.com/wakatime/claude-code-wakatime.git"
     "nrwl/nx-ai-agents-config"
@@ -1020,11 +1302,13 @@ CC_MARKETPLACES=(
     "gastownhall/beads"
     "fallow-rs/fallow-skills"
     "getsentry/sentry-mcp"
+    "typesafe-ai/skills"
 )
 
 CC_PLUGINS=(
     "typescript-lsp@claude-plugins-official"
     "frontend-design@claude-plugins-official"
+    "mattpocock-skills@claude-plugins-official"
     "code-review@claude-plugins-official"
     "commit-commands@claude-plugins-official"
     "claude-md-management@claude-plugins-official"
@@ -1036,6 +1320,7 @@ CC_PLUGINS=(
     "expo-deployment@expo-plugins"
     "expo-developer@monolab"
     "experiments@monolab"
+    "datf-lab@daily-agentic-task-force"
     "double-shot-latte@superpowers-marketplace"
     "elements-of-style@superpowers-marketplace"
     "episodic-memory@superpowers-marketplace"
@@ -1051,6 +1336,7 @@ CC_PLUGINS=(
     "fallow@fallow-skills"
     "posthog@claude-plugins-official"
     "sentry-mcp@sentry-mcp"
+    "typesafe@typesafe-ai"
 )
 
 if command -v claude &>/dev/null; then
@@ -1076,10 +1362,6 @@ if command -v claude &>/dev/null; then
         fi
     }
 
-    # Check if plannotator CLI is pending
-    PLANNOTATOR_PENDING=0
-    command -v plannotator &>/dev/null || PLANNOTATOR_PENDING=1
-
     # Count pending marketplaces
     PENDING_MP=0
     TOTAL_MP=${#CC_MARKETPLACES[@]}
@@ -1098,25 +1380,11 @@ if command -v claude &>/dev/null; then
         fi
     done
 
-    if [ "$PLANNOTATOR_PENDING" -eq 0 ] && [ "$PENDING_MP" -eq 0 ] && [ "$PENDING_PL" -eq 0 ]; then
+    if [ "$PENDING_MP" -eq 0 ] && [ "$PENDING_PL" -eq 0 ]; then
         info "CC marketplaces: $TOTAL_MP/$TOTAL_MP registered"
         info "CC plugins: $TOTAL_PL/$TOTAL_PL installed"
     else
-        if confirm "Install Claude Code plugin dependencies ($PLANNOTATOR_PENDING cli + $PENDING_MP marketplaces + $PENDING_PL plugins pending)?"; then
-            if command -v plannotator &>/dev/null; then
-                info "  plannotator — already installed, skipping"
-            else
-                info "  Installing plannotator..."
-                if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
-                    error "Failed to install plannotator"
-                fi
-                # plannotator installs to ~/.local/bin which may not be in PATH yet
-                export PATH="$HOME/.local/bin:$PATH"
-                if ! command -v plannotator &>/dev/null; then
-                    error "plannotator installed but not found in PATH"
-                fi
-            fi
-
+        if confirm "Install Claude Code plugin dependencies ($PENDING_MP marketplaces + $PENDING_PL plugins pending)?"; then
             info "  Registering Claude Code plugin marketplaces..."
             for repo in "${CC_MARKETPLACES[@]}"; do
                 if marketplace_installed "$repo"; then
@@ -1165,11 +1433,11 @@ fi
 # Group 8.5: Claude Code MCP servers
 # ------------------------------------------------------------------
 MCP_STDIO_SERVERS=(
-    "eslint:npx:-y:@eslint/mcp@0.3.0"
+    "eslint:npx:-y:@eslint/mcp@0.3.10"
     "context7:npx:-y:@upstash/context7-mcp@2.1.2"
-    "knip:npx:-y:@knip/mcp@0.0.19"
-    "memory:npx:-y:@modelcontextprotocol/server-memory@2026.1.26"
-    "playwright:npx:-y:@playwright/mcp@0.0.68"
+    "knip:npx:-y:@knip/mcp@0.0.34"
+    "memory:npx:-y:@modelcontextprotocol/server-memory@2026.7.4"
+    "playwright:npx:-y:@playwright/mcp@0.0.79"
     "chrome-devtools:npx:-y:chrome-devtools-mcp@0.18.1"
     "expect:npx:-y:expect-cli@0.1.3:mcp"
     # PATH binary from the global npm install — no npx, no pin (version owned
@@ -1179,11 +1447,13 @@ MCP_STDIO_SERVERS=(
 
 MCP_HTTP_SERVERS=(
     "gh_grep:https://mcp.grep.app"
+    "deepwiki:https://mcp.deepwiki.com/mcp"
     "atlassian:https://mcp.atlassian.com/v1/mcp"
     "figma:https://mcp.figma.com/mcp"
     "linear:https://mcp.linear.app/mcp"
     "notion:https://mcp.notion.com/mcp"
     "storybook:http://localhost:6006/mcp"
+    "jetbrains:http://localhost:64542/stream"
 )
 
 if ! command -v claude &>/dev/null; then
@@ -1288,6 +1558,245 @@ else
 fi
 
 # ------------------------------------------------------------------
+# Group 8.6: Codex HTTP MCP servers
+# ------------------------------------------------------------------
+# Codex owns ~/.codex/config.toml, shared by its CLI, IDE extension, and
+# ChatGPT desktop app. Drive the official CLI instead of managing that file.
+# This module only reconciles registration. It never runs `codex mcp login` or
+# manages credentials. `codex mcp add` may itself start OAuth; if that flow is
+# cancelled after persisting the entry, the entry stays and login remains a
+# separate user action.
+# BEGIN CODEX HTTP MCP SERVERS
+CODEX_HTTP_MCP_SERVERS=(
+    "deepwiki:https://mcp.deepwiki.com/mcp"
+    "linear:https://mcp.linear.app/mcp"
+    "jetbrains:http://localhost:64542/stream"
+)
+
+codex_mcp_read_json() {
+    local codex_cli="$1"
+    local jq_cli="$2"
+    local payload
+
+    if ! payload="$("$codex_cli" mcp list --json 2>/dev/null)"; then
+        return 1
+    fi
+    if ! "$jq_cli" -e \
+        'type == "array" and all(.[]; type == "object" and (.name | type) == "string" and (.transport | type) == "object")' \
+        >/dev/null 2>&1 <<<"$payload"; then
+        return 1
+    fi
+    printf '%s\n' "$payload"
+}
+
+codex_mcp_entry_matches() {
+    local jq_cli="$1"
+    local payload="$2"
+    local name="$3"
+    local url="$4"
+
+    "$jq_cli" -e --arg name "$name" --arg url "$url" \
+        '[.[] | select(.name == $name)] | length == 1 and .[0].transport.type == "streamable_http" and .[0].transport.url == $url' \
+        >/dev/null 2>&1 <<<"$payload"
+}
+
+reconcile_codex_http_mcp() {
+    local name="$1"
+    local desired_url="$2"
+    local codex_cli="$3"
+    local jq_cli="$4"
+    local payload
+    local entry_count
+    local current_url=""
+    local action="add"
+
+    if ! payload="$(codex_mcp_read_json "$codex_cli" "$jq_cli")"; then
+        warn "Could not read valid Codex MCP data — skipping $name registration"
+        return 0
+    fi
+
+    entry_count="$("$jq_cli" -r --arg name "$name" \
+        '[.[] | select(.name == $name)] | length' <<<"$payload")"
+    if [ "$entry_count" -gt 1 ]; then
+        warn "Codex reported multiple MCP entries named $name — leaving runtime state unchanged"
+        return 0
+    fi
+
+    if [ "$entry_count" -eq 1 ]; then
+        if codex_mcp_entry_matches "$jq_cli" "$payload" "$name" "$desired_url"; then
+            info "Codex MCP $name — already registered, skipping"
+            return 0
+        fi
+        if ! "$jq_cli" -e --arg name "$name" \
+            'first(.[] | select(.name == $name) | .transport)
+             | .type == "streamable_http"
+               and ((.url | type) == "string")
+               and (.url != "")' \
+            >/dev/null 2>&1 <<<"$payload"; then
+            warn "Existing Codex MCP $name is not a replaceable HTTP entry — leaving runtime state unchanged"
+            return 0
+        fi
+        current_url="$("$jq_cli" -r --arg name "$name" \
+            'first(.[] | select(.name == $name) | .transport.url // empty)' <<<"$payload")"
+        action="replace"
+    fi
+
+    if [ "$action" = "replace" ]; then
+        info "Codex MCP $name — URL changed from $current_url"
+        if ! confirm "Replace Codex MCP $name with $desired_url?"; then
+            info "Skipping Codex MCP $name registration."
+            return 0
+        fi
+        if ! "$codex_cli" mcp remove "$name"; then
+            warn "Codex could not remove stale MCP $name — checking its state before continuing"
+            if ! payload="$(codex_mcp_read_json "$codex_cli" "$jq_cli")"; then
+                warn "Could not verify Codex MCP $name after removal — skipping replacement"
+                return 0
+            fi
+            if codex_mcp_entry_matches "$jq_cli" "$payload" "$name" "$desired_url"; then
+                info "Codex MCP $name — already registered, skipping"
+                return 0
+            fi
+            entry_count="$("$jq_cli" -r --arg name "$name" \
+                '[.[] | select(.name == $name)] | length' <<<"$payload")"
+            if [ "$entry_count" -ne 0 ]; then
+                warn "Stale Codex MCP $name is still present — skipping replacement"
+                return 0
+            fi
+        fi
+    elif ! confirm "Register Codex MCP $name at $desired_url?"; then
+        info "Skipping Codex MCP $name registration."
+        return 0
+    fi
+
+    if "$codex_cli" mcp add "$name" --url "$desired_url"; then
+        info "Codex MCP $name — registered"
+        return 0
+    fi
+
+    # A failed add can still leave the entry registered when Codex continues
+    # into its own OAuth flow. Preserve that registration and leave login to
+    # the user rather than treating authentication as installer state.
+    if payload="$(codex_mcp_read_json "$codex_cli" "$jq_cli")" \
+        && codex_mcp_entry_matches "$jq_cli" "$payload" "$name" "$desired_url"; then
+        warn "Codex MCP $name is registered, but setup did not finish — authenticate later with 'codex mcp login $name' if required"
+        return 0
+    fi
+
+    if [ "$action" = "replace" ]; then
+        if "$codex_cli" mcp add "$name" --url "$current_url"; then
+            warn "Could not register Codex MCP $name — previous entry restored"
+        elif payload="$(codex_mcp_read_json "$codex_cli" "$jq_cli")" \
+            && codex_mcp_entry_matches "$jq_cli" "$payload" "$name" "$current_url"; then
+            warn "Could not register Codex MCP $name — previous entry restored, but its setup did not finish"
+        else
+            warn "Could not register Codex MCP $name or restore its previous entry"
+        fi
+    else
+        warn "Could not register Codex MCP $name — run 'codex mcp add $name --url $desired_url' manually"
+    fi
+    return 0
+}
+
+configure_codex_mcp_servers() {
+    # Optional command names form an internal test seam; production uses the
+    # official CLI and jq from PATH.
+    local codex_cli="${1:-codex}"
+    local jq_cli="${2:-jq}"
+    local entry
+    local name
+    local url
+
+    if ! command -v "$codex_cli" &>/dev/null; then
+        warn "Codex is not installed — skipping MCP server registration"
+        return 0
+    fi
+    if ! command -v "$jq_cli" &>/dev/null; then
+        warn "jq is required for Codex MCP detection — skipping MCP server registration"
+        return 0
+    fi
+
+    for entry in "${CODEX_HTTP_MCP_SERVERS[@]}"; do
+        name="${entry%%:*}"
+        url="${entry#*:}"
+        reconcile_codex_http_mcp "$name" "$url" "$codex_cli" "$jq_cli"
+    done
+}
+# END CODEX HTTP MCP SERVERS
+
+configure_codex_mcp_servers
+unset -f configure_codex_mcp_servers reconcile_codex_http_mcp codex_mcp_entry_matches codex_mcp_read_json
+
+# ------------------------------------------------------------------
+# Group 8.75: Codex plugins
+# ------------------------------------------------------------------
+# Codex owns its plugin state under ~/.codex (bundles land in a cache path it
+# may prune), so chezmoi manages no file there. Parity comes from driving the
+# official CLI idempotently, the same way Group 8 drives `claude plugin`.
+CODEX_PLUGINS=(
+    "superpowers@openai-curated"
+)
+
+if ! command -v codex &>/dev/null; then
+    warn "Codex is not installed — skipping plugin setup"
+elif ! command -v jq &>/dev/null; then
+    warn "jq is required for Codex plugin detection — skipping Codex plugins"
+elif ! CODEX_PLUGIN_JSON="$(codex plugin list --json 2>/dev/null)"; then
+    # Do not let a failed query look like an empty inventory: that would mark
+    # every plugin pending and prompt to reinstall what is already there.
+    warn "Could not query Codex plugins — skipping Codex plugin setup"
+elif ! jq -e '(.installed | type) == "array"' >/dev/null 2>&1 <<<"$CODEX_PLUGIN_JSON"; then
+    warn "Codex returned unreadable plugin data — skipping Codex plugin setup"
+else
+    # Scope the match to `.installed[]`. Without `--available` that is the only
+    # populated array, but scoping keeps the check correct if the payload ever
+    # carries `available[]` too.
+    codex_plugin_installed() {
+        local plugin_id="$1"
+        jq -e --arg id "$plugin_id" \
+            '.installed[]? | select(.pluginId == $id and .installed == true)' \
+            >/dev/null 2>&1 <<<"$CODEX_PLUGIN_JSON"
+    }
+
+    codex_plugin_enabled() {
+        local plugin_id="$1"
+        jq -e --arg id "$plugin_id" \
+            '.installed[]? | select(.pluginId == $id and .enabled == true)' \
+            >/dev/null 2>&1 <<<"$CODEX_PLUGIN_JSON"
+    }
+
+    PENDING_CODEX=0
+    TOTAL_CODEX=${#CODEX_PLUGINS[@]}
+    for plugin in "${CODEX_PLUGINS[@]}"; do
+        if ! codex_plugin_installed "$plugin"; then
+            PENDING_CODEX=$((PENDING_CODEX + 1))
+        elif ! codex_plugin_enabled "$plugin"; then
+            # Deliberate disables are the user's call — surface it, do not reinstall.
+            warn "$plugin is installed but disabled — enable it in Codex to use its skills"
+        fi
+    done
+
+    if [ "$PENDING_CODEX" -eq 0 ]; then
+        info "Codex plugins: $TOTAL_CODEX/$TOTAL_CODEX installed"
+    elif confirm "Install Codex plugins ($PENDING_CODEX/$TOTAL_CODEX pending)?"; then
+        for plugin in "${CODEX_PLUGINS[@]}"; do
+            if codex_plugin_installed "$plugin"; then
+                info "  $plugin — already installed, skipping"
+            else
+                info "  Installing $plugin..."
+                if ! codex plugin add "$plugin"; then
+                    # Not an installation error: a managed workspace can withhold
+                    # a plugin from the user's role, and `error` would exit 1.
+                    warn "Could not install Codex plugin $plugin — if your workspace withholds it, ask an administrator to make it available to your role"
+                fi
+            fi
+        done
+    else
+        info "Skipping Codex plugins."
+    fi
+fi
+
+# ------------------------------------------------------------------
 # Group 9: Agent skills (skills.sh)
 # ------------------------------------------------------------------
 if confirm "Install global agent skills via skills.sh?"; then
@@ -1322,8 +1831,13 @@ if confirm "Install global agent skills via skills.sh?"; then
             [ -n "$INSTALLED_SKILLS" ] || return 1
 
             if ! command -v jq &>/dev/null; then
-                # Without jq the agent list cannot be inspected; fall back to a
-                # name-only match so the skill is still skipped when present.
+                # Without jq the agent list cannot be inspected. A call that
+                # requests specific agents must not be skipped on a name match
+                # alone, or the missing coverage would never be reconciled.
+                if [ -n "$agents" ]; then
+                    return 1
+                fi
+                # No agents requested: a name-only match is the whole check.
                 echo "$INSTALLED_SKILLS" | grep -q "\"name\": \"$name\""
                 return
             fi
@@ -1372,6 +1886,31 @@ if confirm "Install global agent skills via skills.sh?"; then
         install_skill "slidevjs/slidev" "slidev"
         install_skill "gluestack/agent-skills" "gluestack-ui-v5" "claude-code opencode junie codex"
         install_skill "agavra/tuicr" "tuicr" "claude-code opencode junie codex"
+        install_skill "mattpocock/skills" "ask-matt" "opencode junie"
+        install_skill "mattpocock/skills" "diagnosing-bugs" "opencode junie"
+        install_skill "mattpocock/skills" "grill-with-docs" "opencode junie"
+        install_skill "mattpocock/skills" "triage" "opencode junie"
+        install_skill "mattpocock/skills" "improve-codebase-architecture" "opencode junie"
+        install_skill "mattpocock/skills" "setup-matt-pocock-skills" "opencode junie"
+        install_skill "mattpocock/skills" "tdd" "opencode junie"
+        install_skill "mattpocock/skills" "to-spec" "opencode junie"
+        install_skill "mattpocock/skills" "to-tickets" "opencode junie"
+        install_skill "mattpocock/skills" "wayfinder" "opencode junie"
+        install_skill "mattpocock/skills" "implement" "opencode junie"
+        install_skill "mattpocock/skills" "prototype" "opencode junie"
+        install_skill "mattpocock/skills" "research" "opencode junie"
+        install_skill "mattpocock/skills" "domain-modeling" "opencode junie"
+        install_skill "mattpocock/skills" "codebase-design" "opencode junie"
+        install_skill "mattpocock/skills" "resolving-merge-conflicts" "opencode junie"
+        install_skill "mattpocock/skills" "wizard" "opencode junie"
+        install_skill "mattpocock/skills" "grill-me" "opencode junie"
+        install_skill "mattpocock/skills" "grilling" "opencode junie"
+        install_skill "mattpocock/skills" "handoff" "opencode junie"
+        install_skill "mattpocock/skills" "teach" "opencode junie"
+        install_skill "mattpocock/skills" "to-questionnaire" "opencode junie"
+        install_skill "mattpocock/skills" "wait-what" "opencode junie"
+        install_skill "mattpocock/skills" "writing-for-agents" "opencode junie"
+        install_skill "typesafe-ai/skills" "typesafe-ai" "opencode junie codex"
     else
         warn "npx is not available — skipping agent skills installation"
     fi
@@ -1394,11 +1933,15 @@ info "  - CodeRabbit setup check: run 'coderabbit doctor' to verify auth, networ
 info "  - Codex: run 'codex' for first-use authentication; update with 'codex update' or rerun the standalone installer"
 info "  - Atlassian MCP: requires OAuth authentication — run 'claude mcp get atlassian' or use on first invocation"
 info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma' or use on first invocation"
-info "  - Linear MCP: requires OAuth authentication — run 'claude mcp get linear' or use on first invocation"
+print_linear_mcp_guidance
 info "  - Notion MCP: requires OAuth authentication — run 'claude mcp get notion' or use on first invocation"
 info "  - PostHog MCP: requires OAuth authentication — in Claude Code run '/mcp' and authenticate 'plugin:posthog:posthog'; in OpenCode run 'opencode mcp auth'"
 info "  - Sentry MCP: provided by the sentry-mcp plugin from the sentry-mcp marketplace — requires OAuth authentication; run '/mcp' inside Claude Code, or 'opencode mcp auth sentry' in OpenCode"
 info "  - Storybook MCP: requires @storybook/addon-mcp installed in each Storybook project and 'storybook dev' running on port 6006"
+info "  - JetBrains MCP: requires Settings → Tools → MCP Server enabled in the JetBrains IDE, and the IDE running — the server answers only while it is open (WebStorm serves port 64542)"
+info "  - llmfit: if an existing llmfit came from homebrew/core, switch it to the tap once with 'brew uninstall llmfit && brew install AlexsJones/llmfit/llmfit'"
+info "      Why: the core formula publishes no x86_64 macOS bottle and depends on rust, so it builds from source on install and on every upgrade; the tap ships a prebuilt binary"
+info "      Not automated: the install script never uninstalls, unlinks or relinks an llmfit that is already present"
 info ""
 
 {{ else -}}
@@ -1410,7 +1953,8 @@ info "This system is not macOS. Automatic installation is not supported."
 info ""
 info "Please install the following packages manually:"
 info ""
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe, glow, mdfried, tuicr"
+info "  claude-swap: skipped — the managed account-switching integration is macOS-only"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe, glow, mdfried, llmfit, tuicr"
 info "    - terminal-notifier: macOS-only (skip on Linux)"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
@@ -1422,9 +1966,11 @@ info "    - CodeRabbit: curl -fsSL https://cli.coderabbit.ai/install.sh | sh  (o
 info "    - Codex: curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh  (official standalone installer; installs to ~/.local/bin)"
 info "      Authenticate on first use: codex"
 info "      Update: codex update  (or rerun the standalone installer)"
+print_linear_mcp_guidance
 info "    - aoe: cargo install aoe (Linux supported by upstream; brew is macOS-only)"
 info "    - glow: brew install glow (or your distro's package manager, or 'go install github.com/charmbracelet/glow@latest')"
 info "    - mdfried: brew install mdfried (or cargo install mdfried); its image / mermaid / Big-Header rendering needs a terminal with a graphics protocol (Kitty, iTerm2, or Sixel) and otherwise degrades to character rendering"
+info "    - llmfit: brew install AlexsJones/llmfit/llmfit (upstream tap; prebuilt Linux and macOS binaries) OR, without brew, uv tool install -U llmfit"
 info "    - tuicr: cargo install tuicr (or the official installer: curl -fsSL tuicr.dev/install.sh | sh)"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: zsh, then oh-my-zsh (https://ohmyz.sh/)"
@@ -1446,11 +1992,15 @@ info "  Bat theme: Catppuccin Mocha"
 info "    mkdir -p \"\$(bat --config-dir)/themes\""
 info "    curl -fsSLo \"\$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme\" https://raw.githubusercontent.com/catppuccin/bat/main/themes/Catppuccin%20Mocha.tmTheme"
 info "    bat cache --build"
+info "  Plannotator CLI (serves OpenCode, Claude Code, and Codex):"
+info "    - curl -fsSL https://plannotator.ai/install.sh | bash"
 info "  Claude Code plugins:"
-info "    - plannotator: curl -fsSL https://plannotator.ai/install.sh | bash"
+info "    - claude plugin marketplace add pabloimrik17/daily-agentic-task-force && claude plugin install datf-lab@daily-agentic-task-force"
 info "    - claude plugin marketplace add backnotprop/plannotator && claude plugin install plannotator@plannotator"
 info "    - claude plugin marketplace add max-sixty/worktrunk && claude plugin install worktrunk@worktrunk"
 info "    - claude plugin marketplace add getsentry/sentry-mcp && claude plugin install sentry-mcp@sentry-mcp"
+info "    - claude plugin install mattpocock-skills@claude-plugins-official"
+info "    - claude plugin marketplace add typesafe-ai/skills && claude plugin install typesafe@typesafe-ai"
 info "  Agent skills (requires npx/Node.js):"
 info "    npx -y skills add vercel-labs/skills --skill find-skills -g -y"
 info "    npx -y skills add vercel-labs/agent-skills --skill vercel-react-best-practices -g -y"
@@ -1467,6 +2017,8 @@ info "    npx -y skills add coderabbitai/skills --skill autofix -g -y"
 info "    npx -y skills add slidevjs/slidev --skill slidev -g -y"
 info "    npx -y skills add gluestack/agent-skills --skill gluestack-ui-v5 -g -y --agent claude-code opencode junie codex"
 info "    npx -y skills add agavra/tuicr --skill tuicr -g -y --agent claude-code opencode junie codex"
+info "    npx -y skills add mattpocock/skills --skill ask-matt --skill diagnosing-bugs --skill grill-with-docs --skill triage --skill improve-codebase-architecture --skill setup-matt-pocock-skills --skill tdd --skill to-spec --skill to-tickets --skill wayfinder --skill implement --skill prototype --skill research --skill domain-modeling --skill codebase-design --skill resolving-merge-conflicts --skill wizard --skill grill-me --skill grilling --skill handoff --skill teach --skill to-questionnaire --skill wait-what --skill writing-for-agents -g -y --agent opencode junie"
+info "    npx -y skills add typesafe-ai/skills --skill typesafe-ai -g -y --agent opencode junie codex"
 info ""
 
 {{ end -}}
@@ -1478,7 +2030,7 @@ fi
 
 info "Installation complete!"
 {{ if eq .chezmoi.os "darwin" -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, mole, aoe, glow, mdfried, tuicr"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, mole, aoe, glow, mdfried, llmfit, tuicr"
 {{ else -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, aoe, glow, mdfried, tuicr"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, aoe, glow, mdfried, llmfit, tuicr"
 {{ end -}}

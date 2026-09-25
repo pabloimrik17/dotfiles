@@ -1,0 +1,17 @@
+#!/bin/sh
+
+machine_type={{ get . "machineType" | default "" | quote }}
+
+case "$machine_type" in
+    personal|work)
+        exit 0
+        ;;
+    "")
+        echo "[dotfiles] ERROR: Machine type is not configured. Run 'chezmoi init', choose personal or work, then run 'chezmoi apply' again." >&2
+        exit 1
+        ;;
+    *)
+        echo "[dotfiles] ERROR: Invalid machine type '$machine_type'. Run 'chezmoi init', choose personal or work, then run 'chezmoi apply' again." >&2
+        exit 1
+        ;;
+esac

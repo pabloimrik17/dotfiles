@@ -96,6 +96,9 @@ export OPENCODE_ENABLE_EXA=true
 export OPENCODE_EXPERIMENTAL_OXFMT=true
 export OPENCODE_EXPERIMENTAL_FILEWATCHER=true
 
+# Secret env vars (age-encrypted source, mode 600). Edit with `chezmoi edit`.
+[[ -r "$XDG_CONFIG_HOME/zsh/secrets.zsh" ]] && source "$XDG_CONFIG_HOME/zsh/secrets.zsh"
+
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 # pnpm
@@ -150,7 +153,7 @@ export FZF_DEFAULT_OPTS="
   --color=selected-bg:#45475A,border:#6C7086,label:#CDD6F4
 "
 export FZF_CTRL_T_OPTS="--preview 'case {} in *.md|*.markdown) CLICOLOR_FORCE=1 glow -s dark -- {};; *) bat --color=always --style=numbers --line-range=:500 -- {};; esac'"
-export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
+export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always -- {} | head -200'"
 
 # television - Smart fuzzy finder with context-aware autocomplete
 # Init order: fzf → tv → atuin. tv overrides fzf's Ctrl+T with smart
@@ -273,6 +276,12 @@ wsh() {
   fi
   echo "✓ Handoff to '$branch' — attach with: tmux attach -t $branch"
 }
+
+# claude-swap changes Claude Code's global active identity; these aliases do
+# not launch an isolated `cswap run` profile.
+alias cs-list='cswap ls'
+alias cs-current='cswap status'
+alias cs-global='cswap switch'
 
 # ripgrep shortcuts
 alias rgi="rg -i"  # Case insensitive

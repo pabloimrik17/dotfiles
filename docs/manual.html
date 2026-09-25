@@ -314,6 +314,10 @@
             }
 
             /* ── Print stylesheet ──────────────────────────────────────── */
+            @page {
+                size: A4;
+            }
+
             @media print {
                 :root {
                     --ctp-text: #1e1e2e;
@@ -337,7 +341,7 @@
 
                 body {
                     display: block;
-                    font-size: 7.5pt;
+                    font-size: 7.2pt;
                     line-height: 1.1;
                     color: #1e1e2e;
                     background: #fff;
@@ -355,8 +359,8 @@
                 .content {
                     max-width: 100%;
                     padding: 0;
-                    column-count: 3;
-                    column-gap: 0.8em;
+                    column-count: 4;
+                    column-gap: 0.6em;
                     column-rule: 1px solid #ccc;
                 }
 
@@ -406,7 +410,7 @@
                 }
 
                 .section-content h3 {
-                    font-size: 7.5pt;
+                    font-size: 7.2pt;
                     margin: 2pt 0 1pt;
                     color: #333;
                     break-after: avoid;
@@ -414,7 +418,7 @@
                 }
 
                 table {
-                    font-size: 6.5pt;
+                    font-size: 6.2pt;
                     margin: 0 0 2pt;
                     break-inside: avoid;
                     page-break-inside: avoid;
@@ -432,14 +436,14 @@
 
                 td {
                     padding: 0.5pt 2pt;
-                    font-size: 6.5pt;
+                    font-size: 6.2pt;
                 }
 
                 td:first-child {
                     width: 36%;
                     white-space: normal;
                     overflow-wrap: anywhere;
-                    font-size: 6.5pt;
+                    font-size: 6.2pt;
                 }
 
                 tbody tr:nth-child(even) {
@@ -447,7 +451,7 @@
                 }
 
                 kbd {
-                    font-size: 6.5pt;
+                    font-size: 6.2pt;
                     padding: 0 2pt;
                     border: 1px solid #999;
                     border-bottom-width: 1px;
@@ -497,15 +501,16 @@
             <a href="#claude">11. Claude Code</a>
             <a href="#opencode">12. OpenCode</a>
             <a href="#codex">13. Codex</a>
-            <a href="#agents">14. Agent Sessions</a>
+            <a href="#junie">14. Junie</a>
+            <a href="#agents">15. Agent Sessions</a>
         </nav>
 
         <!-- ── Main content ─────────────────────────────────────────── -->
         <main class="content">
             <h1>Dotfiles Manual &amp; Cheatsheet</h1>
             <p class="subtitle">
-                All shortcuts, aliases, keybindings, and workflows in one place. Print for a dense
-                A4 cheatsheet.
+                All shortcuts, aliases, keybindings, and workflows across 15 sections. Print for a
+                dense A4 cheatsheet.
             </p>
 
             <!-- ════════════════════════════════════════════════════════════ -->
@@ -1479,15 +1484,21 @@
                             <tr>
                                 <td><kbd>f</kbd></td>
                                 <td>
-                                    Queue PR as AoE session &mdash; worktrunk creates the worktree,
-                                    <code>aoe add</code> registers it (no launch; opens later)
+                                    Queue or reuse the PR's AoE session (no launch). Haiku selects
+                                    the project group and an English title of up to four words. New
+                                    groups use a human-readable repository name. After a 10-second
+                                    timeout or inference failure, use a repo-based group and a short
+                                    PR-title fallback.
                                 </td>
                             </tr>
                             <tr>
                                 <td><kbd>F</kbd></td>
                                 <td>
-                                    Queue AoE review team &mdash; auto-launches a background
-                                    <code>/review-team</code> (3 agents; none post to the PR)
+                                    Launch or resume the PR's AoE review team in the background as
+                                    <code>Review - &lt;title&gt;</code>, sharing the normal
+                                    session's group and base title. Reuses the conversation without
+                                    repeating <code>/review-team</code> (3 agents; none post to the
+                                    PR).
                                 </td>
                             </tr>
                         </tbody>
@@ -2178,6 +2189,59 @@
                         </tbody>
                     </table>
 
+                    <h3>Model sizing (llmfit)</h3>
+                    <p class="note">
+                        Installed from the <code>AlexsJones/llmfit</code> tap, not
+                        <code>homebrew/core</code> &mdash; the core formula publishes no
+                        <code>x86_64</code> macOS bottle and would build from source on every
+                        upgrade. Running <code>llmfit</code> with no arguments opens the interactive
+                        TUI; the subcommands below are the scriptable surface and are all read-only.
+                        Every invocation is user-initiated &mdash; the dotfiles never call
+                        <code>llmfit</code> from any script, hook, or alias, and
+                        <code>download</code>, <code>run</code>, <code>serve</code>,
+                        <code>bench</code> and <code>update</code> move data or start processes.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>llmfit</code></td>
+                                <td>
+                                    Launch the interactive TUI &mdash; the default with no arguments
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>llmfit fit</code></td>
+                                <td>
+                                    Ranked table of the models that fit the detected RAM / CPU / GPU
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>llmfit recommend --json</code></td>
+                                <td>
+                                    Top-N recommendations as JSON &mdash; the agent-facing surface;
+                                    <code>--json</code> is global and works on every subcommand
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>llmfit info &lt;model&gt;</code></td>
+                                <td>
+                                    Full specs plus a fit analysis for one model &mdash; partial
+                                    names match
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>llmfit doctor</code></td>
+                                <td>Markdown hardware-detection report for upstream bug reports</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h3>Encrypted files (chezmoi + age)</h3>
                     <table>
                         <thead>
@@ -2191,6 +2255,13 @@
                                 <td><code>chezmoi re-add --encrypt ~/.ticker.yaml</code></td>
                                 <td>
                                     Re-encrypt a target file after editing the plaintext on disk
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>chezmoi edit ~/.config/zsh/secrets.zsh</code></td>
+                                <td>
+                                    Add or rotate a shell secret (<code>export NAME=value</code>
+                                    only); zshrc sources it, deployed with mode 600
                                 </td>
                             </tr>
                             <tr>
@@ -2213,6 +2284,12 @@
                         <code>$EDITOR ~/.ticker.yaml</code> &rarr;
                         <code>chezmoi re-add --encrypt ~/.ticker.yaml</code> &rarr;
                         <code>chezmoi git add encrypted_dot_ticker.yaml.age</code> &rarr; commit
+                    </div>
+                    <div class="flow-only">
+                        <strong>Flow: Add or rotate a shell secret</strong><br />
+                        <code>chezmoi edit ~/.config/zsh/secrets.zsh</code> &rarr; commit
+                        <code>dot_config/zsh/encrypted_private_secrets.zsh.age</code> &rarr;
+                        <code>chezmoi update</code> on every machine
                     </div>
                     <div class="flow-only">
                         <strong>Flow: Bootstrap new machine</strong><br />
@@ -2242,7 +2319,14 @@
                         <tbody>
                             <tr>
                                 <td><code>bubu</code></td>
-                                <td>Full update cycle: update + outdated + upgrade + cleanup</td>
+                                <td>
+                                    Full update cycle: update + outdated + upgrade + cleanup.
+                                    <strong>Not the maintenance path here</strong> &mdash; it
+                                    upgrades every outdated formula in one bulk step, which skips
+                                    the changelog review each package is supposed to get and cannot
+                                    express a version that must be held back. Use <code>bubo</code>,
+                                    then <code>brew upgrade &lt;pkg&gt;</code> one at a time
+                                </td>
                             </tr>
                             <tr>
                                 <td><code>bubo</code></td>
@@ -2254,7 +2338,17 @@
                             </tr>
                             <tr>
                                 <td><code>brewsp</code></td>
-                                <td>List pinned packages</td>
+                                <td>
+                                    List held packages. Holds are declared in
+                                    <code>run_onchange_install-packages.sh.tmpl</code> with a reason
+                                    and an exit condition, and applied each time that script runs;
+                                    chezmoi re-runs it whenever its rendered content changes,
+                                    including any <code>BREW_HOLDS</code> edit. An installed held
+                                    package is pinned; a missing one is skipped with a warning, not
+                                    installed. A <code>chezmoi apply</code> with an unchanged script
+                                    does not re-apply holds, and a bare <code>brew pin</code> is
+                                    invisible to the repo
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -2281,8 +2375,10 @@
                     </table>
                     <div class="flow-only">
                         <strong>Flow: Full tool maintenance</strong><br />
-                        <code>bubu</code> &rarr; <code>update-extra</code> &rarr; everything current
-                        (self-updating tools handle themselves; pinned tools via Renovate)
+                        <code>bubo</code> &rarr; <code>brew upgrade &lt;pkg&gt;</code> (one at a
+                        time, after reading its changelog) &rarr; <code>update-extra</code> &rarr;
+                        everything current (self-updating tools handle themselves; pinned tools via
+                        Renovate; held packages stay put by declaration)
                     </div>
                 </div>
             </details>
@@ -2524,6 +2620,99 @@
             >
                 <summary>11. Claude Code</summary>
                 <div class="section-content">
+                    <h3>Fullscreen TUI</h3>
+                    <p>
+                        Chezmoi sets <code>"tui": "fullscreen"</code> in
+                        <code>~/.claude/settings.json</code>. This research preview uses the
+                        terminal's alternate screen; it does not maximize the window.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command / shortcut</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/tui</code></td>
+                                <td>Show the active renderer</td>
+                            </tr>
+                            <tr>
+                                <td><code>/tui fullscreen</code></td>
+                                <td>Switch to fullscreen rendering</td>
+                            </tr>
+                            <tr>
+                                <td><code>/tui default</code></td>
+                                <td>
+                                    Switch to classic rendering; the next chezmoi apply restores
+                                    fullscreen
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>Ctrl</kbd>+<kbd>o</kbd>, then <kbd>/</kbd></td>
+                                <td>
+                                    Search the transcript; native terminal scrollback search cannot
+                                    see it
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><kbd>PgUp</kbd> / <kbd>PgDn</kbd></td>
+                                <td>Scroll the conversation</td>
+                            </tr>
+                            <tr>
+                                <td><code>CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1 claude</code></td>
+                                <td>
+                                    Use classic rendering for one directly launched interactive
+                                    session
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        For a persistent managed opt-out, change <code>tui</code> to
+                        <code>"default"</code> in <code>dot_claude/modify_settings.json.tmpl</code>
+                        and apply it. Ordinary tmux sessions need mouse mode for wheel scrolling
+                        (already enabled by these dotfiles); fullscreen is incompatible with
+                        <code>tmux -CC</code>. See the
+                        <a href="https://code.claude.com/docs/en/fullscreen"
+                            >official fullscreen guide</a
+                        >
+                        for compatibility and selection controls.
+                    </p>
+
+                    <h3>Daily Agentic Task Force lab</h3>
+                    <p class="note">
+                        <code>datf-lab@daily-agentic-task-force</code> is a provisional staging
+                        plugin for Daily Agentic Task Force workflows, not a stable distribution
+                        channel.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Surface</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>/datf-lab:hello</code></td>
+                                <td>Run the read-only smoke test for the installed lab plugin</td>
+                            </tr>
+                            <tr>
+                                <td><code>promoting-from-lab</code></td>
+                                <td>Guide a provisional workflow through promotion from the lab</td>
+                            </tr>
+                            <tr>
+                                <td>Updates</td>
+                                <td>
+                                    Claude Code auto-updates the plugin through the
+                                    <code>daily-agentic-task-force</code> marketplace
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h3>Slash commands (from plugins)</h3>
                     <table>
                         <thead>
@@ -2649,6 +2838,15 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>typesafe-ai</td>
+                                <td>
+                                    TypeSafe System One API context; Claude Code via the
+                                    <code>typesafe@typesafe-ai</code> plugin
+                                    (<code>/typesafe:typesafe-ai</code>), OpenCode, Junie, and Codex
+                                    via skills.sh. Needs <code>TYPESAFE_API_KEY</code>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>browsing</td>
                                 <td>Chrome DevTools Protocol browser control</td>
                             </tr>
@@ -2673,6 +2871,70 @@
                                     only in a user-requested agent review, asking first when
                                     ambiguous
                                 </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Matt Pocock skills</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Surface</th>
+                                <th>Exposure</th>
+                                <th>Update path</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Claude Code</td>
+                                <td>
+                                    25 namespaced skills from
+                                    <code>mattpocock-skills@claude-plugins-official</code>,
+                                    including <code>mattpocock-skills:code-review</code>; 11 are
+                                    model-invocable, the other 14 run only as an explicit
+                                    <code>/mattpocock-skills:&lt;name&gt;</code> command
+                                </td>
+                                <td>
+                                    <code>claude-plugins-official</code> marketplace auto-update
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Codex, Cursor, Gemini CLI, GitHub Copilot, OpenCode</td>
+                                <td>
+                                    Same 24 skills from <code>mattpocock/skills</code>, auto-loaded
+                                    from the canonical <code>~/.agents/skills</code>; these are
+                                    universal agents, so there is no per-agent copy and
+                                    <code>~/.config/opencode/skills</code> stays empty
+                                </td>
+                                <td><code>update-extra</code> skills.sh globals step</td>
+                            </tr>
+                            <tr>
+                                <td>Junie</td>
+                                <td>
+                                    Same 24 skills as symlinks to
+                                    <code>~/.agents/skills/&lt;name&gt;</code> under
+                                    <code>~/.junie/skills</code>; Junie is not universal, so it is
+                                    the only agent that needs a skills.sh target
+                                </td>
+                                <td><code>update-extra</code> skills.sh globals step</td>
+                            </tr>
+                            <tr>
+                                <td>skills.sh scoping</td>
+                                <td>
+                                    Installed with <code>--agent opencode junie</code>;
+                                    <code>opencode</code> is a no-op for exposure, so the real
+                                    effect is keeping the standalone set out of Claude Code
+                                </td>
+                                <td>&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td>Flat <code>code-review</code></td>
+                                <td>
+                                    CodeRabbit-owned across the standalone channel &mdash; the
+                                    canonical <code>~/.agents/skills/code-review</code> is
+                                    CodeRabbit's
+                                </td>
+                                <td>Matt's standalone <code>code-review</code> is excluded</td>
                             </tr>
                         </tbody>
                     </table>
@@ -2733,6 +2995,15 @@
                                 <td>&mdash;</td>
                             </tr>
                             <tr>
+                                <td>deepwiki</td>
+                                <td>Explore repository architecture and internal flows</td>
+                                <td>
+                                    Registered by the install script in
+                                    <code>~/.claude.json</code>; already-indexed public GitHub
+                                    repositories only
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>atlassian</td>
                                 <td>Jira &amp; Confluence integration</td>
                                 <td>OAuth on first use</td>
@@ -2744,8 +3015,20 @@
                             </tr>
                             <tr>
                                 <td>linear</td>
-                                <td>Linear issues &amp; projects</td>
-                                <td>OAuth on first use</td>
+                                <td>
+                                    Linear issues &amp; projects at
+                                    <code>https://mcp.linear.app/mcp</code>
+                                </td>
+                                <td>
+                                    Setup registers the user-scope server with
+                                    <code
+                                        >claude mcp add --scope user --transport http linear
+                                        https://mcp.linear.app/mcp</code
+                                    >. Authenticate with <code>claude mcp login linear</code> or
+                                    <code>/mcp</code>; check the endpoint and connection with
+                                    <code>claude mcp get linear</code>. OAuth state remains Claude
+                                    Code-owned outside chezmoi.
+                                </td>
                             </tr>
                             <tr>
                                 <td>notion</td>
@@ -2758,6 +3041,17 @@
                                 <td>
                                     Needs <code>@storybook/addon-mcp</code> in each project +
                                     <code>storybook dev</code> on :6006
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>jetbrains</td>
+                                <td>
+                                    JetBrains IDE context &amp; actions at
+                                    <code>http://localhost:64542/stream</code>
+                                </td>
+                                <td>
+                                    Needs Settings &rarr; Tools &rarr; MCP Server enabled in the IDE
+                                    + the IDE running
                                 </td>
                             </tr>
                             <tr>
@@ -2779,6 +3073,28 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Verify Linear from Claude Code</strong><br />
+                        Ask Claude Code to list Linear projects and find <code>dotfiles</code>
+                        &rarr; create a uniquely titled disposable issue in that project &rarr;
+                        record its identifier &rarr; close or cancel only that issue
+                    </div>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries provider-indexed public-repository content; its freshness
+                        and source revision are not guaranteed. It cannot access private
+                        repositories or select a branch, tag, or commit. If a public repository is
+                        missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
 
                     <h3>OpenSpec workflow</h3>
                     <table>
@@ -2839,6 +3155,219 @@
                         but bd writes any missing key back on its next run, which would drift the
                         managed file.
                     </p>
+
+                    <h3>claude-swap accounts and quota (macOS)</h3>
+                    <p>
+                        Chezmoi pins
+                        <a href="https://github.com/realiti4/claude-swap">claude-swap</a>
+                        with its menu extra at <code>0.26.0</code>. The required no-default
+                        <code>personal</code>/<code>work</code> choice made during
+                        <code>chezmoi init</code> is machine-local and stable; an existing machine
+                        without it must re-run init rather than assuming a role. Run
+                        <code>~/.local/bin/claude-swap-setup</code> whenever enrollment, validation,
+                        or service repair is needed. After authenticating with <code>/login</code>,
+                        use <code>claude-swap-setup --reauth personal|work</code> to recapture an
+                        existing alias in its original slot.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Alias / command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>cs-list</code></td>
+                                <td>
+                                    <code>cswap ls</code> &mdash; list managed accounts and quota
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>cs-current</code></td>
+                                <td>
+                                    <code>cswap status</code> &mdash; inspect the globally active
+                                    Claude Code identity
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>cs-global personal|work</code></td>
+                                <td>
+                                    <code>cswap switch personal|work</code> &mdash; change Claude
+                                    Code&rsquo;s global default identity; this is not an isolated
+                                    <code>cswap run</code> session
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>claude-swap-setup</code></td>
+                                <td>
+                                    Re-runnable role-aware enrollment, validation, dry-run, and
+                                    upstream menu-service setup; normal runs reconcile the service
+                                    even when account setup is complete, while <code>--check</code>
+                                    only inspects account completeness
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Personal-machine enrollment</strong><br />
+                        Keep the current login &mdash; never run <code>/logout</code> before capture
+                        &rarr; use <code>/login</code> for each missing subscription &rarr; run
+                        <code>claude-swap-setup</code> to capture native <code>personal</code> and
+                        <code>work</code> aliases &rarr; verify <code>personal</code> is active
+                        &rarr; complete <code>cswap auto --once --dry-run</code> &rarr;
+                        install/check the menu service &rarr; enable
+                        <strong>Settings &rarr; Auto-switch accounts</strong>
+                        once in the menu
+                    </div>
+
+                    <div class="flow-only">
+                        <strong>Flow: Work-machine enrollment</strong><br />
+                        Capture only the native <code>work</code> alias &rarr; finish with
+                        <code>work</code> globally active &rarr; install/check the menu service
+                        &rarr; leave <strong>Auto-switch accounts</strong> disabled. If another
+                        account exists, setup exits non-zero without removing or disabling it;
+                        inspect with <code>cswap list</code> and use
+                        <code>cswap remove &lt;number-or-alias&gt;</code> only after explicit
+                        review.
+                    </div>
+
+                    <h4>Managed policy and menu service</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Setting / control</th>
+                                <th>Managed behavior</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Binding quota</td>
+                                <td>
+                                    Maximum of account-wide 5-hour and 7-day usage; no
+                                    model-specific limit and no paid API-key fallback
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Autoswitch</td>
+                                <td>
+                                    <code>85%</code> threshold, <code>best</code> strategy,
+                                    <code>60s</code> checks, <code>300s</code> cooldown,
+                                    <code>10</code>-point hysteresis, and failover after
+                                    <code>3</code> unhealthy ticks
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>cswap menubar --install-service</code></td>
+                                <td>
+                                    Install or refresh upstream&rsquo;s login LaunchAgent; chezmoi
+                                    never owns <code>com.cswap.menubar.plist</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>cswap menubar --service-status</code></td>
+                                <td>
+                                    Verify that the upstream menu service is installed and running
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Pause / resume</td>
+                                <td>
+                                    Toggle <strong>Auto-switch accounts</strong> in the menu; no
+                                    second dotfiles-managed watcher continues switching
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Update</td>
+                                <td>
+                                    Review and bump the repository pin, then run
+                                    <code>chezmoi apply</code>; the installer verifies the exact
+                                    version and refreshes an existing upstream service
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        On personal machines the healthy active account remains selected below 85%,
+                        even when an inactive account recovers. At the threshold, upstream selects a
+                        materially better eligible account; cooldown and hysteresis prevent
+                        flapping. When no account is usable, the menu exposes upstream&rsquo;s
+                        <code>BLOCKED</code> state and waits. A manual global switch and the active
+                        identity survive menu or Mac restarts; recovery of the inactive account
+                        alone does not force a switch. Work machines keep automatic switching off.
+                    </p>
+
+                    <h4>Ownership, recovery, and rollback</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Situation</th>
+                                <th>Safe response</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Credentials and policy</td>
+                                <td>
+                                    Chezmoi owns only private
+                                    <code>~/.claude-swap-backup/settings.json</code>. Claude Code /
+                                    claude-swap own credentials in Keychain, with upstream&rsquo;s
+                                    owner-only local fallback permitted. Never commit credentials,
+                                    exports, caches, quarantine data,
+                                    <code>autoswitch_state.json</code>, or
+                                    <code>menubar_settings.json</code>; a
+                                    <code>cswap export</code> is sensitive plaintext.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Authentication / alias repair</td>
+                                <td>
+                                    Authenticate with <code>/login</code> without first using
+                                    <code>/logout</code>, then run
+                                    <code>claude-swap-setup --reauth personal|work</code> with the
+                                    intended alias. It recaptures that alias in its existing slot;
+                                    the base command continues to fill only missing aliases.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Login agent cannot read Keychain</td>
+                                <td>
+                                    Check <code>cswap menubar --service-status</code>, open the menu
+                                    or run the upstream status flow from Terminal to grant access,
+                                    then reauthenticate/re-run setup if required.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>HTTP 429 / stale quota</td>
+                                <td>
+                                    Autoswitch is best effort: upstream
+                                    <a href="https://github.com/realiti4/claude-swap/issues/208"
+                                        >issue #208</a
+                                    >
+                                    can reuse stale usage and delay a switch. Inspect with
+                                    <code>cs-current</code>/<code>cs-list</code> and recover with
+                                    <code>cs-global &lt;alias&gt;</code>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Remote Control / Artifact affinity</td>
+                                <td>
+                                    A long-lived feature may remain attached to the previous
+                                    identity; restart or republish it under the active account.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Rollback without credential loss</td>
+                                <td>
+                                    Disable the menu toggle &rarr;
+                                    <code>cswap menubar --uninstall-service</code> &rarr; select the
+                                    desired global account &rarr; revert/apply the dotfiles change.
+                                    Do not delete Keychain accounts as part of rollback.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
                     <h3>Node version on launch (nvm-aware shim)</h3>
                     <p>
@@ -2930,8 +3459,14 @@
                                 <td>Coding time tracking</td>
                             </tr>
                             <tr>
-                                <td>websearch-cited</td>
-                                <td>Web search with source citations</td>
+                                <td>superpowers</td>
+                                <td>
+                                    Installed from the official git-backed
+                                    <code
+                                        >superpowers@git+https://github.com/obra/superpowers.git</code
+                                    >
+                                    package; workflows use OpenCode's native skill discovery
+                                </td>
                             </tr>
                             <tr>
                                 <td>dcp</td>
@@ -2940,7 +3475,19 @@
                         </tbody>
                     </table>
 
-                    <h3>MCP servers (shared with Claude Code)</h3>
+                    <p class="note">
+                        <strong>Upgrading an existing machine:</strong> superpowers used to be a
+                        clone plus two symlinks under <code>~/.config/opencode/</code>. The first
+                        <code>chezmoi apply</code> after this change asks three times to remove them
+                        (<code>superpowers/</code>, <code>plugins/superpowers.js</code>,
+                        <code>skills/superpowers</code>) because chezmoi never wrote those paths
+                        &mdash; answer yes, or run <code>chezmoi apply --force</code>. A
+                        non-interactive apply aborts on the first prompt, before
+                        <code>opencode.jsonc</code> is deployed. One-time only: the installer no
+                        longer creates those paths.
+                    </p>
+
+                    <h3>Project MCP servers</h3>
                     <table>
                         <thead>
                             <tr>
@@ -2977,14 +3524,16 @@
                                 <td>gh_grep</td>
                                 <td>Search across GitHub repos</td>
                             </tr>
-                            <tr>
-                                <td>expect</td>
-                                <td>Visual testing and accessibility audits</td>
-                            </tr>
                         </tbody>
                     </table>
 
-                    <h3>MCP servers (OpenCode only)</h3>
+                    <p class="note">
+                        These entries are declared separately in repo-local
+                        <code>opencode.json</code>. Claude Code&rsquo;s user-scope server list is
+                        not automatically shared with OpenCode.
+                    </p>
+
+                    <h3>Managed user MCP servers</h3>
                     <table>
                         <thead>
                             <tr>
@@ -2993,6 +3542,41 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <tr>
+                                <td>expect</td>
+                                <td>Visual testing and accessibility audits</td>
+                            </tr>
+                            <tr>
+                                <td>deepwiki</td>
+                                <td>
+                                    Enabled remote entry in
+                                    <code>~/.config/opencode/opencode.jsonc</code> for
+                                    already-indexed public GitHub repositories
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>jetbrains</td>
+                                <td>
+                                    JetBrains IDE context &amp; actions through the remote
+                                    <code>mcp.jetbrains</code> entry in
+                                    <code>~/.config/opencode/opencode.jsonc</code>; answers only
+                                    while the IDE is running
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>linear</td>
+                                <td>
+                                    Linear issues &amp; projects through the native remote
+                                    <code>mcp.linear</code> entry in
+                                    <code>~/.config/opencode/opencode.jsonc</code>, targeting
+                                    <code>https://mcp.linear.app/mcp</code>. Authenticate with
+                                    <code>opencode mcp auth linear</code> and check the connection
+                                    with <code>opencode mcp list</code>. OAuth state remains in
+                                    OpenCode&rsquo;s native
+                                    <code>~/.local/share/opencode/mcp-auth.json</code> store outside
+                                    the repository.
+                                </td>
+                            </tr>
                             <tr>
                                 <td>posthog</td>
                                 <td>
@@ -3015,6 +3599,28 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Verify Linear from OpenCode</strong><br />
+                        Ask OpenCode to list Linear projects and find <code>dotfiles</code> &rarr;
+                        create a uniquely titled disposable issue in that project &rarr; record its
+                        identifier &rarr; close or cancel only that issue
+                    </div>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries provider-indexed public-repository content; its freshness
+                        and source revision are not guaranteed. It cannot access private
+                        repositories or select a branch, tag, or commit. If a public repository is
+                        missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
 
                     <h3>Config</h3>
                     <table>
@@ -3104,6 +3710,120 @@
                         </tbody>
                     </table>
 
+                    <h3>Linear MCP</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Command &amp; behavior</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Register</td>
+                                <td>
+                                    Setup inspects <code>codex mcp list --json</code>, leaves a
+                                    matching entry alone, and narrowly adds or repairs only
+                                    <code>linear</code> with
+                                    <code
+                                        >codex mcp add linear --url https://mcp.linear.app/mcp</code
+                                    >. The add command may begin OAuth immediately.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Authenticate / recover</td>
+                                <td>
+                                    <code>codex mcp login linear</code> &mdash; start or restart the
+                                    browser OAuth flow
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Status</td>
+                                <td>
+                                    <code>codex mcp list --json</code> &mdash; verify the official
+                                    endpoint and authenticated status
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Ownership</td>
+                                <td>
+                                    Only the Linear MCP entry is reconciled by setup. Codex owns
+                                    <code>~/.codex/config.toml</code>, OAuth credentials, and every
+                                    other preference or runtime value; chezmoi does not manage the
+                                    whole file.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Verify Linear from Codex</strong><br />
+                        Ask Codex to list Linear projects and find <code>dotfiles</code> &rarr;
+                        create a uniquely titled disposable issue in that project &rarr; record its
+                        identifier &rarr; close or cancel only that issue
+                    </div>
+
+                    <h3>DeepWiki MCP</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Server</th>
+                                <th>Registration &amp; ownership</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>deepwiki</td>
+                                <td>
+                                    The installer drives
+                                    <code
+                                        >codex mcp add deepwiki --url
+                                        https://mcp.deepwiki.com/mcp</code
+                                    >; Codex stores the user entry in its runtime-owned
+                                    <code>~/.codex/config.toml</code>, which chezmoi does not manage
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>JetBrains MCP</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Server</th>
+                                <th>Registration &amp; ownership</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>jetbrains</td>
+                                <td>
+                                    The installer drives
+                                    <code
+                                        >codex mcp add jetbrains --url
+                                        http://localhost:64542/stream</code
+                                    >; needs Settings &rarr; Tools &rarr; MCP Server enabled in the
+                                    IDE + the IDE running
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries provider-indexed public-repository content; its freshness
+                        and source revision are not guaranteed. It cannot access private
+                        repositories or select a branch, tag, or commit. If a public repository is
+                        missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
+
                     <h3>Commands</h3>
                     <table>
                         <thead>
@@ -3124,6 +3844,78 @@
                             <tr>
                                 <td><code>codex review --uncommitted</code></td>
                                 <td>Review the current working tree</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Plugins</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Command &amp; purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Browse</td>
+                                <td>
+                                    <code>codex plugin list --available --json</code> &mdash; list
+                                    plugins from the built-in
+                                    <code>openai-curated</code> marketplace
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>No access?</td>
+                                <td>
+                                    Availability is set by workspace policy. If
+                                    <code>superpowers@openai-curated</code> does not appear, ask
+                                    your workspace administrator to make it available to your role
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Install Superpowers</td>
+                                <td>
+                                    <code>codex plugin add superpowers@openai-curated</code>
+                                    &mdash; install and enable the official curated plugin. The
+                                    installer&rsquo;s <code>CODEX_PLUGINS</code> group runs this for
+                                    you where both <code>codex</code> and <code>jq</code> are on
+                                    PATH, skipping plugins Codex already reports as installed.
+                                    <code>jq</code> is not a provisioned package &mdash; on Linux
+                                    and on macOS below 15 it is absent, so the group warns and skips
+                                    and this command is yours to run by hand
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Verify</td>
+                                <td>
+                                    <code>codex plugin list --json</code> &mdash; confirm
+                                    Superpowers is installed and enabled
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Activate skills</td>
+                                <td>
+                                    Fully quit and restart Codex, begin a fresh session, then invoke
+                                    <code>$using-superpowers</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Remove</td>
+                                <td>
+                                    <code>codex plugin remove superpowers@openai-curated</code>
+                                    &mdash; remove the local plugin installation
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>State ownership</td>
+                                <td>
+                                    Plugin installation and cache state under
+                                    <code>~/.codex</code> is local and Codex-owned; chezmoi does not
+                                    manage it. The installer only drives the official
+                                    <code>codex plugin</code> CLI &mdash; Codex writes those files,
+                                    the installer never manages them directly
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -3159,10 +3951,12 @@
                                 <td>Browse or invoke an available skill</td>
                             </tr>
                             <tr>
-                                <td>Preferences &amp; MCP</td>
+                                <td>Other preferences &amp; runtime state</td>
                                 <td>
-                                    Not managed by these dotfiles; existing
-                                    <code>~/.codex</code> runtime state remains Codex-owned
+                                    Not managed by these dotfiles; only the DeepWiki and Linear MCP
+                                    entries are narrowly reconciled through <code>codex mcp</code>.
+                                    Existing <code>~/.codex</code> preferences and runtime state
+                                    remain Codex-owned.
                                 </td>
                             </tr>
                         </tbody>
@@ -3171,13 +3965,122 @@
             </details>
 
             <!-- ════════════════════════════════════════════════════════════ -->
-            <!-- Section 14: Agent Sessions -->
+            <!-- Section 14: Junie -->
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <details
+                id="junie"
+                open
+            >
+                <summary>14. Junie</summary>
+                <div class="section-content">
+                    <h3>MCP servers</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Setting</th>
+                                <th>Behavior</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Managed file</td>
+                                <td>
+                                    <code>~/.junie/mcp/mcp.json</code> &mdash; Junie&rsquo;s
+                                    user-scope MCP configuration, shared by the CLI and IDE plugin
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Managed fragment</td>
+                                <td>
+                                    <code>chezmoi apply</code> merge-manages only
+                                    <code>mcpServers.deepwiki</code> at
+                                    <code>https://mcp.deepwiki.com/mcp</code>,
+                                    <code>mcpServers.jetbrains</code> at
+                                    <code>http://localhost:64542/stream</code> and
+                                    <code>mcpServers.linear</code> at
+                                    <code>https://mcp.linear.app/mcp</code>; unrelated servers and
+                                    unknown top-level values remain untouched
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>DeepWiki</td>
+                                <td>
+                                    Credential-free access to already-indexed public GitHub
+                                    repositories. Use <code>/mcp</code> to check its runtime status.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>JetBrains</td>
+                                <td>
+                                    Credential-free local IDE server. Answers only while the IDE is
+                                    running with Settings &rarr; Tools &rarr; MCP Server enabled.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Current support</td>
+                                <td>
+                                    <strong>Not currently supported.</strong> Junie 26.8.17 reaches
+                                    Linear OAuth, but token exchange returns
+                                    <code
+                                        >400 Bad Request: Client must not use multiple
+                                        authentication methods</code
+                                    >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Revalidate after an update</td>
+                                <td>
+                                    Open <code>/mcp</code>, select the user-scope
+                                    <code>linear</code> server, choose <strong>Authorize</strong>,
+                                    and complete browser OAuth. Proceed to functional verification
+                                    only if <code>linear</code> reports <strong>Active</strong>.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Credentials</td>
+                                <td>
+                                    Junie owns OAuth state outside the repository. The managed JSON
+                                    contains no token, API key, or Authorization header. Do not add
+                                    a static credential or compatibility bridge to bypass the
+                                    current OAuth failure.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="flow-only">
+                        <strong>Flow: Revisit Linear compatibility from Junie</strong><br />
+                        Update Junie &rarr; retry <code>/mcp</code> authorization &rarr; require
+                        <strong>Active</strong> &rarr; list Linear projects and find
+                        <code>dotfiles</code> &rarr; create a uniquely titled disposable issue
+                        &rarr; record its identifier &rarr; close or cancel only that issue
+                    </div>
+
+                    <div class="flow-only">
+                        <strong>Flow: Route documentation and source questions</strong><br />
+                        <code>Context7</code> for published docs &rarr; <code>DeepWiki</code> for
+                        indexed public-repository architecture &rarr; <code>gh_grep</code> / direct
+                        source for exact or revision-sensitive evidence
+                    </div>
+                    <p class="note">
+                        DeepWiki queries provider-indexed public-repository content; its freshness
+                        and source revision are not guaranteed. It cannot access private
+                        repositories or select a branch, tag, or commit. If a public repository is
+                        missing, visit
+                        <code>https://deepwiki.com/&lt;owner&gt;/&lt;repo&gt;</code> to request
+                        indexing.
+                    </p>
+                </div>
+            </details>
+
+            <!-- ════════════════════════════════════════════════════════════ -->
+            <!-- Section 15: Agent Sessions -->
             <!-- ════════════════════════════════════════════════════════════ -->
             <details
                 id="agents"
                 open
             >
-                <summary>14. Agent Sessions (Agent of Empires)</summary>
+                <summary>15. Agent Sessions (Agent of Empires)</summary>
                 <div class="section-content">
                     <h3>Config highlights</h3>
                     <table>
@@ -3240,7 +4143,9 @@
                                 <td>
                                     <code>terminal-notifier</code> on waiting/idle/error &mdash;
                                     distinct sounds (Glass / &mdash; / Basso),
-                                    <code>$AOE_SESSION_TITLE</code>
+                                    <code>$AOE_SESSION_TITLE</code>;
+                                    <code>-group "aoe-$AOE_SESSION_ID"</code> replaces the session's
+                                    previous notification
                                 </td>
                             </tr>
                             <tr>

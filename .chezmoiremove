@@ -30,3 +30,8 @@ Library/Application Support/lazygit/config.yml
 # replaces this XDG default rather than stacking with it. Its one rule now lives
 # in dot_gitignore_global.
 .config/git/ignore
+
+# Obsolete symlink-based OpenCode Superpowers installation.
+.config/opencode/plugins/superpowers.js
+.config/opencode/skills/superpowers
+.config/opencode/superpowers

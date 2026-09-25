@@ -16,7 +16,7 @@ The file SHALL contain:
 - `model` set to `anthropic/claude-opus-4-6`
 - `autoupdate` set to `true`
 - `tui.scroll_acceleration.enabled` set to `true`
-- A `plugin` array with curated OpenCode plugins (DCP, Plannotator, WakaTime, websearch-cited)
+- A `plugin` array with curated OpenCode plugins (DCP, Plannotator, WakaTime, and `superpowers@git+https://github.com/obra/superpowers.git`)
 - A `formatter` section registering `oxfmt` as a custom formatter
 - A `permission` section with:
     - `edit` set to `"ask"`
@@ -44,7 +44,7 @@ The file's `mcp` block is owned by `mcp-global-config`, which requires the globa
 #### Scenario: Fresh machine setup
 
 - **WHEN** `chezmoi apply` is run on a machine without OpenCode config
-- **THEN** `~/.config/opencode/opencode.jsonc` is created with the full permission set including deny, allow, and ask rules, and with `"autoupdate": true` at the top level
+- **THEN** `~/.config/opencode/opencode.jsonc` is created with the full permission set including deny, allow, and ask rules, with `"autoupdate": true` at the top level, and with the official Superpowers package in the plugin array
 
 #### Scenario: Dangerous command is denied
 
@@ -80,6 +80,25 @@ The file's `mcp` block is owned by `mcp-global-config`, which requires the globa
 
 - **WHEN** `chezmoi apply` deploys OpenCode config
 - **THEN** the deployed `~/.config/opencode/opencode.jsonc` contains `"autoupdate": true` at the top level
+
+#### Scenario: Official Superpowers plugin is registered
+
+- **WHEN** `chezmoi apply` deploys OpenCode config
+- **THEN** the deployed plugin array contains `superpowers@git+https://github.com/obra/superpowers.git` as its final entry and no websearch-cited entry
+
+### Requirement: Legacy OpenCode Superpowers installation is removed
+
+Applying the dotfiles SHALL remove the obsolete `~/.config/opencode/plugins/superpowers.js` plugin symlink, `~/.config/opencode/skills/superpowers` skills symlink, and `~/.config/opencode/superpowers` repository clone. The interactive bootstrap SHALL NOT recreate those legacy paths.
+
+#### Scenario: Existing legacy installation is cleaned up
+
+- **WHEN** `chezmoi apply` runs on a machine with any of the three obsolete Superpowers paths
+- **THEN** those paths are removed while other OpenCode plugins, skills, and runtime state remain untouched
+
+#### Scenario: Bootstrap does not recreate the legacy installation
+
+- **WHEN** the user accepts the Plannotator CLI installation group
+- **THEN** the Plannotator CLI is installed without cloning or symlinking Superpowers into `~/.config/opencode/`
 
 ### Requirement: chezmoi manages OpenCode TUI config
 

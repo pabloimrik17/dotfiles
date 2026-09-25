@@ -28,10 +28,22 @@ The universal keybindings SHALL include an `L` key that opens lazygit in the rep
 
 The PR keybindings SHALL include a `b` key that checks out a worktree for the PR and launches Claude with a code review prompt using direct execution.
 
+The command SHALL pass the program to `-x` and its arguments after a `--` separator, rather than
+passing a single multi-word string to `-x`. worktrunk treats `-x` as a program plus literal argv, so
+a multi-word string is looked up as one executable name and fails. worktrunk template-expands each
+argument after `--` and passes it to the program as literal argv, without shell parsing, so the
+caller need not quote them for worktrunk.
+
 #### Scenario: Code review launches for a PR (direct)
 
 - **WHEN** user presses `b` on a PR
-- **THEN** gh-dash suspends TUI and runs `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"`
+- **THEN** gh-dash suspends TUI and runs `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude -- /code-review:code-review {{.RepoName}}#{{.PrNumber}}`
+
+#### Scenario: No multi-word string is passed to -x
+
+- **WHEN** the `b` command is read
+- **THEN** the value immediately following `-x` is a single program name, and every argument for that
+  program appears after `--`
 
 ### Requirement: PR worktree + Claude keybinding (direct)
 
@@ -46,10 +58,17 @@ The PR keybindings SHALL include an `i` key that checks out a worktree for the P
 
 The PR keybindings SHALL include a `B` key that checks out a worktree for the PR and launches Claude with a code review prompt in a side-by-side tmux pane.
 
+The inner `wt` invocation SHALL use the same program-plus-argv form as the `b` binding.
+
 #### Scenario: Code review launches in tmux pane
 
 - **WHEN** user presses `B` on a PR while inside a tmux session
-- **THEN** a horizontal split pane opens running `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x "claude /code-review:code-review {{.RepoName}}#{{.PrNumber}}"` alongside gh-dash
+- **THEN** a horizontal split pane opens running `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude -- /code-review:code-review {{.RepoName}}#{{.PrNumber}}` alongside gh-dash
+
+#### Scenario: tmux variant matches its direct counterpart
+
+- **WHEN** the `b` and `B` commands are compared
+- **THEN** the `wt` portion is identical, differing only by the surrounding `tmux split-window`
 
 ### Requirement: PR worktree + Claude keybinding (tmux)
 
@@ -88,51 +107,82 @@ No custom keybinding SHALL use a key that is assigned to a built-in gh-dash func
 
 ### Requirement: AoE session queue keybinding
 
-The PR keybindings SHALL include an `f` key that creates the PR's worktree via worktrunk and registers it as an Agent of Empires session WITHOUT launching it (queued for later in the AoE TUI), using direct execution. The command SHALL use `aoe add` without `-l/--launch` so control returns to gh-dash immediately. The session title SHALL use a deterministic token (`pr {{.RepoName}}#{{.PrNumber}}`), NOT the free-text `{{.Title}}`: gh-dash renders the template before invoking the shell, so a PR title containing a single quote could break out of the single-quoted `-x` payload and inject commands.
+The PR keybindings SHALL include an `f` key that uses the shared gh-dash/AoE integration to locate or create the PR's worktree via Worktrunk and register or reuse its normal AoE session without launching it. The operation SHALL use direct execution and return to gh-dash without attaching to the AoE TUI. Grouping, naming and reuse SHALL follow `ghd-aoe-sessions`. The rendered command SHALL pass repository identity, PR number and repository path without embedding free-text PR titles or descriptions.
 
 #### Scenario: PR queued as an AoE session
 
-- **WHEN** user presses `f` on a PR
-- **THEN** gh-dash suspends TUI and runs `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x 'aoe add . -t "pr {{.RepoName}}#{{.PrNumber}}"'`, then resumes TUI without an interactive agent taking the terminal
+- **WHEN** the user presses `f` on a PR
+- **THEN** the shared integration obtains the PR worktree through Worktrunk using the repository path
+- **AND** it queues or reuses the normal session and returns to gh-dash without launching an agent
 
 #### Scenario: Session title is not user-controlled free text
 
-- **WHEN** a PR's title contains a single quote (e.g. `fix don't crash`)
-- **THEN** the rendered `f` command does NOT embed `{{.Title}}`, so the title cannot break out of the `-x` shell payload
+- **WHEN** a PR title contains a single quote, such as `fix don't crash`
+- **THEN** the rendered `f` command does not embed `{{.Title}}`
+- **AND** PR metadata is retrieved and handled as data by the shared integration
 
 ### Requirement: AoE review-team keybinding
 
-The PR keybindings SHALL include an `F` key that creates the PR's worktree via worktrunk and registers an Agent of Empires review session, launching it immediately with `aoe add -l` (a background start that returns control to gh-dash) so the review runs without waiting to be opened. The session's initial prompt SHALL be the `/review-team` slash command, which spins up a three-agent review team running `/code-review:code-review`, `/code-review`, and `/verify` respectively; the agents SHALL NOT post anything on the PR and SHALL report findings in-session. The review instructions SHALL be passed as a single token (the slash-command name) via `--extra-args`, NOT as an inline multi-word string, because `aoe add` shell-splits `--extra-args` (it is built for flags) and would truncate a multi-word prompt to its first word. The session SHALL be grouped under `reviews/{{.RepoName}}`.
+The PR keybindings SHALL include an `F` key that uses the shared integration to locate or create the PR worktree through Worktrunk and register, start or reuse its AoE review session in the background. Grouping and the `Review - <base title>` name SHALL follow `ghd-aoe-sessions`. The initial instruction SHALL be `/review-team owner/repo#N`, invoking the existing three reviewers (`/code-review:code-review`, `/code-review` and `/verify`); they SHALL report in-session and SHALL NOT post to the PR. An existing stopped review SHALL resume without repeating that initial instruction.
 
 #### Scenario: PR launched as an AoE review team
 
-- **WHEN** user presses `F` on a PR
-- **THEN** gh-dash suspends TUI and runs `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x 'aoe add . -t "review {{.RepoName}}#{{.PrNumber}}" -g "reviews/{{.RepoName}}" -l --extra-args "/review-team {{.RepoName}}#{{.PrNumber}}"'`, which starts the review session in the background and resumes the TUI without an interactive agent taking the terminal
+- **WHEN** the user presses `F` on a PR without a review session
+- **THEN** the review session is registered with the selected project group and review title
+- **AND** it starts in the background while control returns to gh-dash without an interactive attachment
 
 #### Scenario: Review prompt passed as a single-token slash command
 
-- **WHEN** the `F` command is rendered
-- **THEN** the review instructions are delivered via the `/review-team` slash command (a single token), not as an inline multi-word prompt that `aoe add --extra-args` would whitespace-split
+- **WHEN** the review starts for the first time
+- **THEN** the existing `/review-team` command receives `owner/repo#N` for the selected PR
+- **AND** its instructions are not replaced with an inline copy in the keybinding
+
+#### Scenario: Repeated review shortcut
+
+- **WHEN** the user presses `F` again for the same PR
+- **THEN** the corresponding review session is reused
+- **AND** a running review is left alone or a stopped review resumes its conversation without another `/review-team` submission
 
 ### Requirement: AoE queue keybindings omit --trust-hooks
 
-The `f` and `F` keybindings SHALL NOT pass `--trust-hooks` to `aoe add`, so a reviewed repository's `.agent-of-empires/` hooks are never auto-executed without confirmation (the `F` binding in particular operates on potentially untrusted PRs).
+The `f` and `F` keybindings and the shared commands they invoke SHALL NOT pass `--trust-hooks` to AoE, so repositories reviewed through these shortcuts do not acquire automatic hook or project-MCP trust.
 
 #### Scenario: Review binding does not auto-trust repo hooks
 
-- **WHEN** user presses `F` on a PR from an untrusted fork
-- **THEN** the rendered `aoe add` command does NOT contain `--trust-hooks`
+- **WHEN** the user presses `F` on a PR from an untrusted fork
+- **THEN** neither the rendered command nor its delegated AoE invocations contain `--trust-hooks`
 
 ### Requirement: Lowercase/uppercase pattern for direct/tmux variants
 
-All custom PR keybindings that have both a direct and tmux variant SHALL use lowercase for direct execution and uppercase for the tmux variant of the same action. AoE keybindings are exempt from the direct/tmux convention: `aoe add` is non-interactive (a queue, or with `-l` a background start — no terminal takeover), so these bindings have no tmux variant. Instead, `f` queues a plain AoE session and `F` launches an AoE review-team session.
+All custom PR keybindings that have both a direct and tmux variant SHALL use lowercase for direct execution and uppercase for the tmux variant of the same action. AoE keybindings SHALL remain exempt: their queue and background lifecycle operations do not take over the terminal and have no tmux variant. Instead, `f` queues or reuses a normal session and `F` starts or resumes a review-team session.
 
 #### Scenario: Pattern is consistent across interactive custom PR keybindings
 
 - **WHEN** inspecting the keybindings config
-- **THEN** `b`/`B` (review), `i`/`I` (worktree), and `t`/`T` (CI checks) all follow the lowercase=direct, UPPERCASE=tmux pattern
+- **THEN** `b`/`B` (review), `i`/`I` (worktree), and `t`/`T` (CI checks) all follow lowercase=direct and uppercase=tmux
 
 #### Scenario: AoE queue keybindings use the session/review convention
 
 - **WHEN** inspecting the `f` and `F` keybindings
-- **THEN** `f` queues a plain AoE session and `F` launches an AoE review-team session, and neither has a tmux variant
+- **THEN** `f` queues or reuses a normal AoE session and `F` starts or resumes an AoE review-team session
+- **AND** neither has a tmux variant
+
+### Requirement: Keybinding payloads are verified by invocation, not by inspection
+
+Each PR keybinding that passes a program and arguments through `wt -x` SHALL be verified by actually
+pressing the key and observing the launched program receive its arguments. Reading the rendered
+command is not sufficient evidence: the payload passes through gh-dash template rendering, then the
+shell (for `B`, tmux's shell as well), then worktrunk's template expansion, and a defect in any of
+those layers produces a command that looks correct in the config file.
+
+#### Scenario: Each argv-passing binding is exercised
+
+- **WHEN** the keybinding payloads change
+- **THEN** every affected key is pressed against a real PR and the launched program is observed to
+  receive its intended arguments
+
+#### Scenario: A broken payload is observable
+
+- **WHEN** a binding's program name and arguments are collapsed into one string
+- **THEN** pressing the key surfaces a failure to launch, rather than silently starting the program
+  without its arguments

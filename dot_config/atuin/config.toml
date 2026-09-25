@@ -8,6 +8,10 @@ autostart = true
 
 [ai]
 enabled = true
+# Compiled default is true. The tips it surfaces prompt the user toward
+# `atuin config set`, which writes ~/.config/atuin/config.toml directly — a
+# chezmoi-managed target, so accepting one produces drift the next apply reverts.
+tips = false
 
 [theme]
 name = "catppuccin-mocha-blue"

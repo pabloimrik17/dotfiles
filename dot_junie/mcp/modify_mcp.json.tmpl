@@ -1,0 +1,106 @@
+#!/bin/sh
+# chezmoi modify_ script for ~/.junie/mcp/mcp.json. It owns only the
+# mcpServers.deepwiki, mcpServers.jetbrains and mcpServers.linear entries and
+# preserves every other valid value in the live file.
+# The merge is buffered and validated before stdout reaches chezmoi; a merge that
+# fails exits non-zero naming the target. Only a missing `uv` skips the merge:
+# the live file passes through unchanged, or `{}` when there is none. Empty stdin
+# with `uv` present runs the merge and yields only the managed entries.
+set -eu
+
+work="$(mktemp -d)"
+trap 'rm -rf "$work"' EXIT
+infile="$work/live.json"
+outfile="$work/merged.json"
+prog="$work/merge.py"
+
+# Capture stdin verbatim so a fallback can preserve the live file byte-for-byte.
+cat >"$infile"
+
+passthrough() {
+  if [ -s "$infile" ]; then
+    cat "$infile"
+  else
+    printf '%s\n' '{}'
+  fi
+}
+
+# uv is installed by the dotfiles bootstrap. If it is not available yet, keep
+# the current state and let a later apply converge the managed entry.
+if ! command -v uv >/dev/null 2>&1; then
+  passthrough
+  exit 0
+fi
+
+cat >"$prog" <<'PYEOF'
+import json
+import sys
+from collections import OrderedDict
+
+DEEPWIKI = OrderedDict([
+    ("url", "https://mcp.deepwiki.com/mcp"),
+])
+
+JETBRAINS = OrderedDict([
+    ("url", "http://localhost:64542/stream"),
+])
+
+LINEAR = OrderedDict([
+    ("url", "https://mcp.linear.app/mcp"),
+])
+
+
+def load_object(raw):
+    doc = json.loads(raw, object_pairs_hook=OrderedDict) if raw.strip() else OrderedDict()
+    if not isinstance(doc, dict):
+        raise ValueError("mcp.json is not a JSON object")
+    return doc
+
+
+def main():
+    raw = sys.stdin.read()
+    doc = load_object(raw)
+    servers = doc.get("mcpServers")
+    if servers is None:
+        servers = OrderedDict()
+        doc["mcpServers"] = servers
+    elif not isinstance(servers, dict):
+        raise ValueError("mcpServers is not a JSON object")
+
+    if servers.get("deepwiki") != DEEPWIKI:
+        servers["deepwiki"] = DEEPWIKI
+    if servers.get("jetbrains") != JETBRAINS:
+        servers["jetbrains"] = JETBRAINS
+    if servers.get("linear") != LINEAR:
+        servers["linear"] = LINEAR
+
+    out = json.dumps(doc, indent=2, ensure_ascii=False)
+    if raw.endswith("\n"):
+        out += "\n"
+    load_object(out)
+    sys.stdout.write(out)
+
+
+if "--validate" in sys.argv:
+    load_object(sys.stdin.read())
+else:
+    main()
+PYEOF
+
+# A merge that cannot complete fails loudly rather than passing the live file
+# through under a successful apply. chezmoi leaves the target untouched and
+# reports the status when a modify_ script exits non-zero, so the live file is
+# still safe — what changes is that the operator now learns the managed keys did
+# not land. The trade is deliberate: a transient engine failure (offline cold
+# cache, a dep-resolution error) now fails `chezmoi apply` instead of producing a
+# silent no-op that looks identical to success. Only the `uv`-absent branch above
+# skips the merge and exits 0 — a machine that has not bootstrapped, not a
+# failure. Empty stdin has no such exemption: it runs this merge and this gate.
+if uv run --no-project --quiet python "$prog" <"$infile" >"$outfile" \
+  && [ -s "$outfile" ] \
+  && uv run --no-project --quiet python "$prog" --validate <"$outfile"; then
+  cat "$outfile"
+else
+  echo "modify_mcp.json: merge failed for ~/.junie/mcp/mcp.json -- the managed entries were NOT applied and the live file is unchanged" >&2
+  exit 1
+fi

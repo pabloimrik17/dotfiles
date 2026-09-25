@@ -9,7 +9,7 @@ The system SHALL provide a single `docs/manual.html` file that displays all alia
 #### Scenario: Open manual from filesystem
 
 - **WHEN** user opens `docs/manual.html` in a browser via `file://` or local server
-- **THEN** the manual renders with Catppuccin Mocha dark theme, sidebar navigation, and all 14 content sections
+- **THEN** the manual renders with Catppuccin Mocha dark theme, sidebar navigation, and all 15 content sections
 
 ### Requirement: Catppuccin Mocha dark theme
 
@@ -22,7 +22,7 @@ The manual SHALL use the Catppuccin Mocha color palette for all screen rendering
 
 ### Requirement: Sidebar navigation
 
-The manual SHALL display a sticky sidebar on the left with anchor links to each of the 14 content sections. Clicking a link SHALL scroll to that section.
+The manual SHALL display a sticky sidebar on the left with anchor links to each of the 15 content sections. Clicking a link SHALL scroll to that section.
 
 #### Scenario: Navigate to section
 
@@ -84,13 +84,13 @@ Keybindings SHALL be rendered with `<kbd>` elements for visual distinction (e.g.
 - **WHEN** user views a keybinding entry
 - **THEN** the key combination appears in a styled `<kbd>` tag visually distinct from regular text
 
-### Requirement: 14 content sections
+### Requirement: 15 content sections
 
 The manual SHALL contain these sections in order:
 
-1. Terminal (Ghostty), 2. Navigation & Search, 3. Files & Viewing, 4. Git, 5. Worktrees, 6. Package Managers, 7. Shell Productivity, 8. Brew, 9. Docker, 10. macOS Integration, 11. Claude Code, 12. OpenCode, 13. Codex, 14. Agent Sessions
+1. Terminal (Ghostty), 2. Navigation & Search, 3. Files & Viewing, 4. Git, 5. Worktrees, 6. Package Managers, 7. Shell Productivity, 8. Brew, 9. Docker, 10. macOS Integration, 11. Claude Code, 12. OpenCode, 13. Codex, 14. Junie, 15. Agent Sessions
 
-Each section SHALL reflect current shipped tool capabilities. The Codex section SHALL document only behavior delivered by this change and SHALL NOT claim managed Codex MCP servers or preferences.
+Each section SHALL reflect current shipped tool capabilities. The Codex section SHALL describe the narrowly managed DeepWiki and Linear MCP registrations without claiming that chezmoi owns the rest of Codex preferences or runtime state. The Junie section SHALL document the managed user-scope DeepWiki and Linear MCP entries, mark Linear access as not currently supported, explain the reproduced OAuth token-exchange failure, and provide a future revalidation path.
 
 #### Scenario: Atuin section includes AI and daemon
 
@@ -121,18 +121,41 @@ Each section SHALL reflect current shipped tool capabilities. The Codex section 
 #### Scenario: Codex section reflects shipped behavior
 
 - **WHEN** user views Section 13 (Codex)
-- **THEN** it documents standalone installation, first-run authentication, self-updating, completion generation, `AGENTS.md`, and `.agents/skills` discovery
-- **AND** it does not claim Codex MCP registrations or managed preferences
+- **THEN** it documents standalone installation, first-run authentication, self-updating, completion generation, `AGENTS.md`, `.agents/skills` discovery, DeepWiki registration, and Linear MCP registration, login, and verification
+- **AND** it explains that other Codex preferences and runtime state remain Codex-owned
+
+#### Scenario: Junie section reflects shipped behavior
+
+- **WHEN** user views Section 14 (Junie)
+- **THEN** it documents `~/.junie/mcp/mcp.json`, the credential-free DeepWiki and Linear endpoint preconfiguration, and the attempted Linear `/mcp` authorization flow
+- **AND** it labels Junie as not currently supported because Linear OAuth returns `Client must not use multiple authentication methods`
+- **AND** it reserves connection and functional verification instructions for a future Junie release that completes OAuth successfully
 
 #### Scenario: Agent Sessions remains last
 
 - **WHEN** user inspects the sidebar or page content order
-- **THEN** Agent Sessions is Section 14 and follows Codex
+- **THEN** Agent Sessions is Section 15 and follows Junie
 
 #### Scenario: All sections present
 
 - **WHEN** the manual is loaded
-- **THEN** all 14 sections are present in the sidebar and in the page content
+- **THEN** all 15 sections are present in the sidebar and in the page content
+
+### Requirement: Linear MCP workflows are documented per client
+
+The manual SHALL give distinct setup and support-status instructions for Claude Code, OpenCode, Codex, and Junie. It SHALL give authentication, connection-status, and acceptance instructions for Claude Code, OpenCode, and Codex. For Junie, it SHALL explain the current OAuth incompatibility, prohibit credential workarounds, and describe how to repeat the controlled authorization check after an update. It SHALL explain that all configured clients use the same official read-write endpoint while configuration and credential stores remain client-specific.
+
+#### Scenario: Reader understands authentication support for every client
+
+- **WHEN** a user follows the four client subsections
+- **THEN** the documented flow covers Claude Code `/mcp` or `claude mcp login linear`, `opencode mcp auth linear`, and `codex mcp login linear`
+- **AND** the Junie subsection marks `/mcp` Authorize as a currently failing compatibility check to revisit, not a working login path
+
+#### Scenario: Reader verifies functional access
+
+- **WHEN** a user reaches the verification step in any client subsection
+- **THEN** each supported-client subsection instructs them to list projects, find `dotfiles`, create a uniquely named disposable issue in that project, record its identifier, and close or cancel it after verification
+- **AND** the Junie subsection instructs them not to create an acceptance issue until OAuth succeeds and the server reports Active
 
 ### Requirement: Destructive commands are never described as read-only
 
@@ -188,3 +211,68 @@ The manual currently states that pull-request badges in the git TUI require two 
 
 - **WHEN** a configuration key is deprecated and inert in the shipped setup
 - **THEN** the manual SHALL NOT instruct the reader to set it
+
+### Requirement: Claude Code fullscreen preference and controls are documented
+
+Section 11 of `docs/manual.html` SHALL describe `"tui": "fullscreen"` as the chezmoi-managed user preference and distinguish terminal fullscreen rendering from maximizing the terminal window. It SHALL document the built-in renderer controls separately from plugin-provided commands.
+
+#### Scenario: Reader finds the managed default
+
+- **WHEN** a reader consults the Claude Code section
+- **THEN** the manual SHALL identify `~/.claude/settings.json` and `"tui": "fullscreen"` as the applied user preference
+- **AND** it SHALL explain that fullscreen uses the terminal's alternate screen
+
+#### Scenario: Reader inspects or switches renderers
+
+- **WHEN** a reader consults the renderer controls
+- **THEN** the manual SHALL list `/tui` for inspecting the active renderer, `/tui fullscreen` for enabling fullscreen, and `/tui default` for returning to the classic renderer
+- **AND** it SHALL explain that a subsequent successful `chezmoi apply` restores the managed fullscreen preference
+
+#### Scenario: Reader needs a temporary or persistent opt-out
+
+- **WHEN** a reader wants the classic renderer for a directly launched interactive session
+- **THEN** the manual SHALL document `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1 claude` as a launch-specific override
+- **AND** it SHALL explain that a persistent managed opt-out requires changing the source `tui` value to `"default"` and applying it
+
+#### Scenario: Reader navigates a fullscreen conversation
+
+- **WHEN** a reader consults the fullscreen navigation instructions
+- **THEN** the manual SHALL document `Ctrl+o` followed by `/` for transcript search and `PgUp` / `PgDn` for scrolling
+- **AND** it SHALL explain that native terminal scrollback search does not search the fullscreen transcript
+
+#### Scenario: Reader checks terminal compatibility
+
+- **WHEN** a reader consults the fullscreen subsection
+- **THEN** it SHALL link to the official fullscreen guide and identify the feature as a research preview
+- **AND** it SHALL note that ordinary tmux sessions need mouse mode for wheel scrolling and that fullscreen is incompatible with `tmux -CC`
+
+### Requirement: Claude Code section documents claude-swap operations and boundaries
+
+Section 11 of `docs/manual.html` SHALL document the pinned claude-swap integration within the existing 15-section structure. It SHALL cover machine-role policy, guided account enrollment, native account aliases, the 85% autoswitch policy, `cs-list`/`cs-current`/`cs-global`, global-versus-isolated behavior, dry-run, menu activation and pause, LaunchAgent status, pin-based updates, credential ownership, recovery, and accepted upstream limitations.
+
+#### Scenario: Personal-machine operator follows the full workflow
+
+- **WHEN** a personal-machine user reads the claude-swap subsection
+- **THEN** they can enroll `personal` and `work` without `/logout`, verify `personal` is active, run a dry-run, install/check the menu service, and enable auto-switch from the supported menu toggle
+
+#### Scenario: Work-machine operator avoids accidental rotation
+
+- **WHEN** a work-machine user reads the subsection
+- **THEN** they are told to retain only `work`, leave auto-switch disabled, and resolve an unexpected extra account explicitly rather than relying on automatic deletion
+
+#### Scenario: Reader distinguishes global switching from session isolation
+
+- **WHEN** the reader consults `cs-global` or `cswap switch`
+- **THEN** the manual states that the default Claude Code identity changes globally
+- **AND** it does not present `cswap run` as part of the managed workflow
+
+#### Scenario: Reader can recover safely
+
+- **WHEN** account authentication, Keychain access, service startup, HTTP 429 usage telemetry, or an identity-affine feature fails
+- **THEN** the subsection provides the corresponding supported status/manual/re-run recovery path
+- **AND** it does not recommend committing credentials, using paid fallback, editing `menubar_settings.json`, or running a custom watcher
+
+#### Scenario: Existing manual organization is preserved
+
+- **WHEN** the manual is rendered after adding the subsection
+- **THEN** Claude Code remains Section 11 and all existing sections retain their order through Agent Sessions as Section 15

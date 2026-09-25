@@ -4,6 +4,7 @@
 
 Install and integrate the Agent of Empires (`aoe`) agent manager and the Conductor cask via the dotfiles' brew groups, ship a deliberate chezmoi-managed AoE config at `~/.config/agent-of-empires/config.toml`, and guarantee `aoe` is only ever launched on demand by the user (never automatically), since it opens an interactive TUI.
 ## Requirements
+
 ### Requirement: aoe binary is installed via the brew packages group
 
 The install script `run_onchange_install-packages.sh.tmpl` SHALL include `aoe` in the `BREW_PACKAGES` array under the `{{ if eq .chezmoi.os "darwin" }}` branch. `aoe` SHALL be installed from `homebrew-core` (no `BREW_TAPS` entry required) using the same idempotency check applied to every other CLI in the array (`command -v aoe` → skip).
@@ -144,14 +145,25 @@ The config MAY include a `[theme]` block matching the rest of the dotfiles' Catp
 - **WHEN** the config file is rendered by chezmoi
 - **THEN** the rendered file contains an `environment` list (or table) that names `CLAUDE_CONFIG_DIR`, `EDITOR`, `TERM`, and `COLORTERM`
 
-### Requirement: No automated invocations of `aoe` from any chezmoi-managed script
+### Requirement: AoE interactive startup remains user-initiated
 
-The dotfiles SHALL NOT invoke `aoe` from any chezmoi `run_*` script, git hook, shell startup file, alias, or other automated entry point. Because `aoe` opens an interactive TUI, every invocation MUST be initiated explicitly by the user typing `aoe`.
+The dotfiles SHALL NOT open the interactive AoE TUI from chezmoi install/apply scripts, git hooks, shell startup or other unattended entry points. An explicit user action SHALL remain necessary to open that TUI. User-triggered gh-dash shortcuts SHALL be allowed to invoke AoE's non-interactive group, session registration, inspection and lifecycle commands through the shared integration, returning control without opening or attaching to the TUI.
 
 #### Scenario: No automated aoe invocation
 
-- **WHEN** any file in the dotfiles source tree is searched for `aoe` as a command invocation (not as a string in `BREW_PACKAGES`, an `info` line, a manual-instruction line, or a comment)
-- **THEN** zero matches are found — `aoe` appears only in install-script package lists, the closing summary, manual-instruction lines, and user-facing docs
+- **WHEN** chezmoi scripts, git hooks or shell startup run
+- **THEN** they do not open or attach to the AoE TUI
+
+#### Scenario: Explicit shortcut manages sessions
+
+- **WHEN** the user presses `f` or `F` in gh-dash
+- **THEN** the integration can inspect groups and sessions, register or reuse the PR session and perform the requested background lifecycle operation
+- **AND** it does not open or attach to the AoE TUI
+
+#### Scenario: User opens AoE
+
+- **WHEN** the user explicitly launches `aoe`
+- **THEN** the interactive TUI opens normally
 
 ### Requirement: AoE launches claude under the project Node version
 
@@ -217,12 +229,25 @@ Because the mouse is active inside aoe panes, this requirement depends on the tm
 
 ### Requirement: AoE notifies on session error
 
-The AoE config `[status_hooks]` table SHALL include an `on_error` command that invokes `terminal-notifier` with a distinct sound, so an errored/crashed session is notified differently from `on_waiting` and `on_idle`.
+The AoE config `[status_hooks]` table SHALL include an `on_error` command that invokes
+`terminal-notifier` with a distinct sound, so an errored/crashed session is notified differently from
+`on_waiting` and `on_idle`.
+
+Distinctness SHALL be verifiable, not merely asserted. The previous scenario checked only that an
+`on_error` key exists and mentions `terminal-notifier`, which passes unchanged if both hooks collapse
+to the same sound or to the default tone — the requirement could be violated without any scenario
+noticing.
 
 #### Scenario: on_error hook present
 
 - **WHEN** the AoE config is rendered by chezmoi
 - **THEN** `[status_hooks]` contains an `on_error` key whose value invokes `terminal-notifier`
+
+#### Scenario: Error and waiting sounds are different
+
+- **WHEN** the AoE config is rendered by chezmoi
+- **THEN** the sound named by `on_error` differs from the sound named by `on_waiting`, and neither
+  omits its sound argument
 
 ### Requirement: AoE config preserves runtime writeback under chezmoi
 
@@ -348,7 +373,7 @@ Discarding an AoE session moves it to the trash instead of deleting it: transcri
 
 The mechanism that merges managed keys into the AoE config SHALL resolve its own runtime dependencies without reference to any project rooted at the current working directory.
 
-`chezmoi apply` inherits the directory it was invoked from. Without isolation the merge engine walks upward looking for a project to attach to, with two observed consequences: from a directory whose project cannot be resolved, the merge is skipped while the apply still reports success — so the managed keys silently do not land; and from a directory whose project does resolve, the engine writes environment and lockfile artifacts into that unrelated repository.
+`chezmoi apply` inherits the directory it was invoked from. Without isolation the merge engine walks upward looking for a project to attach to, with two observed consequences: from a directory whose project cannot be resolved, the merge exits non-zero without applying the managed keys; and from a directory whose project does resolve, the engine writes environment and lockfile artifacts into that unrelated repository.
 
 This is a pre-existing defect, not a consequence of any version in this upgrade.
 
@@ -361,6 +386,35 @@ This is a pre-existing defect, not a consequence of any version in this upgrade.
 #### Scenario: Merge failure is reported
 
 - **WHEN** the merge engine fails for any reason
-- **THEN** the live config SHALL be passed through unchanged
+- **THEN** the merge SHALL exit non-zero with nothing on standard output instead of passing the live config through
 - **AND** a diagnostic SHALL reach standard error rather than being suppressed
 
+### Requirement: AoE notifications replace rather than accumulate
+
+Every `terminal-notifier` invocation in the AoE `[status_hooks]` table SHALL pass a group identifier,
+so a new notification for a session replaces that session's previous one instead of stacking beside
+it. Without a group identifier each state transition leaves a separate notification behind, and AoE
+supervises a fleet of sessions, so the pile grows with every transition.
+
+The group identifier SHALL be the per-session id AoE exports to hooks (`$AOE_SESSION_ID`), not the
+session title, which AoE does not require to be unique, so a transition in one session does not
+replace the notification for a different session.
+
+This is adoptable on the currently installed `terminal-notifier` 2.0.0, which already documents the
+option, and it is a prerequisite for 3.x, where the absence of a group identifier is what makes
+notifications accumulate.
+
+#### Scenario: Every notifying hook passes a group
+
+- **WHEN** the AoE config is rendered by chezmoi
+- **THEN** each `[status_hooks]` command that invokes `terminal-notifier` passes a group identifier
+
+#### Scenario: A session's notifications replace each other
+
+- **WHEN** one AoE session transitions state twice
+- **THEN** the second notification replaces the first rather than appearing alongside it
+
+#### Scenario: Different sessions do not collide
+
+- **WHEN** two AoE sessions, even two with the same title, transition state
+- **THEN** each session's notification is independent, so neither replaces the other

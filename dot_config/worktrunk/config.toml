@@ -122,6 +122,12 @@ exclude = [
 [commit.generation]
 command = "MAX_THINKING_TOKENS=0 claude -p --model=haiku --tools='' --disable-slash-commands --setting-sources='' --system-prompt=''"
 
+# Neither `template` nor `squash-template` below references `{{ user_guidance }}`
+# or `{{ project_guidance }}` — the two placeholders worktrunk renders a
+# `commit.generation.template-append` fragment into. So any template-append,
+# here or in a future project-level .config/wt.toml, is discarded with no
+# warning: the prompt simply goes out without it. Add the placeholder first if
+# an append is ever wanted.
 template = """
 Write a commit message in Conventional Commits (commitizen) format.
 
