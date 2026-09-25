@@ -95,7 +95,7 @@ Skipping the hotkey is also what keeps this change small. An `Alt+<key>` binding
 
 ## Risks / Trade-offs
 
-- [tuicr pr resolves the forge from the local checkout; main checkout may be on any branch] → PR mode fetches the diff from the forge via `gh`, so local branch state is irrelevant; verify once during implementation with a dirty checkout.
+- [tuicr pr resolves the forge from the local checkout; main checkout may be on any branch] → local branch state is irrelevant (v0.25.0 source): `get_pull_request_diff` (`src/forge/github/gh.rs`) always runs `gh pr diff <n> --repo <owner/repo>`; the checkout only supplies the remote URL (`detect_forge_repository`) and a SHA-keyed object cache, never HEAD or working-tree state.
 - [`z`/`Z` shadow a future gh-dash built-in after an upgrade] → same exposure as every existing custom key; the collision-fix change documents the audit procedure (`?` menu).
 - [Intel macOS: no bottle → each install/upgrade is a rust source build, rust stays installed] → accepted under the install script's Platform-constraint block; upstream tap (`agavra/homebrew-tap`) is stale (0.19.1 vs 0.27.0), no current prebuilt brew route.
 - [Popup styling applies globally to all popups] → intended: benefits any future popup consumer.
