@@ -106,7 +106,7 @@ Skipping the hotkey is also what keeps this change small. An `Alt+<key>` binding
 
 ## Migration Plan
 
-Standard chezmoi flow: land on main → `chezmoi update` on each machine → `run_onchange_install-packages.sh.tmpl` re-runs (content hash changed) and installs `tuicr`. Rollback = revert commit + `chezmoi update`; brew package can stay (inert without bindings); a revert leaves `[tools.tuicr]` in the AoE config (the modify script only overlays, never deletes), an orphaned `~/.config/tuicr/config.toml` (no `.chezmoiremove` entry), and the skill (`~/.agents/skills/tuicr` + agent links `~/.claude/skills/tuicr`, `~/.junie/skills/tuicr`; `install_skill` only adds) — remove all three by hand (`npx skills remove -s tuicr -g -y` or rm).
+Standard chezmoi flow: land on main → `chezmoi update` on each machine → `run_onchange_install-packages.sh.tmpl` re-runs (content hash changed) and installs `tuicr`. Rollback = revert commit + `chezmoi update`; brew package can stay (inert without bindings); a revert leaves three items behind (each tool only adds/overlays, never deletes) — remove each by hand, one action per leftover: delete the `[tools.tuicr]` table from `~/.config/agent-of-empires/config.toml` (a blind `rm` there would wipe the whole AoE config); `rm ~/.config/tuicr/config.toml` (no `.chezmoiremove` entry); `npx -y skills remove -s tuicr -g -y` for the skill (`~/.agents/skills/tuicr`) and its agent links (`~/.claude/skills/tuicr`, `~/.junie/skills/tuicr`).
 
 ## Open Questions
 
