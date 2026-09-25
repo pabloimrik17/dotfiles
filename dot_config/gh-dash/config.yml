@@ -87,7 +87,7 @@ keybindings:
         - key: z
           name: Review in tuicr
           command: cd {{.RepoPath}} && tuicr pr {{.PrNumber}}
-        # Tmux variants (opens in split pane)
+        # Tmux variants (split pane, or popup for Z)
         - key: B
           name: Code review (tmux)
           command: tmux split-window -h 'wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude -- /code-review:code-review {{.RepoName}}#{{.PrNumber}}'
