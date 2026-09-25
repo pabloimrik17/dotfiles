@@ -29,3 +29,17 @@ The non-macOS manual-install block SHALL list `tuicr` among the CLI tools and in
 
 - **WHEN** the script is executed on a non-darwin host
 - **THEN** the printed CLI tools list includes `tuicr` with a cargo/curl install hint
+
+### Requirement: Closing summary line lists tuicr
+
+The install script's final `info "Installation complete!"` block's `CLI tools:` line SHALL include `tuicr` after `llmfit` in the comma-separated CLI tools list, on both the macOS branch and the non-macOS branch.
+
+#### Scenario: macOS summary mentions tuicr
+
+- **WHEN** the macOS branch of the install script completes successfully
+- **THEN** the closing `info "Installation complete!"` block's `CLI tools:` line includes the token `tuicr`
+
+#### Scenario: Non-macOS summary mentions tuicr
+
+- **WHEN** the non-macOS branch of the install script completes successfully
+- **THEN** the closing `info "Installation complete!"` block's `CLI tools:` line includes the token `tuicr`
