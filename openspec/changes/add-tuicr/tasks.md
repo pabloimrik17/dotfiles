@@ -37,7 +37,7 @@ Verification steps that need deployed files: run `chezmoi apply --source <this r
 ## 7. Agent skill end-to-end
 
 - [x] 7.1 Open a working-tree session (`tuicr -w`), leave it running, and from a second shell run `tuicr review list --repo .`; verify exactly one row with `kind: local`, a usable `slug`, and `"active": true`
-- [ ] 7.2 Ask Claude to read the review in that session; verify it invokes the skill, resolves the slug, and reports the comments without being told the CLI shape by hand
+- [x] 7.2 Ask Claude to read the review in that session; verify it invokes the skill, resolves the slug, and reports the comments without being told the CLI shape by hand (QA 2026-09-26, headless: `tuicr -w` 0.25.0 in an isolated tmux server, 3 comments via `review add`; a fresh Claude agent told only "read my review" invoked the skill, ran `review list` → `review comments`, reported all 3; it noted the missing `author` field — the 0.25/0.26+ skew design §Risks describes)
 - [x] 7.3 Open a PR session via the gh-dash `z` binding and run `tuicr review list --repo owner/repo`; verify the PR row appears with a `gh:owner/repo/pr/N` slug (QA ran on the former n/N keys; payload unchanged, z/Z statically confirmed unbound in gh-dash v4.26.0)
 
 ## 8. AoE tool-session
