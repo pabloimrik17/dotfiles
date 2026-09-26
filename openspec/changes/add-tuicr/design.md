@@ -1,0 +1,115 @@
+# Design: add-tuicr
+
+## Context
+
+See proposal.md — Why. tuicr 0.25.0 at implementation (the config keys used here are unchanged through 0.27.0), reads `~/.config/tuicr/config.toml` (static TOML), auths through the already-configured `gh`. Integration surfaces touched: install script, chezmoi config, gh-dash keybindings, lazygit customCommands, zshrc, tmux.conf, AoE config, README, manual docs. tmux here is 3.7b (`display-popup` needs ≥3.2).
+
+## Goals / Non-Goals
+
+**Goals**: human PR review from gh-dash without losing dashboard state; working-tree self-review from lazygit and the shell; stack-consistent theming.
+
+**Non-Goals**: a bespoke `--stdout`-piped handoff (the upstream skill's `tuicr review` CLI supersedes it — see §7); unattended agent-authored comments; per-repo `.tuicrignore`; Linux automation (manual hint only); custom local themes (bundled catppuccin-mocha suffices).
+
+## Decisions
+
+### 1. gh-dash keys `z`/`Z` (not `e`/`E` or `n`/`N`)
+
+`e` is a gh-dash built-in in the PRs section ("expand description", verified in `internal/tui/keys/prKeys.go`). House rule since fix-ghd-keybinding-collisions: never shadow built-ins. Full enumeration of the PRs section + universal defaults + existing custom keys (gh-dash v4.26.0 `internal/tui/keys/`) leaves `z`/`Z` as the only free lowercase/uppercase pair. `n`/`N` looks unbound but is not: `n` is the second stroke of the built-in `ctrl+s n` (new section), and `internal/tui/ui.go` dispatches custom keys before section mode, so a custom `n` would swallow it and leave section mode armed. Convention kept: lowercase = direct execution, uppercase = tmux variant.
+
+### 2. Popup over split for the tmux variant
+
+`tmux display-popup -E` instead of the `split-window -h` used by `B`/`I`/`T`. A diff review wants full width, and the user's requirement is "close tuicr → be exactly where I was in gh-dash". The popup covers the first: 95%x95% instead of half a pane, framed, with a `-T` title `{{.RepoName}}#{{.PrNumber}}`. The second comes from suspend/resume, not the popup: gh-dash v4.26.0 runs custom commands via `tea.ExecProcess`, and `display-popup` blocks until the popup closes, so gh-dash is suspended exactly as with `z` and resumes with section and selection intact. `-E` closes the popup on command exit.
+
+- Working directory: the `-d "{{.RepoPath}}"` form was rejected on evidence. gh-dash renders `{{.RepoPath}}` as the literal `~/WebstormProjects/<repo>` (see gh-dash-repo-paths), and tmux does not tilde-expand a start-directory — it silently falls back to `$HOME` (probed on tmux 3.7b: `new-window -c '~/WebstormProjects'` lands in `/Users/etherless`). A wrong directory with no error is the worst failure mode here, so the binding uses the fallback form, `'cd {{.RepoPath}} && tuicr pr {{.PrNumber}}'`, which leaves the expansion to the shell. `wt -C {{.RepoPath}}` works because a shell always expands the `~`: the outer shell for `b`/`i`, the pane's shell for the quoted `B`/`I` payloads — the same path the `cd` form takes; only tmux's own start-directory argument skips it.
+- Injection: only deterministic tokens (`RepoPath`, `RepoName`, `PrNumber`); never `{{.Title}}` — same rationale documented on the AoE bindings.
+- Coexists with the skill: the skill ships its own `tuicr-wrapper.sh` that opens a tuicr pane when `$TMUX` is set. That is the agent-initiated path; `z`/`Z` is the human-initiated one. Different entry points onto the same session store, no conflict.
+
+### 3. Static config.toml, no `.tmpl`
+
+Single-user dotfiles; `username = "pabloimrik17"` hardcoded (same call as tickrs-config: byte-identical across hosts beats template machinery). Plain TOML is safe for oxfmt — only chezmoi `modify_`/`run_` scripts need `.oxfmtignore` entries.
+
+### 4. Config contents
+
+```toml
+theme = "catppuccin-mocha"
+no_update_check = true      # skip the startup update check; `brew upgrade` is the update path
+show_pr_checks = true
+username = "pabloimrik17"
+diff_view = "side-by-side"  # runtime-togglable with `:diff`
+
+comment_types = [
+  { id = "issue",      label = "issue",      definition = "a defect that must be fixed before merge",        color = "#f38ba8" },
+  { id = "suggestion", label = "suggestion", definition = "a concrete improvement, author's call",           color = "#89b4fa" },
+  { id = "question",   label = "question",   definition = "needs an answer before this can be resolved",     color = "#f9e2af" },
+  { id = "nit",        label = "nit",        definition = "minor style point, feel free to ignore",          color = "#9399b2" },
+  { id = "praise",     label = "praise",     definition = "no action needed",                                color = "#a6e3a1" },
+]
+
+[export]
+intro = "Address the review comments below. Treat 'issue' as required, 'suggestion' as recommended, answer each 'question', use judgment on each 'nit', and take no action on 'praise'."
+```
+
+The five ids cover the four the skill's legend documents to the agent, via this mapping:
+
+| config id    | skill legend           | agent action                 |
+| ------------ | ---------------------- | ---------------------------- |
+| `issue`      | `issue`                | blocking; fix first          |
+| `suggestion` | `suggestion`           | implement or explain why not |
+| `question`   | `note`                 | answer or acknowledge        |
+| `nit`        | (extends `suggestion`) | non-blocking; judgment call  |
+| `praise`     | `praise`               | no action                    |
+
+Ids must stay self-describing in plain English, because `definition` does **not** travel to the agent: `tuicr review comments` emits fields such as `id`, `location`, `path`, `start_line`, `end_line`, `side`, `comment_type`, `lifecycle_state`, `content` (plus `created_at`, and `author` from 0.26.0) — the curated definitions only reach a consumer through the `[export]` path, which the skill treats as legacy. `question` and `nit` are outside the skill's legend but read unambiguously on their own; that is the whole reason for keeping them rather than collapsing to the skill's four.
+
+tuicr uses the first configured type as the default for a new comment (`resolve_comment_types`/`default_comment_type` in `src/app/init.rs`), so a comment saved without pressing Tab is `issue`; kept first on purpose, since a reviewer comment should default to blocking unless downgraded with Tab.
+
+Colors are Catppuccin Mocha (red/blue/yellow/overlay/green). `diff_view = "side-by-side"` pins the setting that was already in the unmanaged config this file replaces; it stays togglable at runtime with `:diff`. Everything else stays at defaults: `transparent_background = true` matches the Ghostty transparency setup, `mouse = true` matches tmux `mouse on`.
+
+### 5. lazygit binding `V` in files context
+
+`W` was the first choice and is wrong: lazygit binds it to `diffingMenu` in the **universal** section, so it is live in the files context and a customCommand there would shadow a built-in (`<ctrl+e>` would still reach the menu, but the house rule stands). Dumping `lazygit --config` and differencing universal + files leaves b, g, t, u, B, E, F, G, I, O, T, U, V, X, Y free; `g` is already the mdview entry. Chose `V` (mnemonic: reView), keeping the uppercase convention. Global `R` refresh untouched. Command is plain `tuicr -w` — no lazygit templates, so no chezmoi `{{ "{{" }}` escaping needed, unlike the mdview entry. `output: terminal`, matching the mdview precedent.
+
+### 6. tmux popup styling: hardcoded hex
+
+`popup-border-lines rounded` + `set -g popup-border-style "fg=#cba6f7"` (Mocha mauve) as plain lines, not `@thm_*` variables: those only exist after the deferred catppuccin `run -b` load, and popup styling should survive a missing plugin (graceful-degradation property the tmux.conf already has).
+
+`popup-border-style` has to be set twice. Catppuccin's own conf sets it (`set -gF popup-border-style "fg=#{@thm_surface_1}"`), and because the plugin loads from a backgrounded `run -b` it lands after the plain `set -g` lines — so the standalone line alone is silently overwritten to surface_1 whenever the plugin is present. The fix follows the `message-style` precedent already in the file: re-set it at the tail of the same `run -b` chain, which wins after the plugin loads, and keep the plain line as the plugin-missing fallback. `popup-border-lines` needs no such treatment; catppuccin never sets it.
+
+Verifying this needs the wait: `source-file ~/.tmux.conf` followed by an immediate `show-options` reads the value before the async `run -b` has landed and reports a false pass.
+
+### 7. Agent skill from upstream, not hand-written
+
+`install_skill "agavra/tuicr" "tuicr" "claude-code opencode junie codex"` in the existing agent-skills group — same helper, same single confirmation prompt, same `npx skills list -g --json` cache check and error counter as the other skills in the group. Precedent for a dedicated capability per skill: `gluestack-ui-v5-skill-install`, `slidev-skill-install`.
+
+Upstream over vendored: the skill encodes the CLI contract (`review list` / `review comments` / `review add`, slug addressing, `"active": true` discovery) and tracks it as tuicr evolves. Vendoring would fork that contract.
+
+No version floor to enforce: slug-addressed sessions for agent discovery landed in 0.16.x (#339) and `review --repo` became a repo selector in 0.17.1 (#399), both far below 0.25.0, the version at implementation. 0.25.0's Sessions tab (#669) is a TUI convenience, not a CLI dependency.
+
+Agent targets match the gluestack precedent (all four agents in use) rather than the Claude-Code-only default: the skill is agent-agnostic and OpenCode/Junie/Codex review the same repos.
+
+### 8. AoE tuicr tool-session, no hotkey
+
+`(("tools", "tuicr", "command"), "tuicr", False)` in the MANAGED list — one entry, no `hotkey` sibling. Tools are invoked from the `;` picker, which lists every configured tool; the archived improve-aoe-config QA (task 7.2) confirms lazygit launches from both the picker and its hotkey, so the picker is sufficient on its own. Bare `tuicr` rather than `tuicr -w`, matching `[tools.lazygit]`'s bare `lazygit`: the selector covers both the working tree and a commit range, so it does not pre-commit to one.
+
+Skipping the hotkey is also what keeps this change small. An `Alt+<key>` binding would have dragged in the keyboard question below.
+
+**Considered and rejected: reverting `macos-option-as-alt = right`.** That Ghostty setting was added by improve-aoe-config purely as a prerequisite for `Alt+g` (default `false` makes ⌥ type `©`, so the hotkey was inert). Since this change adds no hotkey, the setting looked like dead weight — but it is not AoE-only any more: `source <(fzf --zsh)` binds `Alt+C` (cd into subdirectory), and the zshrc deliberately customizes it with `FZF_ALT_C_COMMAND` (fd) and `FZF_ALT_C_OPTS` (eza tree preview). Reverting to `false` would silently kill that binding and orphan both env vars, plus readline word-motion. Left alone; the cost of `= right` is only that the right ⌥ stops producing ISO alt-chars, and the left ⌥ still does.
+
+## Risks / Trade-offs
+
+- [tuicr pr resolves the forge from the local checkout; main checkout may be on any branch] → diff content ignores branch state (v0.25.0 source): `get_pull_request_diff` (`src/forge/github/gh.rs`) always runs `gh pr diff <n> --repo <owner/repo>`; the checkout supplies the remote URL (`detect_forge_repository`) and git objects read by SHA. Two working-tree reads remain: the root `.gitignore` and `.tuicrignore` filter the PR file list (`load_matcher`, `src/tuicrignore.rs`), so a branch with different ignore rules shows a different list; through 0.26.x, open-in-editor opens the checkout's file, not the PR's (`queue_editor_for_file_idx`, `src/app/reviewed.rs`) — 0.27.0 (#627) opens the PR revision, binaries excepted. Both are minor; accepted.
+- [`z`/`Z` shadow a future gh-dash built-in after an upgrade] → same exposure as every existing custom key; the collision-fix change documents the audit procedure (`?` menu).
+- [Intel macOS: no bottle → each install/upgrade is a rust source build, rust stays installed] → accepted under the install script's Platform-constraint block; upstream tap (`agavra/homebrew-tap`) is stale (0.19.1 vs 0.27.0), no current prebuilt brew route.
+- [Popup styling applies globally to all popups] → intended: benefits any future popup consumer.
+- [tuicr version drift vs config options] → brew, not a `gh` extension: all config keys used are present through 0.27.0 (checked at 0.25.0, 0.26.0, 0.27.0); `no_update_check` only skips the startup update check — brew (`brew upgrade tuicr`) stays the update path. Upstream `tuicr update` is not used: for a `Cellar/tuicr` binary it runs `brew upgrade agavra/tap/tuicr`, the stale upstream tap (0.19.1), not homebrew-core (`src/update/install/installation.rs`, v0.25.0 and v0.27.0).
+- [Skill's CLI contract drifts from the brew-pinned binary] → the skill is fetched at install time and the binary at brew-upgrade time, so they can desync. Skew can fail silently: a newer skill can expect fields or lines an older binary doesn't emit (e.g. 0.26.0's `author` field, its `tuicr-summary:` stderr line) and the older CLI just omits them, no error; `brew upgrade tuicr` plus a skills re-add resyncs.
+- [Skill overrides the curated `comment_types` semantics] → it does not write config, only reads `comment_type` strings; the two unmapped ids (`question`, `nit`) degrade to plain English, not to an error. The skill also has agents write `--type note`, absent from config: tuicr accepts it as an unconfigured type with a hardcoded fallback color, outside the Tab cycle, warning (not erroring) from 0.26.0. Accepted — no config change needed.
+- [`username` doubles as the default `review add` author] → `resolve_cli_author` (`src/review_cli.rs`, v0.25.0 and v0.27.0) falls back to config `username` when `--username` is omitted, so an agent that drops the flag writes as the human; the skill always passes `--username` (SKILL.md), so accepted.
+
+## Migration Plan
+
+Standard chezmoi flow: land on main → `chezmoi update` on each machine → `run_onchange_install-packages.sh.tmpl` re-runs (content hash changed) and installs `tuicr`. Rollback = revert commit + `chezmoi update`; brew package can stay (inert without bindings); a revert leaves three items behind (each tool only adds/overlays, never deletes) — remove each by hand, one action per leftover: delete the `[tools.tuicr]` table from `~/.config/agent-of-empires/config.toml` (a blind `rm` there would wipe the whole AoE config); `rm ~/.config/tuicr/config.toml` (no `.chezmoiremove` entry); `npx -y skills remove -s tuicr -g -y` for the skill (`~/.agents/skills/tuicr`) and its agent links (`~/.claude/skills/tuicr`, `~/.junie/skills/tuicr`).
+
+## Open Questions
+
+None blocking. `diff_view` is pinned to `side-by-side` (see §4); revisit after real use.

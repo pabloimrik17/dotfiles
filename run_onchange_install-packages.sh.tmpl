@@ -107,7 +107,7 @@ BREW_TAPS=(tarkah/tickrs achannarasappa/tap AlexsJones/llmfit)
 # homebrew/core formula, which declares `rust` as a build dependency and ships no
 # x86_64 macOS bottle — an Intel host would compile it on install and on every
 # upgrade. The tap formula unpacks a sha256-pinned prebuilt release tarball.
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tarkah/tickrs/tickrs achannarasappa/tap/ticker age mole aoe glow mdfried AlexsJones/llmfit/llmfit)
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tarkah/tickrs/tickrs achannarasappa/tap/ticker age mole aoe glow mdfried AlexsJones/llmfit/llmfit tuicr)
 
 # ---- Platform constraint: Intel x86_64 bottle EOL -------------------------
 # Homebrew stopped producing x86_64 macOS bottles in September 2026 (announced
@@ -1886,6 +1886,7 @@ if confirm "Install global agent skills via skills.sh?"; then
         install_skill "coderabbitai/skills" "autofix"
         install_skill "slidevjs/slidev" "slidev"
         install_skill "gluestack/agent-skills" "gluestack-ui-v5" "claude-code opencode junie codex"
+        install_skill "agavra/tuicr" "tuicr" "claude-code opencode junie codex"
         install_skill "mattpocock/skills" "ask-matt" "opencode junie"
         install_skill "mattpocock/skills" "diagnosing-bugs" "opencode junie"
         install_skill "mattpocock/skills" "grill-with-docs" "opencode junie"
@@ -1954,7 +1955,7 @@ info ""
 info "Please install the following packages manually:"
 info ""
 info "  claude-swap: skipped — the managed account-switching integration is macOS-only"
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe, glow, mdfried, llmfit"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe, glow, mdfried, llmfit, tuicr"
 info "    - terminal-notifier: macOS-only (skip on Linux)"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
@@ -1971,6 +1972,7 @@ info "    - aoe: cargo install aoe (Linux supported by upstream; brew is macOS-o
 info "    - glow: brew install glow (or your distro's package manager, or 'go install github.com/charmbracelet/glow@latest')"
 info "    - mdfried: brew install mdfried (or cargo install mdfried); its image / mermaid / Big-Header rendering needs a terminal with a graphics protocol (Kitty, iTerm2, or Sixel) and otherwise degrades to character rendering"
 info "    - llmfit: brew install AlexsJones/llmfit/llmfit (upstream tap; prebuilt Linux and macOS binaries) OR, without brew, uv tool install -U llmfit"
+info "    - tuicr: cargo install tuicr (or the official installer: curl -fsSL tuicr.dev/install.sh | sh)"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: zsh, then oh-my-zsh (https://ohmyz.sh/)"
 info "    - zsh: install it first — the oh-my-zsh installer aborts when zsh is missing (apt install zsh, dnf install zsh, …)"
@@ -2016,6 +2018,7 @@ info "    npx -y skills add coderabbitai/skills --skill code-review -g -y"
 info "    npx -y skills add coderabbitai/skills --skill autofix -g -y"
 info "    npx -y skills add slidevjs/slidev --skill slidev -g -y"
 info "    npx -y skills add gluestack/agent-skills --skill gluestack-ui-v5 -g -y --agent claude-code opencode junie codex"
+info "    npx -y skills add agavra/tuicr --skill tuicr -g -y --agent claude-code opencode junie codex"
 info "    npx -y skills add mattpocock/skills --skill ask-matt --skill diagnosing-bugs --skill grill-with-docs --skill triage --skill improve-codebase-architecture --skill setup-matt-pocock-skills --skill tdd --skill to-spec --skill to-tickets --skill wayfinder --skill implement --skill prototype --skill research --skill domain-modeling --skill codebase-design --skill resolving-merge-conflicts --skill wizard --skill grill-me --skill grilling --skill handoff --skill teach --skill to-questionnaire --skill wait-what --skill writing-for-agents -g -y --agent opencode junie"
 info "    npx -y skills add typesafe-ai/skills --skill typesafe-ai -g -y --agent opencode junie codex"
 info ""
@@ -2029,7 +2032,7 @@ fi
 
 info "Installation complete!"
 {{ if eq .chezmoi.os "darwin" -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, mole, aoe, glow, mdfried, llmfit"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, mole, aoe, glow, mdfried, llmfit, tuicr"
 {{ else -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, aoe, glow, mdfried, llmfit"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, aoe, glow, mdfried, llmfit, tuicr"
 {{ end -}}

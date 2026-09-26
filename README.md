@@ -18,6 +18,10 @@
   <img src="assets/tickrs-overview.png" alt="tickrs real-time stock ticker" width="800">
 </p>
 
+<p align="center">
+  <img src="assets/tuicr-overview.png" alt="tuicr code review TUI" width="800">
+</p>
+
 chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Ghostty, Starship, zsh with Oh-My-Zsh, modern CLI replacements (`eza`, `bat`, `zoxide`, `fzf`), and AI tooling like Claude Code, Codex, OpenCode, and Agent of Empires. Everything themed with Catppuccin Mocha, with sensitive configs (like trading positions) encrypted at rest via `age`.
 
 ## What's Included
@@ -52,6 +56,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **Git**        | [gh-dash](https://github.com/dlvhdr/gh-dash)                                    | GitHub dashboard TUI with Catppuccin Mocha theme                                                           |
 | **Git**        | [gh-enhance](https://github.com/dlvhdr/gh-enhance)                              | GitHub Actions TUI for workflow runs                                                                       |
 | **Git**        | [gh-stack](https://github.com/github/gh-stack)                                  | Stacked pull requests from the terminal (`gs`)                                                             |
+| **Git**        | [tuicr](https://tuicr.dev/)                                                     | Code review TUI with vim keybindings — PR and working-tree review (CLI + agent skill)                      |
 | **Git**        | [Worktrunk](https://github.com/max-sixty/worktrunk)                             | Git worktree manager for parallel AI agent workflows                                                       |
 | **AI Tooling** | [Claude Code](https://code.claude.com/)                                         | AI coding assistant CLI with plugins                                                                       |
 | **AI Tooling** | [claude-swap](https://github.com/realiti4/claude-swap)                          | Pinned macOS account and quota manager for Claude Code                                                     |
