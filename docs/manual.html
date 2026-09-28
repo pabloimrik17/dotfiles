@@ -2336,11 +2336,12 @@
                                 <td><code>bubu</code></td>
                                 <td>
                                     Full update cycle: update + outdated + upgrade + cleanup.
-                                    <strong>Not the maintenance path here</strong> &mdash; it
-                                    upgrades every outdated formula in one bulk step, which skips
-                                    the changelog review each package is supposed to get and cannot
-                                    express a version that must be held back. Use <code>bubo</code>,
-                                    then <code>brew upgrade &lt;pkg&gt;</code> one at a time
+                                    <strong>Not the maintenance path here</strong> &mdash; frozen
+                                    packages are skipped, but an unpinned dependency may still
+                                    upgrade and break a pinned dependent. Use <code>bubo</code>,
+                                    review each changelog, run
+                                    <code>brew-upgrade-pinned &lt;pkg&gt;</code>, then bump that
+                                    package's <code>BREW_VERSIONS</code> row
                                 </td>
                             </tr>
                             <tr>
@@ -2352,17 +2353,22 @@
                                 <td>Upgrade + cleanup</td>
                             </tr>
                             <tr>
+                                <td><code>brew-upgrade-pinned &lt;pkg&gt;</code></td>
+                                <td>
+                                    Upgrade one frozen package and restore its pin even if the
+                                    upgrade fails; review its changelog first
+                                </td>
+                            </tr>
+                            <tr>
                                 <td><code>brewsp</code></td>
                                 <td>
-                                    List held packages. Holds are declared in
-                                    <code>run_onchange_install-packages.sh.tmpl</code> with a reason
-                                    and an exit condition, and applied each time that script runs;
-                                    chezmoi re-runs it whenever its rendered content changes,
-                                    including any <code>BREW_HOLDS</code> edit. An installed held
-                                    package is pinned; a missing one is skipped with a warning, not
-                                    installed. A <code>chezmoi apply</code> with an unchanged script
-                                    does not re-apply holds, and a bare <code>brew pin</code> is
-                                    invisible to the repo
+                                    List frozen and held packages. The install script declares
+                                    <code>BREW_VERSIONS</code> for every brew formula and font cask
+                                    it installs, pins them, and warns when a pinned version differs.
+                                    <code>BREW_HOLDS</code> carry a reason and exit condition; a
+                                    missing held package is skipped with a warning. Chezmoi re-runs
+                                    the script when its rendered content changes. A hand-made
+                                    <code>brew pin</code> is invisible to the repo
                                 </td>
                             </tr>
                         </tbody>
@@ -2390,10 +2396,11 @@
                     </table>
                     <div class="flow-only">
                         <strong>Flow: Full tool maintenance</strong><br />
-                        <code>bubo</code> &rarr; <code>brew upgrade &lt;pkg&gt;</code> (one at a
-                        time, after reading its changelog) &rarr; <code>update-extra</code> &rarr;
-                        everything current (self-updating tools handle themselves; pinned tools via
-                        Renovate; held packages stay put by declaration)
+                        <code>bubo</code> &rarr; read each changelog &rarr;
+                        <code>brew-upgrade-pinned &lt;pkg&gt;</code>
+                        &rarr; bump its <code>BREW_VERSIONS</code> row &rarr;
+                        <code>update-extra</code> (self-updating tools handle themselves;
+                        repo-pinned tools use a pin bump; held packages stay put by declaration)
                     </div>
                 </div>
             </details>

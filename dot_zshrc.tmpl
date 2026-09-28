@@ -326,6 +326,20 @@ alias jqless="jq -C . | less -R"
 alias pretty-json="jq ."
 alias check-json="jq empty"
 
+# Always restore the pin, including when the upgrade fails.
+brew-upgrade-pinned() {
+  if (( $# != 1 )); then
+    print -u2 "Usage: brew-upgrade-pinned <package>"
+    return 2
+  fi
+  local upgrade_status
+  brew unpin "$1" || return
+  brew upgrade "$1"
+  upgrade_status=$?
+  brew pin "$1" || return 1
+  return "$upgrade_status"
+}
+
 # update-extra: single entry point for tools that are neither brew-managed,
 # self-updating, nor repo-pinned (those have their own update paths). Step list
 # is maintained by the classify-tool-updates skill (repo .agents/skills/).

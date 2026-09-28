@@ -210,12 +210,13 @@ chezmoi git push
 
 ```sh
 bubo                  # brew: check what is outdated
-brew upgrade <pkg>    # one package at a time, after reading its changelog
-brewsp                # list held packages (declared in the install script)
+brew-upgrade-pinned <pkg>  # after reading its changelog; repins even if upgrade fails
+# Bump <pkg>'s BREW_VERSIONS row in run_onchange_install-packages.sh.tmpl
+brewsp                # list frozen and held packages
 update-extra          # the rest: gh extensions, omz plugins, skills, plannotator, themes, tv channels
 ```
 
-Brew packages are upgraded **per package**, not in bulk: a changelog can carry a behaviour change, a removed flag, or a new key that lands in a chezmoi-managed file, and a version that is wrong for this repo is held instead — see the `classify-tool-updates` skill. Holds are declared in `run_onchange_install-packages.sh.tmpl` rather than pinned by hand, so they apply on both machines: an installed held package is pinned, and a missing one is not installed.
+Brew packages are upgraded **per package**, not in bulk: a changelog can carry a behaviour change, a removed flag, or a new key that lands in a chezmoi-managed file — see the `classify-tool-updates` skill. The install script freezes every declared formula and font cask at a pinned version and warns when a host differs from its `BREW_VERSIONS` row. A version that is wrong for this repo can also be held with a reason and exit condition; an installed held package is pinned, and a missing one is not installed. The freeze and holds are declared in `run_onchange_install-packages.sh.tmpl`, so they apply on both machines when its rendered content changes.
 
 Self-updating tools (Claude Code, Codex, OpenCode, CodeRabbit) use their own update paths.
 Repo-pinned tools such as claude-swap update through a reviewed pin change followed by
