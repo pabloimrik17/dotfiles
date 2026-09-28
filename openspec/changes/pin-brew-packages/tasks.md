@@ -66,3 +66,11 @@
       `llmfit --version` prints 1.1.16 and `brew list --pinned --versions llmfit` lists 1.1.16.
 - [x] 4.5 Re-run relevant gates after the review changes and verify the rendered shell functions,
       the freeze pass, OpenSpec validation, formatting and tests.
+
+## 5. Verification follow-up
+
+- [x] 5.1 Transfer ownership when a freeze-owned formula becomes a hold, without claiming a hand
+      pin. Verify that removing both declarations releases the transferred pin.
+- [x] 5.2 Add direct tests for the four hold scenarios in the modified requirement, plus the
+      transfer and hand-pin regressions.
+- [x] 5.3 Re-run OpenSpec validation, shell syntax, formatting, dead-code analysis and tests.

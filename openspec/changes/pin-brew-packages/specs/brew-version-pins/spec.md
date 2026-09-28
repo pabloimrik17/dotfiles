@@ -175,3 +175,9 @@ kind.
   install script runs again
 - **THEN** the script does not call `brew unpin` for it, drops it from the record, and reports no
   error
+
+#### Scenario: A freeze-owned pin becomes a hold before removal
+
+- **WHEN** a package pinned and recorded by the freeze becomes a declared hold
+- **THEN** the hold adopts the pin in its own record and the freeze drops its record without
+  unpinning; if both declarations are later removed, the hold releases the pin

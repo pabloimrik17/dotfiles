@@ -186,6 +186,7 @@ BREW_HOLDS=(
 # removing its declaration never releases a hand-made pin. A recorded package
 # that is no longer installed is dropped from the record without `brew unpin`.
 BREW_HOLDS_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-holds"
+BREW_FREEZES_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-freezes"
 
 # Declared packages that are not installed. The pre-scan and install loop skip
 # them: a hold means the version brew would install is wrong for this repo, so
@@ -249,7 +250,14 @@ apply_brew_holds() {
         if printf '%s\n' "$pinned" | grep -qx "$pkg"; then
             case " ${previously[*]:-} " in
                 *" $pkg "*) applied+=("$pkg") ;;
-                *) info "  $pkg — already pinned by hand, not recorded" ;;
+                *)
+                    if [ -f "$BREW_FREEZES_STATE" ] && grep -Fqx "formula $pkg" "$BREW_FREEZES_STATE"; then
+                        # Keep ownership when a frozen package becomes a hold.
+                        applied+=("$pkg")
+                    else
+                        info "  $pkg — already pinned by hand, not recorded"
+                    fi
+                    ;;
             esac
             continue
         fi
@@ -965,8 +973,6 @@ else
 fi
 
 # BEGIN BREW_FREEZE_HELPERS
-BREW_FREEZES_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-freezes"
-
 brew_freeze_contains() {
     local needle="$1" item
     shift

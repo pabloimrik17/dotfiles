@@ -80,6 +80,7 @@ ZSH_PLUGIN_FORMULAE=${shellArray(fixture.plugins ?? [])}
 FONT_CASKS=${shellArray(fixture.fonts ?? [])}
 BREW_VERSIONS=${shellArray(fixture.versions ?? ["git|2.55.0"])}
 BREW_HOLDS=${shellArray(fixture.holds ?? [])}
+BREW_FREEZES_STATE="\${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-freezes"
 info() { printf 'INFO: %s\\n' "$*"; }
 warn() { printf 'WARNING: %s\\n' "$*"; }
 error() { printf 'ERROR: %s\\n' "$*"; ERRORS=$((ERRORS + 1)); }

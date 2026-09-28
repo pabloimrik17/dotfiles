@@ -111,7 +111,9 @@ the reconcile logic over three places and skips packages installed before this c
 one file would need merge logic between the two writers. Existing hosts already have
 `brew-holds` in bare-name format, and it stays untouched. The kind is recorded so that a release
 calls `brew unpin --formula` or `--cask` explicitly and cannot resolve to the wrong kind when a
-cask token matches a formula name.
+cask token matches a formula name. When a freeze-owned formula becomes a hold, the hold pass reads
+the freeze record and adopts the existing pin before the freeze pass drops its entry. A hand pin
+with no freeze record remains unowned by either pass.
 
 **D4: Names are matched by their short form, and sources are checked by the qualified form.**
 Comparisons against `brew list --pinned` use `${pkg##*/}`. To check whether a package is
