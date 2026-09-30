@@ -83,6 +83,14 @@ print_linear_mcp_guidance() {
     info "      Revisit after a Junie update: retry /mcp authorization and require Active before functional verification"
 }
 
+print_linear_cli_guidance() {
+    info "  - linear CLI (schpet/linear-cli): authenticate with 'linear auth login'"
+    info "      It prompts for a personal API key from https://linear.app/settings/account/security and stores it in the system keyring (macOS Keychain; secret-tool from libsecret on Linux)"
+    info "      ~/.config/linear/credentials.toml then holds only workspace metadata; status: linear auth whoami, linear auth list"
+    info "      Without a keyring, export LINEAR_API_KEY instead; it takes precedence over stored credentials, so a stale export shadows the keyring"
+    info "      Never commit a key, and never use --plaintext: it writes the key to credentials.toml"
+}
+
 {{ if eq .chezmoi.os "darwin" -}}
 # ====================================================================
 # macOS — install via Homebrew
@@ -96,7 +104,7 @@ fi
 # ------------------------------------------------------------------
 # Group 1: Brew packages
 # ------------------------------------------------------------------
-BREW_TAPS=(tarkah/tickrs achannarasappa/tap AlexsJones/llmfit)
+BREW_TAPS=(tarkah/tickrs achannarasappa/tap AlexsJones/llmfit schpet/tap)
 # Tap-sourced formulae are listed fully qualified (<user>/<tap>/<formula>).
 # Homebrew 6 refuses to load a bare-named formula from a third-party tap, so a
 # bare entry is uninstallable on a fresh host — and an untrusted tap is omitted
@@ -107,7 +115,21 @@ BREW_TAPS=(tarkah/tickrs achannarasappa/tap AlexsJones/llmfit)
 # homebrew/core formula, which declares `rust` as a build dependency and ships no
 # x86_64 macOS bottle — an Intel host would compile it on install and on every
 # upgrade. The tap formula unpacks a sha256-pinned prebuilt release tarball.
-BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tarkah/tickrs/tickrs achannarasappa/tap/ticker age mole aoe glow mdfried AlexsJones/llmfit/llmfit tuicr)
+#
+# linear (schpet/linear-cli) is called by the autonomous label-triage step. Its
+# BREW_VERSIONS row is the version that step was verified against. Raise the row
+# only after every check below passes on the candidate release:
+#   linear issue query --all-teams --json
+#     → {nodes, pageInfo}; every node carries labels.nodes[].name
+#   linear label list --json
+#     → {nodes, pageInfo}
+#   linear issue update <id> --add-label <name>
+#     → adds the label and keeps the existing ones; --label replaces the set
+#   linear label create -n <name> -c '#rrggbb'
+#     → creates the label with that color
+# Write checks run against a disposable issue and a disposable label, deleted
+# afterwards with linear issue delete and linear label delete.
+BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tarkah/tickrs/tickrs achannarasappa/tap/ticker age mole aoe glow mdfried AlexsJones/llmfit/llmfit tuicr schpet/tap/linear)
 
 # Reference versions from the Intel host. Keep one row for every formula in
 # BREW_PACKAGES and ZSH_PLUGIN_FORMULAE, and every font cask in FONT_CASKS.
@@ -135,6 +157,7 @@ BREW_VERSIONS=(
     "mdfried|0.22.5"
     "mole|1.53.0"
     "ripgrep|15.2.0"
+    "schpet/tap/linear|2.6.0"
     "starship|1.26.0"
     "tarkah/tickrs/tickrs|0.15.0"
     "television|0.15.9"
@@ -208,6 +231,7 @@ pkg_bin() {
         tarkah/tickrs/tickrs)      echo "tickrs" ;;
         achannarasappa/tap/ticker) echo "ticker" ;;
         AlexsJones/llmfit/llmfit)  echo "llmfit" ;;
+        schpet/tap/linear)         echo "linear" ;;
         *)         echo "$1" ;;
     esac
 }
@@ -2186,6 +2210,7 @@ info "  - Codex: run 'codex' for first-use authentication; update with 'codex up
 info "  - Atlassian MCP: requires OAuth authentication — run 'claude mcp get atlassian' or use on first invocation"
 info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma' or use on first invocation"
 print_linear_mcp_guidance
+print_linear_cli_guidance
 info "  - Notion MCP: requires OAuth authentication — run 'claude mcp get notion' or use on first invocation"
 info "  - PostHog MCP: requires OAuth authentication — in Claude Code run '/mcp' and authenticate 'plugin:posthog:posthog'; in OpenCode run 'opencode mcp auth'"
 info "  - Sentry MCP: provided by the sentry-mcp plugin from the sentry-mcp marketplace — requires OAuth authentication; run '/mcp' inside Claude Code, or 'opencode mcp auth sentry' in OpenCode"
@@ -2203,7 +2228,7 @@ info ""
 info "Please install the following packages manually:"
 info ""
 info "  claude-swap: skipped — the managed account-switching integration is macOS-only"
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe, glow, mdfried, llmfit, tuicr"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe, glow, mdfried, llmfit, tuicr, linear"
 info "    - terminal-notifier: macOS-only (skip on Linux)"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
@@ -2216,11 +2241,13 @@ info "    - Codex: curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_I
 info "      Authenticate on first use: codex"
 info "      Update: codex update  (or rerun the standalone installer)"
 print_linear_mcp_guidance
+print_linear_cli_guidance
 info "    - aoe: cargo install aoe (Linux supported by upstream; brew is macOS-only)"
 info "    - glow: brew install glow (or your distro's package manager, or 'go install github.com/charmbracelet/glow@latest')"
 info "    - mdfried: brew install mdfried (or cargo install mdfried); its image / mermaid / Big-Header rendering needs a terminal with a graphics protocol (Kitty, iTerm2, or Sixel) and otherwise degrades to character rendering"
 info "    - llmfit: brew install AlexsJones/llmfit/llmfit (upstream tap; prebuilt Linux and macOS binaries) OR, without brew, uv tool install -U llmfit"
 info "    - tuicr: cargo install tuicr (or the official installer: curl -fsSL tuicr.dev/install.sh | sh)"
+info "    - linear: brew install schpet/tap/linear (installs the tap's latest release) OR the release tarball from https://github.com/schpet/linear-cli/releases at the verified version: the schpet/tap/linear row of BREW_VERSIONS in run_onchange_install-packages.sh.tmpl"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: zsh, then oh-my-zsh (https://ohmyz.sh/)"
 info "    - zsh: install it first — the oh-my-zsh installer aborts when zsh is missing (apt install zsh, dnf install zsh, …)"
@@ -2283,7 +2310,7 @@ fi
 
 info "Installation complete!"
 {{ if eq .chezmoi.os "darwin" -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, mole, aoe, glow, mdfried, llmfit, tuicr"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, mole, aoe, glow, mdfried, llmfit, tuicr, linear"
 {{ else -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, aoe, glow, mdfried, llmfit, tuicr"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, aoe, glow, mdfried, llmfit, tuicr, linear"
 {{ end -}}

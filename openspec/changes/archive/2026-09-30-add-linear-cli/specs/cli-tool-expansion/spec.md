@@ -1,9 +1,6 @@
-# cli-tool-expansion Specification
+# Delta: cli-tool-expansion
 
-## Purpose
-
-TBD - created by archiving change mac-dev-setup. Update Purpose after archive.
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: BREW_PACKAGES array includes all actively used CLI tools
 
@@ -207,78 +204,6 @@ that is already present. Any future tap-qualified entry SHALL likewise get its o
   `schpet/tap/linear`)
 - **THEN** the function returns the bare binary name (`tickrs`, `ticker`, `llmfit`, `linear`), so
   the `command -v` skip check probes the real binary
-
-### Requirement: git formula uses brew-specific installation check
-
-For the `git` package specifically, the script SHALL NOT use `command -v git` for the skip check (because system git at `/usr/bin/git` would always match). Instead, it SHALL check whether brew's git is installed via `brew list git`.
-
-#### Scenario: Only system git present
-
-- **WHEN** `/usr/bin/git` exists but `brew list git` fails
-- **THEN** `brew install git` is executed
-
-#### Scenario: Brew git already installed
-
-- **WHEN** `brew list git` succeeds
-- **THEN** git installation is skipped with informational message
-
-### Requirement: Atuin history imported on fresh machines
-
-After brew packages are installed, the script SHALL check if atuin has zero history entries. If so, `atuin import auto` SHALL be run to import existing shell history (from `~/.zsh_history` or similar). This ensures autosuggestions work immediately on fresh machines.
-
-#### Scenario: Fresh machine with existing zsh history
-
-- **WHEN** atuin is installed and has no history entries
-- **THEN** `atuin import auto` is executed
-
-#### Scenario: History already present
-
-- **WHEN** atuin already has history entries
-- **THEN** the import step is skipped
-
-### Requirement: Non-macOS fallback includes all new packages
-
-The non-macOS branch of the install script SHALL list its brew packages in the manual
-installation instructions. opencode SHALL be listed under the official-script install
-instructions (not the brew package list), consistent with the macOS branch.
-
-The CLI-tools list in the non-macOS branch SHALL include `glow` and `mdfried`. The `mdfried` entry
-SHALL note that its image / `mermaid` / Big-Header rendering requires a terminal that supports a
-graphics protocol (Kitty, iTerm2, or Sixel) and otherwise degrades to character rendering.
-
-The CLI-tools list SHALL also include `llmfit`, listed by binary name rather than by its
-tap-qualified formula name, and SHALL NOT annotate it as macOS-only: upstream publishes Linux
-binaries. Its annotated entry SHALL name `brew install AlexsJones/llmfit/llmfit` and a brew-free
-fallback (`uv tool install -U llmfit`).
-
-#### Scenario: Non-macOS instructions are complete
-
-- **WHEN** the script runs on a non-macOS system
-- **THEN** the printed instructions include `fd`, `gh`, `git-delta`, `git`, `tmux`, `uv`, and `wget` alongside the original packages (excluding `mas`, which is macOS-only), and opencode appears under the official-installer instructions (`curl -fsSL https://opencode.ai/install | bash`) rather than the brew package list
-
-#### Scenario: New Markdown viewers listed in non-macOS instructions
-
-- **WHEN** the script runs on a non-macOS system
-- **THEN** the printed CLI-tools instructions include `glow` and `mdfried`, with `mdfried` annotated as requiring a graphics-capable terminal
-
-#### Scenario: llmfit listed in non-macOS instructions
-
-- **WHEN** the script runs on a non-macOS system
-- **THEN** the printed CLI-tools instructions include `llmfit` with its tap install and brew-free fallback, and no macOS-only notice
-
-### Requirement: tv update-channels runs after brew packages group
-
-After the brew packages group completes, if `tv` is available in PATH, the install script SHALL run `tv update-channels` to download community cable channels. This step SHALL be guarded by a `command -v tv` check and SHALL NOT fail the script if the download fails.
-
-#### Scenario: Cable channels downloaded on fresh install
-
-- **WHEN** television is newly installed via brew and the brew packages group completes
-- **THEN** `tv update-channels` runs successfully
-
-#### Scenario: tv not installed skips channel update
-
-- **WHEN** the user skipped the brew packages group and `tv` is not in PATH
-- **THEN** the `tv update-channels` step is skipped entirely
 
 ### Requirement: BREW_TAPS array registers third-party Homebrew taps before installs
 

@@ -21,7 +21,7 @@ The formula SHALL be addressed by its fully-qualified name. Homebrew 6 refuses t
 
 - **WHEN** the brew packages group's install loop runs on a host where `command -v ticker` already succeeds
 - **THEN** the script logs `achannarasappa/tap/ticker — already installed, skipping` and does not run the install again
-- **AND** on a host where every entry is already present the pre-scan short-circuits before the loop, reporting `Brew packages: 29/29 installed` instead
+- **AND** on a host where every entry is already present the pre-scan short-circuits before the loop, reporting `Brew packages: N/N installed` instead
 
 #### Scenario: Tap is idempotent across runs
 

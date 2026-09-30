@@ -20,7 +20,7 @@ Verification steps that need deployed files: run `chezmoi apply --source <this r
 
 - [x] 3.1 Add `z` (direct: `cd {{.RepoPath}} && tuicr pr {{.PrNumber}}`) and `Z` (tmux `display-popup -E -w 95% -h 95% -T " {{.RepoName}}#{{.PrNumber}} " 'cd {{.RepoPath}} && tuicr pr {{.PrNumber}}'` — see design §2 on why not `-d`) to the `prs` keybindings with `name` fields; verify both appear in the `?` help menu and shadow no built-ins (QA ran on the former n/N keys; payload unchanged, z/Z statically confirmed unbound in gh-dash v4.26.0)
 - [x] 3.2 Press `z` on a real PR; verify gh-dash suspends, tuicr shows the PR diff with CI checks, and quitting resumes gh-dash at the same section/cursor (QA ran on the former n/N keys; payload unchanged, z/Z statically confirmed unbound in gh-dash v4.26.0)
-- [ ] 3.3 Press `Z` on a real PR inside tmux; verify the popup opens with title and rounded border, that tuicr runs in the repo (the `cd` form, not `-d` — design §2), and that closing tuicr resumes gh-dash at the same section/cursor
+- [x] 3.3 Press `Z` on a real PR inside tmux; verify the popup opens with title and rounded border, that tuicr runs in the repo (the `cd` form, not `-d` — design §2), and that closing tuicr resumes gh-dash at the same section/cursor (QA 2026-09-30, isolated tmux server with a nested client, gh-dash v4.26.0: popup titled ` pabloimrik17/dotfiles#194 ` with a rounded `#cba6f7` border; tuicr cwd `~/WebstormProjects/dotfiles`; after `ZQ`, gh-dash is back on section 2, row 4)
 
 ## 4. lazygit
 
@@ -45,7 +45,7 @@ Verification steps that need deployed files: run `chezmoi apply --source <this r
 - [x] 8.1 Add `(("tools", "tuicr", "command"), "tuicr", False)` to the MANAGED list in `dot_config/private_agent-of-empires/modify_private_config.toml`, next to the `tools.lazygit` entries; no `hotkey` key
 - [x] 8.2 Run `chezmoi apply` and verify `~/.config/agent-of-empires/config.toml` gains a `[tools.tuicr]` table with `command = "tuicr"` only, that mode stays `0600`, and that AoE's runtime tables (`[web]`, `[logging]`) survive untouched
 - [x] 8.3 Re-run `chezmoi apply`; verify `chezmoi diff` is empty (check-then-set idempotency holds for the new entry)
-- [ ] 8.4 In the AoE home view with a session selected, press `;`; verify `tuicr` is listed alongside `lazygit` and launches scoped to that session's worktree
+- [x] 8.4 In the AoE home view with a session selected, press `;`; verify `tuicr` is listed alongside `lazygit` and launches scoped to that session's worktree (QA 2026-09-30, AoE 1.14.0 with a scratch `XDG_CONFIG_HOME` and tmux socket: `;` lists `lazygit [Alt+g]` and `tuicr`; picking `tuicr`, then Enter, opens `aoe_tool_tuicr_*` with cwd set to the session's worktree)
 
 ## 9. Docs & close
 

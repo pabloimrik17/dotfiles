@@ -2257,6 +2257,56 @@
                         </tbody>
                     </table>
 
+                    <h3>Linear CLI (linear)</h3>
+                    <p class="note">
+                        Installed from the <code>schpet/tap</code> tap as
+                        <code>schpet/tap/linear</code>, whose formula unpacks the sha256-pinned
+                        release tarball. The install script freezes it at its
+                        <code>BREW_VERSIONS</code> row (<code>2.6.0</code>), the version the
+                        autonomous loop's <code>label-triage</code> step was verified against. A
+                        host that installs after a newer tap release gets that release and a drift
+                        warning. To raise the row, run the triage checklist next to the
+                        <code>BREW_PACKAGES</code> declaration on the candidate release, then
+                        <code>brew-upgrade-pinned schpet/tap/linear</code> and bump the row. On
+                        Linux, install it by hand at that version.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>linear auth login</code></td>
+                                <td>
+                                    Prompts for a personal API key from
+                                    <code>https://linear.app/settings/account/security</code> and
+                                    stores it in the system keyring (macOS Keychain;
+                                    <code>secret-tool</code> from libsecret on Linux);
+                                    <code>~/.config/linear/credentials.toml</code> keeps only
+                                    workspace metadata
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>linear auth whoami</code></td>
+                                <td>Print the authenticated user</td>
+                            </tr>
+                            <tr>
+                                <td><code>linear auth list</code></td>
+                                <td>List configured workspaces</td>
+                            </tr>
+                            <tr>
+                                <td><code>LINEAR_API_KEY</code></td>
+                                <td>
+                                    Fallback without a keyring; it overrides stored credentials, so
+                                    a stale export shadows the keyring
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h3>Encrypted files (chezmoi + age)</h3>
                     <table>
                         <thead>
