@@ -64,7 +64,7 @@ step.
 
 - **WHEN** the brew packages group's install loop runs on a host where `command -v llmfit` already succeeds
 - **THEN** the script logs `AlexsJones/llmfit/llmfit — already installed, skipping` and does NOT invoke `brew install`
-- **AND** on a host where every entry is already present the pre-scan short-circuits before the loop, reporting `Brew packages: 29/29 installed` instead
+- **AND** on a host where every entry is already present the pre-scan short-circuits before the loop, reporting `Brew packages: N/N installed` instead
 
 #### Scenario: Installation failure is non-fatal
 

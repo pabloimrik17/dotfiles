@@ -7,12 +7,12 @@ TBD - created by archiving change mac-dev-setup. Update Purpose after archive.
 
 ### Requirement: BREW_PACKAGES array includes all actively used CLI tools
 
-The `BREW_PACKAGES` array SHALL contain the following 29 packages:
+The `BREW_PACKAGES` array SHALL contain the following 30 packages:
 
 `git`, `git-delta`, `starship`, `eza`, `bat`, `zoxide`, `atuin`, `fzf`, `ripgrep`,
 `lazygit`, `worktrunk`, `terminal-notifier`, `fd`, `direnv`, `beads`, `gh`, `tmux`,
 `uv`, `mas`, `wget`, `television`, `tarkah/tickrs/tickrs`, `achannarasappa/tap/ticker`,
-`age`, `mole`, `aoe`, `glow`, `mdfried`, `AlexsJones/llmfit/llmfit`
+`age`, `mole`, `aoe`, `glow`, `mdfried`, `AlexsJones/llmfit/llmfit`, `tuicr`
 
 Packages sourced from a third-party tap SHALL be listed by their fully-qualified name
 (`<user>/<tap>/<formula>`), not by bare formula name. Homebrew 6 refuses to load a formula from an
@@ -28,6 +28,9 @@ unnecessary for this array.
 `glow` and `mdfried` are both in `homebrew/core`, so they require no `BREW_TAPS` entry, and both
 use the identity `pkg_bin` mapping (binary name equals package name).
 
+`tuicr` is also in `homebrew/core`, so it requires no `BREW_TAPS` entry, and it uses the identity
+`pkg_bin` mapping.
+
 For llmfit the qualification also selects the channel: the bare name `llmfit` SHALL NOT be used,
 because it resolves to the `homebrew/core` formula instead of the tap the `llmfit-install`
 capability requires.
@@ -35,7 +38,7 @@ capability requires.
 #### Scenario: All packages listed in array
 
 - **WHEN** the install script is loaded
-- **THEN** the `BREW_PACKAGES` array contains exactly 29 entries
+- **THEN** the `BREW_PACKAGES` array contains exactly 30 entries
 
 #### Scenario: opencode absent from array
 
@@ -140,6 +143,16 @@ capability requires.
 
 - **WHEN** `pkg_bin "AlexsJones/llmfit/llmfit"` is called
 - **THEN** the function returns `llmfit` (via a dedicated `case` arm, not the identity mapping)
+
+#### Scenario: tuicr listed in array
+
+- **WHEN** the install script is loaded
+- **THEN** the `BREW_PACKAGES` array contains `tuicr`
+
+#### Scenario: tuicr maps to its own binary name
+
+- **WHEN** `pkg_bin "tuicr"` is called
+- **THEN** the function returns `tuicr` (via the default identity mapping)
 
 ### Requirement: pkg_bin function maps all packages to their binary names
 
