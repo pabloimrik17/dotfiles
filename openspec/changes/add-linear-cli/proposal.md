@@ -51,5 +51,6 @@ The freeze rules in `brew-version-pins` already cover a new tap formula, so that
 - This host already has `schpet/tap/linear` 2.6.0 from a hand install, with the tap trusted. The first run pins it and records it in the freeze record.
 - Other macOS hosts: the first run trusts and taps `schpet/tap`, installs the current formula (2.6.0 today) and pins it.
 - Trust: `schpet/tap` can run Ruby on every host, like the other declared taps.
+- Archive order: archive `add-tuicr` first. Both changes replace the `BREW_PACKAGES` requirement, so the one archived last wins, and only this change's version lists both `tuicr` and `linear`.
 - Consumer: the `autonomous` plugin's `label-triage` step. No change there.
 - Rollout: `chezmoi update` on each host.

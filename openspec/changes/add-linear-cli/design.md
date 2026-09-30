@@ -90,4 +90,5 @@ Writes on 2.6.0 were exercised by DOT-102's `--apply` run on 2026-09-26: 559 lab
 1. Merge, then run `chezmoi update` on each host.
 2. This host: the first run pins the hand-installed 2.6.0 and records it. No drift warning.
 3. Other macOS hosts: the first run taps `schpet/tap`, installs the current formula and pins it.
-4. Rollback: revert. The freeze releases its recorded pin on the next run. `brew uninstall schpet/tap/linear` removes the binary.
+4. Archive after `add-tuicr`. Both deltas replace the `cli-tool-expansion` `BREW_PACKAGES` requirement; this one lists `tuicr` too, so it must land last.
+5. Rollback: revert. The freeze releases its recorded pin on the next run. `brew uninstall schpet/tap/linear` removes the binary.
