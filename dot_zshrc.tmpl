@@ -326,6 +326,29 @@ alias jqless="jq -C . | less -R"
 alias pretty-json="jq ."
 alias check-json="jq empty"
 
+# Always restore the pin, including when the upgrade fails or is interrupted.
+# Holds the install script recorded are refused: repinning would keep the
+# version the hold blocks.
+brew-upgrade-pinned() {
+  if (( $# != 1 )); then
+    print -u2 "Usage: brew-upgrade-pinned <package>"
+    return 2
+  fi
+  local upgrade_status holds="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-holds"
+  if [[ -f $holds ]] && grep -Fqx -- "$1" "$holds"; then
+    print -u2 "$1 is a declared hold; lift it in BREW_HOLDS first"
+    return 1
+  fi
+  brew unpin "$1" || return
+  {
+    brew upgrade "$1"
+    upgrade_status=$?
+  } always {
+    brew pin "$1" || upgrade_status=1
+  }
+  return "$upgrade_status"
+}
+
 # update-extra: single entry point for tools that are neither brew-managed,
 # self-updating, nor repo-pinned (those have their own update paths). Step list
 # is maintained by the classify-tool-updates skill (repo .agents/skills/).

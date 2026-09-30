@@ -109,6 +109,47 @@ BREW_TAPS=(tarkah/tickrs achannarasappa/tap AlexsJones/llmfit)
 # upgrade. The tap formula unpacks a sha256-pinned prebuilt release tarball.
 BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tarkah/tickrs/tickrs achannarasappa/tap/ticker age mole aoe glow mdfried AlexsJones/llmfit/llmfit tuicr)
 
+# Reference versions from the Intel host. Keep one row for every formula in
+# BREW_PACKAGES and ZSH_PLUGIN_FORMULAE, and every font cask in FONT_CASKS.
+# A mismatch is reported after pinning; brew cannot install an older version.
+BREW_VERSIONS=(
+    "achannarasappa/tap/ticker|5.3.0"
+    "age|1.3.2"
+    "AlexsJones/llmfit/llmfit|1.1.16"
+    "aoe|1.14.0"
+    "atuin|18.22.0"
+    "bat|0.26.1"
+    "beads|1.3.0"
+    "direnv|2.37.1"
+    "eza|0.23.5"
+    "fd|10.5.0"
+    "font-hack-nerd-font|3.5.1"
+    "font-jetbrains-mono-nerd-font|3.5.1"
+    "fzf|0.74.4"
+    "gh|2.100.0"
+    "git|2.55.0"
+    "git-delta|0.19.2"
+    "glow|3.0.0"
+    "lazygit|0.65.0"
+    "mas|7.0.0"
+    "mdfried|0.22.5"
+    "mole|1.53.0"
+    "ripgrep|15.2.0"
+    "starship|1.26.0"
+    "tarkah/tickrs/tickrs|0.15.0"
+    "television|0.15.9"
+    "terminal-notifier|2.0.0"
+    "tmux|3.7b"
+    "tuicr|0.25.0"
+    "uv|0.12.13"
+    "wget|1.25.0"
+    "worktrunk|0.77.0"
+    "zoxide|0.10.0"
+    "zsh-autosuggestions|0.7.1"
+    "zsh-completions|0.36.0"
+    "zsh-syntax-highlighting|0.8.0"
+)
+
 # ---- Platform constraint: Intel x86_64 bottle EOL -------------------------
 # Homebrew stopped producing x86_64 macOS bottles in September 2026 (announced
 # August 2025); the notice prints on every `brew upgrade --dry-run` on such a
@@ -145,6 +186,7 @@ BREW_HOLDS=(
 # removing its declaration never releases a hand-made pin. A recorded package
 # that is no longer installed is dropped from the record without `brew unpin`.
 BREW_HOLDS_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-holds"
+BREW_FREEZES_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-freezes"
 
 # Declared packages that are not installed. The pre-scan and install loop skip
 # them: a hold means the version brew would install is wrong for this repo, so
@@ -170,13 +212,24 @@ pkg_bin() {
     esac
 }
 
+# Replace a pin record (file, label) with the non-empty lines on stdin. Both
+# passes write every pin they may own before changing any, then the final set.
+# A recorded package without a pin is harmless: the next run pins or drops it.
+write_brew_record() {
+    if mkdir -p "$(dirname "$1")" && sed '/^$/d' > "$1"; then
+        return 0
+    fi
+    error "Failed to write $2 record: $1"
+    return 1
+}
+
 # Apply declared holds before anything else in this group, so no later step can
 # advance a package that is deliberately frozen. Reconciles in both directions:
 # declared holds are applied, and holds this script previously applied that are
 # no longer declared are released.
 apply_brew_holds() {
-    local entry pkg reason exit_condition pinned
-    local previously=() declared=() applied=() released=()
+    local entry pkg reason exit_condition pinned recorded=0
+    local previously=() declared=() applied=() to_pin=() to_release=() released=()
 
     # Read the previous record before the declared loop: an already-pinned
     # package counts as this script's hold only if this script recorded it.
@@ -208,15 +261,18 @@ apply_brew_holds() {
         if printf '%s\n' "$pinned" | grep -qx "$pkg"; then
             case " ${previously[*]:-} " in
                 *" $pkg "*) applied+=("$pkg") ;;
-                *) info "  $pkg — already pinned by hand, not recorded" ;;
+                *)
+                    if [ -f "$BREW_FREEZES_STATE" ] && grep -Fqx "formula $pkg" "$BREW_FREEZES_STATE"; then
+                        # Keep ownership when a frozen package becomes a hold.
+                        applied+=("$pkg")
+                    else
+                        info "  $pkg — already pinned by hand, not recorded"
+                    fi
+                    ;;
             esac
             continue
         fi
-        if ! brew pin "$pkg"; then
-            error "Failed to hold $pkg"
-            continue
-        fi
-        applied+=("$pkg")
+        to_pin+=("$pkg")
     done
 
     for pkg in "${previously[@]:-}"; do
@@ -229,27 +285,39 @@ apply_brew_holds() {
             info "  $pkg — no longer installed, dropping its hold record"
             continue
         fi
+        to_release+=("$pkg")
+    done
+
+    # Pins go ahead even if the record cannot be written: the hold guards
+    # correctness, the record only its release. Such a pin reads as a hand pin
+    # on later runs, so lifting the hold leaves it for `brew unpin`.
+    write_brew_record "$BREW_HOLDS_STATE" hold < <(
+        printf '%s\n' "${applied[@]:-}" "${to_pin[@]:-}" "${to_release[@]:-}"
+    ) && recorded=1
+
+    for pkg in "${to_pin[@]:-}"; do
+        [ -n "$pkg" ] || continue
+        if brew pin "$pkg"; then
+            applied+=("$pkg")
+        else
+            error "Failed to hold $pkg"
+        fi
+    done
+
+    for pkg in "${to_release[@]:-}"; do
+        [ -n "$pkg" ] || continue
         info "  Releasing hold on $pkg (no longer declared)"
-        if ! brew unpin "$pkg"; then
+        if brew unpin "$pkg"; then
+            released+=("$pkg")
+        else
             error "Failed to release hold on $pkg"
             # Still this script's hold: keep it recorded so the next run retries.
             applied+=("$pkg")
-            continue
         fi
-        released+=("$pkg")
     done
 
-    # Only the record write needs the state directory. The loops above run
-    # regardless: they fill BREW_HOLDS_ABSENT, which keeps held packages out of
-    # the install loop.
-    if mkdir -p "$(dirname "$BREW_HOLDS_STATE")"; then
-        if [ "${#applied[@]}" -gt 0 ]; then
-            printf '%s\n' "${applied[@]}" > "$BREW_HOLDS_STATE"
-        else
-            : > "$BREW_HOLDS_STATE"
-        fi
-    else
-        error "Failed to create hold state directory: $(dirname "$BREW_HOLDS_STATE")"
+    if [ "$recorded" -eq 1 ]; then
+        write_brew_record "$BREW_HOLDS_STATE" hold < <(printf '%s\n' "${applied[@]:-}")
     fi
     if [ "${#applied[@]}" -gt 0 ]; then
         info "Brew holds: ${applied[*]} — verify with \`brew list --pinned\`"
@@ -874,12 +942,14 @@ fi
 # ------------------------------------------------------------------
 # Group 3: Oh-my-zsh + plugins
 # ------------------------------------------------------------------
+ZSH_PLUGIN_FORMULAE=(zsh-autosuggestions zsh-syntax-highlighting zsh-completions)
+
 # Pre-scan: check if oh-my-zsh and plugins are already installed
 OMZ_PENDING=0
 [ -d "$HOME/.oh-my-zsh" ] || OMZ_PENDING=$((OMZ_PENDING + 1))
 YSU_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/you-should-use"
 [ -d "$YSU_DIR" ] || OMZ_PENDING=$((OMZ_PENDING + 1))
-for pkg in zsh-autosuggestions zsh-syntax-highlighting zsh-completions; do
+for pkg in "${ZSH_PLUGIN_FORMULAE[@]}"; do
     brew list "$pkg" &>/dev/null || OMZ_PENDING=$((OMZ_PENDING + 1))
 done
 
@@ -906,8 +976,8 @@ elif confirm "Install oh-my-zsh and zsh plugins ($OMZ_PENDING/5 pending)?"; then
         fi
     fi
 
-    # zsh-autosuggestions and zsh-syntax-highlighting via brew
-    for pkg in zsh-autosuggestions zsh-syntax-highlighting zsh-completions; do
+    # zsh plugins via brew
+    for pkg in "${ZSH_PLUGIN_FORMULAE[@]}"; do
         if brew list "$pkg" &>/dev/null; then
             info "  $pkg — already installed, skipping"
         else
@@ -920,6 +990,184 @@ elif confirm "Install oh-my-zsh and zsh plugins ($OMZ_PENDING/5 pending)?"; then
 else
     info "Skipping oh-my-zsh and zsh plugins."
 fi
+
+# BEGIN BREW_FREEZE_HELPERS
+brew_freeze_contains() {
+    local needle="$1" item
+    shift
+    for item in "$@"; do
+        [ "$item" = "$needle" ] && return 0
+    done
+    return 1
+}
+
+brew_freeze_pinned_version() {
+    local pinned="$1" name="$2"
+    awk -v name="$name" '$1 == name { print $2; exit }' <<< "$pinned"
+}
+
+brew_freeze_is_held() {
+    local entry
+    for entry in "${BREW_HOLDS[@]:-}"; do
+        [ "${entry%%|*}" = "$1" ] && return 0
+    done
+    return 1
+}
+
+apply_brew_freeze() {
+    local pkg font_spec row name version kind short installed source_mismatch
+    local count declared_version pinned_before pinned_after pinned_version entry
+    local frozen=() names=() previously=() applied=() to_pin=() to_release=()
+
+    for pkg in "${BREW_PACKAGES[@]:-}" "${ZSH_PLUGIN_FORMULAE[@]:-}"; do
+        [ -n "$pkg" ] || continue
+        frozen+=("formula|$pkg")
+        names+=("$pkg")
+    done
+    for font_spec in "${FONT_CASKS[@]:-}"; do
+        [ -n "$font_spec" ] || continue
+        pkg="${font_spec%%:*}"
+        frozen+=("cask|$pkg")
+        names+=("$pkg")
+    done
+
+    for row in "${BREW_VERSIONS[@]:-}"; do
+        [ -n "$row" ] || continue
+        IFS='|' read -r name version <<< "$row"
+        if [ -z "$name" ] || [ -z "$version" ]; then
+            error "Malformed BREW_VERSIONS row (want name|version): $row"
+        elif ! brew_freeze_contains "$name" "${names[@]}"; then
+            error "Version row has no frozen package: $name"
+        fi
+    done
+
+    if [ -f "$BREW_FREEZES_STATE" ]; then
+        while read -r kind name; do
+            [ -n "$kind" ] || continue
+            previously+=("$kind|$name")
+        done < "$BREW_FREEZES_STATE"
+    fi
+    if ! pinned_before="$(brew list --pinned --versions)"; then
+        error "Failed to list pinned brew packages before freeze"
+        return 0
+    fi
+
+    for entry in "${frozen[@]}"; do
+        kind="${entry%%|*}"
+        pkg="${entry#*|}"
+        short="${pkg##*/}"
+        count=0
+        for row in "${BREW_VERSIONS[@]:-}"; do
+            [ -n "$row" ] || continue
+            IFS='|' read -r name version <<< "$row"
+            [ "$name" = "$pkg" ] && count=$((count + 1))
+        done
+        if [ "$count" -eq 0 ]; then
+            error "Frozen package has no version row: $pkg"
+        elif [ "$count" -gt 1 ]; then
+            error "Frozen package has $count version rows: $pkg"
+        fi
+
+        installed=0
+        source_mismatch=0
+        if [ "$kind" = "cask" ]; then
+            brew list --cask "$pkg" &>/dev/null && installed=1
+        elif brew list --formula "$pkg" &>/dev/null; then
+            installed=1
+        elif [ "$short" != "$pkg" ] && brew list --formula "$short" &>/dev/null; then
+            installed=1
+            source_mismatch=1
+        fi
+        [ "$installed" -eq 1 ] || continue
+
+        # Holds own their pins. They remain in the version drift check below.
+        if ! brew_freeze_is_held "$pkg"; then
+            pinned_version="$(brew_freeze_pinned_version "$pinned_before" "$short")"
+            if [ -z "$pinned_version" ]; then
+                to_pin+=("$entry")
+            elif brew_freeze_contains "$entry" "${previously[@]:-}"; then
+                applied+=("$entry")
+            fi
+            if [ "$source_mismatch" -eq 1 ] && ! brew_freeze_contains "$entry" "${previously[@]:-}"; then
+                warn "$pkg is declared from a different source than installed $short; switch once with: brew unpin $short && brew uninstall $short && brew install $pkg"
+            fi
+        fi
+    done
+
+    for entry in "${previously[@]:-}"; do
+        [ -n "$entry" ] || continue
+        kind="${entry%%|*}"
+        pkg="${entry#*|}"
+        short="${pkg##*/}"
+        # A new hold takes ownership without momentarily releasing its pin. Keep
+        # the entry until the hold record lists it, so the pin always has an owner.
+        if brew_freeze_is_held "$pkg"; then
+            if ! { [ -f "$BREW_HOLDS_STATE" ] && grep -Fqx "$pkg" "$BREW_HOLDS_STATE"; }; then
+                applied+=("$entry")
+            fi
+            continue
+        fi
+        brew_freeze_contains "$entry" "${frozen[@]}" && continue
+        if ! brew list "--$kind" "$short" &>/dev/null; then
+            continue
+        fi
+        # A pin removed by hand no longer belongs in this script's record.
+        [ -n "$(brew_freeze_pinned_version "$pinned_before" "$short")" ] || continue
+        to_release+=("$entry")
+    done
+
+    # Unlike a hold, a freeze can wait: without a record, change no pin.
+    write_brew_record "$BREW_FREEZES_STATE" freeze < <(
+        printf '%s\n' "${applied[@]:-}" "${to_pin[@]:-}" "${to_release[@]:-}" | tr '|' ' '
+    ) || return 0
+
+    for entry in "${to_pin[@]:-}"; do
+        [ -n "$entry" ] || continue
+        kind="${entry%%|*}"
+        pkg="${entry#*|}"
+        if brew pin "--$kind" "${pkg##*/}"; then
+            applied+=("$entry")
+        else
+            error "Failed to freeze $pkg"
+        fi
+    done
+
+    for entry in "${to_release[@]:-}"; do
+        [ -n "$entry" ] || continue
+        kind="${entry%%|*}"
+        pkg="${entry#*|}"
+        if brew unpin "--$kind" "${pkg##*/}"; then
+            info "  Released freeze on $pkg"
+        else
+            error "Failed to release freeze on $pkg"
+            applied+=("$entry")
+        fi
+    done
+
+    write_brew_record "$BREW_FREEZES_STATE" freeze < <(printf '%s\n' "${applied[@]:-}" | tr '|' ' ')
+
+    if ! pinned_after="$(brew list --pinned --versions)"; then
+        error "Failed to list pinned brew packages after freeze"
+        return 0
+    fi
+    for entry in "${frozen[@]}"; do
+        pkg="${entry#*|}"
+        short="${pkg##*/}"
+        declared_version=""
+        for row in "${BREW_VERSIONS[@]:-}"; do
+            [ -n "$row" ] || continue
+            IFS='|' read -r name version <<< "$row"
+            [ "$name" = "$pkg" ] && declared_version="$version"
+        done
+        [ -n "$declared_version" ] || continue
+        pinned_version="$(brew_freeze_pinned_version "$pinned_after" "$short")"
+        if [ -n "$pinned_version" ] && [ "$pinned_version" != "$declared_version" ]; then
+            warn "$pkg: declared $declared_version, pinned $pinned_version"
+        fi
+    done
+}
+# END BREW_FREEZE_HELPERS
+apply_brew_freeze
 
 # ------------------------------------------------------------------
 # Group 4: Brew casks (GUI apps) — unified structured list
@@ -1940,9 +2188,6 @@ info "  - PostHog MCP: requires OAuth authentication — in Claude Code run '/mc
 info "  - Sentry MCP: provided by the sentry-mcp plugin from the sentry-mcp marketplace — requires OAuth authentication; run '/mcp' inside Claude Code, or 'opencode mcp auth sentry' in OpenCode"
 info "  - Storybook MCP: requires @storybook/addon-mcp installed in each Storybook project and 'storybook dev' running on port 6006"
 info "  - JetBrains MCP: requires Settings → Tools → MCP Server enabled in the JetBrains IDE, and the IDE running — the server answers only while it is open (WebStorm serves port 64542)"
-info "  - llmfit: if an existing llmfit came from homebrew/core, switch it to the tap once with 'brew uninstall llmfit && brew install AlexsJones/llmfit/llmfit'"
-info "      Why: the core formula publishes no x86_64 macOS bottle and depends on rust, so it builds from source on install and on every upgrade; the tap ships a prebuilt binary"
-info "      Not automated: the install script never uninstalls, unlinks or relinks an llmfit that is already present"
 info ""
 
 {{ else -}}
