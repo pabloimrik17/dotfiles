@@ -2244,7 +2244,7 @@ info "    - glow: brew install glow (or your distro's package manager, or 'go in
 info "    - mdfried: brew install mdfried (or cargo install mdfried); its image / mermaid / Big-Header rendering needs a terminal with a graphics protocol (Kitty, iTerm2, or Sixel) and otherwise degrades to character rendering"
 info "    - llmfit: brew install AlexsJones/llmfit/llmfit (upstream tap; prebuilt Linux and macOS binaries) OR, without brew, uv tool install -U llmfit"
 info "    - tuicr: cargo install tuicr (or the official installer: curl -fsSL tuicr.dev/install.sh | sh)"
-info "    - linear: brew install schpet/tap/linear (prebuilt release tarballs) OR a release tarball from https://github.com/schpet/linear-cli/releases; use the version in BREW_VERSIONS"
+info "    - linear: brew install schpet/tap/linear (installs the tap's latest release) OR the release tarball from https://github.com/schpet/linear-cli/releases at the verified version: the schpet/tap/linear row of BREW_VERSIONS in run_onchange_install-packages.sh.tmpl"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: zsh, then oh-my-zsh (https://ohmyz.sh/)"
 info "    - zsh: install it first — the oh-my-zsh installer aborts when zsh is missing (apt install zsh, dnf install zsh, …)"

@@ -2,7 +2,7 @@
 
 ## 1. Frozen brew entry (`linear-cli-install`)
 
-- [x] 1.1 Delete `run_onchange_after_install-linear-cli.sh.tmpl`, the previous draft's install script.
+- [x] 1.1 Add no separate install script: `linear` installs through the brew group.
 - [x] 1.2 In `run_onchange_install-packages.sh.tmpl`:
   - add `schpet/tap` to `BREW_TAPS` and `schpet/tap/linear` to `BREW_PACKAGES` after `tuicr`
   - add the `pkg_bin` arm `schpet/tap/linear` → `linear`
