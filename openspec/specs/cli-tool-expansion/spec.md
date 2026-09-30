@@ -7,19 +7,21 @@ TBD - created by archiving change mac-dev-setup. Update Purpose after archive.
 
 ### Requirement: BREW_PACKAGES array includes all actively used CLI tools
 
-The `BREW_PACKAGES` array SHALL contain the following 30 packages:
+The `BREW_PACKAGES` array SHALL contain the following 31 packages:
 
 `git`, `git-delta`, `starship`, `eza`, `bat`, `zoxide`, `atuin`, `fzf`, `ripgrep`,
 `lazygit`, `worktrunk`, `terminal-notifier`, `fd`, `direnv`, `beads`, `gh`, `tmux`,
 `uv`, `mas`, `wget`, `television`, `tarkah/tickrs/tickrs`, `achannarasappa/tap/ticker`,
-`age`, `mole`, `aoe`, `glow`, `mdfried`, `AlexsJones/llmfit/llmfit`, `tuicr`
+`age`, `mole`, `aoe`, `glow`, `mdfried`, `AlexsJones/llmfit/llmfit`, `tuicr`,
+`schpet/tap/linear`
 
 Packages sourced from a third-party tap SHALL be listed by their fully-qualified name
 (`<user>/<tap>/<formula>`), not by bare formula name. Homebrew 6 refuses to load a formula from an
 untrusted tap when addressed by bare name, so a bare entry makes the package uninstallable on a
-fresh host. Three entries are qualified — `tarkah/tickrs/tickrs`, `achannarasappa/tap/ticker` and
-`AlexsJones/llmfit/llmfit` — and each needs a `BREW_TAPS` entry and its own `pkg_bin` arm, because
-the identity mapping would probe for a binary named after the qualified formula.
+fresh host. Four entries are qualified — `tarkah/tickrs/tickrs`, `achannarasappa/tap/ticker`,
+`AlexsJones/llmfit/llmfit` and `schpet/tap/linear` — and each needs a `BREW_TAPS` entry and its own
+`pkg_bin` arm, because the identity mapping would probe for a binary named after the qualified
+formula.
 
 `opencode` SHALL NOT appear in `BREW_PACKAGES`; it is installed via its official script
 (see the `opencode-install` capability). Removing it also makes the `anomalyco/tap` tap
@@ -38,7 +40,7 @@ capability requires.
 #### Scenario: All packages listed in array
 
 - **WHEN** the install script is loaded
-- **THEN** the `BREW_PACKAGES` array contains exactly 30 entries
+- **THEN** the `BREW_PACKAGES` array contains exactly 31 entries
 
 #### Scenario: opencode absent from array
 
@@ -154,6 +156,17 @@ capability requires.
 - **WHEN** `pkg_bin "tuicr"` is called
 - **THEN** the function returns `tuicr` (via the default identity mapping)
 
+#### Scenario: linear listed in array under its tap-qualified name
+
+- **WHEN** the install script is loaded
+- **THEN** the `BREW_PACKAGES` array contains `schpet/tap/linear`
+- **AND** it does NOT contain the bare entry `linear`
+
+#### Scenario: linear maps to its binary name
+
+- **WHEN** `pkg_bin "schpet/tap/linear"` is called
+- **THEN** the function returns `linear` (via a dedicated `case` arm, not the identity mapping)
+
 ### Requirement: pkg_bin function maps all packages to their binary names
 
 The `pkg_bin()` function SHALL map package names to their command-line binary names for idempotency checks. The following mappings SHALL exist:
@@ -168,10 +181,11 @@ The `pkg_bin()` function SHALL map package names to their command-line binary na
 | `tarkah/tickrs/tickrs`      | `tickrs` |
 | `achannarasappa/tap/ticker` | `ticker` |
 | `AlexsJones/llmfit/llmfit`  | `llmfit` |
+| `schpet/tap/linear`         | `linear` |
 
 All other packages SHALL map to their own name (identity mapping via the default `*` case).
 
-The three qualified rows exist for a different reason than the others: the binary is not renamed,
+The four qualified rows exist for a different reason than the others: the binary is not renamed,
 the package name is tap-qualified. `command -v achannarasappa/tap/ticker` can never succeed, so
 without an explicit arm the idempotency check fails on every run and the script reinstalls a package
 that is already present. Any future tap-qualified entry SHALL likewise get its own arm.
@@ -189,9 +203,10 @@ that is already present. Any future tap-qualified entry SHALL likewise get its o
 #### Scenario: Tap-qualified package maps to its unqualified binary
 
 - **WHEN** `pkg_bin` is called with any tap-qualified entry of `BREW_PACKAGES`
-  (`tarkah/tickrs/tickrs`, `achannarasappa/tap/ticker`, `AlexsJones/llmfit/llmfit`)
-- **THEN** the function returns the bare binary name (`tickrs`, `ticker`, `llmfit`), so the
-  `command -v` skip check probes the real binary
+  (`tarkah/tickrs/tickrs`, `achannarasappa/tap/ticker`, `AlexsJones/llmfit/llmfit`,
+  `schpet/tap/linear`)
+- **THEN** the function returns the bare binary name (`tickrs`, `ticker`, `llmfit`, `linear`), so
+  the `command -v` skip check probes the real binary
 
 ### Requirement: git formula uses brew-specific installation check
 
@@ -274,8 +289,9 @@ runs, the script SHALL iterate `BREW_TAPS` and, for each entry, grant it trust w
 considered idempotent — re-running on a host where the tap is already trusted and registered SHALL
 succeed without re-fetching.
 
-The value of `BREW_TAPS` SHALL be `(tarkah/tickrs achannarasappa/tap AlexsJones/llmfit)` — the taps
-currently required (for the `tickrs`, `ticker` and `llmfit` formulas respectively).
+The value of `BREW_TAPS` SHALL be `(tarkah/tickrs achannarasappa/tap AlexsJones/llmfit schpet/tap)`
+— the taps currently required (for the `tickrs`, `ticker`, `llmfit` and `linear` formulas
+respectively).
 
 Homebrew 6 gates third-party taps behind `brew trust`'s store. An untrusted tap's formulae are
 refused when addressed by bare name and omitted from `brew outdated`, so a package can fall
@@ -314,6 +330,11 @@ That is accepted for the taps declared in `BREW_TAPS` and for no other tap.
 
 - **WHEN** the install script is loaded
 - **THEN** `BREW_TAPS` contains `AlexsJones/llmfit`
+
+#### Scenario: schpet/tap is registered
+
+- **WHEN** the install script is loaded
+- **THEN** `BREW_TAPS` contains `schpet/tap`
 
 #### Scenario: Re-running on a tapped host is a no-op
 
