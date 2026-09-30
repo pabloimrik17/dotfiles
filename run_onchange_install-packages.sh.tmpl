@@ -212,13 +212,25 @@ pkg_bin() {
     esac
 }
 
+# Replace a pin record (file, label) with the non-empty lines on stdin. Both
+# passes write every pin they may own before changing any, then the final set,
+# so a failed write never leaves a pin that later runs take for a hand pin. A
+# recorded package without a pin is harmless: the next run pins or drops it.
+write_brew_record() {
+    if mkdir -p "$(dirname "$1")" && sed '/^$/d' > "$1"; then
+        return 0
+    fi
+    error "Failed to write $2 record: $1"
+    return 1
+}
+
 # Apply declared holds before anything else in this group, so no later step can
 # advance a package that is deliberately frozen. Reconciles in both directions:
 # declared holds are applied, and holds this script previously applied that are
 # no longer declared are released.
 apply_brew_holds() {
-    local entry pkg reason exit_condition pinned
-    local previously=() declared=() applied=() released=()
+    local entry pkg reason exit_condition pinned recorded=0
+    local previously=() declared=() applied=() to_pin=() to_release=() released=()
 
     # Read the previous record before the declared loop: an already-pinned
     # package counts as this script's hold only if this script recorded it.
@@ -261,11 +273,7 @@ apply_brew_holds() {
             esac
             continue
         fi
-        if ! brew pin "$pkg"; then
-            error "Failed to hold $pkg"
-            continue
-        fi
-        applied+=("$pkg")
+        to_pin+=("$pkg")
     done
 
     for pkg in "${previously[@]:-}"; do
@@ -278,27 +286,38 @@ apply_brew_holds() {
             info "  $pkg — no longer installed, dropping its hold record"
             continue
         fi
+        to_release+=("$pkg")
+    done
+
+    # Pins go ahead even if the record cannot be written: the hold guards
+    # correctness, the record only its later release.
+    write_brew_record "$BREW_HOLDS_STATE" hold < <(
+        printf '%s\n' "${applied[@]:-}" "${to_pin[@]:-}" "${to_release[@]:-}"
+    ) && recorded=1
+
+    for pkg in "${to_pin[@]:-}"; do
+        [ -n "$pkg" ] || continue
+        if brew pin "$pkg"; then
+            applied+=("$pkg")
+        else
+            error "Failed to hold $pkg"
+        fi
+    done
+
+    for pkg in "${to_release[@]:-}"; do
+        [ -n "$pkg" ] || continue
         info "  Releasing hold on $pkg (no longer declared)"
-        if ! brew unpin "$pkg"; then
+        if brew unpin "$pkg"; then
+            released+=("$pkg")
+        else
             error "Failed to release hold on $pkg"
             # Still this script's hold: keep it recorded so the next run retries.
             applied+=("$pkg")
-            continue
         fi
-        released+=("$pkg")
     done
 
-    # Only the record write needs the state directory. The loops above run
-    # regardless: they fill BREW_HOLDS_ABSENT, which keeps held packages out of
-    # the install loop.
-    if mkdir -p "$(dirname "$BREW_HOLDS_STATE")"; then
-        if [ "${#applied[@]}" -gt 0 ]; then
-            printf '%s\n' "${applied[@]}" > "$BREW_HOLDS_STATE"
-        else
-            : > "$BREW_HOLDS_STATE"
-        fi || error "Failed to write hold record: $BREW_HOLDS_STATE"
-    else
-        error "Failed to create hold state directory: $(dirname "$BREW_HOLDS_STATE")"
+    if [ "$recorded" -eq 1 ]; then
+        write_brew_record "$BREW_HOLDS_STATE" hold < <(printf '%s\n' "${applied[@]:-}")
     fi
     if [ "${#applied[@]}" -gt 0 ]; then
         info "Brew holds: ${applied[*]} — verify with \`brew list --pinned\`"
@@ -998,7 +1017,7 @@ brew_freeze_is_held() {
 apply_brew_freeze() {
     local pkg font_spec row name version kind short installed source_mismatch
     local count declared_version pinned_before pinned_after pinned_version entry
-    local frozen=() names=() previously=() applied=()
+    local frozen=() names=() previously=() applied=() to_pin=() to_release=()
 
     for pkg in "${BREW_PACKAGES[@]:-}" "${ZSH_PLUGIN_FORMULAE[@]:-}"; do
         [ -n "$pkg" ] || continue
@@ -1064,14 +1083,10 @@ apply_brew_freeze() {
         # Holds own their pins. They remain in the version drift check below.
         if ! brew_freeze_is_held "$pkg"; then
             pinned_version="$(brew_freeze_pinned_version "$pinned_before" "$short")"
-            if [ -n "$pinned_version" ]; then
-                if brew_freeze_contains "$entry" "${previously[@]:-}"; then
-                    applied+=("$entry")
-                fi
-            elif brew pin "--$kind" "$short"; then
+            if [ -z "$pinned_version" ]; then
+                to_pin+=("$entry")
+            elif brew_freeze_contains "$entry" "${previously[@]:-}"; then
                 applied+=("$entry")
-            else
-                error "Failed to freeze $pkg"
             fi
             if [ "$source_mismatch" -eq 1 ] && ! brew_freeze_contains "$entry" "${previously[@]:-}"; then
                 warn "$pkg is declared from a different source than installed $short; switch once with: brew unpin $short && brew uninstall $short && brew install $pkg"
@@ -1084,15 +1099,44 @@ apply_brew_freeze() {
         kind="${entry%%|*}"
         pkg="${entry#*|}"
         short="${pkg##*/}"
-        # A new hold takes ownership without momentarily releasing its pin.
-        brew_freeze_is_held "$pkg" && continue
+        # A new hold takes ownership without momentarily releasing its pin. Keep
+        # the entry until the hold record lists it, so the pin always has an owner.
+        if brew_freeze_is_held "$pkg"; then
+            if ! { [ -f "$BREW_HOLDS_STATE" ] && grep -Fqx "$pkg" "$BREW_HOLDS_STATE"; }; then
+                applied+=("$entry")
+            fi
+            continue
+        fi
         brew_freeze_contains "$entry" "${frozen[@]}" && continue
         if ! brew list "--$kind" "$short" &>/dev/null; then
             continue
         fi
         # A pin removed by hand no longer belongs in this script's record.
         [ -n "$(brew_freeze_pinned_version "$pinned_before" "$short")" ] || continue
-        if brew unpin "--$kind" "$short"; then
+        to_release+=("$entry")
+    done
+
+    # Unlike a hold, a freeze can wait: without a record, change no pin.
+    write_brew_record "$BREW_FREEZES_STATE" freeze < <(
+        printf '%s\n' "${applied[@]:-}" "${to_pin[@]:-}" "${to_release[@]:-}" | tr '|' ' '
+    ) || return 0
+
+    for entry in "${to_pin[@]:-}"; do
+        [ -n "$entry" ] || continue
+        kind="${entry%%|*}"
+        pkg="${entry#*|}"
+        if brew pin "--$kind" "${pkg##*/}"; then
+            applied+=("$entry")
+        else
+            error "Failed to freeze $pkg"
+        fi
+    done
+
+    for entry in "${to_release[@]:-}"; do
+        [ -n "$entry" ] || continue
+        kind="${entry%%|*}"
+        pkg="${entry#*|}"
+        if brew unpin "--$kind" "${pkg##*/}"; then
             info "  Released freeze on $pkg"
         else
             error "Failed to release freeze on $pkg"
@@ -1100,17 +1144,7 @@ apply_brew_freeze() {
         fi
     done
 
-    # A lost record makes this pass's pins look hand-made, so they would never
-    # be released; the error makes chezmoi re-run the script.
-    if mkdir -p "$(dirname "$BREW_FREEZES_STATE")"; then
-        if [ "${#applied[@]}" -gt 0 ]; then
-            printf '%s\n' "${applied[@]/|/ }" > "$BREW_FREEZES_STATE"
-        else
-            : > "$BREW_FREEZES_STATE"
-        fi || error "Failed to write freeze record: $BREW_FREEZES_STATE"
-    else
-        error "Failed to create freeze state directory: $(dirname "$BREW_FREEZES_STATE")"
-    fi
+    write_brew_record "$BREW_FREEZES_STATE" freeze < <(printf '%s\n' "${applied[@]:-}" | tr '|' ' ')
 
     if ! pinned_after="$(brew list --pinned --versions)"; then
         error "Failed to list pinned brew packages after freeze"

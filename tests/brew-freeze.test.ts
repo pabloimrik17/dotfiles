@@ -68,7 +68,8 @@ test("the freeze pass runs after Group 3 and before Group 4", () => {
 const helper = template.match(
     /# BEGIN BREW_FREEZE_HELPERS\n([\s\S]*?)# END BREW_FREEZE_HELPERS/,
 )?.[1];
-if (!helper) throw new Error("Missing brew freeze helper block");
+const recordWriter = template.match(/^write_brew_record\(\) \{[\s\S]*?^\}/m)?.[0];
+if (!helper || !recordWriter) throw new Error("Missing brew freeze helpers");
 
 type Fixture = {
     packages?: string[];
@@ -79,6 +80,7 @@ type Fixture = {
     installed?: string[];
     pinned?: string[];
     record?: string[];
+    holdRecord?: string[];
     recordUnwritable?: boolean;
     failUnpin?: string;
 };
@@ -100,6 +102,7 @@ FONT_CASKS=${shellArray(fixture.fonts ?? [])}
 BREW_VERSIONS=${shellArray(fixture.versions ?? ["git|2.55.0"])}
 BREW_HOLDS=${shellArray(fixture.holds ?? [])}
 BREW_FREEZES_STATE="\${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-freezes"
+BREW_HOLDS_STATE="\${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/brew-holds"
 info() { printf 'INFO: %s\\n' "$*"; }
 warn() { printf 'WARNING: %s\\n' "$*"; }
 error() { printf 'ERROR: %s\\n' "$*"; ERRORS=$((ERRORS + 1)); }
@@ -132,10 +135,25 @@ brew() {
         *) return 2 ;;
     esac
 }
+${recordWriter}
 ${helper}
 apply_brew_freeze
 printf 'ERROR_COUNT=%s\\n' "$ERRORS"
 `;
+}
+
+function writeRecords(recordDirectory: string, fixture: Fixture): void {
+    mkdirSync(recordDirectory, { recursive: true });
+    const recordFile = path.join(recordDirectory, "brew-freezes");
+    if (fixture.record) writeFileSync(recordFile, fixture.record.join("\n") + "\n");
+    if (fixture.holdRecord) {
+        writeFileSync(
+            path.join(recordDirectory, "brew-holds"),
+            fixture.holdRecord.join("\n") + "\n",
+        );
+    }
+    // A directory at the record path makes the redirect fail.
+    if (fixture.recordUnwritable) mkdirSync(recordFile);
 }
 
 function runFreeze(strict: boolean, fixture: Fixture = {}) {
@@ -152,12 +170,7 @@ function runFreeze(strict: boolean, fixture: Fixture = {}) {
             (fixture.installed ?? ["formula|git|2.55.0|git"]).join("\n") + "\n",
         );
         writeFileSync(pinnedFile, (fixture.pinned ?? []).join("\n") + "\n");
-        if (fixture.record) {
-            mkdirSync(path.dirname(recordFile), { recursive: true });
-            writeFileSync(recordFile, fixture.record.join("\n") + "\n");
-        }
-        // A directory at the record path makes the redirect fail.
-        if (fixture.recordUnwritable) mkdirSync(recordFile, { recursive: true });
+        writeRecords(path.dirname(recordFile), fixture);
         writeFileSync(harnessFile, harnessSource(strict, fixture));
         const result = Bun.spawnSync(["/bin/bash", harnessFile], {
             env: {
@@ -210,10 +223,12 @@ for (const strict of [false, true]) {
         expect(result.record).toEqual(["cask font-hack-nerd-font"]);
     });
 
-    test(`unwritable record is an error (${mode})`, () => {
+    test(`unwritable record is an error and pins nothing (${mode})`, () => {
         const result = runFreeze(strict, { recordUnwritable: true });
         expect(result.output).toContain("ERROR: Failed to write freeze record");
         expect(result.output).toContain("ERROR_COUNT=1");
+        expect(result.log).not.toContain("pin --formula git");
+        expect(result.pinned).toEqual([]);
     });
 
     test(`declined and absent formula has no pin or warning (${mode})`, () => {
@@ -255,6 +270,16 @@ for (const strict of [false, true]) {
         expect(result.log).not.toContain("pin --formula git");
         expect(result.record).toEqual([]);
         expect(result.output).not.toContain("WARNING:");
+    });
+
+    test(`a new hold's freeze entry stays until the hold record lists it (${mode})`, () => {
+        const fixture = {
+            holds: ["git|reason|exit condition"],
+            pinned: ["git 2.55.0"],
+            record: ["formula git"],
+        };
+        expect(runFreeze(strict, fixture).record).toEqual(["formula git"]);
+        expect(runFreeze(strict, { ...fixture, holdRecord: ["git"] }).record).toEqual([]);
     });
 
     test(`missing version row reports error but still pins (${mode})`, () => {

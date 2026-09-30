@@ -15,11 +15,14 @@ const template = readFileSync(
     path.resolve(import.meta.dir, "../run_onchange_install-packages.sh.tmpl"),
     "utf8",
 );
+const recordWriter = template.match(/^write_brew_record\(\) \{[\s\S]*?^\}/m)?.[0];
 const holdPass = template.match(/^apply_brew_holds\(\) \{[\s\S]*?^\}/m)?.[0];
 const freezeHelpers = template.match(
     /# BEGIN BREW_FREEZE_HELPERS\n([\s\S]*?)# END BREW_FREEZE_HELPERS/,
 )?.[1];
-if (!holdPass || !freezeHelpers) throw new Error("Missing brew reconciliation functions");
+if (!recordWriter || !holdPass || !freezeHelpers) {
+    throw new Error("Missing brew reconciliation functions");
+}
 
 function shellQuote(value: string): string {
     return `'${value.replaceAll("'", `'\\''`)}'`;
@@ -32,6 +35,7 @@ type Fixture = {
     holdRecord?: string[];
     freezeRecord?: string[];
     holdRecordUnwritable?: boolean;
+    thenFreeze?: boolean;
     removeAfter?: boolean;
 };
 
@@ -64,9 +68,11 @@ case "$*" in
     *) return 2 ;;
 esac
 }
+${recordWriter}
 ${holdPass}
 ${freezeHelpers}
 apply_brew_holds
+${fixture.thenFreeze ? "apply_brew_freeze" : ""}
 ${
     fixture.removeAfter
         ? `apply_brew_freeze
@@ -144,10 +150,22 @@ test("a declared hold pins an installed package and reports it", () => {
     expect(result.output).toContain("Brew holds: git");
 });
 
-test("an unwritable hold record is an error", () => {
+test("an unwritable hold record is an error and still pins the hold", () => {
     const result = runHolds({ holdRecordUnwritable: true });
     expect(result.output).toContain("ERROR: Failed to write hold record");
     expect(result.output).toContain("ERROR_COUNT=1");
+    expect(result.pinned).toBe("git 2.55.0");
+});
+
+test("a failed hold record write leaves the freeze owning the transferred pin", () => {
+    const result = runHolds({
+        pinned: true,
+        freezeRecord: ["formula git"],
+        holdRecordUnwritable: true,
+        thenFreeze: true,
+    });
+    expect(result.freezeRecord).toBe("formula git");
+    expect(result.pinned).toBe("git 2.55.0");
 });
 
 test("an already recorded hold needs no pin or warning", () => {
