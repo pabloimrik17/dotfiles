@@ -57,9 +57,9 @@ The Ghostty config SHALL include `font-thicken = true` to draw fonts with a thic
 
 ### Requirement: Both font families are installed via setup
 
-The dotfiles setup SHALL install both `font-hack-nerd-font` and `font-jetbrains-mono-nerd-font` Homebrew casks so that either font choice is available without manual installation. Both fonts SHALL be under Homebrew's management, so that `brew outdated` reports them and `brew upgrade` advances them.
+The dotfiles setup SHALL install both `font-hack-nerd-font` and `font-jetbrains-mono-nerd-font` Homebrew casks so that either font choice is available without manual installation. Both fonts SHALL be under Homebrew's management, so that `brew outdated` reports them and `brew-upgrade-pinned <cask>` advances them. Both are frozen at a declared version (see `brew-version-pins`), so a bulk or bare `brew upgrade` skips them.
 
-A pre-existing manual installation of either font SHALL NOT be treated as satisfying this requirement. Accepting a hand-copied font makes the setup report success while leaving the font permanently frozen at whatever version was copied — outside Homebrew's view, never upgraded, and never reported as outdated. The primary font renders every icon in this setup, so freezing it silently caps glyph coverage.
+A pre-existing manual installation of either font SHALL NOT be treated as satisfying this requirement. Accepting a hand-copied font makes the setup report success while leaving the font stuck at whatever version was copied — outside Homebrew's view, never upgraded, never reported as outdated, and with no declared version to compare against. The primary font renders every icon in this setup, so a stale copy silently caps glyph coverage.
 
 #### Scenario: Fresh machine setup installs both fonts
 
@@ -79,7 +79,7 @@ A pre-existing manual installation of either font SHALL NOT be treated as satisf
 #### Scenario: Fonts are upgradable
 
 - **WHEN** a newer version of either Nerd Font is released
-- **THEN** `brew outdated` SHALL list the cask, and `brew upgrade` SHALL advance it
+- **THEN** `brew outdated` SHALL list the cask, and `brew-upgrade-pinned <cask>` SHALL advance it and restore its pin
 
 ### Requirement: Minimum contrast prevents invisible text
 
@@ -94,4 +94,3 @@ The Ghostty config SHALL include `minimum-contrast = 1.1` to ensure that foregro
 
 - **WHEN** the terminal displays text using standard catppuccin-mocha palette colors
 - **THEN** colors are NOT altered because catppuccin-mocha already exceeds 1.1:1 contrast for all standard color combinations
-

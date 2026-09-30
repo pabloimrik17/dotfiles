@@ -7,7 +7,7 @@ Context loaded automatically by `atuin ai` to inform command suggestions for thi
 - **OS:** macOS
 - **Shell:** zsh (always — never bash, fish, nu, etc.)
 - **Package manager (JS/TS projects):** `bun` only. Never use `npm`, `yarn`, or `pnpm` — even when a `package-lock.json` or `pnpm-lock.yaml` exists, prefer `bun add` / `bun install` / `bun run`.
-- **Host package manager:** Homebrew (`brew install <pkg>`, `brew upgrade <pkg>`).
+- **Host package manager:** Homebrew (`brew install <pkg>`). Packages the dotfiles install are pinned: upgrade one with `brew-upgrade-pinned <pkg>`, never a bulk `brew upgrade`.
 - **Configuration manager:** chezmoi. Edits to `~/.config/...` files should go through the chezmoi source tree (`~/.local/share/chezmoi/dot_config/...`), not the deployed file directly.
 
 ## Owned keybindings
