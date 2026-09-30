@@ -39,7 +39,9 @@ Out of scope:
 
 ### Modified Capabilities
 
-None. The freeze rules in `brew-version-pins` already cover a new tap formula.
+- `cli-tool-expansion`: `BREW_PACKAGES` lists 31 packages, with `schpet/tap/linear` as the fourth qualified entry; `pkg_bin` gains the `linear` arm; `BREW_TAPS` adds `schpet/tap`, which extends tap trust to it. The package list builds on `add-tuicr`'s delta, which adds `tuicr`.
+
+The freeze rules in `brew-version-pins` already cover a new tap formula, so that capability does not change.
 
 ## Impact
 
@@ -48,5 +50,6 @@ None. The freeze rules in `brew-version-pins` already cover a new tap formula.
 - `README.md`, `docs/manual.html`.
 - This host already has `schpet/tap/linear` 2.6.0 from a hand install, with the tap trusted. The first run pins it and records it in the freeze record.
 - Other macOS hosts: the first run trusts and taps `schpet/tap`, installs the current formula (2.6.0 today) and pins it.
+- Trust: `schpet/tap` can run Ruby on every host, like the other declared taps.
 - Consumer: the `autonomous` plugin's `label-triage` step. No change there.
 - Rollout: `chezmoi update` on each host.
