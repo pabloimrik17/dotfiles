@@ -296,7 +296,7 @@ apply_brew_holds() {
             printf '%s\n' "${applied[@]}" > "$BREW_HOLDS_STATE"
         else
             : > "$BREW_HOLDS_STATE"
-        fi
+        fi || error "Failed to write hold record: $BREW_HOLDS_STATE"
     else
         error "Failed to create hold state directory: $(dirname "$BREW_HOLDS_STATE")"
     fi
@@ -998,7 +998,7 @@ brew_freeze_is_held() {
 apply_brew_freeze() {
     local pkg font_spec row name version kind short installed source_mismatch
     local count declared_version pinned_before pinned_after pinned_version entry
-    local frozen=() names=() previously=() applied=() released=()
+    local frozen=() names=() previously=() applied=()
 
     for pkg in "${BREW_PACKAGES[@]:-}" "${ZSH_PLUGIN_FORMULAE[@]:-}"; do
         [ -n "$pkg" ] || continue
@@ -1038,14 +1038,10 @@ apply_brew_freeze() {
         pkg="${entry#*|}"
         short="${pkg##*/}"
         count=0
-        declared_version=""
         for row in "${BREW_VERSIONS[@]:-}"; do
             [ -n "$row" ] || continue
             IFS='|' read -r name version <<< "$row"
-            if [ "$name" = "$pkg" ]; then
-                count=$((count + 1))
-                declared_version="$version"
-            fi
+            [ "$name" = "$pkg" ] && count=$((count + 1))
         done
         if [ "$count" -eq 0 ]; then
             error "Frozen package has no version row: $pkg"
@@ -1098,19 +1094,20 @@ apply_brew_freeze() {
         [ -n "$(brew_freeze_pinned_version "$pinned_before" "$short")" ] || continue
         if brew unpin "--$kind" "$short"; then
             info "  Released freeze on $pkg"
-            released+=("$pkg")
         else
             error "Failed to release freeze on $pkg"
             applied+=("$entry")
         fi
     done
 
+    # A lost record makes this pass's pins look hand-made, so they would never
+    # be released; the error makes chezmoi re-run the script.
     if mkdir -p "$(dirname "$BREW_FREEZES_STATE")"; then
         if [ "${#applied[@]}" -gt 0 ]; then
             printf '%s\n' "${applied[@]/|/ }" > "$BREW_FREEZES_STATE"
         else
             : > "$BREW_FREEZES_STATE"
-        fi
+        fi || error "Failed to write freeze record: $BREW_FREEZES_STATE"
     else
         error "Failed to create freeze state directory: $(dirname "$BREW_FREEZES_STATE")"
     fi

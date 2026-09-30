@@ -2356,7 +2356,9 @@
                                 <td><code>brew-upgrade-pinned &lt;pkg&gt;</code></td>
                                 <td>
                                     Upgrade one frozen package and restore its pin even if the
-                                    upgrade fails; review its changelog first
+                                    upgrade fails or is interrupted; review its changelog first.
+                                    Refuses a declared hold. If brew names a pinned dependency to
+                                    unpin, upgrade that dependency with this helper first
                                 </td>
                             </tr>
                             <tr>

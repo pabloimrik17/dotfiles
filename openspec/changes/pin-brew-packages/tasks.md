@@ -49,7 +49,8 @@
       repinning helper. Verify: the manual has no bare `brew upgrade <pkg>` instruction left, and
       `brewsp` mentions the freeze.
 - [x] 3.4 Add `brew-upgrade-pinned` in `dot_zshrc.tmpl`. Verify with a stubbed `brew` that it
-      repins after both successful and failed upgrades, and returns a non-zero status on failure.
+      repins after successful, failed and interrupted upgrades, returns a non-zero status on
+      failure, and refuses a recorded hold without calling `brew`.
 
 ## 4. Integration
 

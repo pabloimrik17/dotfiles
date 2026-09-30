@@ -1,5 +1,13 @@
 import { expect, test } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+    existsSync,
+    mkdirSync,
+    mkdtempSync,
+    readFileSync,
+    rmSync,
+    statSync,
+    writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -47,6 +55,16 @@ test("coverage detects a removed version row", () => {
     expect(() => assertVersionCoverage(scratch)).toThrow();
 });
 
+// Pins packages installed in the same pass: Group 3 installs the last frozen ones.
+test("the freeze pass runs after Group 3 and before Group 4", () => {
+    const groupThree = template.indexOf("# Group 3:");
+    const call = template.search(/^apply_brew_freeze$/m);
+    const groupFour = template.indexOf("# Group 4:");
+    expect(groupThree).toBeGreaterThan(-1);
+    expect(call).toBeGreaterThan(groupThree);
+    expect(groupFour).toBeGreaterThan(call);
+});
+
 const helper = template.match(
     /# BEGIN BREW_FREEZE_HELPERS\n([\s\S]*?)# END BREW_FREEZE_HELPERS/,
 )?.[1];
@@ -61,6 +79,7 @@ type Fixture = {
     installed?: string[];
     pinned?: string[];
     record?: string[];
+    recordUnwritable?: boolean;
     failUnpin?: string;
 };
 
@@ -137,6 +156,8 @@ function runFreeze(strict: boolean, fixture: Fixture = {}) {
             mkdirSync(path.dirname(recordFile), { recursive: true });
             writeFileSync(recordFile, fixture.record.join("\n") + "\n");
         }
+        // A directory at the record path makes the redirect fail.
+        if (fixture.recordUnwritable) mkdirSync(recordFile, { recursive: true });
         writeFileSync(harnessFile, harnessSource(strict, fixture));
         const result = Bun.spawnSync(["/bin/bash", harnessFile], {
             env: {
@@ -155,9 +176,10 @@ function runFreeze(strict: boolean, fixture: Fixture = {}) {
             output: result.stdout.toString() + result.stderr.toString(),
             log: existsSync(logFile) ? readFileSync(logFile, "utf8") : "",
             pinned: readFileSync(pinnedFile, "utf8").trim().split("\n").filter(Boolean),
-            record: existsSync(recordFile)
-                ? readFileSync(recordFile, "utf8").trim().split("\n").filter(Boolean)
-                : [],
+            record:
+                existsSync(recordFile) && statSync(recordFile).isFile()
+                    ? readFileSync(recordFile, "utf8").trim().split("\n").filter(Boolean)
+                    : [],
         };
     } finally {
         rmSync(directory, { recursive: true, force: true });
@@ -188,12 +210,10 @@ for (const strict of [false, true]) {
         expect(result.record).toEqual(["cask font-hack-nerd-font"]);
     });
 
-    test(`newly installed formula is pinned in the same pass (${mode})`, () => {
-        const result = runFreeze(strict, {
-            installed: ["formula|git|2.55.0|git"],
-        });
-        expect(result.log).toContain("pin --formula git");
-        expect(result.record).toEqual(["formula git"]);
+    test(`unwritable record is an error (${mode})`, () => {
+        const result = runFreeze(strict, { recordUnwritable: true });
+        expect(result.output).toContain("ERROR: Failed to write freeze record");
+        expect(result.output).toContain("ERROR_COUNT=1");
     });
 
     test(`declined and absent formula has no pin or warning (${mode})`, () => {

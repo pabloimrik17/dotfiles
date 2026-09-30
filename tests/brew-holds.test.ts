@@ -1,5 +1,13 @@
 import { expect, test } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+    existsSync,
+    mkdirSync,
+    mkdtempSync,
+    readFileSync,
+    rmSync,
+    statSync,
+    writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -23,8 +31,13 @@ type Fixture = {
     pinned?: boolean;
     holdRecord?: string[];
     freezeRecord?: string[];
+    holdRecordUnwritable?: boolean;
     removeAfter?: boolean;
 };
+
+function readRecord(file: string): string {
+    return existsSync(file) && statSync(file).isFile() ? readFileSync(file, "utf8").trim() : "";
+}
 
 function harnessSource(fixture: Fixture): string {
     const hold = fixture.hold === undefined ? "git|reason|exit condition" : fixture.hold;
@@ -84,6 +97,8 @@ function runHolds(fixture: Fixture = {}) {
         if (fixture.holdRecord) writeFileSync(holdRecord, fixture.holdRecord.join("\n") + "\n");
         if (fixture.freezeRecord)
             writeFileSync(freezeRecord, fixture.freezeRecord.join("\n") + "\n");
+        // A directory at the record path makes the redirect fail.
+        if (fixture.holdRecordUnwritable) mkdirSync(holdRecord);
 
         writeFileSync(scriptFile, harnessSource(fixture));
         const result = Bun.spawnSync(["/bin/bash", scriptFile], {
@@ -102,8 +117,8 @@ function runHolds(fixture: Fixture = {}) {
             output: result.stdout.toString() + result.stderr.toString(),
             log: existsSync(logFile) ? readFileSync(logFile, "utf8") : "",
             pinned: readFileSync(pinnedFile, "utf8").trim(),
-            holdRecord: existsSync(holdRecord) ? readFileSync(holdRecord, "utf8").trim() : "",
-            freezeRecord: existsSync(freezeRecord) ? readFileSync(freezeRecord, "utf8").trim() : "",
+            holdRecord: readRecord(holdRecord),
+            freezeRecord: readRecord(freezeRecord),
         };
     } finally {
         rmSync(directory, { recursive: true, force: true });
@@ -127,6 +142,12 @@ test("a declared hold pins an installed package and reports it", () => {
     expect(result.pinned).toBe("git 2.55.0");
     expect(result.holdRecord).toBe("git");
     expect(result.output).toContain("Brew holds: git");
+});
+
+test("an unwritable hold record is an error", () => {
+    const result = runHolds({ holdRecordUnwritable: true });
+    expect(result.output).toContain("ERROR: Failed to write hold record");
+    expect(result.output).toContain("ERROR_COUNT=1");
 });
 
 test("an already recorded hold needs no pin or warning", () => {

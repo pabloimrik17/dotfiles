@@ -133,8 +133,10 @@ bookkeeping gap.** The freeze exists to stop packages from moving. A missing row
 and its error makes chezmoi re-run the script until someone fixes it.
 
 **D7: The upgrade path is `brew-upgrade-pinned <pkg>`, then a bump of the row.** The zsh helper
-unpins, upgrades, and attempts to repin whether the upgrade succeeds or fails. It returns the
-upgrade failure status when repinning succeeds, or a non-zero status if repinning fails. The bump
+unpins, upgrades, and attempts to repin whether the upgrade succeeds, fails or is interrupted (a
+zsh `always` block). It returns the upgrade failure status when repinning succeeds, or a non-zero
+status if repinning fails. It refuses a package in the `brew-holds` record: repinning after the
+upgrade would keep the version the hold blocks. The bump
 changes the script, so chezmoi re-runs it on every host. If the bump is forgotten, the next run
 reports drift.
 
@@ -146,6 +148,9 @@ reports drift.
 - [A bare `brew upgrade <pkg>` now fails for every frozen package] → Brew prints "Not upgrading 1
   pinned package: <pkg>". The README, the manual and the skill document
   `brew-upgrade-pinned`.
+- [A frozen package depends on an outdated frozen package, such as `aoe` on `tmux`] → Brew refuses
+  the upgrade with "You must `brew unpin tmux`". Upgrade the dependency first with
+  `brew-upgrade-pinned`. A bare `brew unpin` leaves it unfrozen until the script next runs.
 - [The arm64 host, or any fresh host, gets drift warnings on its first run] → This is expected: the
   versions come from one host by decision. Settle each warning by upgrading the host that is
   behind or by bumping the row. Per-host versions are deferred.
