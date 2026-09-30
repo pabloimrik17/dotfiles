@@ -327,7 +327,8 @@ alias pretty-json="jq ."
 alias check-json="jq empty"
 
 # Always restore the pin, including when the upgrade fails or is interrupted.
-# Declared holds are refused: repinning would keep the version the hold blocks.
+# Holds the install script recorded are refused: repinning would keep the
+# version the hold blocks.
 brew-upgrade-pinned() {
   if (( $# != 1 )); then
     print -u2 "Usage: brew-upgrade-pinned <package>"
