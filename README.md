@@ -50,6 +50,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **CLI Tools**  | [mdfried](https://github.com/benjajaja/mdfried)                                 | Markdown viewer with inline images, mermaid diagrams, and Big Headers (graphics terminal)                  |
 | **CLI Tools**  | [fallow](https://fallow.tools/)                                                 | Codebase intelligence for TS/JS — dead code, duplication, complexity (CLI + MCP + skill)                   |
 | **CLI Tools**  | [llmfit](https://github.com/AlexsJones/llmfit)                                  | Right-sizes LLM models to the machine's RAM, CPU, and GPU before you pull the weights                      |
+| **CLI Tools**  | [linear](https://github.com/schpet/linear-cli)                                  | Linear issues from the terminal — used by the autonomous label triage; frozen at the verified version      |
 | **Git**        | [git-delta](https://github.com/dandavison/delta)                                | Syntax-highlighted diff viewer                                                                             |
 | **Git**        | [lazygit](https://github.com/jesseduffield/lazygit)                             | TUI for git operations                                                                                     |
 | **Git**        | [GitHub CLI](https://cli.github.com/)                                           | GitHub from the terminal                                                                                   |
