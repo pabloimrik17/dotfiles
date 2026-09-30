@@ -30,7 +30,9 @@ The system SHALL provide a skill named `classify-tool-updates` whose body lives 
 The skill SHALL classify each new tool into exactly one of four classes and prescribe the matching action:
 
 1. **brew-managed** → read the changelog for the version range and propose any adoption it warrants;
-   the upgrade itself is applied per package, never by a bulk `brew upgrade`
+   the upgrade itself is applied per package (`brew-upgrade-pinned`, then a bump of the package's
+   declared version), never by a bulk `brew upgrade`; the helper restores the pin even if the
+   upgrade fails and returns a non-zero status for a failed upgrade or repin
 2. **self-updating** → no action (do not wrap or duplicate the self-updater)
 3. **repo-pinned** (Renovate-managed pins, version-pinned installers) → update via pin bump + `chezmoi apply`, never via `update-extra`
 4. **manual** (none of the above) → add a step to `update-extra`
@@ -50,16 +52,27 @@ The class SHALL also account for two outcomes a bulk upgrade cannot express: a p
 version is wrong for this repo and must be held back, and a package whose upgrade cost depends on
 the host architecture.
 
+Every brew package the repo installs is frozen at a declared version (see `brew-version-pins`),
+except GUI app casks. When the skill classifies a new formula or font cask as brew-managed, it SHALL
+propose that package's version row along with it, because the install script reports a frozen
+package without a row as an error.
+
 #### Scenario: Brew formula added
 
 - **WHEN** the new tool is installed via brew formula or cask
-- **THEN** the skill classifies it brew-managed and proposes no `update-extra` change
+- **THEN** the skill classifies it brew-managed, proposes no `update-extra` change, and, unless the
+  tool is a GUI app cask, proposes its version row with the installed version
 
 #### Scenario: Brew-managed does not skip changelog review
 
 - **WHEN** a brew-managed tool has a newer version available
 - **THEN** the skill reviews the changelog for the range and reports any adoption, removal, or
   behavior change that affects a chezmoi-managed file, rather than reporting no action
+
+#### Scenario: Failed upgrade restores the pin
+
+- **WHEN** an upgrade of a frozen package fails after the package is unpinned
+- **THEN** the upgrade command attempts to repin the package and returns a non-zero status
 
 #### Scenario: A version that should not be adopted is reported as such
 

@@ -75,3 +75,6 @@
 - [x] 5.2 Add direct tests for the four hold scenarios in the modified requirement, plus the
       transfer and hand-pin regressions.
 - [x] 5.3 Re-run OpenSpec validation, shell syntax, formatting, dead-code analysis and tests.
+- [x] 5.4 Add MODIFIED deltas for `llmfit-install` (the freeze warning replaces the manual hint)
+      and `ghostty-visual-polish` (fonts upgrade through `brew-upgrade-pinned`). Verify: both
+      OpenSpec validators pass.

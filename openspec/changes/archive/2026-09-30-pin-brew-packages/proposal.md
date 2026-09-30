@@ -41,6 +41,10 @@ None.
   now applies only to correctness holds, which still skip packages that are not installed.
 - `classify-tool-updates-skill`: a new brew-managed package needs a version row, and the upgrade
   path uses the repinning helper before bumping the row.
+- `llmfit-install`: the one-time core-to-tap switch is a freeze warning that unpins first, not a
+  "Manual Installation Required" entry.
+- `ghostty-visual-polish`: the font casks are frozen, so they upgrade through the repinning helper,
+  not `brew upgrade`.
 
 ## Impact
 
