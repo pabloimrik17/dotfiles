@@ -213,9 +213,8 @@ pkg_bin() {
 }
 
 # Replace a pin record (file, label) with the non-empty lines on stdin. Both
-# passes write every pin they may own before changing any, then the final set,
-# so a failed write never leaves a pin that later runs take for a hand pin. A
-# recorded package without a pin is harmless: the next run pins or drops it.
+# passes write every pin they may own before changing any, then the final set.
+# A recorded package without a pin is harmless: the next run pins or drops it.
 write_brew_record() {
     if mkdir -p "$(dirname "$1")" && sed '/^$/d' > "$1"; then
         return 0
@@ -290,7 +289,8 @@ apply_brew_holds() {
     done
 
     # Pins go ahead even if the record cannot be written: the hold guards
-    # correctness, the record only its later release.
+    # correctness, the record only its release. Such a pin reads as a hand pin
+    # on later runs, so lifting the hold leaves it for `brew unpin`.
     write_brew_record "$BREW_HOLDS_STATE" hold < <(
         printf '%s\n' "${applied[@]:-}" "${to_pin[@]:-}" "${to_release[@]:-}"
     ) && recorded=1

@@ -114,9 +114,10 @@ calls `brew unpin --formula` or `--cask` explicitly and cannot resolve to the wr
 cask token matches a formula name. When a freeze-owned formula becomes a hold, the hold pass reads
 the freeze record and adopts the existing pin. The freeze pass drops its entry only once the hold
 record lists it. A hand pin with no freeze record remains unowned by either pass. Each pass writes
-every pin it may own before it changes one, then the final set. A failed write therefore never
-leaves a pin that later runs take for a hand pin. The freeze pass changes no pin when the first
-write fails; the hold pass still pins, because the hold guards correctness.
+every pin it may own before it changes one, then the final set. When the first write fails, the
+freeze pass changes no pin, so it never leaves a pin that later runs take for a hand pin. The hold
+pass still pins, because the hold guards correctness. That pin reads as a hand pin afterwards, so
+lifting the hold leaves it for `brew unpin`.
 
 **D4: Names are matched by their short form, and sources are checked by the qualified form.**
 Comparisons against `brew list --pinned` use `${pkg##*/}`. To check whether a package is
