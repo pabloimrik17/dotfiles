@@ -88,15 +88,6 @@ The gh-dash config SHALL define a universal keybinding `g` that opens lazygit in
 - **WHEN** the user presses `g` on any item
 - **THEN** lazygit opens in the repository's local directory
 
-### Requirement: Claude Code review keybinding
-
-The gh-dash config SHALL define a PR keybinding `C` that opens a tmux window named `PR-{{.PrNumber}}` and launches Claude Code with the code-review skill for the selected PR.
-
-#### Scenario: User triggers code review from gh-dash
-
-- **WHEN** the user presses `C` on a PR item
-- **THEN** a new tmux window opens with Claude Code running the code-review skill against the selected PR
-
 ### Requirement: Delta diff pager
 
 The gh-dash config SHALL set `pager.diff` to `delta`.

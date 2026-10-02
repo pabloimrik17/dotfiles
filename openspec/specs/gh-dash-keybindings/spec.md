@@ -24,70 +24,6 @@ The universal keybindings SHALL include an `L` key that opens lazygit in the rep
 - **WHEN** user presses `L` on any item
 - **THEN** gh-dash suspends TUI, runs `cd {{.RepoPath}} && lazygit`, and resumes TUI on exit
 
-### Requirement: PR code review keybinding (direct)
-
-The PR keybindings SHALL include a `b` key that checks out a worktree for the PR and launches Claude with a code review prompt using direct execution.
-
-The command SHALL pass the program to `-x` and its arguments after a `--` separator, rather than
-passing a single multi-word string to `-x`. worktrunk treats `-x` as a program plus literal argv, so
-a multi-word string is looked up as one executable name and fails. worktrunk template-expands each
-argument after `--` and passes it to the program as literal argv, without shell parsing, so the
-caller need not quote them for worktrunk.
-
-#### Scenario: Code review launches for a PR (direct)
-
-- **WHEN** user presses `b` on a PR
-- **THEN** gh-dash suspends TUI and runs `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude -- /code-review:code-review {{.RepoName}}#{{.PrNumber}}`
-
-#### Scenario: No multi-word string is passed to -x
-
-- **WHEN** the `b` command is read
-- **THEN** the value immediately following `-x` is a single program name, and every argument for that
-  program appears after `--`
-
-### Requirement: PR worktree + Claude keybinding (direct)
-
-The PR keybindings SHALL include an `i` key that checks out a worktree for the PR and launches Claude without a specific prompt using direct execution.
-
-#### Scenario: Claude opens in PR worktree (direct)
-
-- **WHEN** user presses `i` on a PR
-- **THEN** gh-dash suspends TUI and runs `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude`
-
-### Requirement: PR code review keybinding (tmux)
-
-The PR keybindings SHALL include a `B` key that checks out a worktree for the PR and launches Claude with a code review prompt in a side-by-side tmux pane.
-
-The inner `wt` invocation SHALL use the same program-plus-argv form as the `b` binding.
-
-#### Scenario: Code review launches in tmux pane
-
-- **WHEN** user presses `B` on a PR while inside a tmux session
-- **THEN** a horizontal split pane opens running `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude -- /code-review:code-review {{.RepoName}}#{{.PrNumber}}` alongside gh-dash
-
-#### Scenario: tmux variant matches its direct counterpart
-
-- **WHEN** the `b` and `B` commands are compared
-- **THEN** the `wt` portion is identical, differing only by the surrounding `tmux split-window`
-
-### Requirement: PR worktree + Claude keybinding (tmux)
-
-The PR keybindings SHALL include an `I` key that checks out a worktree for the PR and launches Claude without a specific prompt in a side-by-side tmux pane.
-
-#### Scenario: Claude opens in tmux pane
-
-- **WHEN** user presses `I` on a PR while inside a tmux session
-- **THEN** a horizontal split pane opens running `wt -C {{.RepoPath}} switch pr:{{.PrNumber}} -x claude` alongside gh-dash
-
-### Requirement: RepoPath passed to worktrunk via -C flag
-
-All keybinding commands that use `wt` SHALL pass `-C {{.RepoPath}}` to specify the target repository directory.
-
-#### Scenario: wt receives correct repo path
-
-- **WHEN** user presses `b`, `i`, `B`, or `I` on a PR from repo `owner/my-repo`
-- **THEN** the command includes `-C {{.RepoPath}}` where `{{.RepoPath}}` resolves to the local repo path
-
 ### Requirement: Custom keybindings SHALL NOT collide with built-in defaults
 
 No custom keybinding SHALL use a key that is assigned to a built-in gh-dash function in the same view context. Specifically, the following keys are reserved for built-ins:
@@ -162,33 +98,13 @@ All custom PR keybindings that have both a direct and tmux variant SHALL use low
 #### Scenario: Pattern is consistent across interactive custom PR keybindings
 
 - **WHEN** inspecting the keybindings config
-- **THEN** `b`/`B` (review), `i`/`I` (worktree), `t`/`T` (CI checks), and `z`/`Z` (tuicr review) all follow lowercase=direct and uppercase=tmux
+- **THEN** `t`/`T` (CI checks) and `z`/`Z` (tuicr review) follow lowercase=direct and uppercase=tmux
 
 #### Scenario: AoE queue keybindings use the session/review convention
 
 - **WHEN** inspecting the `f` and `F` keybindings
 - **THEN** `f` queues or reuses a normal AoE session and `F` starts or resumes an AoE review-team session
 - **AND** neither has a tmux variant
-
-### Requirement: Keybinding payloads are verified by invocation, not by inspection
-
-Each PR keybinding that passes a program and arguments through `wt -x` SHALL be verified by actually
-pressing the key and observing the launched program receive its arguments. Reading the rendered
-command is not sufficient evidence: the payload passes through gh-dash template rendering, then the
-shell (for `B`, tmux's shell as well), then worktrunk's template expansion, and a defect in any of
-those layers produces a command that looks correct in the config file.
-
-#### Scenario: Each argv-passing binding is exercised
-
-- **WHEN** the keybinding payloads change
-- **THEN** every affected key is pressed against a real PR and the launched program is observed to
-  receive its intended arguments
-
-#### Scenario: A broken payload is observable
-
-- **WHEN** a binding's program name and arguments are collapsed into one string
-- **THEN** pressing the key surfaces a failure to launch, rather than silently starting the program
-  without its arguments
 
 ### Requirement: PR tuicr review keybinding (direct)
 
@@ -212,3 +128,12 @@ The PR keybindings SHALL include a `Z` key that opens the selected PR in tuicr i
 
 - **WHEN** the user quits tuicr inside the popup
 - **THEN** the popup closes and gh-dash resumes on the same section and selection
+
+### Requirement: Retired Claude PR shortcuts
+
+The custom PR keybindings SHALL NOT assign `b`, `B`, `i`, or `I` to launch Claude or switch to a PR worktree.
+
+#### Scenario: Retired Claude actions are absent from custom PR bindings
+
+- **WHEN** the configured gh-dash PR keybindings are inspected
+- **THEN** no custom entry with key `b`, `B`, `i`, or `I` launches Claude or switches to a PR worktree
