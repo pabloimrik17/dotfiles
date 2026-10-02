@@ -10,6 +10,8 @@
 - [x] 2.1 Update the overlapping lowercase/uppercase scenario in `openspec/changes/add-tuicr/specs/gh-dash-keybindings/spec.md` so it names only the remaining interactive pairs; verify the active delta has no `b`/`B` or `i`/`I` shortcut requirement.
 - [x] 2.2 Validate `remove-gh-dash-claude-keybindings` and `add-tuicr` with `openspec validate`, then compare the new delta, gh-dash config, and manual to verify they agree on the available custom PR keys.
 
+- [x] 2.3 Align the retired-key scenario with its requirement, update the plan to reflect the archived `add-tuicr` change, and remove the stale `Claude Code review keybinding` requirement through a `gh-dash-config` delta; validate the removal change.
+
 ## Integration note
 
 Tasks 2.1 and 2.2 were completed and both changes validated before updating the branch from `main`. Upstream has since archived `add-tuicr` as `2026-09-30-add-tuicr`; its archived delta remains historical context. The removal delta now updates the overlapping requirement in the main spec when synced or archived. Only `remove-gh-dash-claude-keybindings` remains available for active-change validation.

@@ -6,10 +6,10 @@
 
 The custom PR keybindings SHALL NOT assign `b`, `B`, `i`, or `I` to launch Claude or switch to a PR worktree.
 
-#### Scenario: Removed keys are absent from custom PR bindings
+#### Scenario: Retired Claude actions are absent from custom PR bindings
 
 - **WHEN** the configured gh-dash PR keybindings are inspected
-- **THEN** no custom entry has key `b`, `B`, `i`, or `I`
+- **THEN** no custom entry with key `b`, `B`, `i`, or `I` launches Claude or switches to a PR worktree
 
 ## MODIFIED Requirements
 

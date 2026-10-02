@@ -8,7 +8,7 @@ The gh-dash PR view still offers four direct Claude launch shortcuts that the us
 
 - **BREAKING** Remove the custom PR keybindings `i`, `I`, `b`, and `B` from gh-dash. They will no longer launch Claude or create a PR worktree from those keys.
 - Remove the four corresponding rows from the gh-dash keybindings table in `docs/manual.html`.
-- Update the `gh-dash-keybindings` contract so it no longer requires those shortcuts or their now-unused Worktrunk payload rules. Reconcile the overlapping `add-tuicr` delta before that change is archived.
+- Update the `gh-dash-keybindings` contract so it no longer requires those shortcuts or their now-unused Worktrunk payload rules. The overlapping `add-tuicr` change is already archived as `2026-09-30-add-tuicr`; this removal delta updates the main spec when synced or archived. Remove the stale Claude review requirement from `gh-dash-config` as well.
 
 ## Capabilities
 
@@ -19,9 +19,10 @@ None.
 ### Modified Capabilities
 
 - `gh-dash-keybindings`: remove the four Claude shortcuts and requirements that apply only to their commands; describe the remaining direct/tmux pairs without them.
+- `gh-dash-config`: remove the stale requirement for a custom `C` shortcut that launches Claude review.
 
 ## Impact
 
 - `dot_config/gh-dash/config.yml`: four entries under `keybindings.prs` and the explanatory comment for their `wt -x` commands.
 - `docs/manual.html`: four rows in the gh-dash keybindings table.
-- `openspec/specs/gh-dash-keybindings/spec.md` on sync/archive, plus the active `openspec/changes/add-tuicr/specs/gh-dash-keybindings/spec.md` that still names the removed pairs.
+- `openspec/specs/gh-dash-keybindings/spec.md` and `openspec/specs/gh-dash-config/spec.md` on sync/archive. The archived `openspec/changes/archive/2026-09-30-add-tuicr/` artifacts remain historical context.
