@@ -8,7 +8,7 @@
         },
         "context7": {
             "type": "local",
-            "command": ["npx", "-y", "@upstash/context7-mcp@2.1.2"],
+            "command": ["npx", "-y", "@upstash/context7-mcp@4.1.1"],
             "enabled": true
         },
         "knip": {
