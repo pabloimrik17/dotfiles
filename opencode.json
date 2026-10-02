@@ -28,7 +28,7 @@
         },
         "chrome-devtools": {
             "type": "local",
-            "command": ["npx", "-y", "chrome-devtools-mcp@0.18.1"],
+            "command": ["npx", "-y", "chrome-devtools-mcp@1.9.0"],
             "enabled": true
         },
         "gh_grep": {
