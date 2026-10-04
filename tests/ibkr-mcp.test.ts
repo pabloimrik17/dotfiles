@@ -134,6 +134,55 @@ describe("IBKR MCP registration", () => {
         expect(cells[5]).toContain("only consumer");
         expect(cells[5]).toContain("`stonks`");
     });
+
+    test.skipIf(process.env.DOTFILES_TEST_LIVE_MCP !== "1")(
+        "unauthenticated IBKR rejects a read while another MCP server still initializes",
+        async () => {
+            const http = await installerArray("MCP_HTTP_SERVERS");
+            const endpoint = (name: string) => {
+                const entry = http.find((entry) => entry.startsWith(`${name}:`));
+                expect(entry).toBeDefined();
+                return entry!.slice(name.length + 1);
+            };
+            const request = (url: string, id: number, method: string, params: object) =>
+                fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json, text/event-stream",
+                    },
+                    body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
+                    signal: AbortSignal.timeout(10_000),
+                });
+
+            const unauthenticated = await request(endpoint("ibkr"), 1, "tools/call", {
+                name: "get_account_positions",
+                arguments: {},
+            });
+            expect(unauthenticated.status).toBe(401);
+            expect(unauthenticated.headers.get("www-authenticate")).toMatch(/^Bearer\b/i);
+            await unauthenticated.body?.cancel();
+
+            const independent = await request(endpoint("deepwiki"), 2, "initialize", {
+                protocolVersion: "2025-03-26",
+                capabilities: {},
+                clientInfo: { name: "dotfiles-verification", version: "1.0.0" },
+            });
+            expect(independent.status).toBe(200);
+            const text = await independent.text();
+            const messages = independent.headers.get("content-type")?.includes("text/event-stream")
+                ? text
+                      .split("\n")
+                      .filter((line) => line.startsWith("data:"))
+                      .map((line) => JSON.parse(line.slice(5)))
+                : [JSON.parse(text)];
+            const initialized = messages.find((message) => message.id === 2);
+            expect(initialized?.error).toBeUndefined();
+            expect(initialized?.result?.protocolVersion).toBeString();
+            expect(initialized?.result?.serverInfo?.name).toBeString();
+        },
+        30_000,
+    );
 });
 
 describe("IBKR order instruction denies", () => {
