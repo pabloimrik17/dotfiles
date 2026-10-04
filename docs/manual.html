@@ -2291,7 +2291,66 @@
                         </tbody>
                     </table>
 
+                    <h3>Google Workspace CLI (gws)</h3>
+                    <p class="note">
+                        Read-only Sheets input for the stonks plugin. Homebrew's
+                        <code>googleworkspace-cli</code> is frozen at the
+                        <code>googleworkspace-cli|0.22.5</code> row of <code>BREW_VERSIONS</code>.
+                        Installing after a newer formula release gives a drift warning. Before
+                        raising the row, run the consumer check beside <code>BREW_PACKAGES</code> on
+                        the candidate release, then
+                        <code>brew-upgrade-pinned googleworkspace-cli</code> and bump the row.
+                    </p>
+                    <p class="note">
+                        One-time-ever setup with your personal Google account: create your own
+                        Google Cloud project, enable the Google Sheets API, complete OAuth branding
+                        with an app name, support email, public homepage and privacy-policy URL,
+                        then set the OAuth consent screen to External and
+                        <strong>In production</strong>, and create a
+                        <strong>Desktop app</strong> client. Testing refresh tokens expire after 7
+                        days. For personal use (fewer than 100 users), no verification is needed;
+                        Google's unverified-app screen appears once at consent. Save the client JSON
+                        to <code>~/.config/gws/client_secret.json</code> and encrypt it as
+                        <code>dot_config/gws/encrypted_private_client_secret.json.age</code>. On a
+                        new machine, <code>chezmoi apply</code> deploys it with mode 600; only the
+                        login below remains.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <code
+                                        >gws auth login --scopes
+                                        https://www.googleapis.com/auth/spreadsheets.readonly</code
+                                    >
+                                </td>
+                                <td>Per-machine login with the single read-only Sheets scope</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="note">
+                        Credentials, including the refresh token, stay encrypted with the key in the
+                        macOS Keychain. Avoid repeated logins: each issues another refresh token,
+                        and at 100 per client/account Google silently invalidates the oldest. Tokens
+                        also expire after six months without use or when access is revoked. Never
+                        use <code>gws auth export --unmasked</code> (plaintext credentials) or
+                        <code>gws auth setup</code> (requires <code>gcloud</code>, which these
+                        dotfiles do not install). Never commit tokens.
+                    </p>
+
                     <h3>Encrypted files (chezmoi + age)</h3>
+                    <p class="note">
+                        The Google OAuth client is encrypted alongside <code>~/.ticker.yaml</code>.
+                        Run <code>chezmoi edit ~/.config/gws/client_secret.json</code> to edit the
+                        decrypted client and re-encrypt it when the editor exits. Only the client
+                        definition is managed; gws's token files stay outside the source.
+                    </p>
                     <table>
                         <thead>
                             <tr>
@@ -3224,6 +3283,21 @@
                                 <td>
                                     Needs Settings &rarr; Tools &rarr; MCP Server enabled in the IDE
                                     + the IDE running
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ibkr</td>
+                                <td>
+                                    Position and order reads for the <code>stonks</code> plugin
+                                    &mdash; Claude Code only
+                                </td>
+                                <td>
+                                    OAuth on first use: open <code>/mcp</code> and authenticate
+                                    <code>ibkr</code>. Complete IBKR login with 2FA, accept its AI
+                                    agreements and select one account. Order drafting through
+                                    <code>mcp__ibkr__get_order_instructions</code> is denied in the
+                                    managed settings. Revoke access in Client Portal &rarr; Settings
+                                    &rarr; Manage Third-Party Consents.
                                 </td>
                             </tr>
                             <tr>

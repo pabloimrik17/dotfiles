@@ -20,7 +20,7 @@ This change delivers those three things through the same mechanisms the repo alr
 - **The `gws` OAuth client file, age-encrypted.**
   - The source `dot_config/gws/encrypted_private_client_secret.json.age` deploys to `~/.config/gws/client_secret.json` with mode 600, through the same age mechanism and convention as `ticker-config` and `add-plugin-configs`. The plaintext never appears in the repo.
   - The user creates the encrypted file from their own terminal during implementation, so its contents never reach an agent transcript. Agent-side checks print only `ok`, `match`, a file mode or a ciphertext header.
-  - The file holds the client definition only. The refresh token stays in the macOS Keychain, encrypted by `gws`, and is never in the repo.
+  - The file holds the client definition only. The refresh token stays in `gws`'s encrypted credential store, with its encryption key in the macOS Keychain, and is never in the repo.
 - **One-time Google setup guidance, printed by the install script and documented in the README and the manual:**
   - On a new machine, with the client file deployed by `chezmoi apply`, the only remaining step is `gws auth login --scopes https://www.googleapis.com/auth/spreadsheets.readonly` with the personal Google account.
   - Creating your own GCP project with the Google Sheets API enabled, an OAuth consent screen set to **"In production"** (in "Testing", Google issues refresh tokens that expire after 7 days) and a **Desktop app** OAuth client is a one-time-ever step, not a per-machine one. Its output is the file that gets encrypted.

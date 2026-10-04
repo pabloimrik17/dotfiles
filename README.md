@@ -51,6 +51,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **CLI Tools**  | [fallow](https://fallow.tools/)                                                 | Codebase intelligence for TS/JS — dead code, duplication, complexity (CLI + MCP + skill)                   |
 | **CLI Tools**  | [llmfit](https://github.com/AlexsJones/llmfit)                                  | Right-sizes LLM models to the machine's RAM, CPU, and GPU before you pull the weights                      |
 | **CLI Tools**  | [linear](https://github.com/schpet/linear-cli)                                  | Linear issues from the terminal — used by the autonomous label triage; frozen at the verified version      |
+| **CLI Tools**  | [gws](https://github.com/googleworkspace/cli)                                   | Read-only Sheets input for stonks; `googleworkspace-cli` frozen at `0.22.5`                                |
 | **Git**        | [git-delta](https://github.com/dandavison/delta)                                | Syntax-highlighted diff viewer                                                                             |
 | **Git**        | [lazygit](https://github.com/jesseduffield/lazygit)                             | TUI for git operations                                                                                     |
 | **Git**        | [GitHub CLI](https://cli.github.com/)                                           | GitHub from the terminal                                                                                   |
@@ -70,7 +71,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 
 ## MCP Servers
 
-The install script registers 16 user-scope Claude Code MCP servers in runtime-owned `~/.claude.json`. Similarly named OpenCode servers are declared separately in repo-local `opencode.json` or the managed user configuration; Claude Code's list is not automatically shared with OpenCode, Codex, or Junie. Stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and separate remote entries in the OpenCode config, so neither is part of that count.
+The install script registers 17 user-scope Claude Code MCP servers in runtime-owned `~/.claude.json`. Similarly named OpenCode servers are declared separately in repo-local `opencode.json` or the managed user configuration; Claude Code's list is not automatically shared with OpenCode, Codex, or Junie. Stdio servers run pinned versions managed by Renovate (fallow tracks the global npm install instead). PostHog (`posthog@claude-plugins-official`) and Sentry (`sentry-mcp@sentry-mcp`) are plugin-provided in Claude Code and separate remote entries in the OpenCode config, so neither is part of that count.
 
 Claude Code, OpenCode, and Codex support Linear through its official read-write endpoint, `https://mcp.linear.app/mcp`, while keeping registration and OAuth state client-specific. Junie is configured for the same endpoint, but its current OAuth token exchange is not compatible with Linear:
 
@@ -83,26 +84,27 @@ Claude Code, OpenCode, and Codex support Linear through its official read-write 
 
 The [interactive manual](docs/manual.html) contains the complete acceptance flow for the three supported clients—list Linear projects, find `dotfiles`, create a uniquely titled disposable issue, record its identifier, and close or cancel only that issue—plus the safe Junie revalidation procedure.
 
-| Server                                                         | Transport | Description                                        | Auth / Setup                                                            |
-| -------------------------------------------------------------- | --------- | -------------------------------------------------- | ----------------------------------------------------------------------- |
-| eslint                                                         | stdio     | Lint files on demand                               | —                                                                       |
-| context7                                                       | stdio     | Fetch up-to-date library docs                      | —                                                                       |
-| knip                                                           | stdio     | Detect unused code/exports                         | —                                                                       |
-| memory                                                         | stdio     | Persistent knowledge graph across sessions         | —                                                                       |
-| playwright                                                     | stdio     | Browser automation and testing                     | —                                                                       |
-| chrome-devtools                                                | stdio     | Inspect/control browser sessions                   | —                                                                       |
-| expect                                                         | stdio     | Visual testing and accessibility audits            | —                                                                       |
-| fallow                                                         | stdio     | Codebase intelligence: dead code, dupes            | Runs the global `fallow-mcp` binary (npm)                               |
-| gh_grep                                                        | http      | Search across GitHub repos                         | —                                                                       |
-| [deepwiki](https://docs.devin.ai/work-with-devin/deepwiki-mcp) | http      | Explore repository architecture and internal flows | Already-indexed public GitHub repositories only                         |
-| atlassian                                                      | http      | Jira & Confluence integration                      | OAuth on first use                                                      |
-| figma                                                          | http      | Figma design context (Dev Mode)                    | OAuth on first use                                                      |
-| linear                                                         | http      | Linear issues & projects                           | Per-client native OAuth; see the client matrix above                    |
-| notion                                                         | http      | Notion pages & databases                           | OAuth on first use                                                      |
-| storybook                                                      | http      | Local Storybook component context                  | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
-| jetbrains                                                      | http      | JetBrains IDE context & actions on :64542          | Needs Settings → Tools → MCP Server enabled in the IDE + IDE running    |
-| posthog                                                        | http      | Product analytics, feature flags, errors           | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
-| sentry                                                         | http      | Issues, traces, and Seer root-cause runs           | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
+| Server                                                               | Transport | Description                                                  | Auth / Setup                                                            |
+| -------------------------------------------------------------------- | --------- | ------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| eslint                                                               | stdio     | Lint files on demand                                         | —                                                                       |
+| context7                                                             | stdio     | Fetch up-to-date library docs                                | —                                                                       |
+| knip                                                                 | stdio     | Detect unused code/exports                                   | —                                                                       |
+| memory                                                               | stdio     | Persistent knowledge graph across sessions                   | —                                                                       |
+| playwright                                                           | stdio     | Browser automation and testing                               | —                                                                       |
+| chrome-devtools                                                      | stdio     | Inspect/control browser sessions                             | —                                                                       |
+| expect                                                               | stdio     | Visual testing and accessibility audits                      | —                                                                       |
+| fallow                                                               | stdio     | Codebase intelligence: dead code, dupes                      | Runs the global `fallow-mcp` binary (npm)                               |
+| gh_grep                                                              | http      | Search across GitHub repos                                   | —                                                                       |
+| [deepwiki](https://docs.devin.ai/work-with-devin/deepwiki-mcp)       | http      | Explore repository architecture and internal flows           | Already-indexed public GitHub repositories only                         |
+| atlassian                                                            | http      | Jira & Confluence integration                                | OAuth on first use                                                      |
+| figma                                                                | http      | Figma design context (Dev Mode)                              | OAuth on first use                                                      |
+| linear                                                               | http      | Linear issues & projects                                     | Per-client native OAuth; see the client matrix above                    |
+| notion                                                               | http      | Notion pages & databases                                     | OAuth on first use                                                      |
+| storybook                                                            | http      | Local Storybook component context                            | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
+| jetbrains                                                            | http      | JetBrains IDE context & actions on :64542                    | Needs Settings → Tools → MCP Server enabled in the IDE + IDE running    |
+| [ibkr](https://www.ibkrguides.com/releasenotes/connector-v1.1.5.htm) | http      | Position and order reads for `stonks`; order drafting denied | Claude Code only; OAuth on first use through `/mcp`                     |
+| posthog                                                              | http      | Product analytics, feature flags, errors                     | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
+| sentry                                                               | http      | Issues, traces, and Seer root-cause runs                     | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
 
 DeepWiki uses the same user-scope endpoint in Claude Code, Codex, OpenCode, and Junie. Use Context7 for published API/configuration documentation, DeepWiki for architecture discovery on an already-indexed public repository, and `gh_grep` or direct source for exact paths and revision-sensitive evidence. The public entry cannot access private repositories or select a branch, tag, or commit; if a public repository is missing, visit `https://deepwiki.com/<owner>/<repo>` to request indexing.
 
@@ -179,6 +181,10 @@ chezmoi re-add
 chezmoi add <file>
 ```
 
+`gws` uses the `googleworkspace-cli|0.22.5` row of `BREW_VERSIONS`. A fresh install after a newer formula release produces a drift warning. Before upgrading, run the consumer check beside `BREW_PACKAGES` on the candidate, then `brew-upgrade-pinned googleworkspace-cli` and bump the row.
+
+Google setup is one-time-ever: create your own Cloud project with the Sheets API enabled, complete OAuth branding with an app name, support email, public homepage and privacy-policy URL, set the External consent screen **In production** (Testing refresh tokens expire after 7 days), and create a **Desktop app** OAuth client. Encrypt its JSON as `dot_config/gws/encrypted_private_client_secret.json.age`; `chezmoi apply` deploys `~/.config/gws/client_secret.json` with mode `600`. On each machine, only `gws auth login --scopes https://www.googleapis.com/auth/spreadsheets.readonly` remains. Credentials stay encrypted with the key in the macOS Keychain; never commit tokens.
+
 **Edit an encrypted file** (e.g. `~/.ticker.yaml`):
 
 ```sh
@@ -187,6 +193,12 @@ $EDITOR ~/.ticker.yaml
 
 # Re-encrypt the source-tree artifact
 chezmoi re-add --encrypt ~/.ticker.yaml
+```
+
+The Google OAuth client file uses the same encrypted-file flow as `~/.ticker.yaml`:
+
+```sh
+chezmoi edit ~/.config/gws/client_secret.json
 ```
 
 **Add or rotate a shell secret** (API keys exported to every interactive zsh):
