@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Installs the Google Workspace CLI (`gws`) through Homebrew, frozen at a declared version, so the `stonks` plugin can read the user's tracking sheet with read-only access on every macOS host. Also prints the one-time Google Cloud setup it needs, without putting any Google credential in the repository.
+Installs the Google Workspace CLI (`gws`) through Homebrew, frozen at a declared version, so the `stonks` plugin can read the user's tracking sheet with read-only access on every macOS host. Also deploys the user's Google OAuth client file from an age-encrypted source, and prints the Google Cloud setup it needs, without any Google credential appearing in clear text in the repository.
 
 ## ADDED Requirements
 
@@ -79,12 +79,20 @@ The ranges SHALL address the tab by name, not by its `gid`. The recorded command
 
 ### Requirement: One-time Google setup guidance is printed without credentials
 
-The install script SHALL print `gws` setup guidance in its manual-instructions output, on both the macOS and the non-macOS branch. The guidance SHALL name these steps, done once by the user with their personal Google account:
+The install script SHALL print `gws` setup guidance in its manual-instructions output, on both the macOS and the non-macOS branch. The guidance SHALL name these steps, done once ever by the user with their personal Google account:
 
 - Create their own Google Cloud project and enable the Google Sheets API in it.
 - Configure the OAuth consent screen with user type External and publishing status **"In production"**. In "Testing", Google issues refresh tokens that expire after 7 days. For personal use (fewer than 100 users) the app needs no verification, and the "Google hasn't verified this app" screen is shown once at consent.
 - Create an OAuth client of type **Desktop app**, and save its JSON where `gws` reads its client configuration (`~/.config/gws/client_secret.json` at the declared version).
+
+The three steps above SHALL be described as done once ever, not once per machine. Their output, the client JSON, is the file encrypted into the repository (see "The gws OAuth client file is age-encrypted and deployed by chezmoi"). On a new machine the guidance SHALL name only one remaining step, the login below, and SHALL say that `chezmoi apply` deploys the client file.
+
+The login step is:
+
 - Log in with exactly one scope: `gws auth login --scopes https://www.googleapis.com/auth/spreadsheets.readonly`.
+
+The guidance also says:
+
 - `gws` keeps its credentials encrypted, with the key in the macOS Keychain.
 - Repeated logins are to be avoided. Each new login issues another refresh token, and once a client holds 100 for one account Google silently invalidates the oldest. A refresh token also dies after six months without use, or when access is revoked.
 
@@ -97,7 +105,7 @@ The guidance SHALL NOT recommend:
 - the "Testing" publishing status;
 - a service-account key.
 
-The repository SHALL NOT manage `~/.config/gws/` or any file that holds a Google OAuth client secret, refresh token or access token.
+The repository SHALL NOT contain a Google refresh token or access token in any form, and SHALL NOT manage the credential files `gws` writes itself under `~/.config/gws/`. The only Google file it manages is the OAuth client file, and only as age ciphertext.
 
 #### Scenario: Guidance printed on macOS
 
@@ -119,8 +127,46 @@ The repository SHALL NOT manage `~/.config/gws/` or any file that holds a Google
 #### Scenario: No Google credential enters the repository
 
 - **WHEN** the README, the manual, the install output and the chezmoi source tree are inspected
-- **THEN** they contain no OAuth client ID, client secret or token
-- **AND** no chezmoi-managed path targets `~/.config/gws/`
+- **THEN** the README, the manual and the install output contain no OAuth client ID, client secret or token
+- **AND** the source tree contains no token, and no Google file in clear text
+- **AND** the only chezmoi-managed path under `~/.config/gws/` is `client_secret.json`
+
+#### Scenario: A new machine needs only the login
+
+- **WHEN** the guidance is read for a machine where `chezmoi apply` has deployed the client file
+- **THEN** the only step it asks for is `gws auth login --scopes https://www.googleapis.com/auth/spreadsheets.readonly`
+- **AND** it describes the project, consent screen and client creation as a one-time-ever step
+
+### Requirement: The gws OAuth client file is age-encrypted and deployed by chezmoi
+
+The source tree SHALL contain `dot_config/gws/encrypted_private_client_secret.json.age`. On `chezmoi apply`, chezmoi SHALL decrypt it with the age identity at `~/.config/chezmoi/key.txt` and write the plaintext to `~/.config/gws/client_secret.json` with mode 600, creating `~/.config/gws/` when it does not exist, on every machine whatever its machine type. The plaintext is the Desktop app OAuth client JSON the user downloads from their own Google Cloud project, and this repository SHALL NOT restate, template or default any of its fields.
+
+The file SHALL be committed only as age ciphertext, because the repository is public and the client JSON names the user's own GCP project and carries a client secret. No plaintext copy, plaintext template, `create_` or `modify_` variant or placeholder SHALL exist for that path. The chezmoi source SHALL hold no file that targets the refresh token or the encrypted credentials `gws` writes after login. The refresh token SHALL stay in the macOS Keychain and in `gws`'s own encrypted store, and SHALL NOT be written to the repository in any form.
+
+Chezmoi SHALL treat the content as opaque: it decrypts and writes it without parsing it. The dotfiles SHALL add no apply-time validation of it.
+
+The path `~/.config/gws/client_secret.json` SHALL be confirmed against the pinned `gws` before the encrypted file is created, and the spec SHALL be read as naming where `gws` reads its client configuration at the declared version.
+
+#### Scenario: Client file deployed on chezmoi apply
+
+- **WHEN** `chezmoi apply` runs on a host with a valid `~/.config/chezmoi/key.txt`
+- **THEN** chezmoi decrypts `dot_config/gws/encrypted_private_client_secret.json.age` and writes the plaintext to `~/.config/gws/client_secret.json` with mode 600
+
+#### Scenario: Apply fails loudly without the identity
+
+- **WHEN** `chezmoi apply` runs and `~/.config/chezmoi/key.txt` is missing or unreadable
+- **THEN** chezmoi reports a decryption failure that names the encrypted file or `client_secret.json`
+- **AND** it does not overwrite or create `~/.config/gws/client_secret.json`
+
+#### Scenario: Repository content is opaque
+
+- **WHEN** the repository is browsed on GitHub or cloned without the identity
+- **THEN** `encrypted_private_client_secret.json.age` is the only Google OAuth artifact in the source tree, its bytes are age ciphertext, and no tracked file contains an OAuth client ID, client secret or token
+
+#### Scenario: No token is managed
+
+- **WHEN** the chezmoi source tree is searched for paths that target `~/.config/gws/`
+- **THEN** the only match is `encrypted_private_client_secret.json.age`
 
 ### Requirement: The install script lists gws on both branches
 

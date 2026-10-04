@@ -1,5 +1,7 @@
 # Tasks
 
+Steps marked **USER** handle plaintext. Run them in your own terminal, outside any agent session. Do not use a `!`-prefixed command for them in Claude Code, because its output goes into the transcript. Agent steps only run checks that print `ok`, `match`, a file mode or a ciphertext header, never a configuration value. `$WT` is this worktree, `~/WebstormProjects/dotfiles-worktrees/feature-add-stonks-tooling`.
+
 ## 1. Frozen brew entry for `gws` (`cli-tool-expansion`, `googleworkspace-cli-install`)
 
 - [ ] 1.1 Make these edits in `run_onchange_install-packages.sh.tmpl`:
@@ -28,17 +30,18 @@
 ## 2. `gws` guidance, summaries and docs (`googleworkspace-cli-install`)
 
 - [ ] 2.1 Confirm the guidance inputs at 0.22.5 without logging in:
-  - the client-configuration path (`~/.config/gws/client_secret.json`);
+  - the client-configuration path (`~/.config/gws/client_secret.json`), which task 2.5 also targets;
   - the `--scopes` flag of `gws auth login`;
   - that plain `gws auth login` requests the broad default scopes.
 
-  Use the pinned binary's `gws auth --help` / `gws auth login --help`, or upstream source at tag `v0.22.5`. Record the outcome in this task line. If the path differs, write the verified one in 2.2.
+  Use the pinned binary's `gws auth --help` / `gws auth login --help`, or upstream source at tag `v0.22.5`. Record the outcome in this task line. If the path differs, write the verified one in 2.2, and use it as the target path of the encrypted source in 2.5 and in the spec.
 - [ ] 2.2 Add `print_gws_guidance` and call it right after `print_linear_cli_guidance` on both branches. Its content is fixed by the spec:
   - own GCP project and Sheets API enabled;
   - consent screen External and "In production", with the 7-day Testing expiry stated;
-  - Desktop app client and where its JSON goes;
+  - the project, consent screen and Desktop app client as a one-time-ever step, with its JSON going to `~/.config/gws/client_secret.json`;
+  - that on a new machine `chezmoi apply` deploys the client file and only the login remains;
   - `gws auth login --scopes https://www.googleapis.com/auth/spreadsheets.readonly`;
-  - Keychain storage;
+  - Keychain storage of the refresh token;
   - the refresh-token caveats;
   - "never" lines for `gws auth export --unmasked` and `gws auth setup`.
 
@@ -54,12 +57,25 @@
   - the drift a later formula release causes;
   - the consumer check beside the declaration;
   - the upgrade path (`brew-upgrade-pinned googleworkspace-cli` plus the row bump);
-  - the one-time Google setup with the single read-only scope.
+  - the one-time-ever Google setup, the encrypted client file and the per-machine login with the single read-only scope.
 
   Verify three things:
   - `grep -c 'apps.googleusercontent.com' README.md docs/manual.html` prints 0 for both;
   - neither file contains a spreadsheet ID;
   - the manual section renders in a browser.
+
+  The README and the manual also add the `gws` client file to the encrypted-files documentation next to `~/.ticker.yaml`, with the `chezmoi edit ~/.config/gws/client_secret.json` flow. Verify with `grep -n 'client_secret.json' README.md docs/manual.html`, which matches both, and with no client ID or secret in either.
+- [ ] 2.5 Create the encrypted OAuth client file.
+  - **Agent precondition:** after 2.1 confirms the path, check the identity on this host matches the committed recipient: `[ "$(age-keygen -y ~/.config/chezmoi/key.txt)" = "$(grep -o 'age1[a-z0-9]*' "$WT/.chezmoi.toml.tmpl")" ] && echo match` prints `match`, and `chezmoi managed | grep -c 'client_secret.json'` prints `0`, so the live file stays untouched until this change lands.
+  - **USER:** download the Desktop app client JSON from the Google Cloud project to `~/.config/gws/client_secret.json` (creating the project, consent screen "In production" and client first if this is the first time), then `chmod 600 ~/.config/gws/client_secret.json`. `chezmoi add` derives `private_` from the mode.
+  - **USER:** `chezmoi --source "$WT" add --encrypt ~/.config/gws/client_secret.json`. `--source` writes into this worktree, not the `main` clone at `~/.local/share/chezmoi`. Fallback: `age --encrypt --armor -r <recipient> -o "$WT/dot_config/gws/encrypted_private_client_secret.json.age" ~/.config/gws/client_secret.json`.
+  - **Agent verify**, printing only these results:
+    - `stat -f %Lp ~/.config/gws/client_secret.json` prints `600`.
+    - `head -c 34 "$WT/dot_config/gws/encrypted_private_client_secret.json.age"` shows an age header.
+    - `chezmoi --source "$WT" status ~/.config/gws/client_secret.json` prints nothing.
+    - `chezmoi --source "$WT" cat ~/.config/gws/client_secret.json | cmp -s - ~/.config/gws/client_secret.json && echo identical` prints `identical`.
+    - `git -C "$WT" ls-files -co --exclude-standard | grep 'dot_config/gws/'` lists only `encrypted_private_client_secret.json.age`.
+  - Add to `tests/googleworkspace-cli.test.ts` the guard for the encrypted source: its directory holds exactly that file, it starts with an age header, no other source (plaintext, template, `create_` or `modify_` variant, `run_` script) targets `.config/gws`, and applying into a temporary home (`--config`, `--destination`, `--persistent-state`) whose `[age] identity` points at a missing file exits non-zero with stderr naming `client_secret.json` and creates no target. It uses no real value. Verify: the test fails only before this task's `.age` file exists, and passes after.
 
 ## 3. IBKR MCP server and order-drafting deny (`mcp-global-config`, `claude-user-preferences`)
 
@@ -108,7 +124,8 @@
   - `claude mcp get ibkr` reports an HTTP server at `https://api.ibkr.com/v1/api/mcp-public`;
   - `jq '.mcpServers.ibkr' ~/.claude.json` shows no `headers` or OAuth client fields;
   - the second run reports `MCP servers: 17/17 registered (all up to date)`.
-- [ ] 4.4 Run `chezmoi diff` against the worktree and confirm that the only settings change is the new deny line. After `chezmoi apply`, verify by inspection only:
+- [ ] 4.4 Round trip the client file into a temporary home with the real identity: `chezmoi --source "$WT" --destination "$TMP" --persistent-state "$TMP/state.boltdb" apply "$TMP/.config/gws/client_secret.json"`. Verify: the file has mode 600, `cmp` against the live file prints `identical`, `$TMP/.config/gws/` was created, a deleted target is restored on re-apply, and `rm -rf "$TMP"` leaves nothing behind. Then check for leaks: `git -C "$WT" status --porcelain` lists only the `.age` source, the tests, the docs, the install script, the settings template, the parity row and this change directory, and no file in the diff outside the `.age` source contains JSON taken from the client file.
+- [ ] 4.5 Run `chezmoi diff` against the worktree and confirm that the only settings change is the new deny line. After `chezmoi apply`, verify by inspection only:
   - `jq '.permissions.deny' ~/.claude/settings.json` contains `mcp__ibkr__get_order_instructions`;
   - `/permissions` in a new Claude Code session lists it under Deny.
 
@@ -116,11 +133,11 @@
 
 ## 5. First use (user-run, needs the user's own accounts)
 
-- [ ] 5.1 Follow the printed `gws` guidance with the personal Google account, then run `gws auth login --scopes https://www.googleapis.com/auth/spreadsheets.readonly`. Verify four things:
+- [ ] 5.1 With the client file deployed by task 2.5 (or by `chezmoi apply` on another host), run `gws auth login --scopes https://www.googleapis.com/auth/spreadsheets.readonly` with the personal Google account. The Google Cloud setup is not repeated here: it was done once ever in 2.5. Verify four things:
   - the recorded read command returns `range`, `majorDimension` and `values` for the tracking-sheet tab (IDs typed locally, never committed);
   - the consent screen reads "In production";
   - the Google account's third-party access page lists only read access to Sheets for the app;
-  - no file under the chezmoi source changed.
+  - no file under the chezmoi source changed, and the refresh token is only in the Keychain, never in the repo.
 - [ ] 5.2 In Claude Code, run `/mcp` and authenticate `ibkr`: IBKR login with 2FA, the AI agreements, one account. Verify five things:
   - `/mcp` shows the server connected, and no other IBKR server, for example a claude.ai connector, is present. Disconnect any that is.
   - The tool list matches the ten documented tools. If any other tool can create, modify, cancel or submit orders, stop and open a follow-up that denies it before the server is used again.
