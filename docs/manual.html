@@ -2815,9 +2815,28 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td><code>/stonks:sync [--only sources|watchlist]</code></td>
+                                <td>
+                                    Sync the tracking sheets from IBKR and SWS, then clean the
+                                    watchlist. Runs both phases by default;
+                                    <code>--only sources</code> runs the sync phase and
+                                    <code>--only watchlist</code> runs the watchlist phase. Invoke
+                                    the command manually
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Stonks requirements</td>
+                                <td>
+                                    The <code>ibkr</code> MCP server and <code>gws</code> CLI from
+                                    <code>add-stonks-tooling</code>, plus
+                                    <code>~/.config/stonks/config.json</code> from
+                                    <code>add-plugin-configs</code>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>Updates</td>
                                 <td>
-                                    Claude Code auto-updates both plugins through the
+                                    Claude Code auto-updates all three plugins through the
                                     <code>daily-agentic-task-force</code> marketplace
                                 </td>
                             </tr>
@@ -2829,7 +2848,12 @@
                             href="https://github.com/pabloimrik17/daily-agentic-task-force/blob/main/plugins/autonomous/README.md"
                             >autonomous README</a
                         >
-                        for flags and the quota-gate rules.
+                        for flags and the quota-gate rules. See the
+                        <a
+                            href="https://github.com/pabloimrik17/daily-agentic-task-force/blob/main/plugins/stonks/README.md"
+                            >stonks README</a
+                        >
+                        for the sync workflow and configuration details.
                     </p>
 
                     <h3>Slash commands (from plugins)</h3>
