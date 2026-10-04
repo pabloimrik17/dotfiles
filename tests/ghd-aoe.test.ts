@@ -60,8 +60,6 @@ interface FixtureState {
         stderr?: string;
         exitCode?: number;
         delayMs?: number;
-        spawnChild?: boolean;
-        childPidFile?: string;
     };
     failures: {
         wt?: boolean;
@@ -507,25 +505,49 @@ describe("group and title selection", () => {
 
     test("kills the inference process group at the deadline", async () => {
         const harness = await setup();
-        const childPidFile = path.join(harness.root, "inference-child.pid");
         const fixture = await readFixture(harness);
-        fixture.inference = { spawnChild: true, childPidFile };
-        await writeFixture(harness, fixture);
+        const deadlineFixture = path.join(harness.bin, "deadline-fixture");
+        // Avoid charging Bun's fixture startup against the process-kill deadline.
+        await writeFile(
+            deadlineFixture,
+            '#!/bin/sh\nsleep 60 &\nprintf "%s" "$!" > "$GHD_AOE_TEST_CHILD_PID_FILE"\nwait\n',
+        );
+        await chmod(deadlineFixture, 0o755);
         expect(DEFAULT_INFERENCE_TIMEOUT_MS).toBe(10_000);
-        const result = await inferNaming({
-            repository: "owner/dotfiles",
-            groups: ["Dotfiles"],
-            metadata: fixture.metadata!,
-            cwd: harness.worktree,
-            env: harness.env,
-            timeoutMs: 500,
-        });
-        expect(result.timedOut).toBe(true);
-        expect(result.durationMs).toBeLessThan(900);
-        const childPid = Number(await readFile(childPidFile, "utf8"));
+        let childPid: number | undefined;
+        // Retry only when the deadline kills the fixture before it records a child.
+        // Every attempt must still meet the original inference deadline.
+        for (let attempt = 0; attempt < 5; attempt++) {
+            const childPidFile = path.join(harness.root, `inference-child-${attempt}.pid`);
+            const result = await inferNaming({
+                repository: "owner/dotfiles",
+                groups: ["Dotfiles"],
+                metadata: fixture.metadata!,
+                cwd: harness.worktree,
+                env: {
+                    ...harness.env,
+                    GHD_AOE_CLAUDE_BIN: deadlineFixture,
+                    GHD_AOE_TEST_CHILD_PID_FILE: childPidFile,
+                },
+                timeoutMs: 500,
+            });
+            expect(result.timedOut).toBe(true);
+            expect(result.durationMs).toBeLessThan(900);
+            const pid = await readFile(childPidFile, "utf8").catch(
+                (error: NodeJS.ErrnoException) => {
+                    if (error.code === "ENOENT") return undefined;
+                    throw error;
+                },
+            );
+            if (pid !== undefined) {
+                childPid = Number(pid);
+                break;
+            }
+        }
+        expect(childPid).toBeDefined();
         const alive = (): boolean => {
             try {
-                process.kill(childPid, 0);
+                process.kill(childPid!, 0);
                 return true;
             } catch {
                 return false;
@@ -534,7 +556,7 @@ describe("group and title selection", () => {
         const deadline = Date.now() + 2_000;
         while (alive() && Date.now() < deadline) await Bun.sleep(25);
         expect(alive()).toBe(false);
-    });
+    }, 10_000);
 });
 
 describe("durable identity, reuse, and recovery", () => {

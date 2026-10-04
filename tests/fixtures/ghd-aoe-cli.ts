@@ -36,8 +36,6 @@ interface Fixture {
         stderr?: string;
         exitCode?: number;
         delayMs?: number;
-        spawnChild?: boolean;
-        childPidFile?: string;
     };
     failures?: {
         wt?: boolean;
@@ -91,15 +89,7 @@ if (command === "gh") {
 if (command === "claude") {
     const fixture = await readFixture();
     const inference = fixture.inference ?? {};
-    if (inference.spawnChild) {
-        const pidFile = inference.childPidFile;
-        if (!pidFile) throw new Error("childPidFile is required");
-        Bun.spawn(["/bin/sh", "-c", 'printf "%s" "$$" > "$1"; exec sleep 60', "sh", pidFile], {
-            stdout: "ignore",
-            stderr: "ignore",
-        });
-        await Bun.sleep(60_000);
-    } else if (inference.delayMs) {
+    if (inference.delayMs) {
         await Bun.sleep(inference.delayMs);
     }
     if (inference.output) console.log(inference.output);

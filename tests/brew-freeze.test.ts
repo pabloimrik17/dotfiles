@@ -31,8 +31,8 @@ function assertVersionCoverage(source: string): void {
     const versions = arrayTokens(source, "BREW_VERSIONS");
     const rows = versions.map((row) => row.split("|"));
     const versionNames = rows.map(([name]) => name);
-    expect(frozen).toHaveLength(36);
-    expect(rows).toHaveLength(36);
+    expect(frozen).toHaveLength(37);
+    expect(rows).toHaveLength(37);
     for (const [name, version] of rows) {
         expect(name).toBeTruthy();
         expect(version).toBeTruthy();
