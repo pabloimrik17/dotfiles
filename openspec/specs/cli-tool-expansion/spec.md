@@ -7,13 +7,13 @@ TBD - created by archiving change mac-dev-setup. Update Purpose after archive.
 
 ### Requirement: BREW_PACKAGES array includes all actively used CLI tools
 
-The `BREW_PACKAGES` array SHALL contain the following 31 packages:
+The `BREW_PACKAGES` array SHALL contain the following 32 packages:
 
 `git`, `git-delta`, `starship`, `eza`, `bat`, `zoxide`, `atuin`, `fzf`, `ripgrep`,
 `lazygit`, `worktrunk`, `terminal-notifier`, `fd`, `direnv`, `beads`, `gh`, `tmux`,
 `uv`, `mas`, `wget`, `television`, `tarkah/tickrs/tickrs`, `achannarasappa/tap/ticker`,
 `age`, `mole`, `aoe`, `glow`, `mdfried`, `AlexsJones/llmfit/llmfit`, `tuicr`,
-`schpet/tap/linear`
+`schpet/tap/linear`, `googleworkspace-cli`
 
 Packages sourced from a third-party tap SHALL be listed by their fully-qualified name
 (`<user>/<tap>/<formula>`), not by bare formula name. Homebrew 6 refuses to load a formula from an
@@ -33,6 +33,11 @@ use the identity `pkg_bin` mapping (binary name equals package name).
 `tuicr` is also in `homebrew/core`, so it requires no `BREW_TAPS` entry, and it uses the identity
 `pkg_bin` mapping.
 
+`googleworkspace-cli` is also in `homebrew/core`, so it requires no `BREW_TAPS` entry. Its binary is
+`gws`, not the package name, so it needs its own `pkg_bin` arm. The unrelated `homebrew/core`
+formula named `gws` SHALL NOT appear in `BREW_PACKAGES`: it installs a different `gws` binary, and
+Homebrew declares the two formulae as conflicting.
+
 For llmfit the qualification also selects the channel: the bare name `llmfit` SHALL NOT be used,
 because it resolves to the `homebrew/core` formula instead of the tap the `llmfit-install`
 capability requires.
@@ -40,7 +45,7 @@ capability requires.
 #### Scenario: All packages listed in array
 
 - **WHEN** the install script is loaded
-- **THEN** the `BREW_PACKAGES` array contains exactly 31 entries
+- **THEN** the `BREW_PACKAGES` array contains exactly 32 entries
 
 #### Scenario: opencode absent from array
 
@@ -167,6 +172,17 @@ capability requires.
 - **WHEN** `pkg_bin "schpet/tap/linear"` is called
 - **THEN** the function returns `linear` (via a dedicated `case` arm, not the identity mapping)
 
+#### Scenario: googleworkspace-cli listed in array
+
+- **WHEN** the install script is loaded
+- **THEN** the `BREW_PACKAGES` array contains `googleworkspace-cli`
+- **AND** it does NOT contain the unrelated formula `gws`
+
+#### Scenario: googleworkspace-cli maps to the gws binary
+
+- **WHEN** `pkg_bin "googleworkspace-cli"` is called
+- **THEN** the function returns `gws` (via a dedicated `case` arm, not the identity mapping)
+
 ### Requirement: pkg_bin function maps all packages to their binary names
 
 The `pkg_bin()` function SHALL map package names to their command-line binary names for idempotency checks. The following mappings SHALL exist:
@@ -182,6 +198,7 @@ The `pkg_bin()` function SHALL map package names to their command-line binary na
 | `achannarasappa/tap/ticker` | `ticker` |
 | `AlexsJones/llmfit/llmfit`  | `llmfit` |
 | `schpet/tap/linear`         | `linear` |
+| `googleworkspace-cli`       | `gws`    |
 
 All other packages SHALL map to their own name (identity mapping via the default `*` case).
 
@@ -189,6 +206,9 @@ The four qualified rows exist for a different reason than the others: the binary
 the package name is tap-qualified. `command -v achannarasappa/tap/ticker` can never succeed, so
 without an explicit arm the idempotency check fails on every run and the script reinstalls a package
 that is already present. Any future tap-qualified entry SHALL likewise get its own arm.
+
+The `googleworkspace-cli` row is a renamed binary, like `ripgrep` → `rg`: the formula installs a
+binary called `gws`, so `command -v googleworkspace-cli` can never succeed.
 
 #### Scenario: git-delta maps to delta
 
@@ -207,6 +227,11 @@ that is already present. Any future tap-qualified entry SHALL likewise get its o
   `schpet/tap/linear`)
 - **THEN** the function returns the bare binary name (`tickrs`, `ticker`, `llmfit`, `linear`), so
   the `command -v` skip check probes the real binary
+
+#### Scenario: googleworkspace-cli maps to gws
+
+- **WHEN** `pkg_bin "googleworkspace-cli"` is called
+- **THEN** the function returns `gws`, so the `command -v` skip check probes the real binary
 
 ### Requirement: git formula uses brew-specific installation check
 

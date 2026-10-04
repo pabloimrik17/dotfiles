@@ -167,7 +167,7 @@ The rule if that stops holding: if any open change is revised to MODIFY the serv
 
 The same rule applies to `BREW_PACKAGES`, as add-linear-cli did after add-tuicr.
 
-The table's stdio versions are copied verbatim from `main`. They already lag the script, because Renovate bumps the pins without spec deltas, and refreshing them is outside this change.
+The table's stdio versions match the current install-script declarations. Verification refreshed five inherited stale rows without changing the installed pins. Future Renovate updates should reconcile the table when this requirement is next modified.
 
 ### D8. Offline tests; live checks are user-run, and the deny is never tested by calling the tool
 
@@ -183,6 +183,8 @@ Tests:
   - `CODEX_HTTP_MCP_SERVERS`, `dot_config/opencode/opencode.jsonc` and the Junie merge template carry no `ibkr`;
   - the rendered settings template's `permissions.deny` holds both exact instruction-write rules plus every bash rule, while position, order and instruction reads remain unblocked;
   - no `mcp__ibkr__` entry appears in allow or ask; the merge restores either missing deny, replaces the obsolete read deny, preserves unrelated keys and converges on re-apply.
+
+An optional live check in `tests/ibkr-mcp.test.ts`, enabled with `DOTFILES_TEST_LIVE_MCP=1`, sends a `get_account_positions` request to the declared IBKR endpoint without credentials. It requires HTTP 401 with a Bearer authentication challenge, then initializes the declared public DeepWiki server in the same process and requires a successful MCP response. It neither reads local credentials nor changes any OAuth grant. Normal test runs keep this check disabled and remain offline.
 
 The live checks need the user's own accounts and run after merge. The deny is verified by inspection, through `/permissions` and `jq` on `~/.claude/settings.json`, never by invoking `create_order_instruction` or `delete_order_instruction`. If the denies were misconfigured, a test call would change a real instruction.
 

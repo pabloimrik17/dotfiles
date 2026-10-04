@@ -8,12 +8,12 @@
 
 | Name            | Type  | Command/URL                                            |
 | --------------- | ----- | ------------------------------------------------------ |
-| eslint          | stdio | `npx -y @eslint/mcp@0.3.10`                            |
-| context7        | stdio | `npx -y @upstash/context7-mcp@2.1.2`                   |
-| knip            | stdio | `npx -y @knip/mcp@0.0.34`                              |
+| eslint          | stdio | `npx -y @eslint/mcp@0.3.12`                            |
+| context7        | stdio | `npx -y @upstash/context7-mcp@4.1.1`                   |
+| knip            | stdio | `npx -y @knip/mcp@0.0.36`                              |
 | memory          | stdio | `npx -y @modelcontextprotocol/server-memory@2026.7.4`  |
-| playwright      | stdio | `npx -y @playwright/mcp@0.0.79`                        |
-| chrome-devtools | stdio | `npx -y chrome-devtools-mcp@0.18.1`                    |
+| playwright      | stdio | `npx -y @playwright/mcp@0.0.81`                        |
+| chrome-devtools | stdio | `npx -y chrome-devtools-mcp@1.9.0`                     |
 | expect          | stdio | `npx -y expect-cli@0.1.3 mcp`                          |
 | fallow          | stdio | `fallow-mcp` (PATH binary from the global npm install) |
 | gh_grep         | http  | `https://mcp.grep.app`                                 |
