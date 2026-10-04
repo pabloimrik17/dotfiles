@@ -144,7 +144,7 @@ Steps marked **USER** handle plaintext. Run them in your own terminal, outside a
   - One `mcp__ibkr__get_account_positions` call returns the account's positions.
   - One `mcp__ibkr__get_account_orders` call returns the active orders.
   - No IBKR value is written to any repository.
-- [ ] 5.3 Hand the first-connect observations to `add-stonks-plugin`, where they are recorded with fictionalised fixtures: the IBKR re-login interval, and whether `get_account_orders` exposes trailing-stop type and trail %. Verify that nothing about them is added to this repository.
+- [x] 5.3 Hand the first-connect observations to `add-stonks-plugin`, where they are recorded with fictionalised fixtures: the IBKR re-login interval, and whether `get_account_orders` exposes trailing-stop type and trail %. Verify that nothing about them is added to this repository.
 
 ## Implementation observations
 
