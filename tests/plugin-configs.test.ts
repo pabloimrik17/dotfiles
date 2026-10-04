@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
-import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -62,7 +62,10 @@ async function isolatedChezmoi() {
 describe("plugin configuration sources", () => {
     test.each(plugins)("dot_config/%s holds only the age-encrypted config", async (plugin) => {
         const directory = path.join(repositoryRoot, "dot_config", plugin);
-        expect(await readdir(directory)).toEqual([sourceName]);
+        const files = run(["git", "ls-files", "-co", "--exclude-standard", `dot_config/${plugin}`])
+            .stdout.trim()
+            .split("\n");
+        expect(files).toEqual([`dot_config/${plugin}/${sourceName}`]);
 
         const header = (await readFile(path.join(directory, sourceName)))
             .subarray(0, 35)

@@ -77,17 +77,22 @@ When `~/.config/chezmoi/key.txt` is missing or unreadable, `chezmoi apply` SHALL
 
 ### Requirement: Missing files are recovered by apply or reported by the plugin
 
-A deleted target SHALL be restored from the encrypted source on the next `chezmoi apply`. When the encrypted source of a plugin configuration is absent from the source tree, chezmoi SHALL NOT manage that path: it SHALL write nothing there and SHALL leave any unmanaged file at that path untouched. In that case the plugin reports its own missing-file error. The dotfiles SHALL NOT deploy the plugin's `config.example.json`, an empty file, or any default in its place.
+A deleted target SHALL be restored from the encrypted source on the next `chezmoi apply` once the user confirms chezmoi's overwrite prompt for a target changed since its last write, or with `--force`. When the encrypted source of a plugin configuration is absent from the source tree, chezmoi SHALL NOT manage that path: it SHALL write nothing there and SHALL leave any unmanaged file at that path untouched. A file deployed before the source was removed stays, and the plugin keeps reading it. When no file exists at that path, the plugin reports its own missing-file error. The dotfiles SHALL NOT deploy the plugin's `config.example.json`, an empty file, or any default in its place.
 
 #### Scenario: Deleted target is restored
 
 - **WHEN** `~/.config/stonks/config.json` is deleted and `chezmoi apply` runs with the identity
-- **THEN** the file is written again from `dot_config/stonks/encrypted_private_config.json.age` with mode 600
+- **THEN** chezmoi asks before overwriting the changed target, and answering `overwrite`, or running with `--force`, writes the file again from `dot_config/stonks/encrypted_private_config.json.age` with mode 600
 
 #### Scenario: Source absent, nothing is deployed
 
-- **WHEN** the source tree has no `dot_config/stonks/encrypted_private_config.json.age` and `chezmoi apply` runs
-- **THEN** chezmoi neither creates nor modifies `~/.config/stonks/config.json`, and running the plugin reports the plugin's own missing-configuration error naming the path
+- **WHEN** the source tree has no `dot_config/stonks/encrypted_private_config.json.age`, `~/.config/stonks/config.json` does not exist, and `chezmoi apply` runs
+- **THEN** chezmoi does not create `~/.config/stonks/config.json`, and running the plugin reports the plugin's own missing-configuration error naming the path
+
+#### Scenario: Removed source leaves the deployed file
+
+- **WHEN** `dot_config/stonks/encrypted_private_config.json.age` is removed after `~/.config/stonks/config.json` was deployed, and `chezmoi apply` runs
+- **THEN** chezmoi leaves `~/.config/stonks/config.json` untouched, and the plugin keeps reading it
 
 ### Requirement: Configuration validity is the plugin's concern, not chezmoi's
 
