@@ -13,6 +13,8 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
 
             - name: Setup Bun
               uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
@@ -22,7 +24,7 @@ jobs:
             - name: Install test prerequisites
               run: |
                   brew install chezmoi jq uv
-                  uv tool install --managed-python 'claude-swap==0.26.0'
+                  uv tool install --managed-python 'claude-swap[menubar]==0.26.0'
                   echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
             - name: Install dependencies
