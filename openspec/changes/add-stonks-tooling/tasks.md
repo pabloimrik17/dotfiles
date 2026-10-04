@@ -89,20 +89,20 @@ Steps marked **USER** handle plaintext. Run them in your own terminal, outside a
   - `/mcp` → authenticate `ibkr`;
   - IBKR's login with 2FA, its AI agreements and the single-account choice;
   - revocation under Client Portal → Settings → Manage Third-Party Consents;
-  - that `get_order_instructions` is denied in the managed settings.
+  - that `create_order_instruction` and `delete_order_instruction` are denied in the managed settings, while `get_account_positions` and `get_account_orders` remain readable.
 
   Verify with a test on the macOS render that the line names each item and carries no account identifier.
-- [x] 3.3 Append `"mcp__ibkr__get_order_instructions"` to `permissions.deny` in `dot_claude/modify_settings.json.tmpl`. Add no IBKR rule to `permissions.allow` or `permissions.ask` (design D6).
+- [x] 3.3 Replace the obsolete `"mcp__ibkr__get_order_instructions"` deny with exact `"mcp__ibkr__create_order_instruction"` and `"mcp__ibkr__delete_order_instruction"` rules in `permissions.deny` in `dot_claude/modify_settings.json.tmpl`. Add no IBKR rule to `permissions.allow` or `permissions.ask` (design D6).
 
   Verify with `tests/ibkr-mcp.test.ts`, which renders the template with `chezmoi execute-template` and parses the `MANAGED` JSON. It must check that:
-  - `permissions.deny` contains the exact rule and every bash rule required by "Deny rules block dangerous bash commands";
-  - no other `mcp__ibkr__` string appears in `allow`, `ask` or `deny`, and no `mcp__ibkr__*` wildcard exists;
-  - the server name in `MCP_HTTP_SERVERS` and the `mcp__<name>__` prefix of the deny rule agree. This is the rename guard from `mcp-global-config`.
+  - `permissions.deny` contains both exact instruction-write rules and every bash rule required by "Deny rules block dangerous bash commands";
+  - the only IBKR denies are those two instruction-write rules, with positions, active orders and instruction reads unblocked; no IBKR entry appears in `allow` or `ask`, and no `mcp__ibkr__*` wildcard exists;
+  - the server name in `MCP_HTTP_SERVERS` and the `mcp__<name>__` prefixes of both deny rules agree. This is the rename guard from `mcp-global-config`.
 - [x] 3.4 Run the `sync-agent-config` skill on the `MCP_HTTP_SERVERS` change, and decline replication to Codex, OpenCode and Junie (design D5). Record an `IBKR MCP` row in `.agents/skills/sync-agent-config/parity.md`: Codex, OpenCode and Junie are `none`, and the note gives the reason (the order-drafting deny exists only in Claude Code; the only consumer is the Claude Code `stonks` plugin). Verify with a test that asserts the row and its three `none` cells.
 - [x] 3.5 Update `README.md` ("MCP Servers": count 16 → 17 and an `ibkr` row) and the Claude Code "MCP servers" table of `docs/manual.html` (not the OpenCode tables) through the `update-readme` and `update-manual` skills. Each row says:
   - read access to positions and orders, for the `stonks` plugin;
   - OAuth on first use through `/mcp`;
-  - order drafting denied;
+  - order instruction creation and deletion denied;
   - Claude Code only.
 
   Verify three things:
@@ -125,11 +125,11 @@ Steps marked **USER** handle plaintext. Run them in your own terminal, outside a
   - `jq '.mcpServers.ibkr' ~/.claude.json` shows no `headers` or OAuth client fields;
   - the second run reports `MCP servers: 17/17 registered (all up to date)`.
 - [x] 4.4 Round trip the client file into a temporary home with the real identity: `chezmoi --source "$WT" --destination "$TMP" --persistent-state "$TMP/state.boltdb" apply --parent-dirs --force "$TMP/.config/gws/client_secret.json"`. Verify: the file has mode 600, `cmp` against the live file prints `identical`, `$TMP/.config/gws/` was created, a deleted target is restored on re-apply, and `rm -rf "$TMP"` leaves nothing behind. Then check for leaks: `git -C "$WT" status --porcelain` lists only the `.age` source, the tests, the docs, the install script, the settings template, the parity row and this change directory, and no file in the diff outside the `.age` source contains JSON taken from the client file.
-- [x] 4.5 Run `chezmoi diff` against the worktree and confirm that the only settings change is the new deny line. After `chezmoi apply`, verify by inspection only:
-  - `jq '.permissions.deny' ~/.claude/settings.json` contains `mcp__ibkr__get_order_instructions`;
-  - `/permissions` in a new Claude Code session lists it under Deny.
+- [x] 4.5 Run `chezmoi diff` against the worktree and confirm that the only settings change replaces the obsolete read-tool deny with the two exact instruction-write denies. After `chezmoi apply`, verify by inspection only:
+  - `jq '.permissions.deny' ~/.claude/settings.json` contains both `mcp__ibkr__create_order_instruction` and `mcp__ibkr__delete_order_instruction`, and not the obsolete `get_order_instructions` deny;
+  - `/permissions` in a new Claude Code session lists both rules under Deny.
 
-  Do not call `get_order_instructions` to test the deny (design D8).
+  Do not call `create_order_instruction` or `delete_order_instruction` to test the denies (design D8).
 
 ## 5. First use (user-run, needs the user's own accounts)
 
@@ -138,25 +138,25 @@ Steps marked **USER** handle plaintext. Run them in your own terminal, outside a
   - the consent screen reads "In production";
   - the Google account's third-party access page lists only read access to Sheets for the app;
   - no file under the chezmoi source changed, and the refresh token stays in gws's encrypted store with its encryption key in the macOS Keychain, never in the repo.
-- [ ] 5.2 In Claude Code, run `/mcp` and authenticate `ibkr`: IBKR login with 2FA, the AI agreements, one account. Verify five things:
+- [x] 5.2 In Claude Code, run `/mcp` and authenticate `ibkr`: IBKR login with 2FA, the AI agreements, one account. Verify five things:
   - `/mcp` shows the server connected, and no other IBKR server, for example a claude.ai connector, is present. Disconnect any that is.
-  - The tool list matches the ten documented tools. If any other tool can create, modify, cancel or submit orders, stop and open a follow-up that denies it before the server is used again.
+  - Compare the tool list and capabilities with the observed first-connect catalog (34 tools in the UI, 33 identifiers reported by the session). Verify the creation/deletion guards and the `get_account_orders` read identifier. If any other tool can create, modify, cancel or submit orders, stop and open a follow-up that denies it before the server is used again.
   - One `mcp__ibkr__get_account_positions` call returns the account's positions.
-  - One `mcp__ibkr__get_orders` call returns the active orders.
+  - One `mcp__ibkr__get_account_orders` call returns the active orders.
   - No IBKR value is written to any repository.
-- [ ] 5.3 Hand the first-connect observations to `add-stonks-plugin`, where they are recorded with fictionalised fixtures: the IBKR re-login interval, and whether `get_orders` exposes trailing-stop type and trail %. Verify that nothing about them is added to this repository.
+- [ ] 5.3 Hand the first-connect observations to `add-stonks-plugin`, where they are recorded with fictionalised fixtures: the IBKR re-login interval, and whether `get_account_orders` exposes trailing-stop type and trail %. Verify that nothing about them is added to this repository.
 
 ## Implementation observations
 
-- IBKR registration, Claude-only parity, OAuth guidance and the exact drafting deny are verified by offline tests; the merge test restores a missing deny while preserving unrelated settings.
+- IBKR registration, Claude-only parity and OAuth guidance are verified by offline tests. The approved correction replaces the obsolete read-tool deny with exact instruction-creation/deletion rules; tests cover missing-rule restoration, migration, unrelated-key preservation and re-apply convergence.
 - Google first use: the user confirmed production publishing and Sheets-only read access. The read check returned `range`, `majorDimension`, and `values`, with numeric prices represented as JSON numbers. A trailing space in the tab name caused the initial range error; removing it fixed the read. No personal identifiers or cell values are recorded here.
 - Verified upstream `v0.22.5` credential storage: encrypted `credentials.enc`, with the encryption key in the macOS Keychain. This host has `credentials.enc` and no `.encryption_key` fallback file. Only the encrypted client definition is managed. The user approved correcting the plan wording to match this behavior.
 - OAuth client verification: mode 600, age header, empty targeted chezmoi status, decrypted/live equality, and exactly one gws source. The guard fails with the ciphertext absent and passes once restored; a missing identity prevents deployment without creating the client file.
 - Client round trip: an isolated home creates the parents with `--parent-dirs`; both first apply and restoration with `--force` match the live file with mode 600. Temporary files are removed and client/project identifiers are absent from changed plaintext sources.
 - Brew freeze: both runs exit 0 without output or drift; the second changes no pin, and the state records `formula googleworkspace-cli`. The binary is the Google Workspace CLI at 0.22.5 under the Homebrew prefix.
 - MCP registration: the real Group 8.5 registers IBKR with only its HTTP type and URL. The second run reports `17/17 registered (all up to date)`. Existing stdio registrations were reconciled to their declared pins.
-- IBKR first use: the user completed authentication, and `claude mcp get ibkr` reports Connected at the declared HTTP endpoint. The user's tool-list screenshot exposes 34 tools, including Create Order Instruction and Delete Order Instruction, instead of the ten planned tools. Position/order reads are paused pending exact-name verification and a follow-up deny correction; the current exact deny does not cover those displayed creation/deletion tools. No account values are recorded here.
+- IBKR first use: the user completed authentication, and `claude mcp get ibkr` reports Connected at the declared HTTP endpoint. The user's tool-list screenshot exposes 34 tools, including Create Order Instruction and Delete Order Instruction, instead of the ten planned tools. The user subsequently supplied 33 internal identifiers, confirming `create_order_instruction`, `delete_order_instruction` and `get_account_orders`, and approved correcting the settings, plan, tests and docs. After confirming the new permission rules, the user verified that both position and active-order reads work. No account values are recorded here.
 - Manual browser verification: IBKR appears only in the Claude Code table. Desktop rendering passes. Mobile overflow is unchanged from the pre-change manual (1180px document width at a 375px viewport); no new overflow was introduced.
-- Settings after synchronizing origin/main: the source adds only the IBKR deny relative to main. Targeted apply (`--exclude scripts`) preserves the current Matt marketplace and keeps its retired official plugin absent; the settings diff converges. The user confirmed the exact rule appears under Deny in `/permissions` in a new Claude Code session.
+- Settings after synchronizing origin/main: the source adds only the IBKR denies relative to main. Targeted apply (`--exclude scripts`) replaces the obsolete read-tool deny with both exact instruction-write rules, preserves every unrelated setting and other deny, and converges to an empty settings diff. The user confirmed both replacements appear under Deny in a new Claude Code session, with the obsolete rule absent.
 - The user approved a test-only correction to the existing `ghd-aoe` process-group deadline check: 500 ms to 3 s, and its duration bound from 900 ms to 3.4 s. This permits the child fixture to start on this host while still checking deadline termination; the production inference timeout remains 10 s. The candidate check passed independently.
-- Full local suite passes after host load subsided: `bun test` exits 0 with 174 passes, no failures, and 954 assertions. Formatting, Fallow and strict OpenSpec validation also exit 0. The approved deadline correction passes independently; no production timeout or unrelated test behavior was changed.
+- After the catalog correction, the full local suite passes: `bun test` exits 0 with 177 passes, no failures, and 986 assertions. Formatting, Fallow and strict OpenSpec validation also exit 0. The approved deadline correction passes independently; no production timeout or unrelated test behavior was changed.

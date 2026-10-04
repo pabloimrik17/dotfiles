@@ -3294,10 +3294,13 @@
                                 <td>
                                     OAuth on first use: open <code>/mcp</code> and authenticate
                                     <code>ibkr</code>. Complete IBKR login with 2FA, accept its AI
-                                    agreements and select one account. Order drafting through
-                                    <code>mcp__ibkr__get_order_instructions</code> is denied in the
-                                    managed settings. Revoke access in Client Portal &rarr; Settings
-                                    &rarr; Manage Third-Party Consents.
+                                    agreements and select one account. The managed settings deny
+                                    <code>mcp__ibkr__create_order_instruction</code> and
+                                    <code>mcp__ibkr__delete_order_instruction</code>. Reads through
+                                    <code>mcp__ibkr__get_account_positions</code> and
+                                    <code>mcp__ibkr__get_account_orders</code> remain available.
+                                    Revoke access in Client Portal &rarr; Settings &rarr; Manage
+                                    Third-Party Consents.
                                 </td>
                             </tr>
                             <tr>

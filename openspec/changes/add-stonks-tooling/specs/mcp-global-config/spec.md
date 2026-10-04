@@ -98,10 +98,10 @@ The install script SHALL register Interactive Brokers' official MCP server throu
 
 The name SHALL be exactly `ibkr`. It is a contract with two consumers:
 
-- The `stonks` plugin in the `daily-agentic-task-force` marketplace calls `mcp__ibkr__get_account_positions` and `mcp__ibkr__get_orders`.
-- The deny rule in `claude-user-preferences` targets `mcp__ibkr__get_order_instructions`.
+- The read identifiers required by the `stonks` plugin in the `daily-agentic-task-force` marketplace are `mcp__ibkr__get_account_positions` and `mcp__ibkr__get_account_orders`.
+- The deny rules in `claude-user-preferences` target `mcp__ibkr__create_order_instruction` and `mcp__ibkr__delete_order_instruction`.
 
-Under any other name the plugin cannot find its tools, and the deny rule matches nothing, which would leave the order-drafting tool callable. A change that renames the server SHALL move the deny rule in the same change.
+Under any other name the plugin cannot find its tools, and the deny rules match nothing, which would leave instruction creation and deletion callable. A change that renames the server SHALL move both deny rules in the same change.
 
 #### Scenario: Claude Code has IBKR
 
@@ -117,12 +117,12 @@ Under any other name the plugin cannot find its tools, and the deny rule matches
 #### Scenario: Tool identifiers follow the server name
 
 - **WHEN** the server is connected in a Claude Code session
-- **THEN** its tools SHALL be exposed as `mcp__ibkr__<tool>`, including `mcp__ibkr__get_account_positions`, `mcp__ibkr__get_orders` and `mcp__ibkr__get_order_instructions`
+- **THEN** its tools SHALL be exposed as `mcp__ibkr__<tool>`, including `mcp__ibkr__get_account_positions`, `mcp__ibkr__get_account_orders`, `mcp__ibkr__create_order_instruction` and `mcp__ibkr__delete_order_instruction`
 
-#### Scenario: Renaming the server carries the deny rule
+#### Scenario: Renaming the server carries both deny rules
 
 - **WHEN** a change replaces the `ibkr` name in `MCP_HTTP_SERVERS`
-- **THEN** the same change SHALL replace `mcp__ibkr__get_order_instructions` in `permissions.deny` with the identifier under the new name
+- **THEN** the same change SHALL replace both `mcp__ibkr__create_order_instruction` and `mcp__ibkr__delete_order_instruction` in `permissions.deny` with their identifiers under the new name
 
 ### Requirement: IBKR MCP is not registered in other coding agents
 
@@ -153,13 +153,13 @@ The "Manual Installation Required" section of the install script SHALL include a
 - `/mcp` as the place to authenticate `ibkr`;
 - the login, agreement and account-choice steps;
 - revocation under Client Portal → Settings → Manage Third-Party Consents;
-- the fact that the order-drafting tool is denied in the managed Claude Code settings.
+- the fact that order instruction creation and deletion are denied in the managed Claude Code settings.
 
 #### Scenario: Manual instructions cover IBKR authentication
 
 - **WHEN** the install script reaches the manual instructions section on macOS
 - **THEN** it SHALL print a line stating that the IBKR MCP requires OAuth authentication through `/mcp`
-- **AND** the line SHALL name IBKR's login and AI agreements, the single-account choice, the Manage Third-Party Consents revocation path, and the denied order-drafting tool
+- **AND** the line SHALL name IBKR's login and AI agreements, the single-account choice, the Manage Third-Party Consents revocation path, and both denied order instruction tools
 
 #### Scenario: IBKR tools are unavailable until authenticated
 

@@ -30,8 +30,8 @@ This change delivers those three things through the same mechanisms the repo alr
   - OAuth happens on first use through `/mcp` (IBKR's login screen with 2FA, its AI agreements, one account). No secret is stored in the repo.
   - A manual-instructions line covers the login and how to revoke access.
   - The server is registered for Claude Code only. Codex, OpenCode and Junie get no entry, because the order-drafting deny exists only in Claude Code's settings.
-- **The order-drafting tool is denied.** `permissions.deny` in `dot_claude/modify_settings.json.tmpl` gains the exact rule `mcp__ibkr__get_order_instructions`, so no session can draft an order. No other IBKR tool is denied, so reading positions and orders stays allowed, and no `mcp__ibkr__*` wildcard is used.
-- **No global allow rule for the IBKR reads, on purpose.** The `stonks` plugin's `/stonks:sync` command pre-approves `mcp__ibkr__get_account_positions` and `mcp__ibkr__get_orders` through its own `allowed-tools`. The dotfiles add nothing to `permissions.allow` or `permissions.ask` for IBKR, so a reader should not take the missing rule for an omission. The approval is scoped to that command and does not apply in any other session.
+- **Order instruction creation and deletion are denied.** `permissions.deny` in `dot_claude/modify_settings.json.tmpl` gains the exact rules `mcp__ibkr__create_order_instruction` and `mcp__ibkr__delete_order_instruction`. They replace the originally planned `get_order_instructions` deny, which targets a read tool in the observed catalog. No other IBKR tool is denied; position and order reads remain available, and no `mcp__ibkr__*` wildcard is used. Alert, watchlist and feedback writes are outside this guard.
+- **No global allow rule for the IBKR reads, on purpose.** The plugin must use `mcp__ibkr__get_account_positions` and `mcp__ibkr__get_account_orders`, with read pre-approvals owned by its command's `allowed-tools`. The originally planned `get_orders` name does not appear in the user's connected catalog; verifying the plugin's identifiers belongs to `add-stonks-plugin`. The dotfiles add nothing to `permissions.allow` or `permissions.ask` for IBKR, so a reader should not take the missing rule for an omission. The approval is scoped to that command and does not apply in any other session.
 - **Docs and parity.**
   - README: a "What's Included" row for `gws`, an `ibkr` row in the MCP Servers table, and the count raised to 17.
   - `docs/manual.html`: matching updates.
@@ -67,7 +67,7 @@ Out of scope:
     - OAuth on first use with no stored credential;
     - the manual-instructions line;
     - no local update lifecycle.
-- `claude-user-preferences`: a new requirement denies `mcp__ibkr__get_order_instructions` exactly, leaves every other IBKR tool undenied and forbids an `mcp__ibkr__*` wildcard. The existing bash deny requirement is not modified.
+- `claude-user-preferences`: a new requirement denies `mcp__ibkr__create_order_instruction` and `mcp__ibkr__delete_order_instruction` exactly, leaves every other IBKR tool undenied and forbids an `mcp__ibkr__*` wildcard. The existing bash deny requirement is not modified.
 
 The `brew-version-pins` rules already cover a new homebrew/core formula, so that capability does not change.
 
@@ -76,7 +76,7 @@ The `brew-version-pins` rules already cover a new homebrew/core formula, so that
 - **Files touched by the implementation:**
   - `dot_config/gws/encrypted_private_client_secret.json.age`: the encrypted OAuth client file, created by the user (design D4).
   - `run_onchange_install-packages.sh.tmpl`: `BREW_PACKAGES`, `pkg_bin`, `BREW_VERSIONS`, the consumer-check comment, a `gws` guidance function called on both branches, `MCP_HTTP_SERVERS`, the manual-instructions IBKR line, the two closing `CLI tools:` lines and the non-macOS list with its hint.
-  - `dot_claude/modify_settings.json.tmpl`: one `permissions.deny` entry.
+  - `dot_claude/modify_settings.json.tmpl`: two exact `permissions.deny` entries, replacing the obsolete read-tool deny.
   - Tests: `tests/brew-freeze.test.ts`, where the coverage count goes from 36 to 37, and a new `tests/googleworkspace-cli.test.ts`, which also guards the encrypted client file.
   - Docs: `README.md`, `docs/manual.html` and `.agents/skills/sync-agent-config/parity.md`.
 - **Dependencies:**
@@ -91,7 +91,7 @@ The `brew-version-pins` rules already cover a new homebrew/core formula, so that
   - `add-posthog-mcp` and `add-sentry-mcp`, both open on `main`, only add requirements to `mcp-global-config`. Neither modifies the server-table requirement this change modifies, so the three can archive in any order. See design D7 for the rule if that stops being true.
   - Both in-flight changes modify `claude-user-preferences` "MCP read-only tools are allowed". This change only adds a separate requirement there, so it does not collide with them.
 - **Cross-repo contract:**
-  - the MCP server name `ibkr`, which makes the tools `mcp__ibkr__get_account_positions`, `mcp__ibkr__get_orders` and `mcp__ibkr__get_order_instructions`;
+  - the MCP server name `ibkr`, which makes the tools `mcp__ibkr__get_account_positions`, `mcp__ibkr__get_account_orders` and the two exact instruction-write denies;
   - `gws` on `PATH`.
 
   The `add-stonks-plugin` PR merges after this change and after `add-plugin-configs`. This change and `add-plugin-configs` touch disjoint files and can merge in either order.

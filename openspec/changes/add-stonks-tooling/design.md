@@ -32,7 +32,7 @@ See proposal.md - Why. This design rests on these facts, checked on 2026-10-04.
   - Its OAuth metadata advertises dynamic client registration and PKCE public clients.
   - The protected resource advertises the scopes `mcp.read` and `mcp.write`.
   - The authorization server also lists `mcp.orders.submit`, but no public tool uses it.
-  - Its documented tools are `get_account_positions`, `get_orders`, `get_account_balances`, `get_account_summary`, `get_portfolio_allocation`, `get_trades`, `get_price_history`, `get_price_snapshot`, `search_contracts` and `get_order_instructions`. Only the last one writes anything: it drafts an instruction, which the user must approve in an IBKR app before it becomes an order.
+  - First connect exposes 34 tools in the user's UI, with 33 identifiers reported by the session. Confirmed reads include `get_account_positions` and `get_account_orders`; confirmed instruction writes are `create_order_instruction` and `delete_order_instruction`. The screenshot labels `get_order_instructions` read-only. Alerts, watchlists and feedback also expose mutations, which are outside this instruction guard. The originally planned ten-tool catalog and `get_orders` name are superseded by the user's observed metadata. No account data was fetched to inspect it.
   - Access is revocable under Client Portal → Settings → Manage Third-Party Consents.
 
 **In-flight changes on `main` that also touch these capabilities:**
@@ -54,7 +54,7 @@ Both are implemented, and neither is archived yet.
 
 **Non-Goals:**
 
-- Measuring the IBKR refresh-token lifetime, or whether `get_orders` exposes trailing-stop type and trail %. These are first-connect checks that belong to `add-stonks-plugin`, which captures fictionalised fixtures from them.
+- Measuring the IBKR refresh-token lifetime, or whether `get_account_orders` exposes trailing-stop type and trail %. These are first-connect checks that belong to `add-stonks-plugin`, which captures fictionalised fixtures from them.
 - Narrowing IBKR's OAuth grant to `mcp.read`. See Open Questions.
 - Managing the `gws` refresh token or any credential `gws` writes after login.
 - Write access to the sheet, and any Google tooling beyond `gws`.
@@ -129,30 +129,30 @@ The manual-instructions line covers three things:
 
 - authentication through `/mcp`;
 - IBKR's own steps (login with 2FA, its AI agreements, one account);
-- the revocation path, and the fact that drafting is denied.
+- the revocation path, and the fact that instruction creation and deletion are denied.
 
-### D6. An exact deny, as a new `claude-user-preferences` requirement
+### D6. Exact instruction-write denies, as a new `claude-user-preferences` requirement
 
-`mcp__ibkr__get_order_instructions` is appended to `permissions.deny`.
+`mcp__ibkr__create_order_instruction` and `mcp__ibkr__delete_order_instruction` are appended to `permissions.deny`. They replace the obsolete `mcp__ibkr__get_order_instructions` deny; that identifier describes a read tool in the observed catalog. The user approved this correction after first-connect metadata inspection.
 
 - **Why exact.** A `mcp__ibkr__*` deny would also block the reads the plugin needs.
-- **Why deny rather than `ask`.** A prompt can be approved by mistake, and the decision is that no session can draft orders.
+- **Why deny rather than `ask`.** A prompt can be approved by mistake, and the decision is that no session can create or delete order instructions.
 - **Why a new requirement.** "Deny rules block dangerous bash commands" is about bash categories, and an MCP rule would change its subject. It is also the requirement any future bash-deny change will modify. A separate ADDED requirement also keeps clear of the two in-flight changes, which both MODIFY other requirements of this capability.
 
 `permissions.deny` is a leaf in the merge, so `chezmoi apply` restores a rule that was removed by hand.
 
-No IBKR rule is added to `permissions.allow` or `permissions.ask`, and that is deliberate. The `stonks` plugin's `/stonks:sync` command pre-approves `mcp__ibkr__get_account_positions` and `mcp__ibkr__get_orders` through its own `allowed-tools`. The approval therefore lives with the one command that needs the reads, and no other session gets it. A missing global allow rule is not an omission. "Stays allowed" in the decision record means not blocked.
+No IBKR rule is added to `permissions.allow` or `permissions.ask`, and that is deliberate. The plugin's required read identifiers are `mcp__ibkr__get_account_positions` and `mcp__ibkr__get_account_orders`. Its own `allowed-tools` must use those names; checking the former `get_orders` reference belongs to the plugin follow-up. The approval therefore lives with the one command that needs the reads, and no other session gets it. A missing global allow rule is not an omission. "Stays allowed" in the decision record means not blocked.
 
 Outside `/stonks:sync`, an unmatched IBKR read reaches the safety classifier under `defaultMode: auto`, like every other unlisted MCP tool. If a global pre-approval is ever wanted, it should be two exact rules, never a wildcard. A wildcard would also cover any tool IBKR adds later.
 
-The exact deny leaves one gap: a drafting tool added to the server later, under another name, would not match it. IBKR's OAuth already advertises an `mcp.orders.submit` scope that no public tool uses. The mitigation is in the plugin: `/stonks:sync` warns at runtime when any `mcp__ibkr__*` tool outside the ten documented ones appears. The warning is not a deny. It tells the user to add a deny rule in a follow-up change, and task 5.2's first-connect tool-list check does the same once by hand.
+Exact denies cover the two verified instruction writes. Future tools that can create, modify, cancel or submit orders require their own deny before use. First-connect verification compares tool identifiers and capabilities with the observed catalog. The plugin must update its previous ten-tool catalog and `get_orders` reference; a runtime warning is not an enforcement rule. Alert, watchlist and feedback mutations are not blocked by this change.
 
 ### D7. Delta strategy and ordering with in-flight changes
 
 | Capability | add-posthog-mcp | add-sentry-mcp | this change |
 | --- | --- | --- | --- |
 | `mcp-global-config` | ADDED ×3 | ADDED ×2 | MODIFIED "Global MCP servers are registered via Claude CLI in install script" and "Template uses no machine-specific conditionals for MCP"; ADDED ×4 (IBKR) |
-| `claude-user-preferences` | MODIFIED "MCP read-only tools are allowed" | MODIFIED "MCP read-only tools are allowed", "Default permission mode is auto" | ADDED "IBKR order drafting tool is denied" |
+| `claude-user-preferences` | MODIFIED "MCP read-only tools are allowed" | MODIFIED "MCP read-only tools are allowed", "Default permission mode is auto" | ADDED "IBKR order instruction creation and deletion are denied" |
 | `cli-tool-expansion` | — | — | MODIFIED `BREW_PACKAGES`, `pkg_bin` |
 
 No requirement is touched by more than one of these changes, except the one the other two share with each other. So this change can archive before, between or after them. The deltas are written against the current `main` spec.
@@ -181,10 +181,10 @@ Tests:
 - **`tests/ibkr-mcp.test.ts`** checks four things:
   - `MCP_HTTP_SERVERS` holds exactly one `ibkr` entry at the URL;
   - `CODEX_HTTP_MCP_SERVERS`, `dot_config/opencode/opencode.jsonc` and the Junie merge template carry no `ibkr`;
-  - the rendered settings template's `permissions.deny` holds the exact rule plus every bash rule;
-  - no `mcp__ibkr__` entry appears anywhere else in the permission lists.
+  - the rendered settings template's `permissions.deny` holds both exact instruction-write rules plus every bash rule, while position, order and instruction reads remain unblocked;
+  - no `mcp__ibkr__` entry appears in allow or ask; the merge restores either missing deny, replaces the obsolete read deny, preserves unrelated keys and converges on re-apply.
 
-The live checks need the user's own accounts and run after merge. The deny is verified by inspection, through `/permissions` and `jq` on `~/.claude/settings.json`, never by invoking `get_order_instructions`. If the deny were misconfigured, a test call would draft a real instruction.
+The live checks need the user's own accounts and run after merge. The deny is verified by inspection, through `/permissions` and `jq` on `~/.claude/settings.json`, never by invoking `create_order_instruction` or `delete_order_instruction`. If the denies were misconfigured, a test call would change a real instruction.
 
 ## Risks / Trade-offs
 
@@ -193,7 +193,7 @@ The live checks need the user's own accounts and run after merge. The deny is ve
 - [Intel host: the bottle pours today from residual stock] → On `amd64`, a future upgrade of `googleworkspace-cli` is a source build that pulls in `rust` as a build dependency. That cost is an `amd64` statement per `brew-version-pins`. `arm64` keeps pouring.
 - [Consent screen left in "Testing"] → Refresh tokens die after 7 days. The guidance names "In production" explicitly, and the symptom is a weekly forced re-login.
 - [A plain `gws auth login` grants Drive, Gmail and more] → The guidance names only the `--scopes` form. Recovery: revoke the app's access in the Google account, then log in again with the single scope.
-- [IBKR's server is new, so its tools and output shapes may change. The authorization server already lists `mcp.orders.submit`.] → An exact deny covers exactly one tool by design, because a wildcard would block the reads. On first connect, the verification task compares the server's tool list with the ten documented tools. Any new tool that can create, modify, cancel or submit orders gets its own deny rule, in a follow-up change, before the server is used again. At runtime, `/stonks:sync` warns whenever an unknown `mcp__ibkr__*` tool shows up (D6).
+- [IBKR's tool catalog changes] → First connect already exposed 34 tools instead of the planned ten. Exact denies now target the verified creation and deletion identifiers. New order-writing tools require their own deny before further use. The plugin's catalog and read identifiers need a matching follow-up; warning about unknown tools does not block calls (D6).
 - [An IBKR server reachable under another prefix, such as the claude.ai connector or a hand-added entry] → Its drafting tool would not be denied. The verification task checks that `/mcp` shows IBKR only as `ibkr`, and any other IBKR entry is disconnected.
 - [Renaming `ibkr`] → The deny would silently match nothing. The spec ties a rename to moving the deny, and `tests/ibkr-mcp.test.ts` asserts both.
 - [Registered on every host, work machines included] → This follows the no-conditionals requirement. The server holds no account data until the user completes OAuth on that host, and that login is a per-host choice.
@@ -201,7 +201,7 @@ The live checks need the user's own accounts and run after merge. The deny is ve
 
 ## Migration Plan
 
-1. Merge, then run `chezmoi update` on each host. The brew group installs and pins `googleworkspace-cli`. The MCP group reports one pending server and registers `ibkr` (17 total). The settings merge writes the deny rule.
+1. Merge, then run `chezmoi update` on each host. The brew group installs and pins `googleworkspace-cli`. The MCP group reports one pending server and registers `ibkr` (17 total). The settings merge writes both exact instruction-write denies and removes the obsolete read-tool deny.
 2. The user does the one-time steps. Once ever, the Google setup and encrypting the client file (done during implementation). On each host, `gws auth login`, then the IBKR login through `/mcp`.
 3. Archive in any order relative to `add-posthog-mcp` and `add-sentry-mcp` (D7).
 4. Cross-repo: `add-stonks-plugin` merges after this change and after `add-plugin-configs`. Those two dotfiles changes touch disjoint files and can merge in either order.

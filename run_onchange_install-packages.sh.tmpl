@@ -2267,7 +2267,7 @@ print_linear_mcp_guidance
 print_linear_cli_guidance
 print_gws_guidance
 info "  - Notion MCP: requires OAuth authentication — run 'claude mcp get notion' or use on first invocation"
-info "  - IBKR MCP (Claude Code only): OAuth authentication — run '/mcp' and authenticate 'ibkr'; complete IBKR login with 2FA, accept its AI agreements and select one account. Revoke access under Client Portal → Settings → Manage Third-Party Consents. Order drafting via get_order_instructions is denied in the managed Claude Code settings."
+info "  - IBKR MCP (Claude Code only): OAuth authentication — run '/mcp' and authenticate 'ibkr'; complete IBKR login with 2FA, accept its AI agreements and select one account. Revoke access under Client Portal → Settings → Manage Third-Party Consents. Order instruction creation via create_order_instruction and deletion via delete_order_instruction are denied in the managed Claude Code settings; get_account_positions and get_account_orders remain readable."
 info "  - PostHog MCP: requires OAuth authentication — in Claude Code run '/mcp' and authenticate 'plugin:posthog:posthog'; in OpenCode run 'opencode mcp auth'"
 info "  - Sentry MCP: provided by the sentry-mcp plugin from the sentry-mcp marketplace — requires OAuth authentication; run '/mcp' inside Claude Code, or 'opencode mcp auth sentry' in OpenCode"
 info "  - Storybook MCP: requires @storybook/addon-mcp installed in each Storybook project and 'storybook dev' running on port 6006"

@@ -102,7 +102,7 @@ The [interactive manual](docs/manual.html) contains the complete acceptance flow
 | notion                                                               | http      | Notion pages & databases                                     | OAuth on first use                                                      |
 | storybook                                                            | http      | Local Storybook component context                            | Needs `@storybook/addon-mcp` in each project + `storybook dev` on :6006 |
 | jetbrains                                                            | http      | JetBrains IDE context & actions on :64542                    | Needs Settings → Tools → MCP Server enabled in the IDE + IDE running    |
-| [ibkr](https://www.ibkrguides.com/releasenotes/connector-v1.1.5.htm) | http      | Position and order reads for `stonks`; order drafting denied | Claude Code only; OAuth on first use through `/mcp`                     |
+| [ibkr](https://www.ibkrguides.com/releasenotes/connector-v1.1.5.htm) | http      | Positions and orders for `stonks`; instruction writes denied | Claude Code only; OAuth on first use through `/mcp`                     |
 | posthog                                                              | http      | Product analytics, feature flags, errors                     | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
 | sentry                                                               | http      | Issues, traces, and Seer root-cause runs                     | Plugin-provided (Claude Code) + OpenCode remote — OAuth on first use    |
 

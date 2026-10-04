@@ -106,7 +106,10 @@ describe("IBKR MCP registration", () => {
             "AI agreements",
             "one account",
             "Client Portal → Settings → Manage Third-Party Consents",
-            "get_order_instructions",
+            "create_order_instruction",
+            "delete_order_instruction",
+            "get_account_positions",
+            "get_account_orders",
             "denied",
         ])
             expect(line).toContain(text);
@@ -133,48 +136,80 @@ describe("IBKR MCP registration", () => {
     });
 });
 
-describe("IBKR order-drafting deny", () => {
+describe("IBKR order instruction denies", () => {
     test.each([
         ["darwin", "amd64", "personal"],
         ["darwin", "arm64", "work"],
         ["linux", "amd64", "personal"],
-    ])("%s %s %s denies drafting only and preserves bash denies", async (os, arch, machineType) => {
-        const permissions = managedPermissions(render(settings, os, arch, machineType));
-        const http = await installerArray("MCP_HTTP_SERVERS");
-        const server = http.find((entry) =>
-            entry.endsWith(":https://api.ibkr.com/v1/api/mcp-public"),
-        );
-        expect(server).toBeDefined();
-        const rule = `mcp__${server!.split(":")[0]}__get_order_instructions`;
-        expect(permissions.deny.filter((entry) => entry.startsWith("mcp__ibkr__"))).toEqual([rule]);
-        for (const list of [permissions.allow, permissions.ask])
-            expect(list.filter((entry) => entry.includes("mcp__ibkr__"))).toEqual([]);
-        expect(permissions.deny).not.toContain("mcp__ibkr__*");
+    ])(
+        "%s %s %s denies instruction writes and preserves reads and bash denies",
+        async (os, arch, machineType) => {
+            const permissions = managedPermissions(render(settings, os, arch, machineType));
+            const http = await installerArray("MCP_HTTP_SERVERS");
+            const server = http.find((entry) =>
+                entry.endsWith(":https://api.ibkr.com/v1/api/mcp-public"),
+            );
+            expect(server).toBeDefined();
+            const prefix = `mcp__${server!.split(":")[0]}__`;
+            const rules = ["create_order_instruction", "delete_order_instruction"].map(
+                (tool) => `${prefix}${tool}`,
+            );
+            expect(permissions.deny.filter((entry) => entry.startsWith("mcp__ibkr__"))).toEqual(
+                rules,
+            );
+            for (const tool of [
+                "get_account_positions",
+                "get_account_orders",
+                "get_order_instructions",
+            ])
+                expect(permissions.deny).not.toContain(`${prefix}${tool}`);
+            for (const list of [permissions.allow, permissions.ask])
+                expect(list.filter((entry) => entry.includes("mcp__ibkr__"))).toEqual([]);
+            expect(permissions.deny).not.toContain("mcp__ibkr__*");
 
-        const spec = await readFile(
-            path.join(repositoryRoot, "openspec/specs/claude-user-preferences/spec.md"),
-            "utf8",
-        );
-        const requirement = spec
-            .split("### Requirement: Deny rules block dangerous bash commands")[1]
-            .split("#### Scenario:")[0];
-        const bashRules = [...requirement.matchAll(/`(Bash\([^`]+\))`/g)].map((match) => match[1]);
-        expect(bashRules).toHaveLength(12);
-        for (const bashRule of bashRules) expect(permissions.deny).toContain(bashRule);
-    });
+            const spec = await readFile(
+                path.join(repositoryRoot, "openspec/specs/claude-user-preferences/spec.md"),
+                "utf8",
+            );
+            const requirement = spec
+                .split("### Requirement: Deny rules block dangerous bash commands")[1]
+                .split("#### Scenario:")[0];
+            const bashRules = [...requirement.matchAll(/`(Bash\([^`]+\))`/g)].map(
+                (match) => match[1],
+            );
+            expect(bashRules).toHaveLength(12);
+            for (const bashRule of bashRules) expect(permissions.deny).toContain(bashRule);
+        },
+    );
 
-    test("the settings merge restores a missing deny while preserving unrelated live keys", async () => {
-        const root = await mkdtemp(path.join(tmpdir(), "ibkr-settings-"));
-        temporaryDirectories.push(root);
-        const script = path.join(root, "modify.sh");
-        await writeFile(script, render(settings));
-        const result = run(
-            ["/bin/sh", script],
-            JSON.stringify({ permissions: { deny: [] }, fictionalUnmanagedSetting: true }),
-        );
-        expect(result.exitCode, result.stderr).toBe(0);
-        const merged = JSON.parse(result.stdout);
-        expect(merged.permissions.deny).toContain("mcp__ibkr__get_order_instructions");
-        expect(merged.fictionalUnmanagedSetting).toBe(true);
-    });
+    test.each([
+        [[]],
+        [["mcp__ibkr__create_order_instruction"]],
+        [["mcp__ibkr__delete_order_instruction"]],
+        [["mcp__ibkr__get_order_instructions"]],
+    ])(
+        "the settings merge restores both denies and replaces the obsolete rule (%j)",
+        async (deny) => {
+            const root = await mkdtemp(path.join(tmpdir(), "ibkr-settings-"));
+            temporaryDirectories.push(root);
+            const script = path.join(root, "modify.sh");
+            await writeFile(script, render(settings));
+            const result = run(
+                ["/bin/sh", script],
+                JSON.stringify({ permissions: { deny }, fictionalUnmanagedSetting: true }),
+            );
+            expect(result.exitCode, result.stderr).toBe(0);
+            const merged = JSON.parse(result.stdout);
+            expect(
+                merged.permissions.deny.filter((entry: string) => entry.startsWith("mcp__ibkr__")),
+            ).toEqual([
+                "mcp__ibkr__create_order_instruction",
+                "mcp__ibkr__delete_order_instruction",
+            ]);
+            expect(merged.fictionalUnmanagedSetting).toBe(true);
+            const second = run(["/bin/sh", script], result.stdout);
+            expect(second.exitCode, second.stderr).toBe(0);
+            expect(second.stdout).toBe(result.stdout);
+        },
+    );
 });
