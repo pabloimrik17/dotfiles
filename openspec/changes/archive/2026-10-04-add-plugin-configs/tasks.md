@@ -58,4 +58,4 @@ Steps marked **USER** handle plaintext. Run them in your own terminal, outside a
 
     Recorded: a scan of every string value (4+ characters, `schema` excluded) against the lines this branch adds found only the `scope` enum word, a literal of the plugin's public schema.
 - [x] 6.3 Verify: `bun run lint:oxfmt`, `bun run lint:fallow` and `openspec validate add-plugin-configs --strict` all pass.
-- [ ] 6.4 After merge, on this machine: run `chezmoi update`. Verify: `chezmoi status ~/.config/autonomous/config.json ~/.config/stonks/config.json` prints nothing, and `stat -f %Lp` prints `600` for both files.
+- [x] 6.4 After merge, on this machine: run `chezmoi update`. Verify: `chezmoi status ~/.config/autonomous/config.json ~/.config/stonks/config.json` prints nothing, and `stat -f %Lp` prints `600` for both files.
