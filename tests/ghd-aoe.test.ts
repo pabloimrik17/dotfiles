@@ -518,10 +518,10 @@ describe("group and title selection", () => {
             metadata: fixture.metadata!,
             cwd: harness.worktree,
             env: harness.env,
-            timeoutMs: 500,
+            timeoutMs: 3_000,
         });
         expect(result.timedOut).toBe(true);
-        expect(result.durationMs).toBeLessThan(900);
+        expect(result.durationMs).toBeLessThan(3_400);
         const childPid = Number(await readFile(childPidFile, "utf8"));
         const alive = (): boolean => {
             try {
