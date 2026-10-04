@@ -108,7 +108,6 @@ The system SHALL install the `mattpocock-skills` plugin from Matt Pocock's `matt
 
 - **WHEN** the package installer renders its non-macOS manual instructions
 - **THEN** the output includes the command that adds `mattpocock/skills` and installs `mattpocock-skills@mattpocock`
-- **AND** the command that uninstalls `mattpocock-skills@claude-plugins-official`
 
 #### Scenario: Official copy is retired
 
