@@ -87,7 +87,7 @@ Claude Code SHALL receive Matt Pocock's `retro` skill only through `mattpocock-s
 
 ### Requirement: Matt Pocock skills plugin installed
 
-The system SHALL install the `mattpocock-skills` plugin from Matt Pocock's `mattpocock` marketplace (`mattpocock/skills`) through the managed Claude Code plugin installer, and SHALL NOT install it from `claude-plugins-official`.
+The system SHALL install the `mattpocock-skills` plugin from Matt Pocock's `mattpocock` marketplace (`mattpocock/skills`) through the managed Claude Code plugin installer, SHALL NOT install it from `claude-plugins-official`, and SHALL uninstall an installed `mattpocock-skills@claude-plugins-official` only once `mattpocock-skills@mattpocock` is installed.
 
 #### Scenario: Plugin is not yet installed
 
@@ -108,10 +108,21 @@ The system SHALL install the `mattpocock-skills` plugin from Matt Pocock's `matt
 
 - **WHEN** the package installer renders its non-macOS manual instructions
 - **THEN** the output includes the command that adds `mattpocock/skills` and installs `mattpocock-skills@mattpocock`
+- **AND** the command that uninstalls `mattpocock-skills@claude-plugins-official`
+
+#### Scenario: Official copy is retired
+
+- **WHEN** the confirmed plugin group runs with `mattpocock-skills@claude-plugins-official` installed and `mattpocock-skills@mattpocock` installed by the end of the group
+- **THEN** it uninstalls `mattpocock-skills@claude-plugins-official`
+
+#### Scenario: Replacement is not installed
+
+- **WHEN** the plugin group is declined, or installing `mattpocock-skills@mattpocock` fails, with `mattpocock-skills@claude-plugins-official` installed
+- **THEN** `mattpocock-skills@claude-plugins-official` stays installed and enabled
 
 ### Requirement: Matt Pocock skills plugin enabled by default
 
-The managed Claude Code settings SHALL enable `mattpocock-skills@mattpocock`, register the `mattpocock` marketplace with automatic updates, and remove any `mattpocock-skills@claude-plugins-official` enablement.
+The managed Claude Code settings SHALL enable `mattpocock-skills@mattpocock`, register the `mattpocock` marketplace with automatic updates, and leave any `mattpocock-skills@claude-plugins-official` key unmanaged.
 
 #### Scenario: Settings are rendered for a fresh configuration
 
@@ -122,8 +133,8 @@ The managed Claude Code settings SHALL enable `mattpocock-skills@mattpocock`, re
 #### Scenario: Settings are merged into an existing configuration
 
 - **WHEN** managed settings are applied to a Claude Code configuration with unrelated existing settings and `"mattpocock-skills@claude-plugins-official": true`
-- **THEN** `mattpocock-skills@mattpocock` is enabled and the `mattpocock-skills@claude-plugins-official` key is removed
-- **AND** the unrelated settings remain
+- **THEN** `mattpocock-skills@mattpocock` is enabled
+- **AND** the `mattpocock-skills@claude-plugins-official` key and the unrelated settings remain
 
 #### Scenario: Official marketplace configuration is inspected
 

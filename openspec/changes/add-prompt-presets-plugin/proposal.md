@@ -11,7 +11,7 @@ The preset needs Matt Pocock's `retro` skill. The official marketplace pins `mat
 - Add `prompt-presets@monolab` to `CC_PLUGINS` in `run_onchange_install-packages.sh.tmpl`. `pabloimrik17/monolab` is already in `CC_MARKETPLACES`.
 - Add `"prompt-presets@monolab": true` to `enabledPlugins` in `dot_claude/modify_settings.json.tmpl`. `extraKnownMarketplaces.monolab` (`autoUpdate: true`) is unchanged and is the plugin's only update path.
 - Add the matching `claude plugin install` line to the install script's non-macOS guidance.
-- Replace `mattpocock-skills@claude-plugins-official` with `mattpocock-skills@mattpocock`: register `mattpocock/skills` in `CC_MARKETPLACES` and `extraKnownMarketplaces`, swap the ID in `CC_PLUGINS`, `enabledPlugins` and the non-macOS guidance, and remove the old `enabledPlugins` key (design D4).
+- Replace `mattpocock-skills@claude-plugins-official` with `mattpocock-skills@mattpocock`: register `mattpocock/skills` in `CC_MARKETPLACES` and `extraKnownMarketplaces`, swap the ID in `CC_PLUGINS`, `enabledPlugins` and the non-macOS guidance, and uninstall the official copy once the new one is installed (design D4).
 - Record a Claude-only row in the `sync-agent-config` parity table (`none` for Codex, OpenCode, Junie) and update the Matt Pocock row.
 - Document `/prompt-presets:matt-retro` and its `retro` skill prerequisite in `docs/manual.html`, and update the Matt Pocock skills section.
 

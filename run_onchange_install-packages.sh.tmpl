@@ -1614,6 +1614,12 @@ CC_PLUGINS=(
     "typesafe@typesafe-ai"
 )
 
+# Replaced plugins, as "old:replacement". The old copy is uninstalled only once
+# its replacement is installed, so a declined or failed install keeps it working.
+CC_PLUGINS_RETIRED=(
+    "mattpocock-skills@claude-plugins-official:mattpocock-skills@mattpocock"
+)
+
 if command -v claude &>/dev/null; then
     # Pre-scan marketplaces and plugins
     CC_MARKETPLACE_JSON="$(claude plugin marketplace list --json 2>/dev/null || true)"
@@ -1655,11 +1661,19 @@ if command -v claude &>/dev/null; then
         fi
     done
 
-    if [ "$PENDING_MP" -eq 0 ] && [ "$PENDING_PL" -eq 0 ]; then
+    # Count installed plugins awaiting retirement
+    PENDING_RT=0
+    for pair in "${CC_PLUGINS_RETIRED[@]}"; do
+        if plugin_installed "${pair%%:*}"; then
+            PENDING_RT=$((PENDING_RT + 1))
+        fi
+    done
+
+    if [ "$PENDING_MP" -eq 0 ] && [ "$PENDING_PL" -eq 0 ] && [ "$PENDING_RT" -eq 0 ]; then
         info "CC marketplaces: $TOTAL_MP/$TOTAL_MP registered"
         info "CC plugins: $TOTAL_PL/$TOTAL_PL installed"
     else
-        if confirm "Install Claude Code plugin dependencies ($PENDING_MP marketplaces + $PENDING_PL plugins pending)?"; then
+        if confirm "Install Claude Code plugin dependencies ($PENDING_MP marketplaces + $PENDING_PL plugins pending, $PENDING_RT to retire)?"; then
             info "  Registering Claude Code plugin marketplaces..."
             for repo in "${CC_MARKETPLACES[@]}"; do
                 if marketplace_installed "$repo"; then
@@ -1675,6 +1689,16 @@ if command -v claude &>/dev/null; then
                     info "  $plugin — already installed, skipping"
                 else
                     run_claude_step "plugin $plugin" claude plugin install "$plugin"
+                fi
+            done
+
+            # run_claude_step always returns 0, so re-scan to see what installed
+            CC_PLUGIN_JSON="$(claude plugin list --json 2>/dev/null || true)"
+            for pair in "${CC_PLUGINS_RETIRED[@]}"; do
+                retired="${pair%%:*}"
+                replacement="${pair#*:}"
+                if plugin_installed "$retired" && plugin_installed "$replacement"; then
+                    run_claude_step "retire $retired" claude plugin uninstall "$retired"
                 fi
             done
         else
@@ -2280,6 +2304,7 @@ info "    - claude plugin marketplace add backnotprop/plannotator && claude plug
 info "    - claude plugin marketplace add max-sixty/worktrunk && claude plugin install worktrunk@worktrunk"
 info "    - claude plugin marketplace add getsentry/sentry-mcp && claude plugin install sentry-mcp@sentry-mcp"
 info "    - claude plugin marketplace add mattpocock/skills && claude plugin install mattpocock-skills@mattpocock"
+info "    - claude plugin uninstall mattpocock-skills@claude-plugins-official (only if installed)"
 info "    - claude plugin marketplace add typesafe-ai/skills && claude plugin install typesafe@typesafe-ai"
 info "  Agent skills (requires npx/Node.js):"
 info "    npx -y skills add vercel-labs/skills --skill find-skills -g -y"

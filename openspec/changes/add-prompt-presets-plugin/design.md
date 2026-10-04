@@ -7,7 +7,7 @@
 - Two patterns exist for monolab-style plugins: `commander@monolab` is only in `enabledPlugins`; the DATF plugins are in `CC_PLUGINS`, `enabledPlugins`, the non-macOS guidance and the parity table.
 - The preset's body starts with `/retro`, Matt Pocock's `retro` skill. `claude-plugins-official` pins `mattpocock-skills` at `c55ee46` (2026-09-18), which predates `retro` (`a7d038f`, 2026-09-24).
 - `mattpocock/skills` ships its own `.claude-plugin/marketplace.json`: marketplace `mattpocock`, one plugin `mattpocock-skills` with `source: "./"`. On `main` (`d81f3a1`) its manifest lists 27 skills, including `retro`; 11 are model-invocable and 16 set `disable-model-invocation: true`.
-- An installed plugin with no `enabledPlugins` key is disabled (verified: the three `@expo-plugins` plugins report `enabled: false`).
+- `claude plugin uninstall` also deletes the plugin's `enabledPlugins` key (verified on this machine).
 
 ## Goals / Non-Goals
 
@@ -31,7 +31,7 @@
 
 **D3. Placement.** In `enabledPlugins`, keep alphabetical order: after `posthog@claude-plugins-official`, before `sentry-mcp@sentry-mcp`. In `CC_PLUGINS`, group by marketplace: after `experiments@monolab`. In the non-macOS guidance, add `claude plugin marketplace add pabloimrik17/monolab && claude plugin install prompt-presets@monolab` next to the other plugin lines.
 
-**D4. Move `mattpocock-skills` to Matt's own marketplace.** Register `mattpocock/skills` (marketplace `mattpocock`, `autoUpdate: true`, no `ref`) and install `mattpocock-skills@mattpocock` instead of `mattpocock-skills@claude-plugins-official`. The plugin name is unchanged, so skills keep the `mattpocock-skills:*` namespace. The plugin now follows Matt's default branch, as the monolab and DATF plugins follow theirs. The collection gains `retro`, `pr` and `implement-spec` and loses `resolving-merge-conflicts`. Retire the official copy by removing its `enabledPlugins` key in the settings modifier's `REMOVE` list; an installed plugin with no key is disabled, so no uninstall step is added. Rejected: a standalone skills.sh `retro` for `claude-code`, which breaks the plugin-only channel rule, adds a bare `retro` name, and duplicates once the official pin moves. Rejected: waiting for Anthropic to bump the pin.
+**D4. Move `mattpocock-skills` to Matt's own marketplace.** Register `mattpocock/skills` (marketplace `mattpocock`, `autoUpdate: true`, no `ref`) and install `mattpocock-skills@mattpocock` instead of `mattpocock-skills@claude-plugins-official`. The plugin name is unchanged, so skills keep the `mattpocock-skills:*` namespace. The plugin now follows Matt's default branch, as the monolab and DATF plugins follow theirs. The collection gains `retro`, `pr` and `implement-spec` and loses `resolving-merge-conflicts`. The install script retires the official copy: a `CC_PLUGINS_RETIRED` entry (`old:replacement`) uninstalls `mattpocock-skills@claude-plugins-official` only after a fresh plugin scan shows `mattpocock-skills@mattpocock` installed. The settings modifier leaves the old key alone, so a declined or failed install keeps the old copy working. Rejected: removing the old key through the modifier's `REMOVE` list, which disables the old copy even when the replacement never installs, and `run_onchange_` does not re-prompt. Rejected: a standalone skills.sh `retro` for `claude-code`, which breaks the plugin-only channel rule, adds a bare `retro` name, and duplicates once the official pin moves. Rejected: waiting for Anthropic to bump the pin.
 
 **D5. Parity row with explicit gaps.** Add a `Prompt presets` row: `prompt-presets@monolab` under Claude Code, `none` for Codex, OpenCode and Junie. Monolab publishes the plugin only to the Claude marketplace. Rejected: copying the prompt into OpenCode commands or Codex prompts. That is an unmanaged copy of upstream content that drifts from the verbatim source (DATF precedent).
 
@@ -42,9 +42,9 @@
 - [The marketplace serves unreleased `develop` code] → Same exposure as the other three `@monolab` plugins; accepted.
 - [`mattpocock-skills` follows Matt's `main` without Anthropic's review, and its skill list can change without a dotfiles edit] → Same exposure as monolab and DATF; specs name no skill count.
 - [`/prompt-presets:matt-retro` runs without `retro` until monolab injects it] → D6; the manual names the prerequisite.
-- [Installing `mattpocock-skills@mattpocock` next to the installed official copy may conflict on the shared plugin name] → Verified on this machine during apply; if it conflicts, uninstall the official copy first.
+- [Both copies stay installed and enabled when the uninstall step fails] → Rare; the next confirmed plugin group retries it, since the retirement counts as pending.
 - [The edit re-triggers the `run_onchange_` install script] → Only pending steps act; already-installed items are skipped.
 
 ## Migration Plan
 
-`chezmoi apply` removes the official `enabledPlugins` key and re-runs the install script; confirming the Claude Code plugin group registers `mattpocock/skills` and installs both plugins. Optional cleanup: `claude plugin uninstall mattpocock-skills@claude-plugins-official`. Rollback: revert the entries, run `claude plugin uninstall prompt-presets@monolab` and `claude plugin uninstall mattpocock-skills@mattpocock`, and reinstall the official copy.
+`chezmoi apply` re-runs the install script; confirming the Claude Code plugin group registers `mattpocock/skills`, installs both plugins, then uninstalls the official copy. Rollback: revert the entries, run `claude plugin uninstall prompt-presets@monolab` and `claude plugin uninstall mattpocock-skills@mattpocock`, and reinstall the official copy.
