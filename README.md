@@ -199,6 +199,19 @@ chezmoi edit ~/.config/zsh/secrets.zsh
 The file holds only `export NAME=value` lines and deploys with mode `600`. After rotating a key,
 commit the `.age` file and run `chezmoi update` on every machine.
 
+**Edit a plugin configuration:**
+
+```sh
+# Opens the decrypted file and re-encrypts when the editor exits
+chezmoi edit ~/.config/autonomous/config.json
+chezmoi edit ~/.config/stonks/config.json
+```
+
+Plugin configurations are always encrypted, even when they hold no secret, and deploy with mode
+`600`. Each plugin's `config.example.json` defines the format. An invalid file is reported by the
+plugin when it loads, not by `chezmoi apply`. Commit the `.age` file and run `chezmoi update` on
+every machine.
+
 **Commit and push:**
 
 ```sh

@@ -2314,6 +2314,22 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td><code>chezmoi edit ~/.config/autonomous/config.json</code></td>
+                                <td>
+                                    Edit the <code>autonomous</code> plugin configuration; always
+                                    encrypted, deployed with mode 600, format from the plugin's
+                                    <code>config.example.json</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>chezmoi edit ~/.config/stonks/config.json</code></td>
+                                <td>
+                                    Edit the <code>stonks</code> plugin configuration; always
+                                    encrypted, deployed with mode 600, format from the stonks
+                                    plugin's <code>config.example.json</code>
+                                </td>
+                            </tr>
+                            <tr>
                                 <td>
                                     <code
                                         >mkdir -p ~/.config/chezmoi &amp;&amp; age-keygen -o
@@ -2339,6 +2355,13 @@
                         <code>chezmoi edit ~/.config/zsh/secrets.zsh</code> &rarr; commit
                         <code>dot_config/zsh/encrypted_private_secrets.zsh.age</code> &rarr;
                         <code>chezmoi update</code> on every machine
+                    </div>
+                    <div class="flow-only">
+                        <strong>Flow: Edit a plugin configuration</strong><br />
+                        <code>chezmoi edit ~/.config/&lt;plugin&gt;/config.json</code> &rarr; commit
+                        <code>dot_config/&lt;plugin&gt;/encrypted_private_config.json.age</code>
+                        &rarr; <code>chezmoi update</code> on every machine; an invalid file is
+                        reported by the plugin, not by <code>chezmoi apply</code>
                     </div>
                     <div class="flow-only">
                         <strong>Flow: Bootstrap new machine</strong><br />
