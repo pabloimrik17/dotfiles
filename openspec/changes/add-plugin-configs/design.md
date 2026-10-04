@@ -50,7 +50,7 @@ As a result, apply succeeds with an invalid file, and the plugin reports the err
 
 **D7: Deployed on every machine, whatever the machine type.** This follows `ticker-config` and `shell-secrets`, which are not gated by `machineType` either. The decision record does not ask for gating. Restricting `stonks` to `personal` machines through `.chezmoiignore` would be a later, separate decision.
 
-**D8: The stonks format is a reference, not a copy.** This change names only the path and the schema id declared by `plugins/stonks/config.example.json` in `daily-agentic-task-force`. Decision record §10 says the dotfiles PRs merge before the plugin PR. So the user writes the `stonks` plaintext from the example on the `feature/stonks-plugin` branch, and the file is deployed before any loader reads it, which is harmless. If the example changes before the plugin merges, the user updates the file with `chezmoi edit` and the change is a new commit of the `.age` file.
+**D8: The stonks format is a reference, not a copy.** This change names only the path and the schema id of the `stonks` plugin in `daily-agentic-task-force`. Decision record §10 says the dotfiles PRs merge before the plugin PR. So the user writes the `stonks` plaintext before the plugin exists, and the file is deployed before any loader reads it, which is harmless. At implementation time `plugins/stonks/config.example.json` is not written yet (`add-stonks-plugin` task 2.4). The example block in that change's design (D15, placeholders only) is the source instead, and the schema id is checked against that change's spec. If the example differs from D15 when it lands, or changes before the plugin merges, the user updates the file with `chezmoi edit` and commits the new `.age` file.
 
 ## Risks / Trade-offs
 
@@ -60,7 +60,7 @@ As a result, apply succeeds with an invalid file, and the plugin reports the err
 - [An unmanaged copy on another machine is replaced on first apply] → Run `chezmoi diff` before the first apply on each machine. Run it in the user's own terminal, because it prints plaintext.
 - [Plaintext leaks into an agent transcript through `chezmoi diff`, `chezmoi cat`, `cat` or a `!`-prefixed command that prints contents] → Tasks mark every plaintext-printing step as USER-only, outside the agent session. Agent-side checks print only `ok`, `identical`, a mode, or a ciphertext header.
 - [`sources.beads.directory` in the autonomous file is an absolute path; a machine with a different home or checkout location would need a different value] → Accepted for now: one file serves every machine (D3). If machines diverge, a later change can make the source an encrypted template. That is still encrypted, so it does not conflict with D1.
-- [The stonks schema id changes while `add-stonks-plugin` is still being written] → Tasks 4.1–4.2 check the deployed file against the example's schema id at implementation time. A later mismatch is the plugin's error (D5) and is fixed with `chezmoi edit`.
+- [The stonks schema id changes while `add-stonks-plugin` is still being written] → Tasks 4.1–4.2 check the file's schema id against `add-stonks-plugin`'s spec and D15, because the example does not exist yet. A later mismatch is the plugin's error (D5) and is fixed with `chezmoi edit`.
 - [The chezmoi source directory is stale] → Run `chezmoi update` (pull + apply) on each machine after merge, not a bare `chezmoi apply`.
 
 ## Migration Plan
