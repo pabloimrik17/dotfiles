@@ -68,17 +68,82 @@ The dotfiles SHALL NOT configure a `prompt-presets` counterpart for Codex, OpenC
 - **THEN** the parity table lists `prompt-presets@monolab` under Claude Code
 - **AND** Codex, OpenCode, and Junie contain no `prompt-presets` configuration and each has a `none` entry with the upstream-distribution reason
 
-### Requirement: Retro skill remains an upstream prerequisite of the prompt-presets plugin
+### Requirement: Retro skill reaches Claude Code through the Matt Pocock plugin
 
-The dotfiles SHALL NOT install Matt Pocock's `retro` skill as a standalone Claude Code skill for `/prompt-presets:matt-retro`; Claude Code SHALL receive it only through `mattpocock-skills@claude-plugins-official`. The manual SHALL name that skill as the command's prerequisite.
+Claude Code SHALL receive Matt Pocock's `retro` skill only through `mattpocock-skills@mattpocock`; the dotfiles SHALL NOT install it as a standalone Claude Code skill. The manual SHALL name that skill as the prerequisite of `/prompt-presets:matt-retro`.
 
-#### Scenario: Plugin channel lacks the retro skill
+#### Scenario: Retro skill is available
 
-- **WHEN** chezmoi applies the dotfiles while the installed `mattpocock-skills` plugin does not ship `retro`
-- **THEN** no skills.sh operation targets `claude-code` with `retro`
-- **AND** `prompt-presets@monolab` is still installed and enabled
+- **WHEN** `mattpocock-skills@mattpocock` is installed and active in Claude Code
+- **THEN** `mattpocock-skills:retro` is available
+- **AND** no skills.sh operation targets `claude-code` with `retro`
 
 #### Scenario: Manual is inspected
 
 - **WHEN** the manual's Claude Code section is read
 - **THEN** it lists `/prompt-presets:matt-retro` and names Matt Pocock's `retro` skill as its prerequisite
+
+## MODIFIED Requirements
+
+### Requirement: Matt Pocock skills plugin installed
+
+The system SHALL install the `mattpocock-skills` plugin from Matt Pocock's `mattpocock` marketplace (`mattpocock/skills`) through the managed Claude Code plugin installer, and SHALL NOT install it from `claude-plugins-official`.
+
+#### Scenario: Plugin is not yet installed
+
+- **WHEN** the package installer runs on macOS with Claude Code available and `mattpocock-skills@mattpocock` absent
+- **THEN** it registers `mattpocock/skills` once and installs `mattpocock-skills@mattpocock`
+
+#### Scenario: Plugin is already installed
+
+- **WHEN** the package installer runs and `mattpocock-skills@mattpocock` is already installed
+- **THEN** it skips reinstallation
+
+#### Scenario: Claude Code is unavailable
+
+- **WHEN** the package installer runs and the Claude Code CLI is unavailable
+- **THEN** it skips plugin installation without preventing later package groups from running
+
+#### Scenario: Automatic plugin installation is unavailable
+
+- **WHEN** the package installer renders its non-macOS manual instructions
+- **THEN** the output includes the command that adds `mattpocock/skills` and installs `mattpocock-skills@mattpocock`
+
+### Requirement: Matt Pocock skills plugin enabled by default
+
+The managed Claude Code settings SHALL enable `mattpocock-skills@mattpocock`, register the `mattpocock` marketplace with automatic updates, and remove any `mattpocock-skills@claude-plugins-official` enablement.
+
+#### Scenario: Settings are rendered for a fresh configuration
+
+- **WHEN** the managed Claude Code settings are rendered
+- **THEN** `enabledPlugins` contains `"mattpocock-skills@mattpocock": true`
+- **AND** `enabledPlugins` has no `mattpocock-skills@claude-plugins-official` key
+
+#### Scenario: Settings are merged into an existing configuration
+
+- **WHEN** managed settings are applied to a Claude Code configuration with unrelated existing settings and `"mattpocock-skills@claude-plugins-official": true`
+- **THEN** `mattpocock-skills@mattpocock` is enabled and the `mattpocock-skills@claude-plugins-official` key is removed
+- **AND** the unrelated settings remain
+
+#### Scenario: Official marketplace configuration is inspected
+
+- **WHEN** the managed settings are rendered after this change
+- **THEN** the existing `claude-plugins-official` registration still has `autoUpdate` enabled
+- **AND** `extraKnownMarketplaces.mattpocock` points to `mattpocock/skills` with `autoUpdate` enabled and no `ref`
+- **AND** no duplicate marketplace registration is added
+
+### Requirement: Claude Code uses the namespaced plugin distribution
+
+Claude Code SHALL receive Matt Pocock's complete plugin collection through the plugin distribution and SHALL NOT be targeted by the managed Matt Pocock skills.sh installation.
+
+#### Scenario: Plugin skills are available
+
+- **WHEN** the installed plugin is active in Claude Code
+- **THEN** its skills are available under the `mattpocock-skills` plugin namespace
+- **AND** the collection includes the namespaced `code-review` and `retro` skills
+
+#### Scenario: Distribution channels are inspected
+
+- **WHEN** the managed plugin and skills.sh configuration are inspected together
+- **THEN** Claude Code receives Matt Pocock skills through the plugin channel only
+- **AND** OpenCode and Junie receive Matt Pocock skills through the standalone channel only

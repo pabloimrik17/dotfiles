@@ -104,7 +104,7 @@ MANAGED = json.loads(r'''
     "expo@expo-plugins": true,
     "fallow@fallow-skills": true,
     "frontend-design@claude-plugins-official": true,
-    "mattpocock-skills@claude-plugins-official": true,
+    "mattpocock-skills@mattpocock": true,
     "plannotator@plannotator": true,
     "plugin-dev@claude-plugins-official": true,
     "posthog@claude-plugins-official": true,
@@ -165,6 +165,13 @@ MANAGED = json.loads(r'''
       "autoUpdate": true,
       "source": {
         "repo": "fallow-rs/fallow-skills",
+        "source": "github"
+      }
+    },
+    "mattpocock": {
+      "autoUpdate": true,
+      "source": {
+        "repo": "mattpocock/skills",
         "source": "github"
       }
     },
@@ -456,12 +463,15 @@ MERGE_CONTAINERS = {
 }
 
 # Paths deleted from the live file. `hooks.PreCompact` held only the duplicate
-# `bd prime` hook that the beads plugin already declares. The rest are the
+# `bd prime` hook that the beads plugin already declares. The official
+# `mattpocock-skills` copy is retired: the plugin now comes from Matt's own
+# marketplace, and an installed plugin with no key is disabled. The rest are the
 # host-conditional entries, emitted as removals on hosts where the condition is
 # false rather than merely omitted -- otherwise a key added on one host would
 # live forever in another host's file.
 REMOVE = [
     ("hooks", "PreCompact"),
+    ("enabledPlugins", "mattpocock-skills@claude-plugins-official"),
 {{- if not (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64")) }}
     ("enabledPlugins", "superwhisper@superwhisper"),
     ("extraKnownMarketplaces", "superwhisper"),
