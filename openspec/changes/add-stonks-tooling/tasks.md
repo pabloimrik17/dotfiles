@@ -112,7 +112,7 @@ Steps marked **USER** handle plaintext. Run them in your own terminal, outside a
 
 ## 4. Integration
 
-- [ ] 4.1 Run `bun test`, `bun run lint:oxfmt`, `bun run lint:fallow` and `openspec validate add-stonks-tooling --strict`. Verify that all exit 0.
+- [x] 4.1 Run `bun test`, `bun run lint:oxfmt`, `bun run lint:fallow` and `openspec validate add-stonks-tooling --strict`. Verify that all exit 0.
 - [x] 4.2 Run the freeze pass of the rendered install script against this host's brew, twice. Verify on this host:
   - `brew list --pinned --versions` lists `googleworkspace-cli 0.22.5`;
   - `~/.local/state/dotfiles/brew-freezes` has the line `formula googleworkspace-cli`;
@@ -155,7 +155,8 @@ Steps marked **USER** handle plaintext. Run them in your own terminal, outside a
 - Client round trip: an isolated home creates the parents with `--parent-dirs`; both first apply and restoration with `--force` match the live file with mode 600. Temporary files are removed and client/project identifiers are absent from changed plaintext sources.
 - Brew freeze: both runs exit 0 without output or drift; the second changes no pin, and the state records `formula googleworkspace-cli`. The binary is the Google Workspace CLI at 0.22.5 under the Homebrew prefix.
 - MCP registration: the real Group 8.5 registers IBKR with only its HTTP type and URL. The second run reports `17/17 registered (all up to date)`. Existing stdio registrations were reconciled to their declared pins.
+- IBKR first use: the user completed authentication, and `claude mcp get ibkr` reports Connected at the declared HTTP endpoint. The user's tool-list screenshot exposes 34 tools, including Create Order Instruction and Delete Order Instruction, instead of the ten planned tools. Position/order reads are paused pending exact-name verification and a follow-up deny correction; the current exact deny does not cover those displayed creation/deletion tools. No account values are recorded here.
 - Manual browser verification: IBKR appears only in the Claude Code table. Desktop rendering passes. Mobile overflow is unchanged from the pre-change manual (1180px document width at a 375px viewport); no new overflow was introduced.
 - Settings after synchronizing origin/main: the source adds only the IBKR deny relative to main. Targeted apply (`--exclude scripts`) preserves the current Matt marketplace and keeps its retired official plugin absent; the settings diff converges. The user confirmed the exact rule appears under Deny in `/permissions` in a new Claude Code session.
 - The user approved a test-only correction to the existing `ghd-aoe` process-group deadline check: 500 ms to 3 s, and its duration bound from 900 ms to 3.4 s. This permits the child fixture to start on this host while still checking deadline termination; the production inference timeout remains 10 s. The candidate check passed independently.
-- Full local suite remains pending under host load: the previous 30 s-per-test run had 173 passes and the single 500 ms deadline-fixture failure; the approved 3 s correction passed independently. A subsequent default-timeout full run hit additional existing timeout cases while several Node processes saturated the host. No production timeout or unrelated test behavior was changed. Formatting, Fallow and strict OpenSpec validation pass.
+- Full local suite passes after host load subsided: `bun test` exits 0 with 174 passes, no failures, and 954 assertions. Formatting, Fallow and strict OpenSpec validation also exit 0. The approved deadline correction passes independently; no production timeout or unrelated test behavior was changed.
