@@ -2344,6 +2344,51 @@
                         dotfiles do not install). Never commit tokens.
                     </p>
 
+                    <h3>1Password CLI (op)</h3>
+                    <p class="note">
+                        Homebrew's <code>1password-cli</code> cask (<code>BREW_CLI_CASKS</code>) is
+                        frozen at the <code>1password-cli|2.41.0</code> row of
+                        <code>BREW_VERSIONS</code>. Only the cask counts as installed: an
+                        <code>op</code> from 1Password's <code>.pkg</code> does not, and blocks the
+                        cask on Intel; remove it and re-run. To upgrade, run
+                        <code>brew-upgrade-pinned 1password-cli</code> and bump the row. Never run
+                        <code>op update</code>: it downloads releases outside Homebrew. On Linux,
+                        install with apt, dnf or the release binary per
+                        <code>https://developer.1password.com/docs/cli/get-started</code>.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Step</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Settings &rarr; Developer</td>
+                                <td>
+                                    Open and unlock the 1Password app, then turn on
+                                    <strong>Integrate with 1Password CLI</strong>; <code>op</code>
+                                    signs in through the app instead of a stored secret
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Touch ID</td>
+                                <td>
+                                    Optional: approve <code>op</code> requests with Touch ID (macOS)
+                                    or system authentication (Linux)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>op vault list</code></td>
+                                <td>
+                                    Check the integration; the app asks you to authorize the
+                                    terminal session
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h3>Encrypted files (chezmoi + age)</h3>
                     <p class="note">
                         The Google OAuth client is encrypted alongside <code>~/.ticker.yaml</code>.
@@ -2482,12 +2527,12 @@
                                 <td><code>brewsp</code></td>
                                 <td>
                                     List frozen and held packages. The install script declares
-                                    <code>BREW_VERSIONS</code> for every brew formula and font cask
-                                    it installs, pins them, and warns when a pinned version differs.
-                                    <code>BREW_HOLDS</code> carry a reason and exit condition; a
-                                    missing held package is skipped with a warning. Chezmoi re-runs
-                                    the script when its rendered content changes. A hand-made
-                                    <code>brew pin</code> is invisible to the repo
+                                    <code>BREW_VERSIONS</code> for every brew formula, CLI cask and
+                                    font cask it installs, pins them, and warns when a pinned
+                                    version differs. <code>BREW_HOLDS</code> carry a reason and exit
+                                    condition; a missing held package is skipped with a warning.
+                                    Chezmoi re-runs the script when its rendered content changes. A
+                                    hand-made <code>brew pin</code> is invisible to the repo
                                 </td>
                             </tr>
                         </tbody>

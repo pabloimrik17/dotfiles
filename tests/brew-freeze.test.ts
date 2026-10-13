@@ -26,13 +26,14 @@ function assertVersionCoverage(source: string): void {
     const frozen = [
         ...arrayTokens(source, "BREW_PACKAGES"),
         ...arrayTokens(source, "ZSH_PLUGIN_FORMULAE"),
+        ...arrayTokens(source, "BREW_CLI_CASKS"),
         ...arrayTokens(source, "FONT_CASKS").map((spec) => spec.split(":")[0]),
     ];
     const versions = arrayTokens(source, "BREW_VERSIONS");
     const rows = versions.map((row) => row.split("|"));
     const versionNames = rows.map(([name]) => name);
-    expect(frozen).toHaveLength(37);
-    expect(rows).toHaveLength(37);
+    expect(frozen).toHaveLength(38);
+    expect(rows).toHaveLength(38);
     for (const [name, version] of rows) {
         expect(name).toBeTruthy();
         expect(version).toBeTruthy();
@@ -74,6 +75,7 @@ if (!helper || !recordWriter) throw new Error("Missing brew freeze helpers");
 type Fixture = {
     packages?: string[];
     plugins?: string[];
+    cliCasks?: string[];
     fonts?: string[];
     versions?: string[];
     holds?: string[];
@@ -98,6 +100,7 @@ function harnessSource(strict: boolean, fixture: Fixture): string {
 ERRORS=0
 BREW_PACKAGES=${shellArray(fixture.packages ?? ["git"])}
 ZSH_PLUGIN_FORMULAE=${shellArray(fixture.plugins ?? [])}
+BREW_CLI_CASKS=${shellArray(fixture.cliCasks ?? [])}
 FONT_CASKS=${shellArray(fixture.fonts ?? [])}
 BREW_VERSIONS=${shellArray(fixture.versions ?? ["git|2.55.0"])}
 BREW_HOLDS=${shellArray(fixture.holds ?? [])}
@@ -221,6 +224,20 @@ for (const strict of [false, true]) {
         expect(result.exitCode, result.output).toBe(0);
         expect(result.log).toContain("pin --cask font-hack-nerd-font");
         expect(result.record).toEqual(["cask font-hack-nerd-font"]);
+    });
+
+    test(`installed CLI cask is pinned and recorded as a cask (${mode})`, () => {
+        const result = runFreeze(strict, {
+            packages: [],
+            cliCasks: ["1password-cli"],
+            versions: ["1password-cli|2.41.0"],
+            installed: ["cask|1password-cli|2.41.0|1password-cli"],
+        });
+        expect(result.exitCode, result.output).toBe(0);
+        expect(result.log).toContain("pin --cask 1password-cli");
+        expect(result.pinned).toEqual(["1password-cli 2.41.0"]);
+        expect(result.record).toEqual(["cask 1password-cli"]);
+        expect(result.output).toContain("ERROR_COUNT=0");
     });
 
     test(`unwritable record is an error and pins nothing (${mode})`, () => {
