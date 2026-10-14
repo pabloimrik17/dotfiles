@@ -52,3 +52,5 @@ The current machine already has the v2 theme and scroll settings in `cli.json`; 
 - Full `bun test`: **140 passed, 1 skipped, 0 failed** across 10 files. The skip remains the opt-in live IBKR test.
 - Formatting, Fallow audit, `git diff --check` and strict validation of this change passed. All three changes pass with the CI-pinned OpenSpec 1.2.0 validator. The newer local validator reports pre-existing omitted scenarios in the separate Sentry and PostHog changes; those artifacts were not modified.
 - No new live setup or host-discovery checks were performed. The earlier Claude/Junie verification limitations still apply.
+
+The subsequent Pullfrog review confirmed the earlier fixes and identified the remaining Linear v1 reference. Added its full MODIFIED delta and, after searching main specs, aligned the installation spec's auto-update reference through a second delta. These follow-ups change specifications only.
