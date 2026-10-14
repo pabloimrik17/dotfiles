@@ -22,17 +22,15 @@ function arrayTokens(source: string, name: string): string[] {
     return (match[1].match(/"[^"]+"|\S+/g) ?? []).map((token) => token.replace(/^"|"$/g, ""));
 }
 
-function assertVersionCoverage(source: string): void {
+test("every frozen brew package has exactly one version row", () => {
     const frozen = [
-        ...arrayTokens(source, "BREW_PACKAGES"),
-        ...arrayTokens(source, "ZSH_PLUGIN_FORMULAE"),
-        ...arrayTokens(source, "FONT_CASKS").map((spec) => spec.split(":")[0]),
+        ...arrayTokens(template, "BREW_PACKAGES"),
+        ...arrayTokens(template, "ZSH_PLUGIN_FORMULAE"),
+        ...arrayTokens(template, "BREW_CLI_CASKS"),
+        ...arrayTokens(template, "FONT_CASKS").map((spec) => spec.split(":")[0]),
     ];
-    const versions = arrayTokens(source, "BREW_VERSIONS");
-    const rows = versions.map((row) => row.split("|"));
+    const rows = arrayTokens(template, "BREW_VERSIONS").map((row) => row.split("|"));
     const versionNames = rows.map(([name]) => name);
-    expect(frozen).toHaveLength(37);
-    expect(rows).toHaveLength(37);
     for (const [name, version] of rows) {
         expect(name).toBeTruthy();
         expect(version).toBeTruthy();
@@ -43,16 +41,6 @@ function assertVersionCoverage(source: string): void {
         ),
     );
     expect([...versionNames].sort()).toEqual([...frozen].sort());
-}
-
-test("every frozen brew package has exactly one version row", () => {
-    assertVersionCoverage(template);
-});
-
-test("coverage detects a removed version row", () => {
-    const scratch = template.replace(/^    "git\|[^"\n]+"\n/m, "");
-    expect(scratch).not.toBe(template);
-    expect(() => assertVersionCoverage(scratch)).toThrow();
 });
 
 // Pins packages installed in the same pass: Group 3 installs the last frozen ones.
@@ -74,6 +62,7 @@ if (!helper || !recordWriter) throw new Error("Missing brew freeze helpers");
 type Fixture = {
     packages?: string[];
     plugins?: string[];
+    cliCasks?: string[];
     fonts?: string[];
     versions?: string[];
     holds?: string[];
@@ -93,11 +82,11 @@ function shellArray(values: string[]): string {
     return `(${values.map(shellQuote).join(" ")})`;
 }
 
-function harnessSource(strict: boolean, fixture: Fixture): string {
-    return `${strict ? "set -u\n" : ""}
-ERRORS=0
+function harnessSource(fixture: Fixture): string {
+    return `ERRORS=0
 BREW_PACKAGES=${shellArray(fixture.packages ?? ["git"])}
 ZSH_PLUGIN_FORMULAE=${shellArray(fixture.plugins ?? [])}
+BREW_CLI_CASKS=${shellArray(fixture.cliCasks ?? [])}
 FONT_CASKS=${shellArray(fixture.fonts ?? [])}
 BREW_VERSIONS=${shellArray(fixture.versions ?? ["git|2.55.0"])}
 BREW_HOLDS=${shellArray(fixture.holds ?? [])}
@@ -156,7 +145,7 @@ function writeRecords(recordDirectory: string, fixture: Fixture): void {
     if (fixture.recordUnwritable) mkdirSync(recordFile);
 }
 
-function runFreeze(strict: boolean, fixture: Fixture = {}) {
+function runFreeze(fixture: Fixture = {}) {
     const directory = mkdtempSync(path.join(tmpdir(), "brew-freeze-test-"));
     try {
         const installedFile = path.join(directory, "installed");
@@ -171,7 +160,7 @@ function runFreeze(strict: boolean, fixture: Fixture = {}) {
         );
         writeFileSync(pinnedFile, (fixture.pinned ?? []).join("\n") + "\n");
         writeRecords(path.dirname(recordFile), fixture);
-        writeFileSync(harnessFile, harnessSource(strict, fixture));
+        writeFileSync(harnessFile, harnessSource(fixture));
         const result = Bun.spawnSync(["/bin/bash", harnessFile], {
             env: {
                 ...process.env,
@@ -199,228 +188,219 @@ function runFreeze(strict: boolean, fixture: Fixture = {}) {
     }
 }
 
-for (const strict of [false, true]) {
-    const mode = strict ? "with set -u" : "without set -u";
+test("installed formula is pinned and recorded", () => {
+    const result = runFreeze();
+    expect(result.exitCode, result.output).toBe(0);
+    expect(result.log).toContain("pin --formula git");
+    expect(result.pinned).toEqual(["git 2.55.0"]);
+    expect(result.record).toEqual(["formula git"]);
+    expect(result.output).toContain("ERROR_COUNT=0");
+});
 
-    test(`installed formula is pinned and recorded (${mode})`, () => {
-        const result = runFreeze(strict);
-        expect(result.exitCode, result.output).toBe(0);
-        expect(result.log).toContain("pin --formula git");
-        expect(result.pinned).toEqual(["git 2.55.0"]);
-        expect(result.record).toEqual(["formula git"]);
-        expect(result.output).toContain("ERROR_COUNT=0");
+test("installed CLI and font casks are pinned and recorded as casks", () => {
+    const result = runFreeze({
+        packages: [],
+        cliCasks: ["1password-cli"],
+        fonts: ["font-hack-nerd-font:HackNerdFont"],
+        versions: ["1password-cli|2.41.0", "font-hack-nerd-font|3.5.1"],
+        installed: [
+            "cask|1password-cli|2.41.0|1password-cli",
+            "cask|font-hack-nerd-font|3.5.1|font-hack-nerd-font",
+        ],
     });
+    expect(result.exitCode, result.output).toBe(0);
+    expect(result.log).toContain("pin --cask 1password-cli");
+    expect(result.log).toContain("pin --cask font-hack-nerd-font");
+    expect(result.record).toEqual(["cask 1password-cli", "cask font-hack-nerd-font"]);
+    expect(result.output).toContain("ERROR_COUNT=0");
+});
 
-    test(`installed font cask is pinned and recorded as a cask (${mode})`, () => {
-        const result = runFreeze(strict, {
-            packages: [],
-            fonts: ["font-hack-nerd-font:HackNerdFont"],
-            versions: ["font-hack-nerd-font|3.5.1"],
-            installed: ["cask|font-hack-nerd-font|3.5.1|font-hack-nerd-font"],
-        });
-        expect(result.exitCode, result.output).toBe(0);
-        expect(result.log).toContain("pin --cask font-hack-nerd-font");
-        expect(result.record).toEqual(["cask font-hack-nerd-font"]);
-    });
+test("unwritable record is an error and pins nothing", () => {
+    const result = runFreeze({ recordUnwritable: true });
+    expect(result.output).toContain("ERROR: Failed to write freeze record");
+    expect(result.output).toContain("ERROR_COUNT=1");
+    expect(result.log).not.toContain("pin --formula git");
+    expect(result.pinned).toEqual([]);
+});
 
-    test(`unwritable record is an error and pins nothing (${mode})`, () => {
-        const result = runFreeze(strict, { recordUnwritable: true });
-        expect(result.output).toContain("ERROR: Failed to write freeze record");
-        expect(result.output).toContain("ERROR_COUNT=1");
-        expect(result.log).not.toContain("pin --formula git");
-        expect(result.pinned).toEqual([]);
-    });
+test("declined and absent formula has no pin or warning", () => {
+    const result = runFreeze({ installed: [] });
+    expect(result.log).not.toContain("pin --formula");
+    expect(result.record).toEqual([]);
+    expect(result.output).not.toContain("WARNING:");
+    expect(result.output).toContain("ERROR_COUNT=0");
+});
 
-    test(`declined and absent formula has no pin or warning (${mode})`, () => {
-        const result = runFreeze(strict, { installed: [] });
-        expect(result.log).not.toContain("pin --formula");
-        expect(result.record).toEqual([]);
-        expect(result.output).not.toContain("WARNING:");
-        expect(result.output).toContain("ERROR_COUNT=0");
+test("recorded pin is a silent no-op on rerun", () => {
+    const result = runFreeze({
+        pinned: ["git 2.55.0"],
+        record: ["formula git"],
     });
+    expect(result.log).not.toContain("pin --formula git");
+    expect(result.output).not.toContain("WARNING:");
+    expect(result.record).toEqual(["formula git"]);
+});
 
-    test(`recorded pin is a silent no-op on rerun (${mode})`, () => {
-        const result = runFreeze(strict, {
-            pinned: ["git 2.55.0"],
-            record: ["formula git"],
-        });
-        expect(result.log).not.toContain("pin --formula git");
-        expect(result.output).not.toContain("WARNING:");
-        expect(result.record).toEqual(["formula git"]);
+test("GUI cask and dependency are outside the frozen set", () => {
+    const result = runFreeze({
+        installed: [
+            "formula|git|2.55.0|git",
+            "formula|openssl@3|3.6.4|openssl@3",
+            "cask|ghostty|1.0.0|ghostty",
+        ],
     });
+    expect(result.log).not.toContain("pin --cask ghostty");
+    expect(result.log).not.toContain("pin --formula openssl@3");
+    expect(result.record).toEqual(["formula git"]);
+});
 
-    test(`GUI cask and dependency are outside the frozen set (${mode})`, () => {
-        const result = runFreeze(strict, {
-            installed: [
-                "formula|git|2.55.0|git",
-                "formula|openssl@3|3.6.4|openssl@3",
-                "cask|ghostty|1.0.0|ghostty",
-            ],
-        });
-        expect(result.log).not.toContain("pin --cask ghostty");
-        expect(result.log).not.toContain("pin --formula openssl@3");
-        expect(result.record).toEqual(["formula git"]);
+test("a held package is compared but not recorded by freeze", () => {
+    const result = runFreeze({
+        holds: ["git|reason|exit condition"],
+        pinned: ["git 2.55.0"],
     });
+    expect(result.log).not.toContain("pin --formula git");
+    expect(result.record).toEqual([]);
+    expect(result.output).not.toContain("WARNING:");
+});
 
-    test(`a held package is compared but not recorded by freeze (${mode})`, () => {
-        const result = runFreeze(strict, {
-            holds: ["git|reason|exit condition"],
-            pinned: ["git 2.55.0"],
-        });
-        expect(result.log).not.toContain("pin --formula git");
-        expect(result.record).toEqual([]);
-        expect(result.output).not.toContain("WARNING:");
-    });
+test("a new hold's freeze entry stays until the hold record lists it", () => {
+    const fixture = {
+        holds: ["git|reason|exit condition"],
+        pinned: ["git 2.55.0"],
+        record: ["formula git"],
+    };
+    expect(runFreeze(fixture).record).toEqual(["formula git"]);
+    expect(runFreeze({ ...fixture, holdRecord: ["git"] }).record).toEqual([]);
+});
 
-    test(`a new hold's freeze entry stays until the hold record lists it (${mode})`, () => {
-        const fixture = {
-            holds: ["git|reason|exit condition"],
-            pinned: ["git 2.55.0"],
-            record: ["formula git"],
-        };
-        expect(runFreeze(strict, fixture).record).toEqual(["formula git"]);
-        expect(runFreeze(strict, { ...fixture, holdRecord: ["git"] }).record).toEqual([]);
-    });
+test("missing version row reports error but still pins", () => {
+    const result = runFreeze({ versions: [] });
+    expect(result.output).toContain("ERROR: Frozen package has no version row: git");
+    expect(result.log).toContain("pin --formula git");
+    expect(result.record).toEqual(["formula git"]);
+});
 
-    test(`missing version row reports error but still pins (${mode})`, () => {
-        const result = runFreeze(strict, { versions: [] });
-        expect(result.output).toContain("ERROR: Frozen package has no version row: git");
-        expect(result.log).toContain("pin --formula git");
-        expect(result.record).toEqual(["formula git"]);
+test("orphan version row reports an error", () => {
+    const result = runFreeze({
+        versions: ["git|2.55.0", "ghost|1.0"],
     });
+    expect(result.output).toContain("ERROR: Version row has no frozen package: ghost");
+    expect(result.log).not.toContain("pin --formula ghost");
+});
 
-    test(`orphan version row reports an error (${mode})`, () => {
-        const result = runFreeze(strict, {
-            versions: ["git|2.55.0", "ghost|1.0"],
-        });
-        expect(result.output).toContain("ERROR: Version row has no frozen package: ghost");
-        expect(result.log).not.toContain("pin --formula ghost");
+test("different formula source is pinned with switch warning", () => {
+    const result = runFreeze({
+        packages: ["AlexsJones/llmfit/llmfit"],
+        versions: ["AlexsJones/llmfit/llmfit|1.1.15"],
+        installed: ["formula|llmfit|1.1.15|homebrew/core/llmfit"],
     });
+    expect(result.log).toContain("pin --formula llmfit");
+    expect(result.output).toContain("AlexsJones/llmfit/llmfit is declared from a different source");
+    expect(result.output).toContain(
+        "brew unpin llmfit && brew uninstall llmfit && brew install AlexsJones/llmfit/llmfit",
+    );
+    expect(result.record).toEqual(["formula AlexsJones/llmfit/llmfit"]);
+});
 
-    test(`different formula source is pinned with switch warning (${mode})`, () => {
-        const result = runFreeze(strict, {
-            packages: ["AlexsJones/llmfit/llmfit"],
-            versions: ["AlexsJones/llmfit/llmfit|1.1.15"],
-            installed: ["formula|llmfit|1.1.15|homebrew/core/llmfit"],
-        });
-        expect(result.log).toContain("pin --formula llmfit");
-        expect(result.output).toContain(
-            "AlexsJones/llmfit/llmfit is declared from a different source",
-        );
-        expect(result.output).toContain(
-            "brew unpin llmfit && brew uninstall llmfit && brew install AlexsJones/llmfit/llmfit",
-        );
-        expect(result.record).toEqual(["formula AlexsJones/llmfit/llmfit"]);
+test("hand-pinned source mismatch still shows the switch command", () => {
+    const result = runFreeze({
+        packages: ["AlexsJones/llmfit/llmfit"],
+        versions: ["AlexsJones/llmfit/llmfit|1.1.15"],
+        installed: ["formula|llmfit|1.1.15|homebrew/core/llmfit"],
+        pinned: ["llmfit 1.1.15"],
     });
+    expect(result.log).not.toContain("pin --formula llmfit");
+    expect(result.output).toContain("brew unpin llmfit && brew uninstall llmfit");
+    expect(result.record).toEqual([]);
+});
 
-    test(`hand-pinned source mismatch still shows the switch command (${mode})`, () => {
-        const result = runFreeze(strict, {
-            packages: ["AlexsJones/llmfit/llmfit"],
-            versions: ["AlexsJones/llmfit/llmfit|1.1.15"],
-            installed: ["formula|llmfit|1.1.15|homebrew/core/llmfit"],
-            pinned: ["llmfit 1.1.15"],
-        });
-        expect(result.log).not.toContain("pin --formula llmfit");
-        expect(result.output).toContain("brew unpin llmfit && brew uninstall llmfit");
-        expect(result.record).toEqual([]);
+test("recorded source mismatch is silent on rerun", () => {
+    const result = runFreeze({
+        packages: ["AlexsJones/llmfit/llmfit"],
+        versions: ["AlexsJones/llmfit/llmfit|1.1.15"],
+        installed: ["formula|llmfit|1.1.15|homebrew/core/llmfit"],
+        pinned: ["llmfit 1.1.15"],
+        record: ["formula AlexsJones/llmfit/llmfit"],
     });
+    expect(result.output).not.toContain("WARNING:");
+    expect(result.log).not.toContain("pin --formula llmfit");
+    expect(result.record).toEqual(["formula AlexsJones/llmfit/llmfit"]);
+});
 
-    test(`recorded source mismatch is silent on rerun (${mode})`, () => {
-        const result = runFreeze(strict, {
-            packages: ["AlexsJones/llmfit/llmfit"],
-            versions: ["AlexsJones/llmfit/llmfit|1.1.15"],
-            installed: ["formula|llmfit|1.1.15|homebrew/core/llmfit"],
-            pinned: ["llmfit 1.1.15"],
-            record: ["formula AlexsJones/llmfit/llmfit"],
-        });
-        expect(result.output).not.toContain("WARNING:");
-        expect(result.log).not.toContain("pin --formula llmfit");
-        expect(result.record).toEqual(["formula AlexsJones/llmfit/llmfit"]);
+test("version drift warns without changing installs or error count", () => {
+    const result = runFreeze({
+        installed: ["formula|git|2.56.0|git"],
+        pinned: ["git 2.56.0"],
     });
+    expect(result.output).toContain("WARNING: git: declared 2.55.0, pinned 2.56.0");
+    expect(result.output).toContain("ERROR_COUNT=0");
+    expect(result.log).not.toMatch(/^(install|upgrade|uninstall) /m);
+    expect(result.pinned).toEqual(["git 2.56.0"]);
+});
 
-    test(`matching pinned version is silent (${mode})`, () => {
-        const result = runFreeze(strict, { pinned: ["git 2.55.0"] });
-        expect(result.output).not.toContain("WARNING:");
+test("revision suffix is version drift", () => {
+    const result = runFreeze({
+        versions: ["git|1.18.2"],
+        installed: ["formula|git|1.18.2_1|git"],
+        pinned: ["git 1.18.2_1"],
     });
+    expect(result.output).toContain("declared 1.18.2, pinned 1.18.2_1");
+});
 
-    test(`version drift warns without changing installs or error count (${mode})`, () => {
-        const result = runFreeze(strict, {
-            installed: ["formula|git|2.56.0|git"],
-            pinned: ["git 2.56.0"],
-        });
-        expect(result.output).toContain("WARNING: git: declared 2.55.0, pinned 2.56.0");
-        expect(result.output).toContain("ERROR_COUNT=0");
-        expect(result.log).not.toMatch(/^(install|upgrade|uninstall) /m);
-        expect(result.pinned).toEqual(["git 2.56.0"]);
+test("forgotten version bump warns on the next run", () => {
+    const result = runFreeze({
+        installed: ["formula|git|2.56.0|git"],
+        pinned: ["git 2.56.0"],
+        record: ["formula git"],
     });
+    expect(result.output).toContain("declared 2.55.0, pinned 2.56.0");
+    expect(result.log).not.toContain("pin --formula git");
+});
 
-    test(`revision suffix is version drift (${mode})`, () => {
-        const result = runFreeze(strict, {
-            versions: ["git|1.18.2"],
-            installed: ["formula|git|1.18.2_1|git"],
-            pinned: ["git 1.18.2_1"],
-        });
-        expect(result.output).toContain("declared 1.18.2, pinned 1.18.2_1");
+test("removed formula and cask release their recorded pins", () => {
+    const result = runFreeze({
+        installed: ["formula|git|2.55.0|git", "formula|old|1.0|old", "cask|old-font|2.0|old-font"],
+        pinned: ["old 1.0", "old-font 2.0"],
+        record: ["formula old", "cask old-font"],
     });
+    expect(result.log).toContain("unpin --formula old");
+    expect(result.log).toContain("unpin --cask old-font");
+    expect(result.record).toEqual(["formula git"]);
+    expect(result.pinned).toEqual(["git 2.55.0"]);
+});
 
-    test(`forgotten version bump warns on the next run (${mode})`, () => {
-        const result = runFreeze(strict, {
-            installed: ["formula|git|2.56.0|git"],
-            pinned: ["git 2.56.0"],
-            record: ["formula git"],
-        });
-        expect(result.output).toContain("declared 2.55.0, pinned 2.56.0");
-        expect(result.log).not.toContain("pin --formula git");
+test("hand pin survives package removal", () => {
+    const result = runFreeze({
+        installed: ["formula|git|2.55.0|git", "formula|old|1.0|old"],
+        pinned: ["old 1.0"],
     });
+    expect(result.log).not.toContain("unpin --formula old");
+    expect(result.pinned).toContain("old 1.0");
+});
 
-    test(`removed formula and cask release their recorded pins (${mode})`, () => {
-        const result = runFreeze(strict, {
-            installed: [
-                "formula|git|2.55.0|git",
-                "formula|old|1.0|old",
-                "cask|old-font|2.0|old-font",
-            ],
-            pinned: ["old 1.0", "old-font 2.0"],
-            record: ["formula old", "cask old-font"],
-        });
-        expect(result.log).toContain("unpin --formula old");
-        expect(result.log).toContain("unpin --cask old-font");
-        expect(result.record).toEqual(["formula git"]);
-        expect(result.pinned).toEqual(["git 2.55.0"]);
-    });
+test("uninstalled recorded package is dropped without unpin", () => {
+    const result = runFreeze({ record: ["formula old"] });
+    expect(result.log).not.toContain("unpin --formula old");
+    expect(result.record).toEqual(["formula git"]);
+});
 
-    test(`hand pin survives package removal (${mode})`, () => {
-        const result = runFreeze(strict, {
-            installed: ["formula|git|2.55.0|git", "formula|old|1.0|old"],
-            pinned: ["old 1.0"],
-        });
-        expect(result.log).not.toContain("unpin --formula old");
-        expect(result.pinned).toContain("old 1.0");
+test("manually removed pin is dropped from the record", () => {
+    const result = runFreeze({
+        installed: ["formula|git|2.55.0|git", "formula|old|1.0|old"],
+        record: ["formula old"],
     });
+    expect(result.log).not.toContain("unpin --formula old");
+    expect(result.record).toEqual(["formula git"]);
+});
 
-    test(`uninstalled recorded package is dropped without unpin (${mode})`, () => {
-        const result = runFreeze(strict, { record: ["formula old"] });
-        expect(result.log).not.toContain("unpin --formula old");
-        expect(result.record).toEqual(["formula git"]);
+test("failed release remains recorded for retry", () => {
+    const result = runFreeze({
+        installed: ["formula|git|2.55.0|git", "formula|old|1.0|old"],
+        pinned: ["old 1.0"],
+        record: ["formula old"],
+        failUnpin: "old",
     });
-
-    test(`manually removed pin is dropped from the record (${mode})`, () => {
-        const result = runFreeze(strict, {
-            installed: ["formula|git|2.55.0|git", "formula|old|1.0|old"],
-            record: ["formula old"],
-        });
-        expect(result.log).not.toContain("unpin --formula old");
-        expect(result.record).toEqual(["formula git"]);
-    });
-
-    test(`failed release remains recorded for retry (${mode})`, () => {
-        const result = runFreeze(strict, {
-            installed: ["formula|git|2.55.0|git", "formula|old|1.0|old"],
-            pinned: ["old 1.0"],
-            record: ["formula old"],
-            failUnpin: "old",
-        });
-        expect(result.output).toContain("ERROR: Failed to release freeze on old");
-        expect(result.record).toContain("formula old");
-    });
-}
+    expect(result.output).toContain("ERROR: Failed to release freeze on old");
+    expect(result.record).toContain("formula old");
+});

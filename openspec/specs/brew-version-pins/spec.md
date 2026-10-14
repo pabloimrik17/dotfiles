@@ -157,10 +157,11 @@ transfer to `arm64`.
 
 ### Requirement: Every brew package the repo installs is frozen at a declared version
 
-The install script SHALL pin every formula and font cask it installs through brew (the freeze).
+The install script SHALL pin every formula, font cask and CLI cask it installs through brew (the freeze).
 The repo SHALL declare one version for each frozen package, taken from a single reference host. The
 version rows SHALL be ordered alphabetically by package name. The
-freeze covers the formulae of the brew packages group and the zsh plugin group, and the font casks.
+freeze covers the formulae of the brew packages group and the zsh plugin group, the CLI casks of the
+brew packages group, and the font casks.
 It does not cover GUI app casks: on the reference host all of them are installed outside brew, and a
 cask with `auto_updates` updates itself despite a pin. It does not cover transitive dependencies
 either, because a pinned dependency blocks every per-package upgrade that needs a newer one.
@@ -181,6 +182,12 @@ first, because brew refuses to uninstall a pinned formula.
 
 - **WHEN** the install script runs on a host where a frozen package is installed and not pinned
 - **THEN** the script pins it and records it, and `brew list --pinned` lists it
+
+#### Scenario: Installed CLI cask is pinned as a cask
+
+- **WHEN** the install script runs on a host where a CLI cask of the brew packages group is
+  installed and not pinned
+- **THEN** the script pins it with `brew pin --cask` and records it as a cask
 
 #### Scenario: Absent package is installed, then pinned
 

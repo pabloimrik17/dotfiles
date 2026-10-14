@@ -107,6 +107,13 @@ print_gws_guidance() {
     info "      Never use gws auth setup: it needs gcloud, which these dotfiles do not install"
 }
 
+print_op_guidance() {
+    info "  - op (1Password CLI): sign in through the 1Password desktop app, not a stored secret:"
+    info "      Open and unlock the 1Password app, then turn on Settings → Developer → Integrate with 1Password CLI"
+    info "      Optional: turn on Touch ID (macOS) or system authentication (Linux) in the app to approve op requests with it"
+    info "      Check: op vault list (the app asks you to authorize the terminal session)"
+}
+
 {{ if eq .chezmoi.os "darwin" -}}
 # ====================================================================
 # macOS — install via Homebrew
@@ -154,11 +161,15 @@ BREW_TAPS=(tarkah/tickrs achannarasappa/tap AlexsJones/llmfit schpet/tap)
 # After the check passes, run brew-upgrade-pinned googleworkspace-cli, then bump
 # the googleworkspace-cli BREW_VERSIONS row to the verified installed version.
 BREW_PACKAGES=(git git-delta starship eza bat zoxide atuin fzf ripgrep lazygit worktrunk terminal-notifier fd direnv beads gh tmux uv mas wget television tarkah/tickrs/tickrs achannarasappa/tap/ticker age mole aoe glow mdfried AlexsJones/llmfit/llmfit tuicr schpet/tap/linear googleworkspace-cli)
+# CLI tools shipped as casks: they install with --cask and freeze as casks.
+BREW_CLI_CASKS=(1password-cli)
 
 # Reference versions from the Intel host. Keep one row for every formula in
-# BREW_PACKAGES and ZSH_PLUGIN_FORMULAE, and every font cask in FONT_CASKS.
+# BREW_PACKAGES and ZSH_PLUGIN_FORMULAE, every cask in BREW_CLI_CASKS, and every
+# font cask in FONT_CASKS.
 # A mismatch is reported after pinning; brew cannot install an older version.
 BREW_VERSIONS=(
+    "1password-cli|2.41.0"
     "achannarasappa/tap/ticker|5.3.0"
     "age|1.3.2"
     "AlexsJones/llmfit/llmfit|1.1.16"
@@ -418,10 +429,15 @@ for pkg in "${BREW_PACKAGES[@]}"; do
         command -v "$bin" &>/dev/null || BREW_PENDING=$((BREW_PENDING + 1))
     fi
 done
+# Only brew counts: an `op` from 1Password's .pkg is outside the freeze.
+for cask in "${BREW_CLI_CASKS[@]}"; do
+    brew list --cask "$cask" &>/dev/null || BREW_PENDING=$((BREW_PENDING + 1))
+done
+BREW_TOTAL=$((${#BREW_PACKAGES[@]} + ${#BREW_CLI_CASKS[@]}))
 
 if [ "$BREW_PENDING" -eq 0 ]; then
-    info "Brew packages: $((${#BREW_PACKAGES[@]} - BREW_HELD_ABSENT))/${#BREW_PACKAGES[@]} installed"
-elif confirm "Install brew packages ($BREW_PENDING/${#BREW_PACKAGES[@]} pending)?"; then
+    info "Brew packages: $((BREW_TOTAL - BREW_HELD_ABSENT))/$BREW_TOTAL installed"
+elif confirm "Install brew packages ($BREW_PENDING/$BREW_TOTAL pending)?"; then
     info "Installing brew packages..."
     for pkg in "${BREW_PACKAGES[@]}"; do
         case " ${BREW_HOLDS_ABSENT[*]:-} " in
@@ -446,6 +462,16 @@ elif confirm "Install brew packages ($BREW_PENDING/${#BREW_PACKAGES[@]} pending)
                 if ! brew install "$pkg"; then
                     error "Failed to install $pkg"
                 fi
+            fi
+        fi
+    done
+    for cask in "${BREW_CLI_CASKS[@]}"; do
+        if brew list --cask "$cask" &>/dev/null; then
+            info "  $cask — already installed (brew), skipping"
+        else
+            info "  Installing $cask..."
+            if ! brew install --cask "$cask"; then
+                error "Failed to install $cask"
             fi
         fi
     done
@@ -1072,6 +1098,11 @@ apply_brew_freeze() {
     for pkg in "${BREW_PACKAGES[@]:-}" "${ZSH_PLUGIN_FORMULAE[@]:-}"; do
         [ -n "$pkg" ] || continue
         frozen+=("formula|$pkg")
+        names+=("$pkg")
+    done
+    for pkg in "${BREW_CLI_CASKS[@]:-}"; do
+        [ -n "$pkg" ] || continue
+        frozen+=("cask|$pkg")
         names+=("$pkg")
     done
     for font_spec in "${FONT_CASKS[@]:-}"; do
@@ -2266,6 +2297,7 @@ info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma
 print_linear_mcp_guidance
 print_linear_cli_guidance
 print_gws_guidance
+print_op_guidance
 info "  - Notion MCP: requires OAuth authentication — run 'claude mcp get notion' or use on first invocation"
 info "  - IBKR MCP (Claude Code only): OAuth authentication — run '/mcp' and authenticate 'ibkr'; complete IBKR login with 2FA, accept its AI agreements and select one account. Revoke access under Client Portal → Settings → Manage Third-Party Consents. Order instruction creation via create_order_instruction and deletion via delete_order_instruction are denied in the managed Claude Code settings; get_account_positions and get_account_orders remain readable."
 info "  - PostHog MCP: requires OAuth authentication — in Claude Code run '/mcp' and authenticate 'plugin:posthog:posthog'; in OpenCode run 'opencode mcp auth'"
@@ -2284,7 +2316,7 @@ info ""
 info "Please install the following packages manually:"
 info ""
 info "  claude-swap: skipped — the managed account-switching integration is macOS-only"
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe, glow, mdfried, llmfit, tuicr, linear, gws"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, tickrs, ticker, age, aoe, glow, mdfried, llmfit, tuicr, linear, gws, op"
 info "    - terminal-notifier: macOS-only (skip on Linux)"
 info "    - fd: on Debian/Ubuntu install fd-find; binary is fdfind — symlink with: ln -s \$(command -v fdfind) ~/.local/bin/fd"
 info "    - worktrunk: brew install worktrunk  OR  cargo install worktrunk"
@@ -2299,6 +2331,7 @@ info "      Update: codex update  (or rerun the standalone installer)"
 print_linear_mcp_guidance
 print_linear_cli_guidance
 print_gws_guidance
+print_op_guidance
 info "    - aoe: cargo install aoe (Linux supported by upstream; brew is macOS-only)"
 info "    - glow: brew install glow (or your distro's package manager, or 'go install github.com/charmbracelet/glow@latest')"
 info "    - mdfried: brew install mdfried (or cargo install mdfried); its image / mermaid / Big-Header rendering needs a terminal with a graphics protocol (Kitty, iTerm2, or Sixel) and otherwise degrades to character rendering"
@@ -2306,6 +2339,7 @@ info "    - llmfit: brew install AlexsJones/llmfit/llmfit (upstream tap; prebuil
 info "    - tuicr: cargo install tuicr (or the official installer: curl -fsSL tuicr.dev/install.sh | sh)"
 info "    - linear: brew install schpet/tap/linear (installs the tap's latest release) OR the release tarball from https://github.com/schpet/linear-cli/releases at the verified version: the schpet/tap/linear row of BREW_VERSIONS in run_onchange_install-packages.sh.tmpl"
 info "    - gws: brew install googleworkspace-cli (installs the latest formula; verified version: the googleworkspace-cli row of BREW_VERSIONS in run_onchange_install-packages.sh.tmpl)"
+info "    - op: apt, dnf or the release binary per https://developer.1password.com/docs/cli/get-started (verified version: the 1password-cli row of BREW_VERSIONS in run_onchange_install-packages.sh.tmpl)"
 info "  Fonts: Hack Nerd Font + JetBrainsMono Nerd Font (https://www.nerdfonts.com/)"
 info "  Shell: zsh, then oh-my-zsh (https://ohmyz.sh/)"
 info "    - zsh: install it first — the oh-my-zsh installer aborts when zsh is missing (apt install zsh, dnf install zsh, …)"
@@ -2370,7 +2404,7 @@ fi
 
 info "Installation complete!"
 {{ if eq .chezmoi.os "darwin" -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, mole, aoe, glow, mdfried, llmfit, tuicr, linear, gws"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, terminal-notifier, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, mole, aoe, glow, mdfried, llmfit, tuicr, linear, gws, op"
 {{ else -}}
-info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, aoe, glow, mdfried, llmfit, tuicr, linear, gws"
+info "  CLI tools: git, git-delta, starship, eza, bat, zoxide, atuin, fzf, ripgrep, lazygit, worktrunk, fd, direnv, beads, gh, tmux, uv, wget, opencode, codex, tickrs, ticker, age, aoe, glow, mdfried, llmfit, tuicr, linear, gws, op"
 {{ end -}}
