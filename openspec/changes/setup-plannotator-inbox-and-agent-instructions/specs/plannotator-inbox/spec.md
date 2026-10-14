@@ -19,7 +19,7 @@ Setup SHALL resolve Plannotator from PATH or `~/.local/bin/plannotator` and chec
 
 - **WHEN** no usable binary exists or its successful help output lacks the Inbox guide marker
 - **AND** installation or upgrade is accepted
-- **THEN** setup SHALL run the official installer with `--non-interactive`, adding `--skip-skills` when git is unavailable
+- **THEN** setup SHALL run the official installer with `--non-interactive`; Git is a setup prerequisite
 - **AND** it SHALL verify the resulting binary and Inbox help before reporting readiness
 
 #### Scenario: Unexpected command failure
@@ -28,26 +28,15 @@ Setup SHALL resolve Plannotator from PATH or `~/.local/bin/plannotator` and chec
 - **THEN** setup SHALL report the failing command and leave the step incomplete
 - **AND** agent-led onboarding SHALL stop and provide the exact command for the user's terminal
 
-### Requirement: OpenCode native Inbox activation preserves preferences
+### Requirement: OpenCode native Inbox activation is manual
 
-The setup SHALL default an absent `inboxTool.opencode` preference to true in Plannotator configuration while preserving unrelated settings and explicit user choices. It SHALL reuse the installed OpenCode plugin instead of adding a duplicate MCP transport. Invalid configuration SHALL fail visibly without replacing the live file.
+The setup SHALL reuse the existing OpenCode plugin without adding a duplicate MCP transport. Plannotator configuration SHALL remain application-owned. Documentation SHALL instruct the user to enable the OpenCode Inbox tool in Inbox Settings once per machine.
 
-#### Scenario: Fresh preference
+#### Scenario: Fresh machine
 
-- **WHEN** the configuration or `inboxTool.opencode` setting is absent
-- **THEN** apply SHALL provide the OpenCode enablement preference
-- **AND** the native tool SHALL be verified in a new session after Inbox initialization
-
-#### Scenario: Existing choice
-
-- **WHEN** `inboxTool` is a boolean or `inboxTool.opencode` already has an explicit boolean value
-- **THEN** apply SHALL preserve that value, including false
-- **AND** existing preferences for other hosts and unrelated keys SHALL survive
-
-#### Scenario: Malformed input
-
-- **WHEN** existing configuration cannot be parsed or has an invalid `inboxTool` shape
-- **THEN** apply SHALL report a merge failure without publishing a replacement configuration
+- **WHEN** the user completes OpenCode Inbox onboarding
+- **THEN** they SHALL enable the native tool in Inbox Settings and restart OpenCode
+- **AND** chezmoi SHALL NOT manage `~/.plannotator/config.json`
 
 ### Requirement: Interactive onboarding stays separate from automatic apply
 

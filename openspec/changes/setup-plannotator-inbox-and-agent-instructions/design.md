@@ -9,7 +9,7 @@ See [proposal.md](proposal.md) for motivation and scope. Read-only discovery on 
 | Plannotator | `0.28.19`, absolute binary under `~/.local/bin`; Inbox help has the required guide marker | No installation or upgrade is needed on this machine today |
 | Inbox | `inbox/inbox.json` exists | Previously initialized; this is not proof of current process health or successful reply delivery |
 | Codex | `codex mcp get plannotator-inbox --json` reports the correct enabled stdio entry | Live registration is already satisfied; bootstrap still lacks reproducibility |
-| Plannotator config | `inboxTool.opencode` is true | Preserve it; add a default for fresh machines |
+| Plannotator config | `inboxTool.opencode` is true | Preserve it; fresh machines enable OpenCode in Inbox Settings |
 | Claude Code | Version `2.1.299`; repo enables `plannotator@plannotator` | Reuse native integration, verify actual tool discovery during onboarding |
 | OpenCode | Repo includes `@plannotator/opencode@latest` with the OpenCode 1 `plugin` key | Initial planning observation; superseded by the authorized v2 migration below |
 | Junie | Merge template manages DeepWiki, JetBrains and Linear only | Add one stdio entry to this existing surface |
@@ -31,7 +31,7 @@ The existing installer Group 7 only checks PATH and runs the installer without a
 
 Resolve `command -v plannotator`, then the executable at `$HOME/.local/bin/plannotator`; retain an absolute path. Run version and Inbox help checks without starting a server. Use the successful help marker as the compatibility test rather than pinning the observed version. Distinguish a release without Inbox support from a permissions or execution error.
 
-For missing/old installations, reuse Group 7's consent and reporting pattern. Download `https://plannotator.ai/install.sh` to a temporary file and invoke `bash <file> --non-interactive`; append `--skip-skills` only without git. This retains the official installer while making its failure observable before execution. Verify the installed CLI afterward. Change the existing update helper to use the same arguments and preserve its failure propagation.
+For missing/old installations, reuse Group 7's consent and reporting pattern. Download `https://plannotator.ai/install.sh` to a temporary file and invoke `bash <file> --non-interactive`; Git is installed earlier in setup. This retains the official installer while making its failure observable before execution. Verify the installed CLI afterward. Change the existing update helper to use the same arguments and preserve its failure propagation.
 
 Classification remains **manual**: the existing `update-extra` step is sufficient. No brew formula, Renovate pin or new updater is introduced. Simply running the upstream install prompt on this host would not fix reproducibility in the repository.
 
@@ -41,7 +41,7 @@ Classification remains **manual**: the existing `update-extra` step is sufficien
 
 **Codex — proposed bootstrap, already satisfied locally.** Surface: the install script driving runtime-owned `codex mcp`. Add a narrowly scoped stdio reconciliation path alongside the HTTP module, not a fake HTTP declaration. Inspect JSON first; for an absent entry, run `codex mcp add plannotator-inbox -- <absolute-binary> inbox mcp` within the existing confirmation pattern, then verify it. Matching entries are no-ops. Disabled entries, differing commands/transports and invalid discovery output are preserved and reported. Do not manage `dot_codex/config.toml`, remove entries or change tool permissions.
 
-**OpenCode — existing plugin plus default activation.** Surface: existing `dot_config/opencode/opencode.jsonc` plugin registration and a new `dot_plannotator/modify_private_config.json` script. Use the existing plugin and default only the absent `inboxTool.opencode` preference. Preserve scalar `inboxTool: true/false`, explicit per-host values and all unrelated keys. Buffer and validate output using the repo's merge-script pattern; malformed input fails without replacing the live file. Missing `uv` follows the existing prerequisite passthrough convention and is reported, not called a successful activation. After Inbox has run once, restart OpenCode to discover the tool. No duplicate Inbox MCP entry is added. The user-authorized v2 extension below supersedes the original v1 schema constraint.
+**OpenCode — existing plugin plus manual activation.** Retain `@plannotator/opencode@latest`. Once per machine, enable its native Inbox tool in Inbox Settings and restart OpenCode. Plannotator owns `~/.plannotator/config.json`; chezmoi does not manage it. The official onboarding prompt delegates connection details to `plannotator inbox --help`, which documents this switch. No duplicate Inbox MCP entry is added.
 
 **Junie — proposed configuration, supported stdio transport.** Surface: `dot_junie/mcp/modify_mcp.json.tmpl`, targeting `~/.junie/mcp/mcp.json`. Add an absent `mcpServers.plannotator-inbox` object with `command: <absolute-binary>` and `args: ["inbox", "mcp"]`. Resolve the binary at apply time; do not hardcode this user's home or rely on a GUI PATH. Preserve matching entries with their extra options, conflicting entries, unrelated values and any client-owned disabled state. Missing/incompatible Plannotator skips only this addition with a visible warning. Preserve the existing merge failure contract. Verify tools through Junie's `/mcp` in a new session; JetBrains AI Assistant settings are a separate surface and are not substituted for Junie settings.
 
@@ -85,7 +85,7 @@ Reuse an existing first thread when the idempotency key was already used. Poll i
 - **README, What's Included:** add `[Plannotator](https://plannotator.ai/)` under AI Tooling with description `Local plan/code reviews and an async Inbox for agent questions and files`.
 - **README, setup:** add a short `plannotator inbox` onboarding step, new-session requirement, and a link to the manual workflow; no screenshot change is required.
 - **Manual section 11:** add a `Plannotator Inbox` subsection covering open/background/help commands, native Claude tool, note consent, notifications and local data. Keep upstream command names that genuinely refer to CLAUDE.md; explain the repo's canonical AGENTS import rather than globally replacing names in prose.
-- **Manual section 12:** describe plugin activation via `inboxTool.opencode`, restart after first Inbox start, and the OpenCode 1 polling limitation.
+- **Manual section 12:** describe one-time plugin activation in Inbox Settings, restart after first Inbox start, and the OpenCode 1 polling limitation.
 - **Manual sections 13–14:** add stdio command/args, registration ownership, restart, `wait_for_reply`, and no-Junie-note-installer distinction. Clarify that Codex MCP is runtime-owned even if instruction files are discussed separately.
 - **Manual update-extra row:** retain the existing Plannotator step and describe its non-interactive installer. Preserve sections/numbering and existing HTML conventions.
 - **Parity table:** add Inbox transport/delivery row and instruction discovery/note ownership row; no blank agent cells.
@@ -94,7 +94,7 @@ Reuse an existing first thread when the idempotency key was already used. Poll i
 
 During apply the installed CLI reported v2.0.28. The user explicitly chose to extend this change to migrate OpenCode configuration. Initial plugin discovery returned no plugins; a later initialized catalog contained all four existing plugins, including Plannotator 0.28.20. Native conversion is therefore an authorized configuration cleanup, not proof that legacy parsing prevented Inbox.
 
-Use the official v2 migration guide and installed `opencode debug config` as the behavior oracle. Convert `plugin` to `plugins` package objects, `autoupdate` to `update`, `permission` to ordered `permissions` (`bash` becomes `shell`), and `mcp` to `mcp.servers` with inverted `disabled` flags. Preserve the model, shell, formatter, rule order, plugin sources, all MCP endpoints and project definitions. Convert the repo project MCP config as well. Existing skill/command Markdown stays compatible and unchanged.
+Use the official v2 migration guide and installed `opencode debug config` as the behavior oracle. Convert `plugin` to `plugins` package objects, `autoupdate` to `update`, `permission` to ordered `permissions` (`bash` becomes `shell`), and `mcp` to `mcp.servers` with inverted `disabled` flags. Preserve the model, shell, formatter, permission rules (force-push denies follow allows), retained plugin sources, all MCP endpoints and project definitions. Convert the repo project MCP config as well. Existing skill/command Markdown stays compatible and unchanged.
 
 Replace the managed legacy `tui.json` source with `dot_config/opencode/modify_private_cli.json`, targeting global `~/.config/opencode/cli.json`: merge `theme.name: catppuccin-macchiato` and `scroll.acceleration: true`, preserving unrelated keys, theme options and other scroll options. Use the same buffered uv merge/error convention and retain mode 0600. Leave the old live tui file alone; v2 does not consume it. Do not copy runtime CLI state, sessions, authentication or credentials into Git.
 
@@ -105,7 +105,7 @@ Update docs/parity for v2 keys, native automatic Inbox replies and AGENTS-only i
 - **Upstream installer side effects** → Use documented non-interactive flags, review its current behavior during apply, preserve existing connections and report side effects. No direct execution during proposal creation.
 - **chezmoi file/script ordering on a fresh host** → Junie's merge may run before Group 7 installs the binary. Skip only the missing Inbox entry, report it, and perform a targeted second apply after installation; verify convergence on the second pass.
 - **User-selected opt-outs differ from defaults** → Preserve explicit false/disabled values and describe the resulting inactive host; do not silently declare all hosts active.
-- **OpenCode v2 migration** → Compare normalized server config before/after; preserve rule order, existing plugins and MCP endpoints. Merge only theme/scroll keys into private CLI config. Verify actual plugin/tool discovery; do not infer it from package names.
+- **OpenCode v2 migration** → Compare normalized server config before/after; preserve permission rules and MCP endpoints; remove DCP at user request. Merge only theme/scroll keys into private CLI config. Verify actual plugin/tool discovery; do not infer it from package names.
 - **Native plugin prerequisites drift** → Treat the installed guide as authoritative and verify in fresh sessions. Do not claim native discovery from enabled-plugin configuration alone.
 - **A compatibility import retains the CLAUDE filename** → It removes duplicate maintenance while supporting older host modes; the proposal makes this distinction explicit for review.
 - **Another change touches MCP/docs** → Keep deltas additive and preserve Sentry/PostHog entries and all existing permission policies.
@@ -126,3 +126,7 @@ Update docs/parity for v2 keys, native automatic Inbox replies and AGENTS-only i
 - [Codex global and project instructions](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
 - [OpenCode rules and precedence](https://opencode.ai/docs/rules/).
 - [Junie MCP configuration](https://junie.jetbrains.com/docs/junie-cli-mcp-configuration.html) and [global guidelines](https://junie.jetbrains.com/docs/guidelines-and-memory.html).
+
+## Review simplification
+
+Remove DCP, the dedicated `tests/plannotator-inbox.test.ts` suite and `tests/fixtures/opencode-v1/` as requested. Use existing installer checks and targeted configuration inspection for this revision. The earlier automated verification remains historical evidence, not retained regression coverage.

@@ -9,14 +9,14 @@
 ## 2. Plannotator installation and updates
 
 - [x] 2.1 Update installer Group 7 to resolve PATH/fallback binaries, distinguish compatible/old/error states, install only when needed using the official non-interactive flags and verify the result; add isolated Bun tests for current, missing, old, fallback-path, missing-git and failure branches.
-- [x] 2.2 Update the existing `_update_extra_plannotator` helper to pass `--non-interactive` and conditional `--skip-skills`; verify with stubbed download/installer commands that arguments are correct, failure propagates and only one Plannotator update step remains.
+- [x] 2.2 Update the existing `_update_extra_plannotator` helper to pass `--non-interactive` with Git available as a setup prerequisite; verify with stubbed download/installer commands that arguments are correct, failure propagates and only one Plannotator update step remains.
 - [x] 2.3 Add the Plannotator README entry and installation/update guidance, plus the manual's corresponding update-extra wording; verify command spelling against the current installer/CLI and preserve the existing manual update classification.
 
 ## 3. Agent connections and native activation
 
 - [x] 3.1 Add Codex stdio Inbox reconciliation alongside the existing HTTP module using `codex mcp` JSON inspection and post-add verification; add Bun cases for absent/matching/disabled/conflicting entries, malformed JSON, missing prerequisites and add failure, proving unrelated configuration is untouched.
 - [x] 3.2 Extend `dot_junie/mcp/modify_mcp.json.tmpl` to add only an absent Inbox stdio entry using a resolved absolute binary; test matching entries with extra options, conflicts, unrelated JSON preservation, invalid JSON, missing binary/uv and second-pass convergence after installation.
-- [x] 3.3 Add `dot_plannotator/modify_private_config.json` to default an absent OpenCode Inbox preference while preserving booleans, explicit per-host choices and unrelated keys; test fresh/partial configs, explicit false, malformed shapes, merge failures and repeated application in an isolated home.
+- [x] 3.3 Leave OpenCode Inbox activation in Inbox Settings once per machine; remove the chezmoi Plannotator preference merge and document runtime ownership.
 - [x] 3.4 Confirm the existing Claude/OpenCode plugins remain the only managed Inbox transports for those hosts; verify diffs introduce no redundant MCP entry, broad permission grant, hardcoded personal home or port pin.
 - [x] 3.5 Add concrete Inbox parity and manual rows for all four hosts, including native prerequisites, restart behavior, polling and the Junie note-installer gap; verify every documented surface matches the implementation and existing Sentry/PostHog content remains intact.
 
@@ -39,3 +39,10 @@
 - [x] 6.1 Convert managed OpenCode server/project configuration to native v2 fields while preserving normalized model, shell, formatter, permission order/effects, plugin sources and MCP endpoints; add focused regression checks and update docs/parity.
 - [x] 6.2 Replace the legacy managed TUI source with a private buffered CLI merge for theme and scroll acceleration; test fresh/existing settings, nested preservation, malformed input, missing uv, failure and idempotence.
 - [x] 6.3 Inspect and apply targeted OpenCode diffs, compare normalized configuration before/after, verify all existing plugins and the native Inbox tool in a fresh session, and record migration evidence without copying runtime data into Git.
+
+## 7. Review revisions
+
+- [x] 7.1 Remove DCP and its manual entry.
+- [x] 7.2 Remove the dedicated Inbox test suite and v1 fixtures at user request; earlier test tasks record historical implementation checks only.
+- [x] 7.3 Remove the missing-Git installer fallback and leave Inbox activation application-owned.
+- [x] 7.4 Confirm native CLI settings are already migrated on this machine and retain the targeted theme/scroll merge.

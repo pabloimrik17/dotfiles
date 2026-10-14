@@ -154,7 +154,8 @@ recipient in `.chezmoi.toml.tmpl` in sync. Losing the identity makes encrypted a
     PLANNOTATOR_INBOX_CONNECT=0 plannotator inbox
     ```
 
-    OpenCode configuration targets v2; its theme and scrolling merge into private `cli.json`
+    Enable the OpenCode Inbox tool in Inbox Settings once per machine; this preference stays
+    application-owned. OpenCode configuration targets v2; its theme and scrolling merge into private `cli.json`
     while other CLI preferences remain runtime-owned. Start a new agent session after setup. Follow the [Inbox workflow](docs/manual.html#plannotator-inbox)
     for instruction-note consent and a real reply check. Installation reuses an Inbox-capable CLI
     from PATH or `~/.local/bin`; missing/old releases use the official non-interactive installer.

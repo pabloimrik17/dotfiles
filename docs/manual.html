@@ -2554,9 +2554,8 @@
                                     extensions, you-should-use, skills.sh globals, plannotator,
                                     Catppuccin themes, tv channels, fallow &mdash; a failing step
                                     reports and continues; summary at the end. The single
-                                    Plannotator step uses the official non-interactive installer,
-                                    adding
-                                    <code>--skip-skills</code> only when git is unavailable
+                                    Plannotator step uses the official non-interactive installer;
+                                    Git is installed earlier in setup
                                 </td>
                             </tr>
                         </tbody>
@@ -2883,18 +2882,19 @@
                         Read the installed guide &rarr; name the active host &rarr; inspect its
                         connection &rarr; start with <code>--background</code> &rarr; open with the
                         scoped <code>PLANNOTATOR_INBOX_CONNECT=0</code> override &rarr; offer the
-                        printed URL if the browser cannot open &rarr; start a fresh agent session.
+                        printed URL if the browser cannot open &rarr; enable OpenCode in Inbox
+                        Settings once per machine &rarr; start a fresh agent session.
                     </div>
                     <p>
                         Automatic apply configures availability only: it does not open the UI,
                         install instruction notes, send messages or wait for answers. Resolve the
                         binary from PATH or <code>~/.local/bin/plannotator</code>. Setup reuses
                         successful Inbox guide output, installs missing/old releases with the
-                        official <code>--non-interactive</code> installer, and adds
-                        <code>--skip-skills</code> only without git. Version/help execution errors
-                        stop that step; run the reported command in your terminal before retrying.
-                        There is no service manager or fixed port. The Inbox binds loopback;
-                        publishing over Tailscale requires a separate user choice.
+                        official <code>--non-interactive</code> installer with Git installed earlier
+                        in setup. Version/help execution errors stop that step; run the reported
+                        command in your terminal before retrying. There is no service manager or
+                        fixed port. The Inbox binds loopback; publishing over Tailscale requires a
+                        separate user choice.
                     </p>
                     <h3>Inbox instruction notes</h3>
                     <p>
@@ -3938,14 +3938,13 @@
                     </p>
                     <p>
                         The existing <code>@plannotator/opencode@latest</code> plugin supplies
-                        Inbox. Chezmoi defaults only missing <code>inboxTool.opencode</code> to
-                        <code>true</code> in <code>~/.plannotator/config.json</code>; scalar
-                        booleans and explicit host choices, including false, remain intact.
-                        <code>PLANNOTATOR_INBOX_TOOL</code> overrides the preference. Start Inbox
-                        once, then restart OpenCode to discover the native tool. OpenCode 2 delivers
-                        replies when idle; older OpenCode 1 sessions require
-                        <code>wait_for_reply</code>. No duplicate MCP entry is added. Follow the
-                        <a href="#plannotator-inbox">Inbox workflow</a>.
+                        Inbox. Once per machine, enable the OpenCode Inbox tool in Inbox Settings.
+                        Plannotator owns <code>~/.plannotator/config.json</code>; chezmoi does not
+                        manage this preference. <code>PLANNOTATOR_INBOX_TOOL</code> overrides the
+                        preference. Start Inbox once, then restart OpenCode to discover the native
+                        tool. OpenCode 2 delivers replies when idle; older OpenCode 1 sessions
+                        require <code>wait_for_reply</code>. No duplicate MCP entry is added. Follow
+                        the <a href="#plannotator-inbox">Inbox workflow</a>.
                     </p>
                     <h3>OpenCode 2 configuration</h3>
                     <p>
@@ -3995,10 +3994,6 @@
                                     >
                                     package; workflows use OpenCode's native skill discovery
                                 </td>
-                            </tr>
-                            <tr>
-                                <td>dcp</td>
-                                <td>DevTools Protocol browser control</td>
                             </tr>
                         </tbody>
                     </table>

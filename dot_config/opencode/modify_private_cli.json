@@ -17,7 +17,7 @@ import sys
 def load(raw):
     doc = json.loads(raw) if raw.strip() else {}
     if not isinstance(doc, dict):
-        raise ValueError("config.json must be an object")
+        raise ValueError("cli.json must be an object")
     for key in ("theme", "scroll"):
         if key in doc and not isinstance(doc[key], dict):
             raise ValueError(f"{key} must be an object")

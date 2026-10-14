@@ -1,13 +1,10 @@
-// OpenCode 2 native configuration. Permission rules retain their existing order.
+// OpenCode 2 native configuration. Last matching permission wins; force-push denies follow shell allows.
 {
     "$schema": "https://opencode.ai/config.json",
     "model": "anthropic/claude-opus-4-6",
     "shell": "zsh",
     "update": "auto",
     "plugins": [
-        {
-            "package": "@tarquinen/opencode-dcp@latest",
-        },
         {
             "package": "@plannotator/opencode@latest",
         },
@@ -96,26 +93,6 @@
         {
             "action": "shell",
             "resource": "wget * | sh",
-            "effect": "deny",
-        },
-        {
-            "action": "shell",
-            "resource": "git push --force *",
-            "effect": "deny",
-        },
-        {
-            "action": "shell",
-            "resource": "git push * --force",
-            "effect": "deny",
-        },
-        {
-            "action": "shell",
-            "resource": "git push -f *",
-            "effect": "deny",
-        },
-        {
-            "action": "shell",
-            "resource": "git push * -f",
             "effect": "deny",
         },
         {
@@ -462,6 +439,26 @@
             "action": "shell",
             "resource": "claude skills *",
             "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git push --force *",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "git push * --force",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "git push -f *",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "git push * -f",
+            "effect": "deny",
         },
         {
             "action": "doom_loop",
