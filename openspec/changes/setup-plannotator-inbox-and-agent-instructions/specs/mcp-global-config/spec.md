@@ -59,3 +59,25 @@ The parity documentation SHALL record transport, activation, configuration owner
 - **WHEN** the Inbox parity row is read
 - **THEN** all four agents SHALL have concrete integration surfaces and delivery behavior
 - **AND** Junie's supported stdio transport SHALL be distinguished from the absence of a Junie ID in Plannotator's note installer
+
+### Requirement: OpenCode v2 migration preserves managed behavior
+
+The setup SHALL use native OpenCode v2 configuration for the existing managed server and project settings, preserving model selection, shell, formatter, permission effects/order, plugin sources and every MCP endpoint. It SHALL merge only the declared theme and scrolling settings into private CLI configuration while preserving unrelated runtime preferences.
+
+#### Scenario: Server and project configuration are converted
+
+- **WHEN** legacy OpenCode config is converted to native v2 fields
+- **THEN** normalized configuration SHALL retain the same permission rules, plugins and MCP server definitions
+- **AND** no redundant Inbox MCP entry or new permission grant SHALL appear
+
+#### Scenario: Existing CLI preferences are present
+
+- **WHEN** chezmoi applies the v2 CLI settings
+- **THEN** it SHALL set `theme.name` to `catppuccin-macchiato` and `scroll.acceleration` to true while preserving unrelated settings and nested options
+- **AND** malformed input or a failed merge SHALL leave the live file unchanged, with missing uv reported as a prerequisite skip
+
+#### Scenario: Native plugin verification
+
+- **WHEN** OpenCode reloads the migrated configuration
+- **THEN** the existing Plannotator plugin and native Inbox tool SHALL be discoverable
+- **AND** runtime credentials and session state SHALL remain outside Git

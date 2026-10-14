@@ -383,8 +383,10 @@ _update_extra_catppuccin() {
 # the download fails: bash reads empty stdin).
 _update_extra_plannotator() {
   local tmp rc
+  local -a installer_args=(--non-interactive)
+  command -v git >/dev/null 2>&1 || installer_args+=(--skip-skills)
   tmp="$(mktemp)" || return 1
-  curl -fsSL https://plannotator.ai/install.sh -o "$tmp" && bash "$tmp"
+  curl -fsSL https://plannotator.ai/install.sh -o "$tmp" && bash "$tmp" "${installer_args[@]}"
   rc=$?
   rm -f "$tmp"
   return $rc

@@ -59,8 +59,8 @@ The migration SHALL preserve instruction discovery by the repository's supported
 - **WHEN** chezmoi computes targets
 - **THEN** root `AGENTS.md` and `CLAUDE.md` SHALL remain ignored as repo tooling
 
-#### Scenario: OpenCode global precedence
+#### Scenario: OpenCode 1 global precedence
 
 - **WHEN** documentation discusses creating `~/.config/opencode/AGENTS.md`
-- **THEN** it SHALL explain that this takes precedence over the `~/.claude/CLAUDE.md` fallback
+- **THEN** it SHALL explain that on OpenCode 1 this takes precedence over the `~/.claude/CLAUDE.md` fallback; OpenCode 2 currently discovers AGENTS files only
 - **AND** the migration SHALL NOT create that file with only an Inbox note while losing existing fallback instructions

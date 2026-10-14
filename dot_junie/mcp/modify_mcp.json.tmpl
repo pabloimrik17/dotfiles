@@ -1,6 +1,7 @@
 #!/bin/sh
 # chezmoi modify_ script for ~/.junie/mcp/mcp.json. It owns only the
-# mcpServers.deepwiki, mcpServers.jetbrains and mcpServers.linear entries and
+# mcpServers.deepwiki, mcpServers.jetbrains and mcpServers.linear entries,
+# adds an absent mcpServers.plannotator-inbox entry, and
 # preserves every other valid value in the live file.
 # The merge is buffered and validated before stdout reaches chezmoi; a merge that
 # fails exits non-zero naming the target. Only a missing `uv` skips the merge:
@@ -28,12 +29,35 @@ passthrough() {
 # uv is installed by the dotfiles bootstrap. If it is not available yet, keep
 # the current state and let a later apply converge the managed entry.
 if ! command -v uv >/dev/null 2>&1; then
+  echo "Junie MCP: uv missing; keeping existing config. Install uv and reapply." >&2
   passthrough
   exit 0
 fi
 
+# Resolve at apply time, including GUI hosts whose PATH lacks ~/.local/bin.
+inbox_binary="$(command -v plannotator 2>/dev/null || true)"
+if [ -z "$inbox_binary" ] && [ -e "$HOME/.local/bin/plannotator" ]; then
+  inbox_binary="$HOME/.local/bin/plannotator"
+fi
+if [ -n "$inbox_binary" ]; then
+  case "$inbox_binary" in /*) ;; *) inbox_binary="$PWD/$inbox_binary" ;; esac
+  if "$inbox_binary" --version >/dev/null 2>&1 && inbox_guide="$("$inbox_binary" inbox --help)"; then
+    case "$inbox_guide" in
+      '# Plannotator Inbox: a guide for agents'*) ;;
+      *) inbox_binary="" ;;
+    esac
+  else
+    inbox_binary=""
+  fi
+fi
+if [ -z "$inbox_binary" ]; then
+  echo "Junie Inbox: compatible Plannotator missing; install it, then reapply ~/.junie/mcp/mcp.json." >&2
+fi
+export JUNIE_INBOX_BINARY="$inbox_binary"
+
 cat >"$prog" <<'PYEOF'
 import json
+import os
 import sys
 from collections import OrderedDict
 
@@ -73,6 +97,20 @@ def main():
         servers["jetbrains"] = JETBRAINS
     if servers.get("linear") != LINEAR:
         servers["linear"] = LINEAR
+
+    binary = os.environ.get("JUNIE_INBOX_BINARY")
+    if binary:
+        if "plannotator-inbox" not in servers:
+            servers["plannotator-inbox"] = {"command": binary, "args": ["inbox", "mcp"]}
+        else:
+            entry = servers["plannotator-inbox"]
+            if (isinstance(entry, dict) and entry.get("command") == binary
+                    and entry.get("args") == ["inbox", "mcp"]
+                    and entry.get("disabled") is not True and entry.get("enabled") is not False
+                    and "url" not in entry):
+                print("Junie Inbox: already configured; preserving options", file=sys.stderr)
+            else:
+                print("Junie Inbox: disabled or conflicting entry preserved; review it manually", file=sys.stderr)
 
     out = json.dumps(doc, indent=2, ensure_ascii=False)
     if raw.endswith("\n"):

@@ -1,0 +1,140 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "model": "anthropic/claude-opus-4-6",
+    "shell": "zsh",
+    "autoupdate": true,
+    "tui": {
+        "scroll_acceleration": {
+            "enabled": true
+        }
+    },
+    "plugin": [
+        "@tarquinen/opencode-dcp@latest",
+        "@plannotator/opencode@latest",
+        "opencode-wakatime",
+        "superpowers@git+https://github.com/obra/superpowers.git"
+    ],
+    "mcp": {
+        "expect": {
+            "type": "local",
+            "command": ["npx", "-y", "expect-cli@latest", "mcp"],
+            "enabled": true
+        },
+        "deepwiki": {
+            "type": "remote",
+            "url": "https://mcp.deepwiki.com/mcp",
+            "enabled": true
+        },
+        "jetbrains": {
+            "type": "remote",
+            "url": "http://localhost:64542/stream",
+            "enabled": true
+        },
+        "linear": {
+            "type": "remote",
+            "url": "https://mcp.linear.app/mcp",
+            "enabled": true
+        },
+        "posthog": {
+            "type": "remote",
+            "url": "https://mcp.posthog.com/mcp",
+            "enabled": true
+        },
+        "sentry": {
+            "type": "remote",
+            "url": "https://mcp.sentry.dev/mcp",
+            "enabled": true
+        }
+    },
+    "formatter": {
+        "oxfmt": {
+            "command": ["oxfmt", "$FILE"]
+        }
+    },
+    "permission": {
+        "edit": "ask",
+        "webfetch": "ask",
+        "bash": {
+            "*": "ask",
+            "sudo *": "deny",
+            "curl * | bash": "deny",
+            "curl * | sh": "deny",
+            "wget * | bash": "deny",
+            "wget * | sh": "deny",
+            "git push --force *": "deny",
+            "git push * --force": "deny",
+            "git push -f *": "deny",
+            "git push * -f": "deny",
+            "npm publish *": "deny",
+            "bun publish *": "deny",
+            "chmod -R 777 *": "deny",
+            "ls": "allow",
+            "ls *": "allow",
+            "cat *": "allow",
+            "head *": "allow",
+            "tail *": "allow",
+            "wc *": "allow",
+            "pwd": "allow",
+            "echo *": "allow",
+            "which *": "allow",
+            "file *": "allow",
+            "find *": "allow",
+            "rg *": "allow",
+            "du *": "allow",
+            "tree *": "allow",
+            "stat *": "allow",
+            "git status": "allow",
+            "git status *": "allow",
+            "git diff": "allow",
+            "git diff *": "allow",
+            "git log": "allow",
+            "git log *": "allow",
+            "git show *": "allow",
+            "git branch": "allow",
+            "git branch *": "allow",
+            "git remote *": "allow",
+            "git stash list *": "allow",
+            "git ls-tree *": "allow",
+            "git rev-parse *": "allow",
+            "git config --get *": "allow",
+            "git add *": "allow",
+            "git fetch *": "allow",
+            "git push *": "allow",
+            "bun run *": "allow",
+            "bun test *": "allow",
+            "bun install --frozen-lockfile": "allow",
+            "pnpm run *": "allow",
+            "pnpm test *": "allow",
+            "pnpm install --frozen-lockfile": "allow",
+            "node --version": "allow",
+            "bun --version": "allow",
+            "npm --version": "allow",
+            "chezmoi cat *": "allow",
+            "chezmoi diff *": "allow",
+            "chezmoi managed *": "allow",
+            "chezmoi source-path *": "allow",
+            "chezmoi status *": "allow",
+            "chezmoi data *": "allow",
+            "brew info *": "allow",
+            "brew list *": "allow",
+            "brew outdated *": "allow",
+            "npm info *": "allow",
+            "openspec list *": "allow",
+            "openspec status *": "allow",
+            "openspec instructions *": "allow",
+            "bunx openspec *": "allow",
+            "wt list *": "allow",
+            "wt config *": "allow",
+            "wt --help *": "allow",
+            "gh api *": "allow",
+            "gh issue *": "allow",
+            "gh pr *": "allow",
+            "gh repo *": "allow",
+            "claude mcp *": "allow",
+            "claude plugin *": "allow",
+            "claude skill *": "allow",
+            "claude skills *": "allow"
+        },
+        "doom_loop": "deny"
+    }
+}
