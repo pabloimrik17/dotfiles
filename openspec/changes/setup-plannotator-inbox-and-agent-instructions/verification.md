@@ -44,3 +44,11 @@
 The checks above describe the earlier implementation. At user request, DCP, the Plannotator preference merge, the entire dedicated Inbox test suite and both v1 fixtures have now been removed. OpenCode Inbox activation is a one-time action in Inbox Settings; existing live preferences are preserved. Both installer paths assume Git is available and use only `--non-interactive`.
 
 The current machine already has the v2 theme and scroll settings in `cli.json`; targeted `chezmoi diff --exclude scripts` is empty. The retained installer suite passes all 4 tests (including macOS/Linux rendering and shell syntax). Strict OpenSpec validation passes. No new live installation or Inbox activation was performed during this revision.
+
+## Review follow-up validation
+
+- Fixed the README documentation test for the four-step setup, repaired the parity table and removed the obsolete formatter ignore.
+- Added full MODIFIED deltas for OpenCode main/CLI settings and existing DeepWiki, Expect and JetBrains MCP requirements. The migration explicitly retains force-push deny precedence and removes DCP. Updated the proposal and skill trigger wording to match.
+- Full `bun test`: **140 passed, 1 skipped, 0 failed** across 10 files. The skip remains the opt-in live IBKR test.
+- Formatting, Fallow audit, `git diff --check` and strict validation of this change passed. All three changes pass with the CI-pinned OpenSpec 1.2.0 validator. The newer local validator reports pre-existing omitted scenarios in the separate Sentry and PostHog changes; those artifacts were not modified.
+- No new live setup or host-discovery checks were performed. The earlier Claude/Junie verification limitations still apply.

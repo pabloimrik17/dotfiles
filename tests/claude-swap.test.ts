@@ -1054,14 +1054,14 @@ describe("upstream claude-swap autoswitch policy", () => {
 });
 
 describe("claude-swap documentation", () => {
-    test("keeps README as a concise three-step overview", async () => {
+    test("keeps README as a concise four-step overview", async () => {
         const readme = await readFile(path.join(repositoryRoot, "README.md"), "utf8");
         const setup = readme.match(/## Setup\n([\s\S]*?)\n## Daily Workflows/)?.[1];
 
         expect(readme).toContain("[claude-swap](https://github.com/realiti4/claude-swap)");
         expect(readme).toContain("Pinned macOS account and quota manager for Claude Code");
         expect(setup).toBeDefined();
-        expect(setup!.match(/^\d+\. /gm)).toHaveLength(3);
+        expect(setup!.match(/^\d+\. /gm)).toHaveLength(4);
         expect(setup!.indexOf("brew install chezmoi")).toBeLessThan(
             setup!.indexOf("chezmoi init pabloimrik17/dotfiles"),
         );

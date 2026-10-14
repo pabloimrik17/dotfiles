@@ -23,7 +23,8 @@ Plannotator is already installed and the current machine has a partially configu
 
 ### Modified Capabilities
 
-- `mcp-global-config`: Add narrowly managed stdio Inbox connections for Codex and Junie while reusing native plugins for Claude Code and OpenCode.
+- `mcp-global-config`: Add narrowly managed stdio Inbox connections for Codex and Junie while reusing native plugins for Claude Code and OpenCode; migrate existing OpenCode MCP requirements to `mcp.servers` and `disabled: false`.
+- `opencode-user-config`: Describe native v2 settings, retained plugins, force-push deny precedence and the private CLI preference merge replacing managed `tui.json`.
 - `extra-updates-command`: Make the existing Plannotator update use the non-interactive installer without adding a second updater.
 
 ## Impact
