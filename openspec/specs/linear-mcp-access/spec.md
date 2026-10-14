@@ -38,7 +38,7 @@ The chezmoi-managed OpenCode configuration SHALL define an enabled remote MCP se
 #### Scenario: OpenCode config is deployed
 
 - **WHEN** `chezmoi apply` deploys `~/.config/opencode/opencode.jsonc`
-- **THEN** `mcp.linear` SHALL have type `remote`, be enabled, and set `url` to `https://mcp.linear.app/mcp`
+- **THEN** `mcp.servers.linear` SHALL have type `remote`, set `disabled: false`, and set `url` to `https://mcp.linear.app/mcp`
 - **AND** the entry SHALL contain no command array, package coordinate, credential, or static header
 
 #### Scenario: OpenCode authenticates natively
