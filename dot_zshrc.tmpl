@@ -384,7 +384,7 @@ _update_extra_catppuccin() {
 _update_extra_plannotator() {
   local tmp rc
   tmp="$(mktemp)" || return 1
-  curl -fsSL https://plannotator.ai/install.sh -o "$tmp" && bash "$tmp"
+  curl -fsSL https://plannotator.ai/install.sh -o "$tmp" && bash "$tmp" --non-interactive
   rc=$?
   rm -f "$tmp"
   return $rc

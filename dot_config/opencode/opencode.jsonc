@@ -1,49 +1,52 @@
+// OpenCode 2 native configuration. Last matching permission wins; force-push denies follow shell allows.
 {
     "$schema": "https://opencode.ai/config.json",
     "model": "anthropic/claude-opus-4-6",
     "shell": "zsh",
-    "autoupdate": true,
-    "tui": {
-        "scroll_acceleration": {
-            "enabled": true,
+    "update": "auto",
+    "plugins": [
+        {
+            "package": "@plannotator/opencode@latest",
         },
-    },
-    "plugin": [
-        "@tarquinen/opencode-dcp@latest",
-        "@plannotator/opencode@latest",
-        "opencode-wakatime",
-        "superpowers@git+https://github.com/obra/superpowers.git",
+        {
+            "package": "opencode-wakatime",
+        },
+        {
+            "package": "superpowers@git+https://github.com/obra/superpowers.git",
+        },
     ],
     "mcp": {
-        "expect": {
-            "type": "local",
-            "command": ["npx", "-y", "expect-cli@latest", "mcp"],
-            "enabled": true,
-        },
-        "deepwiki": {
-            "type": "remote",
-            "url": "https://mcp.deepwiki.com/mcp",
-            "enabled": true,
-        },
-        "jetbrains": {
-            "type": "remote",
-            "url": "http://localhost:64542/stream",
-            "enabled": true,
-        },
-        "linear": {
-            "type": "remote",
-            "url": "https://mcp.linear.app/mcp",
-            "enabled": true,
-        },
-        "posthog": {
-            "type": "remote",
-            "url": "https://mcp.posthog.com/mcp",
-            "enabled": true,
-        },
-        "sentry": {
-            "type": "remote",
-            "url": "https://mcp.sentry.dev/mcp",
-            "enabled": true,
+        "servers": {
+            "expect": {
+                "type": "local",
+                "command": ["npx", "-y", "expect-cli@latest", "mcp"],
+                "disabled": false,
+            },
+            "deepwiki": {
+                "type": "remote",
+                "url": "https://mcp.deepwiki.com/mcp",
+                "disabled": false,
+            },
+            "jetbrains": {
+                "type": "remote",
+                "url": "http://localhost:64542/stream",
+                "disabled": false,
+            },
+            "linear": {
+                "type": "remote",
+                "url": "https://mcp.linear.app/mcp",
+                "disabled": false,
+            },
+            "posthog": {
+                "type": "remote",
+                "url": "https://mcp.posthog.com/mcp",
+                "disabled": false,
+            },
+            "sentry": {
+                "type": "remote",
+                "url": "https://mcp.sentry.dev/mcp",
+                "disabled": false,
+            },
         },
     },
     "formatter": {
@@ -51,121 +54,416 @@
             "command": ["oxfmt", "$FILE"],
         },
     },
-    "permission": {
-        // File modifications — default is allow, we want confirmation
-        "edit": "ask",
-
-        // External access — default is allow, we want confirmation
-        "webfetch": "ask",
-
-        // Shell commands — default is allow, granular override
-        "bash": {
-            "*": "ask",
-
-            // --- DENY: dangerous operations ---
-            "sudo *": "deny",
-            "curl * | bash": "deny",
-            "curl * | sh": "deny",
-            "wget * | bash": "deny",
-            "wget * | sh": "deny",
-            "git push --force *": "deny",
-            "git push * --force": "deny",
-            "git push -f *": "deny",
-            "git push * -f": "deny",
-            "npm publish *": "deny",
-            "bun publish *": "deny",
-            "chmod -R 777 *": "deny",
-
-            // --- ALLOW: filesystem read-only ---
-            "ls": "allow",
-            "ls *": "allow",
-            "cat *": "allow",
-            "head *": "allow",
-            "tail *": "allow",
-            "wc *": "allow",
-            "pwd": "allow",
-            "echo *": "allow",
-            "which *": "allow",
-            "file *": "allow",
-            "find *": "allow",
-            "rg *": "allow",
-            "du *": "allow",
-            "tree *": "allow",
-            "stat *": "allow",
-
-            // --- ALLOW: git read-only ---
-            "git status": "allow",
-            "git status *": "allow",
-            "git diff": "allow",
-            "git diff *": "allow",
-            "git log": "allow",
-            "git log *": "allow",
-            "git show *": "allow",
-            "git branch": "allow",
-            "git branch *": "allow",
-            "git remote *": "allow",
-            "git stash list *": "allow",
-            "git ls-tree *": "allow",
-            "git rev-parse *": "allow",
-            "git config --get *": "allow",
-
-            // --- ALLOW: git write ---
-            "git add *": "allow",
-            "git fetch *": "allow",
-            "git push *": "allow",
-
-            // --- ALLOW: build/test ---
-            "bun run *": "allow",
-            "bun test *": "allow",
-            "bun install --frozen-lockfile": "allow",
-            "pnpm run *": "allow",
-            "pnpm test *": "allow",
-            "pnpm install --frozen-lockfile": "allow",
-
-            // --- ALLOW: version checks ---
-            "node --version": "allow",
-            "bun --version": "allow",
-            "npm --version": "allow",
-
-            // --- ALLOW: chezmoi read ---
-            "chezmoi cat *": "allow",
-            "chezmoi diff *": "allow",
-            "chezmoi managed *": "allow",
-            "chezmoi source-path *": "allow",
-            "chezmoi status *": "allow",
-            "chezmoi data *": "allow",
-
-            // --- ALLOW: package manager info ---
-            "brew info *": "allow",
-            "brew list *": "allow",
-            "brew outdated *": "allow",
-            "npm info *": "allow",
-
-            // --- ALLOW: openspec ---
-            "openspec list *": "allow",
-            "openspec status *": "allow",
-            "openspec instructions *": "allow",
-            "bunx openspec *": "allow",
-
-            // --- ALLOW: worktrunk ---
-            "wt list *": "allow",
-            "wt config *": "allow",
-            "wt --help *": "allow",
-
-            // --- ALLOW: github cli ---
-            "gh api *": "allow",
-            "gh issue *": "allow",
-            "gh pr *": "allow",
-            "gh repo *": "allow",
-
-            // --- ALLOW: claude code cli ---
-            "claude mcp *": "allow",
-            "claude plugin *": "allow",
-            "claude skill *": "allow",
-            "claude skills *": "allow",
+    "permissions": [
+        {
+            "action": "edit",
+            "resource": "*",
+            "effect": "ask",
         },
-
-        // Prevent infinite tool loops — default is ask, we want hard deny
-        "doom_loop": "deny",
-    },
+        {
+            "action": "webfetch",
+            "resource": "*",
+            "effect": "ask",
+        },
+        {
+            "action": "shell",
+            "resource": "*",
+            "effect": "ask",
+        },
+        {
+            "action": "shell",
+            "resource": "sudo *",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "curl * | bash",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "curl * | sh",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "wget * | bash",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "wget * | sh",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "npm publish *",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "bun publish *",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "chmod -R 777 *",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "ls",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "ls *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "cat *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "head *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "tail *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "wc *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "pwd",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "echo *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "which *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "file *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "find *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "rg *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "du *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "tree *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "stat *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git status",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git status *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git diff",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git diff *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git log",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git log *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git show *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git branch",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git branch *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git remote *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git stash list *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git ls-tree *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git rev-parse *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git config --get *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git add *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git fetch *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git push *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "bun run *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "bun test *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "bun install --frozen-lockfile",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "pnpm run *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "pnpm test *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "pnpm install --frozen-lockfile",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "node --version",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "bun --version",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "npm --version",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "chezmoi cat *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "chezmoi diff *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "chezmoi managed *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "chezmoi source-path *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "chezmoi status *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "chezmoi data *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "brew info *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "brew list *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "brew outdated *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "npm info *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "openspec list *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "openspec status *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "openspec instructions *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "bunx openspec *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "wt list *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "wt config *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "wt --help *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "gh api *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "gh issue *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "gh pr *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "gh repo *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "claude mcp *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "claude plugin *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "claude skill *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "claude skills *",
+            "effect": "allow",
+        },
+        {
+            "action": "shell",
+            "resource": "git push --force *",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "git push * --force",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "git push -f *",
+            "effect": "deny",
+        },
+        {
+            "action": "shell",
+            "resource": "git push * -f",
+            "effect": "deny",
+        },
+        {
+            "action": "doom_loop",
+            "resource": "*",
+            "effect": "deny",
+        },
+    ],
 }

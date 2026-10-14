@@ -12,7 +12,7 @@ Keep user-scope config comparable across Claude Code, Codex, OpenCode, and Junie
 - A file under `dot_claude/` is added, modified, or removed — the `MANAGED` keys in `modify_settings.json.tmpl` (`permissions`, `enabledPlugins`, `extraKnownMarketplaces`, `hooks`, `env`, `statusLine`, `effortLevel`, …), `dot_claude/commands/`, `dot_claude/plugins/*/config.json`
 - An agent-config entry in `run_onchange_install-packages.sh.tmpl` changes — `MCP_HTTP_SERVERS`, `MCP_STDIO_SERVERS` (Claude Code's user-scope MCP servers, registered by `claude mcp add` into `~/.claude.json`), `CC_MARKETPLACES`, `CC_PLUGINS`
 - A file under future `dot_codex/` is added, modified, or removed. The repo manages none today, so verify whether Codex provides an official runtime-owned surface before proposing a new file
-- A file under `dot_config/opencode/` is added, modified, or removed — `opencode.jsonc` (`model`, `plugin`, `mcp`, `permission`, `formatter`), `tui.json`
+- A file under `dot_config/opencode/` is added, modified, or removed — `opencode.jsonc` (`model`, `plugins`, `mcp.servers`, `permissions`, `formatter`, `update`), `modify_private_cli.json`
 - A Junie user-scope surface changes, or is created for the first time. The repo manages none today, so verify support before proposing either a new file or a gap
 
 ## When This Does NOT Activate

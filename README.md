@@ -67,6 +67,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **AI Tooling** | [OpenCode](https://github.com/anomalyco/opencode)                               | AI code editor                                                                                             |
 | **AI Tooling** | [Junie](https://junie.jetbrains.com/)                                           | JetBrains coding agent installed separately; Linear is preconfigured, but OAuth is not currently supported |
 | **AI Tooling** | [Agent of Empires](https://github.com/njbrake/agent-of-empires)                 | tmux-native TUI for managing parallel AI agent sessions (`aoe`)                                            |
+| **AI Tooling** | [Plannotator](https://plannotator.ai/)                                          | Local plan/code reviews and an async Inbox for agent questions and files                                   |
 | **AI Tooling** | [CodeRabbit](https://www.coderabbit.ai/)                                        | AI code review CLI                                                                                         |
 | **Network**    | [Tailscale](https://tailscale.com/)                                             | Mesh VPN (WireGuard-based) for secure device-to-device networking                                          |
 
@@ -79,7 +80,7 @@ Claude Code, OpenCode, and Codex support Linear through its official read-write 
 | Client      | Registration / configuration                                                                           | Authentication / status                                                                                                     | Ownership                                                                    |
 | ----------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | Claude Code | Installer runs `claude mcp add --scope user --transport http linear https://mcp.linear.app/mcp`        | `claude mcp login linear` or `/mcp`; `claude mcp get linear`                                                                | Runtime-owned `~/.claude.json`; OAuth remains Claude Code-owned              |
-| OpenCode    | `chezmoi apply` manages a native remote `mcp.linear` entry                                             | `opencode mcp auth linear`; `opencode mcp list`                                                                             | OAuth remains in OpenCode's native credential store outside the repository   |
+| OpenCode    | `chezmoi apply` manages a native remote `mcp.servers.linear` entry                                     | `opencode mcp auth linear`; `opencode mcp list`                                                                             | OAuth remains in OpenCode's native credential store outside the repository   |
 | Codex       | Installer narrowly reconciles `linear` through `codex mcp add linear --url https://mcp.linear.app/mcp` | `codex mcp login linear`; `codex mcp list --json`                                                                           | Codex owns `~/.codex/config.toml` and its OAuth state                        |
 | Junie       | `chezmoi apply` merges `mcpServers.linear` into `~/.junie/mcp/mcp.json`                                | **Not currently supported** — `/mcp` authorization fails during Linear's OAuth token exchange; revisit after a Junie update | The managed entry is credential-free; unrelated MCP entries remain untouched |
 
@@ -145,6 +146,20 @@ recipient in `.chezmoi.toml.tmpl` in sync. Losing the identity makes encrypted a
     personal machines enable auto-switch once from the menu after the dry-run; see
     [Section 11 of the manual](docs/manual.html#claude) for the complete account, toggle,
     validation, and recovery workflow.
+
+4. Open the Plannotator Inbox:
+
+    ```sh
+    plannotator inbox --background
+    PLANNOTATOR_INBOX_CONNECT=0 plannotator inbox
+    ```
+
+    Enable the OpenCode Inbox tool in Inbox Settings once per machine; this preference stays
+    application-owned. OpenCode configuration targets v2; its theme and scrolling merge into private `cli.json`
+    while other CLI preferences remain runtime-owned. Start a new agent session after setup. Follow the [Inbox workflow](docs/manual.html#plannotator-inbox)
+    for instruction-note consent and a real reply check. Installation reuses an Inbox-capable CLI
+    from PATH or `~/.local/bin`; missing/old releases use the official non-interactive installer.
+    Plannotator keeps its existing manual update classification and single `update-extra` step.
 
 ## Daily Workflows
 

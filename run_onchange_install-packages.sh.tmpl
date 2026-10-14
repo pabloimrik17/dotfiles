@@ -1596,23 +1596,67 @@ fi
 # ------------------------------------------------------------------
 # Group 7: Plannotator CLI (serves OpenCode, Claude Code, and Codex)
 # ------------------------------------------------------------------
-if confirm "Install the Plannotator CLI (serves OpenCode, Claude Code, and Codex)?"; then
-    if command -v plannotator &>/dev/null; then
-        info "  plannotator — already installed, skipping"
-    else
-        info "  Installing plannotator..."
-        if ! curl -fsSL https://plannotator.ai/install.sh | bash; then
-            error "Failed to install plannotator"
-        fi
-        # plannotator installs to ~/.local/bin which may not be in PATH yet
-        export PATH="$HOME/.local/bin:$PATH"
-        if ! command -v plannotator &>/dev/null; then
-            error "plannotator installed but not found in PATH"
-        fi
+# Keep these helpers available for the later Codex stdio reconciliation.
+resolve_plannotator() {
+    local candidate
+    candidate="$(command -v plannotator 2>/dev/null || true)"
+    if [ -z "$candidate" ] && [ -e "$HOME/.local/bin/plannotator" ]; then
+        candidate="$HOME/.local/bin/plannotator"
     fi
-else
-    info "Skipping Plannotator."
-fi
+    [ -n "$candidate" ] || return 1
+    case "$candidate" in
+        /*) ;;
+        *) candidate="$PWD/$candidate" ;;
+    esac
+    printf '%s\n' "$candidate"
+}
+
+# 0: compatible, 1: successful old help, 2: execution/detection failure.
+plannotator_inbox_capability() {
+    local guide
+    "$1" --version >/dev/null 2>&1 || return 2
+    guide="$("$1" inbox --help)" || return 2
+    case "$guide" in
+        '# Plannotator Inbox: a guide for agents'*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+configure_plannotator() {
+    local binary capability tmp
+    capability=1
+    if binary="$(resolve_plannotator)"; then
+        plannotator_inbox_capability "$binary" && capability=0 || capability=$?
+    fi
+    if [ "$capability" -eq 0 ]; then
+        info "Plannotator Inbox — compatible at $binary, skipping installation"
+        return
+    elif [ "$capability" -eq 2 ]; then
+        error "Plannotator capability check failed: '$binary --version' / '$binary inbox --help'; run these in your terminal before retrying"
+        return
+    fi
+    if ! confirm "Install/upgrade the Plannotator CLI for Inbox (Claude Code, Codex, OpenCode, Junie)?"; then
+        info "Skipping Plannotator."
+        return
+    fi
+    if ! tmp="$(mktemp)"; then
+        error "Could not create temporary Plannotator installer"
+        return
+    fi
+    if ! curl -fsSL https://plannotator.ai/install.sh -o "$tmp"; then
+        error "Failed to download https://plannotator.ai/install.sh"
+    elif ! bash "$tmp" --non-interactive; then
+        error "Failed to run Plannotator installer with --non-interactive"
+    elif binary="$(resolve_plannotator)" && plannotator_inbox_capability "$binary"; then
+        info "Plannotator Inbox — ready at $binary"
+    else
+        error "Plannotator installer completed but version/Inbox help verification failed"
+    fi
+    rm -f "$tmp"
+}
+
+configure_plannotator
+unset -f configure_plannotator
 
 # ------------------------------------------------------------------
 # Group 8: Claude Code plugin dependencies
@@ -2082,7 +2126,58 @@ configure_codex_mcp_servers() {
 }
 # END CODEX HTTP MCP SERVERS
 
+# BEGIN CODEX INBOX MCP
+codex_inbox_matches() {
+    "$1" -e --arg binary "$3" '
+        [.[] | select(.name == "plannotator-inbox")] |
+        length == 1 and .[0].enabled == true and
+        .[0].transport.type == "stdio" and .[0].transport.command == $binary and
+        .[0].transport.args == ["inbox", "mcp"]
+    ' >/dev/null 2>&1 <<<"$2"
+}
+
+configure_codex_inbox() {
+    local binary payload count
+    if ! command -v codex >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
+        warn "Codex Inbox requires codex and jq — install them and rerun setup"
+        return 0
+    fi
+    if ! binary="$(resolve_plannotator)" || ! plannotator_inbox_capability "$binary"; then
+        warn "Codex Inbox requires compatible Plannotator — check plannotator inbox --help and rerun setup"
+        return 0
+    fi
+    if ! payload="$(codex_mcp_read_json codex jq)"; then
+        warn "Could not read valid Codex MCP data — Inbox registration unchanged"
+        return 0
+    fi
+    count="$(jq '[.[] | select(.name == "plannotator-inbox")] | length' <<<"$payload")"
+    if [ "$count" -ne 0 ]; then
+        if codex_inbox_matches jq "$payload" "$binary"; then
+            info "Codex Inbox — already registered, skipping"
+        else
+            warn "Codex Inbox is disabled or conflicting — review 'codex mcp get plannotator-inbox --json'; preserving existing entry"
+        fi
+        return 0
+    fi
+    if ! confirm "Register Codex Inbox via $binary inbox mcp?"; then
+        info "Skipping Codex Inbox registration."
+        return 0
+    fi
+    if ! codex mcp add plannotator-inbox -- "$binary" inbox mcp; then
+        warn "Codex Inbox add failed — inspect 'codex mcp get plannotator-inbox --json' before retrying"
+        return 0
+    fi
+    if payload="$(codex_mcp_read_json codex jq)" && codex_inbox_matches jq "$payload" "$binary"; then
+        info "Codex Inbox — registered and verified; start a new session"
+    else
+        warn "Codex Inbox post-add verification failed — inspect 'codex mcp get plannotator-inbox --json'"
+    fi
+}
+# END CODEX INBOX MCP
+
 configure_codex_mcp_servers
+configure_codex_inbox
+unset -f configure_codex_inbox codex_inbox_matches resolve_plannotator plannotator_inbox_capability
 unset -f configure_codex_mcp_servers reconcile_codex_http_mcp codex_mcp_entry_matches codex_mcp_read_json
 
 # ------------------------------------------------------------------
@@ -2361,7 +2456,8 @@ info "    mkdir -p \"\$(bat --config-dir)/themes\""
 info "    curl -fsSLo \"\$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme\" https://raw.githubusercontent.com/catppuccin/bat/main/themes/Catppuccin%20Mocha.tmTheme"
 info "    bat cache --build"
 info "  Plannotator CLI (serves OpenCode, Claude Code, and Codex):"
-info "    - curl -fsSL https://plannotator.ai/install.sh | bash"
+info "    - curl -fsSL https://plannotator.ai/install.sh | bash -s -- --non-interactive"
+info "    - Inbox onboarding: docs/manual.html#plannotator-inbox; enable OpenCode in Inbox Settings once per machine, then restart agent sessions"
 info "  Claude Code plugins:"
 info "    - claude plugin marketplace add pabloimrik17/daily-agentic-task-force && claude plugin install datf-lab@daily-agentic-task-force"
 info "    - claude plugin marketplace add pabloimrik17/daily-agentic-task-force && claude plugin install autonomous@daily-agentic-task-force"

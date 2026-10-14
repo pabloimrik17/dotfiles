@@ -11,7 +11,7 @@ Installation of opencode via its official installer (instead of Homebrew) so ope
 The install script SHALL install opencode via its official installer
 (`curl -fsSL https://opencode.ai/install | bash`) instead of Homebrew, so opencode's
 built-in auto-update is active. opencode auto-update only works when opencode is NOT
-installed via a package manager such as Homebrew; the default `autoupdate: true` in
+installed via a package manager such as Homebrew; the managed `update: "auto"` in
 opencode's config therefore becomes effective only under the official-script install.
 
 The installer SHALL be invoked with `--no-modify-path` so it does not append a PATH line

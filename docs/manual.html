@@ -2553,7 +2553,9 @@
                                     Update tools that are neither brew-managed nor self-updating: gh
                                     extensions, you-should-use, skills.sh globals, plannotator,
                                     Catppuccin themes, tv channels, fallow &mdash; a failing step
-                                    reports and continues; summary at the end
+                                    reports and continues; summary at the end. The single
+                                    Plannotator step uses the official non-interactive installer;
+                                    Git is installed earlier in setup
                                 </td>
                             </tr>
                         </tbody>
@@ -2806,6 +2808,195 @@
             >
                 <summary>11. Claude Code</summary>
                 <div class="section-content">
+                    <h3>Canonical agent instructions</h3>
+                    <p>
+                        This repository maintains its Bun policy in <code>AGENTS.md</code>. Root
+                        <code>CLAUDE.md</code> contains only <code>@AGENTS.md</code>, a
+                        compatibility import for CLAUDE-only sessions. Both stay outside home
+                        deployment. Current Claude Code also supports native AGENTS discovery. User
+                        instructions remain at <code>~/.claude/CLAUDE.md</code> or in
+                        <code>~/.claude/rules/</code>; a global AGENTS body needs an explicit Claude
+                        entry point. No managed user body currently needs migration. See
+                        <a href="https://code.claude.com/docs/en/memory#agentsmd">Claude memory</a>.
+                    </p>
+                    <h3 id="plannotator-inbox">Plannotator Inbox</h3>
+                    <p>
+                        One local window for agent questions, files and replies. The existing
+                        <code>plannotator@plannotator</code> plugin supplies the native
+                        <code>plannotator_inbox</code> tool in interactive Claude Code 2.1.287+ on
+                        macOS/Linux; print mode does not expose it. Restart Claude after setup.
+                        Unsupported sessions can use the stdio fallback explicitly, without
+                        registering a second connection alongside a working native tool.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command / setting</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>plannotator inbox --help</code></td>
+                                <td>
+                                    Installed guide, tools and exact note targets; read before
+                                    onboarding
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>plannotator inbox --background</code></td>
+                                <td>Start detached on loopback and print the current URL</td>
+                            </tr>
+                            <tr>
+                                <td><code>PLANNOTATOR_INBOX_CONNECT=0 plannotator inbox</code></td>
+                                <td>
+                                    Open the window during managed onboarding; suppress additional
+                                    agent auto-connections for this command only
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>plannotator inbox</code></td>
+                                <td>
+                                    Open it later; ordinary launches can connect other detected
+                                    agents
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Inbox Settings</td>
+                                <td>
+                                    Browser notifications when the open page is in the background;
+                                    change the notification choice here
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>~/.plannotator/inbox/</code></td>
+                                <td>
+                                    Local threads, replies, attachment snapshots and decisions;
+                                    runtime-owned, outside Git
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flow-only">
+                        <strong>Flow: Inbox onboarding</strong><br />
+                        Read the installed guide &rarr; name the active host &rarr; inspect its
+                        connection &rarr; start with <code>--background</code> &rarr; open with the
+                        scoped <code>PLANNOTATOR_INBOX_CONNECT=0</code> override &rarr; offer the
+                        printed URL if the browser cannot open &rarr; enable OpenCode in Inbox
+                        Settings once per machine &rarr; start a fresh agent session.
+                    </div>
+                    <p>
+                        Automatic apply configures availability only: it does not open the UI,
+                        install instruction notes, send messages or wait for answers. Resolve the
+                        binary from PATH or <code>~/.local/bin/plannotator</code>. Setup reuses
+                        successful Inbox guide output, installs missing/old releases with the
+                        official <code>--non-interactive</code> installer with Git installed earlier
+                        in setup. Version/help execution errors stop that step; run the reported
+                        command in your terminal before retrying. There is no service manager or
+                        fixed port. The Inbox binds loopback; publishing over Tailscale requires a
+                        separate user choice.
+                    </p>
+                    <h3>Inbox instruction notes</h3>
+                    <p>
+                        Refresh targets with <code>plannotator inbox --help</code>. Show exact IDs
+                        and paths in chat and request consent only for missing notes the person
+                        wants. Then run <code>plannotator inbox --notes &lt;ids&gt;</code>
+                        with only approved comma-separated IDs. Without a yes, write nothing.
+                        Existing notes and user edits remain Plannotator-owned; chezmoi neither
+                        copies them nor recreates removed notes.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Guide ID</th>
+                                <th>Target on the verified host</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>claude-code</code></td>
+                                <td>
+                                    <code>~/.claude/rules/plannotator-inbox.md</code>; existing
+                                    marked note, preserve it
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>codex</code></td>
+                                <td>
+                                    <code>~/.codex/AGENTS.md</code>; existing marked note, preserve
+                                    it
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>gemini</code></td>
+                                <td>
+                                    <code>~/.gemini/GEMINI.md</code>; would create a file, outside
+                                    this setup's four-host scope
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>pi</code></td>
+                                <td>
+                                    <code>~/.pi/agent/AGENTS.md</code>; would create a file, outside
+                                    this setup's four-host scope
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>opencode</code></td>
+                                <td>
+                                    No current target: only an existing AGENTS file is eligible. Do
+                                    not create an empty global file to hide the Claude fallback
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Junie</td>
+                                <td>
+                                    No supported note-installer ID; stdio MCP support is independent
+                                    of this gap
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h3>Verify a real Inbox reply</h3>
+                    <ol>
+                        <li>
+                            Use the
+                            <a href="https://plannotator.ai/inbox/prompt.md"
+                                >upstream setup prompt</a
+                            >'s first subject and body, with host-scoped key
+                            <code>plannotator-inbox-first-v1-codex</code> (replace the host suffix).
+                            It asks whether to send recent project work. Prefer the native
+                            <code>plannotator_inbox</code> tool with
+                            <code>action: send_message</code>.
+                        </li>
+                        <li>
+                            For stdio, write the prompt's JSON-RPC request as one line to a unique
+                            temporary file using a file-writing API. Pass a stable
+                            <code>agent_session</code>, <code>agent_host</code> and
+                            <code>agent_name</code> on every shell call. From the project directory,
+                            run
+                            <code>&lt;absolute-binary&gt; inbox mcp &lt; &lt;request-file&gt;</code
+                            >. Keep the returned <code>thread_id</code> and <code>cursor</code>. A
+                            JSON-RPC error or <code>isError</code> is not successful delivery.
+                        </li>
+                        <li>
+                            If already sent, call <code>read_thread</code> and reuse any real reply.
+                            Otherwise tell the person to pick an answer and press Send. Native
+                            Claude/OpenCode 2 deliver replies automatically when idle; yield there.
+                            Codex, Junie and OpenCode 1 use <code>wait_for_reply</code> with the
+                            thread ID, <code>timeout_seconds: 45</code> and the latest returned
+                            cursor. After about five minutes, record the check as pending and ask
+                            the person to say done when they have sent it. Keep the thread open.
+                        </li>
+                        <li>
+                            Quote the person's actual reply in chat, then call
+                            <code>resolve_message</code> with <code>message_id</code> set to the
+                            thread ID. A yes permits one or two relevant project messages with
+                            context and <code>attachments</code> for referenced files; a no ends the
+                            exchange. Do not invent work. Configuration success alone does not prove
+                            reply delivery. Replies return to the session that asked.
+                        </li>
+                    </ol>
                     <h3>Fullscreen TUI</h3>
                     <p>
                         Chezmoi sets <code>"tui": "fullscreen"</code> in
@@ -3735,6 +3926,48 @@
             >
                 <summary>12. OpenCode</summary>
                 <div class="section-content">
+                    <h3>Instructions and Inbox</h3>
+                    <p>
+                        OpenCode 2 reads project and global <code>AGENTS.md</code> instructions. In
+                        OpenCode 1, <code>~/.config/opencode/AGENTS.md</code> takes precedence over
+                        the <code>~/.claude/CLAUDE.md</code> fallback; v2 currently discovers AGENTS
+                        files only. This setup creates no global instruction file. See
+                        <a href="https://opencode.ai/v2/docs/migrate-v1#instruction-files"
+                            >instruction migration</a
+                        >.
+                    </p>
+                    <p>
+                        The existing <code>@plannotator/opencode@latest</code> plugin supplies
+                        Inbox. Once per machine, enable the OpenCode Inbox tool in Inbox Settings.
+                        Plannotator owns <code>~/.plannotator/config.json</code>; chezmoi does not
+                        manage this preference. <code>PLANNOTATOR_INBOX_TOOL</code> overrides the
+                        preference. Start Inbox once, then restart OpenCode to discover the native
+                        tool. OpenCode 2 delivers replies when idle; older OpenCode 1 sessions
+                        require <code>wait_for_reply</code>. No duplicate MCP entry is added. Follow
+                        the <a href="#plannotator-inbox">Inbox workflow</a>.
+                    </p>
+                    <h3>OpenCode 2 configuration</h3>
+                    <p>
+                        Managed server and project files use <code>plugins</code> package objects,
+                        <code>update: auto</code>, <code>mcp.servers</code> with
+                        <code>disabled: false</code>, and an ordered <code>permissions</code> array
+                        whose shell action is <code>shell</code>. Existing rules, models, formatters
+                        and endpoints are preserved. Use <code>opencode debug config</code> to
+                        inspect normalization and <code>opencode plugin list</code> to verify loaded
+                        plugins. Missing packages install in the background, so repeat the catalog
+                        check after initialization. Use <code>opencode reload</code> after applying,
+                        then start a fresh session for tool discovery.
+                    </p>
+                    <p>
+                        The private <code>~/.config/opencode/cli.json</code> merge manages only
+                        <code>theme.name: catppuccin-macchiato</code> and
+                        <code>scroll.acceleration: true</code>; other CLI preferences survive. The
+                        legacy <code>tui.json</code> source is retired; an existing live file can
+                        stay in place but v2 no longer reads it. The previous v1 configuration
+                        remains in Git history. Do not run a v1 client against native v2 files. See
+                        the <a href="https://opencode.ai/v2/docs/migrate-v1">migration guide</a> and
+                        <a href="https://opencode.ai/v2/docs/cli/config">CLI settings</a>.
+                    </p>
                     <h3>Plugins</h3>
                     <table>
                         <thead>
@@ -3761,10 +3994,6 @@
                                     >
                                     package; workflows use OpenCode's native skill discovery
                                 </td>
-                            </tr>
-                            <tr>
-                                <td>dcp</td>
-                                <td>DevTools Protocol browser control</td>
                             </tr>
                         </tbody>
                     </table>
@@ -3852,7 +4081,7 @@
                                 <td>jetbrains</td>
                                 <td>
                                     JetBrains IDE context &amp; actions through the remote
-                                    <code>mcp.jetbrains</code> entry in
+                                    <code>mcp.servers.jetbrains</code> entry in
                                     <code>~/.config/opencode/opencode.jsonc</code>; answers only
                                     while the IDE is running
                                 </td>
@@ -3861,7 +4090,7 @@
                                 <td>linear</td>
                                 <td>
                                     Linear issues &amp; projects through the native remote
-                                    <code>mcp.linear</code> entry in
+                                    <code>mcp.servers.linear</code> entry in
                                     <code>~/.config/opencode/opencode.jsonc</code>, targeting
                                     <code>https://mcp.linear.app/mcp</code>. Authenticate with
                                     <code>opencode mcp auth linear</code> and check the connection
@@ -3958,6 +4187,31 @@
             >
                 <summary>13. Codex</summary>
                 <div class="section-content">
+                    <h3>Instructions and Inbox</h3>
+                    <p>
+                        Codex loads global <code>AGENTS.override.md</code> or
+                        <code>AGENTS.md</code> from its home (normally <code>~/.codex</code>), then
+                        project instructions down to the working directory; nearer instructions
+                        override earlier ones. This repo's canonical <code>AGENTS.md</code> supplies
+                        the Bun policy. See
+                        <a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md"
+                            >Codex instruction discovery</a
+                        >.
+                    </p>
+                    <p>
+                        Bootstrap inspects <code>codex mcp list --json</code> and adds only an
+                        absent Inbox with
+                        <code
+                            >codex mcp add plannotator-inbox -- &lt;absolute-binary&gt; inbox
+                            mcp</code
+                        >, then verifies it. Codex owns its configuration; chezmoi does not manage
+                        the whole <code>~/.codex/config.toml</code>. Matching entries are reused;
+                        disabled/conflicting entries are preserved for manual review. Inspect
+                        <code>codex mcp get plannotator-inbox --json</code> and restart the CLI, app
+                        or IDE session after registration. Replies require
+                        <code>wait_for_reply</code>. The existing user Inbox note remains unmanaged.
+                        See the <a href="#plannotator-inbox">Inbox workflow</a>.
+                    </p>
                     <h3>Install &amp; lifecycle</h3>
                     <table>
                         <thead>
@@ -4267,6 +4521,32 @@
             >
                 <summary>14. Junie</summary>
                 <div class="section-content">
+                    <h3>Instructions and Inbox</h3>
+                    <p>
+                        Junie CLI prefers project <code>.junie/AGENTS.md</code>, then root
+                        <code>AGENTS.md</code> with its playbook/rules, then legacy guidelines.
+                        Global <code>~/.junie/AGENTS.md</code> is also supported; project guidance
+                        wins conflicts. This repository uses root <code>AGENTS.md</code> and creates
+                        no global body. See
+                        <a href="https://junie.jetbrains.com/docs/guidelines-and-memory.html"
+                            >Junie guidelines</a
+                        >.
+                    </p>
+                    <p>
+                        Chezmoi adds an absent <code>mcpServers.plannotator-inbox</code> in
+                        <code>~/.junie/mcp/mcp.json</code> with the resolved absolute binary as
+                        <code>command</code> and <code>["inbox", "mcp"]</code> as <code>args</code>.
+                        Existing entries, options and disabled states are preserved. If Plannotator
+                        or uv was missing during apply, install it then run
+                        <code>chezmoi apply ~/.junie/mcp/mcp.json</code> again. Restart Junie and
+                        inspect <code>/mcp</code>; replies require <code>wait_for_reply</code>.
+                        Junie has no Plannotator note-installer ID. JetBrains AI Assistant's MCP
+                        settings are a separate surface. See
+                        <a href="https://junie.jetbrains.com/docs/junie-cli-mcp-configuration.html"
+                            >Junie MCP</a
+                        >
+                        and the <a href="#plannotator-inbox">Inbox workflow</a>.
+                    </p>
                     <h3>MCP servers</h3>
                     <table>
                         <thead>
@@ -4292,7 +4572,8 @@
                                     <code>mcpServers.jetbrains</code> at
                                     <code>http://localhost:64542/stream</code> and
                                     <code>mcpServers.linear</code> at
-                                    <code>https://mcp.linear.app/mcp</code>; unrelated servers and
+                                    <code>https://mcp.linear.app/mcp</code>, and adds an absent
+                                    <code>mcpServers.plannotator-inbox</code>; unrelated servers and
                                     unknown top-level values remain untouched
                                 </td>
                             </tr>
