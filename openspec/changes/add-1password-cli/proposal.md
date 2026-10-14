@@ -33,6 +33,6 @@ formulae and font casks today.
 
 - `run_onchange_install-packages.sh.tmpl`: Group 1 install and pre-scan, `apply_brew_freeze`,
   `BREW_VERSIONS`, guidance helper, summary lines.
-- `tests/brew-freeze.test.ts`: coverage and fixture include `BREW_CLI_CASKS`; new
-  `tests/1password-cli.test.ts`.
+- `tests/brew-freeze.test.ts`: coverage and fixture include `BREW_CLI_CASKS`;
+  `tests/install-script.test.ts` covers the Group 1 cask loop.
 - `README.md`, `docs/manual.html`.

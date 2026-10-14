@@ -12,14 +12,12 @@
       macOS render passes `bash -n`.
 - [x] 1.3 In `apply_brew_freeze`, add a `cask|<token>` entry for each `BREW_CLI_CASKS` entry,
       using `"${BREW_CLI_CASKS[@]:-}"` so bash 3.2 with `set -u` accepts an empty array.
-- [x] 1.4 `tests/brew-freeze.test.ts`: the fixture emits `BREW_CLI_CASKS`, coverage counts it
-      (38 frozen, 38 rows), and a new test in both modes checks that an installed CLI cask gets
-      `pin --cask 1password-cli` and is recorded as `cask 1password-cli`. Verify
-      `bun test tests/brew-freeze.test.ts` passes.
-- [x] 1.5 New `tests/1password-cli.test.ts`: one `1password-cli|2.41.0` row, no `BREW_HOLDS`
-      entry, absent from `BREW_PACKAGES` and `ALL_CASKS`, and the macOS render probes with
-      `brew list --cask` and installs with `brew install --cask`. Verify
-      `bun test tests/1password-cli.test.ts` passes.
+- [x] 1.4 `tests/brew-freeze.test.ts`: the fixture emits `BREW_CLI_CASKS`, coverage includes it,
+      and the cask test checks that an installed CLI cask gets `pin --cask 1password-cli` and is
+      recorded as `cask 1password-cli`. Verify `bun test tests/brew-freeze.test.ts` passes.
+- [x] 1.5 `tests/install-script.test.ts`: the Group 1 pre-scan counts the cask as pending when
+      only an `op` outside Homebrew is on `PATH`, installs it with `brew install --cask`, and skips
+      an installed cask. Verify `bun test tests/install-script.test.ts` passes.
 - [x] 1.6 Add an `op` row to the README "What's Included" table (frozen at `2.41.0`) via the
       `update-readme` skill. Verify `bun run lint:oxfmt` passes.
 
@@ -30,11 +28,7 @@
       after `print_gws_guidance` on both branches.
 - [x] 2.2 Add `op` after `gws` on all three `CLI tools:` lines, and an `op` hint after the `gws`
       hint on the non-macOS branch, linking https://developer.1password.com/docs/cli/get-started.
-- [x] 2.3 Extend `tests/1password-cli.test.ts`: both renders print the Settings → Developer
-      guidance, all three `CLI tools:` lines include `op`, the Linux hint follows the `gws` hint,
-      no source path targets `~/.config/op`, and nothing calls `op update`. Verify
-      `bun test tests/1password-cli.test.ts` passes.
-- [x] 2.4 Add a 1Password CLI section to `docs/manual.html` via the `update-manual` skill: app
+- [x] 2.3 Add a 1Password CLI section to `docs/manual.html` via the `update-manual` skill: app
       integration steps and `brew-upgrade-pinned 1password-cli` plus the row bump. Verify the page
       renders in a browser with no broken anchors in the table of contents.
 
