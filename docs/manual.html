@@ -1695,8 +1695,13 @@
                             <tr>
                                 <td>post-start</td>
                                 <td>
-                                    Installs deps via detected package manager (background &mdash;
-                                    non-blocking)
+                                    Installs deps via the detected package manager using an
+                                    installed Node matching the root <code>.nvmrc</code> when
+                                    available (background &mdash; non-blocking). Unresolved pins
+                                    warn and use ambient Node. Check
+                                    <code>wt wtlog user:post-start:install-deps</code> for progress:
+                                    <code>done</code> means installation succeeded; skips and
+                                    failures are logged separately.
                                 </td>
                             </tr>
                             <tr>

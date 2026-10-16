@@ -60,35 +60,88 @@ sync-claude = "bash -c 'BASE_WT=$(cat .claude/.worktree-base 2>/dev/null || echo
 [[post-start]]
 install-deps = """
 echo '[install-deps] detecting package manager…'
+
+# Only the worktree root's pin applies; never source nvm or provision Node here.
+if { [ -f bun.lock ] || [ -f pnpm-lock.yaml ] || [ -f package-lock.json ]; } && [ -f .nvmrc ]; then
+  pin=$(cat .nvmrc)
+  pin=${pin#"${pin%%[![:space:]]*}"}
+  pin=${pin%"${pin##*[![:space:]]}"}
+  if [ -n "$pin" ]; then
+    want=${pin#v}
+    nodes="${NVM_DIR:-$HOME/.nvm}/versions/node"
+    matched=""
+    case "$want" in
+      ''|*[!0-9.]*|.*|*.|*..*|*.*.*.*) ;; # Unsupported aliases/malformed pins.
+      *)
+        matched=$(for candidate in "$nodes"/v*/bin/node; do
+          [ -f "$candidate" ] && [ -x "$candidate" ] || continue
+          version=${candidate%/bin/node}
+          version=${version##*/v}
+          case "$version" in
+            (*[!0-9.]*|.*|*.|*..*|*.*.*.*) continue ;;
+            (*.*.*) ;;
+            (*) continue ;;
+          esac
+          case "$version" in
+            ("$want"|"$want".*) printf '%s\\n' "$version" ;;
+          esac
+        done | sort -t . -k1,1n -k2,2n -k3,3n | tail -n1)
+        ;;
+    esac
+    if [ -n "$matched" ]; then
+      PATH="$nodes/v$matched/bin:$PATH"
+      export PATH
+      echo "[install-deps] selected Node v$matched"
+    else
+      echo "[install-deps] cannot resolve Node pin '$pin'; using ambient Node" >&2
+    fi
+  fi
+fi
 if [ -f bun.lock ]; then
   if command -v bun >/dev/null 2>&1; then
     echo '[install-deps] detected bun → installing'
-    bun install
+    bun install || {
+      status=$?
+      echo "[install-deps] bun install failed (exit $status)" >&2
+      exit "$status"
+    }
   else
-    echo "[worktrunk] bun.lock detected but bun is not installed; skipping deps install" >&2
+    echo "[install-deps] bun.lock detected but bun is not installed; skipping deps install" >&2
+    exit 0
   fi
 elif [ -f pnpm-lock.yaml ]; then
   if command -v pnpm >/dev/null 2>&1; then
     echo '[install-deps] detected pnpm → installing'
-    pnpm install
+    pnpm install || {
+      status=$?
+      echo "[install-deps] pnpm install failed (exit $status)" >&2
+      exit "$status"
+    }
   else
-    echo "[worktrunk] pnpm-lock.yaml detected but pnpm is not installed; skipping deps install" >&2
+    echo "[install-deps] pnpm-lock.yaml detected but pnpm is not installed; skipping deps install" >&2
+    exit 0
   fi
 elif [ -f package-lock.json ]; then
   if command -v npm >/dev/null 2>&1; then
     echo '[install-deps] detected npm → installing'
-    npm install
+    npm install || {
+      status=$?
+      echo "[install-deps] npm install failed (exit $status)" >&2
+      exit "$status"
+    }
   else
-    echo "[worktrunk] package-lock.json detected but npm is not installed; skipping deps install" >&2
+    echo "[install-deps] package-lock.json detected but npm is not installed; skipping deps install" >&2
+    exit 0
   fi
 else
   echo '[install-deps] no recognised lockfile, skipping'
+  exit 0
 fi
 echo '[install-deps] done'
 """
 
 [step.copy-ignored]
-# Skip regenerable directories: [post-start].deps reinstalls packages, rebuilds regenerate
+# Skip regenerable directories: [post-start].install-deps reinstalls packages, rebuilds regenerate
 # framework/bundler/test caches, and venvs bake in absolute paths that break after copy.
 # Keep `.idea/` (JetBrains project state) and `ios/Pods/` (CocoaPods is slow to reinstall).
 exclude = [
