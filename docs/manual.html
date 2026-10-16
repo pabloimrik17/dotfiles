@@ -2423,8 +2423,10 @@
                                 <td><code>chezmoi edit ~/.config/autonomous/config.json</code></td>
                                 <td>
                                     Edit the <code>autonomous</code> plugin configuration; always
-                                    encrypted, deployed with mode 600, format from the plugin's
-                                    <code>config.example.json</code>
+                                    encrypted as a template, deployed with mode 600, format from the
+                                    plugin's <code>config.example.json</code>. Preserve the
+                                    <code>.chezmoi.homeDir</code> expression that derives the Beads
+                                    path from the applying machine's home
                                 </td>
                             </tr>
                             <tr>
@@ -2465,10 +2467,35 @@
                     <div class="flow-only">
                         <strong>Flow: Edit a plugin configuration</strong><br />
                         <code>chezmoi edit ~/.config/&lt;plugin&gt;/config.json</code> &rarr; commit
-                        <code>dot_config/&lt;plugin&gt;/encrypted_private_config.json.age</code>
-                        &rarr; <code>chezmoi update</code> on every machine; an invalid file is
-                        reported by the plugin, not by <code>chezmoi apply</code>
+                        <code>dot_config/autonomous/encrypted_private_config.json.tmpl.age</code>
+                        for autonomous or
+                        <code>dot_config/stonks/encrypted_private_config.json.age</code> for stonks
+                        &rarr; <code>chezmoi update</code> on every machine. Preserve the autonomous
+                        template's home expression. Plugin schema errors are reported by the plugin;
+                        decryption and template errors are reported by <code>chezmoi</code>.
                     </div>
+                    <p class="note">
+                        Verify autonomous on every machine with its age identity. When checking a
+                        worktree, add <code>--source /absolute/path/to/worktree</code> to each
+                        <code>chezmoi</code> command below. Render the Beads directory:<br />
+                        <code
+                            >beads_dir=$(chezmoi cat ~/.config/autonomous/config.json | jq -er
+                            .sources.beads.directory)</code
+                        ><br />
+                        Check the local home and checkout:<br />
+                        <code
+                            >test "$beads_dir" = "$HOME/WebstormProjects/agentic-task" &amp;&amp;
+                            test -d "$beads_dir"</code
+                        ><br />
+                        A missing checkout is an unmet machine prerequisite; do not create an empty
+                        directory to pass this check. Only after both checks succeed, apply:<br />
+                        <code
+                            >chezmoi --exclude scripts apply --parent-dirs
+                            ~/.config/autonomous/config.json</code
+                        ><br />
+                        Then run <code>chezmoi diff ~/.config/autonomous/config.json</code> and
+                        verify that it produces no output.
+                    </p>
                     <div class="flow-only">
                         <strong>Flow: Bootstrap new machine</strong><br />
                         restore <code>~/.config/chezmoi/key.txt</code> from password manager &rarr;
