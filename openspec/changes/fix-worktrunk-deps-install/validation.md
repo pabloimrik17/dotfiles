@@ -26,6 +26,12 @@ was slow; the fixture suite now uses the existing repository convention of a
   Every non-skipped test passed across the full run and targeted retries. A
   clean single-pass full-suite result was not obtained under the machine load;
   no unrelated test or implementation was changed to obtain these results.
+- Subsequent [CI run 38920820683](https://github.com/pabloimrik17/dotfiles/actions/runs/38920820683)
+  verified commit `5c061ead04750d319e42356eb1bed55371b4b831` on macOS 15 arm64
+  with Bun 1.3.14: `bun test` completed in one clean run with 174 passed,
+  1 skipped, 0 failed, and 913 assertions across 11 files (20.55 seconds).
+  The same CI run passed formatting and OpenSpec validation. This resolves
+  the full-suite validation limitation from the local high-load run above.
 - `bun run lint:oxfmt`: passed.
 - `openspec validate fix-worktrunk-deps-install --strict --no-interactive`: passed.
 - `git diff --check`: passed. Changes are limited to the Worktrunk hook and
