@@ -24,3 +24,9 @@
 - Local macOS machine: the actual rendered Beads path matched the local home plus `/WebstormProjects/agentic-task`; `test -d` passed. Applied only the autonomous target with scripts excluded. Valid JSON, mode 600, and an empty target diff passed.
 - Full chezmoi diff: entries for `.config/opencode/opencode.jsonc`, `.zshrc`, `install-packages.sh`, and five deployed test files (`brew-freeze`, `claude-swap`, `gws-client-secret`, `install-script`, and `plugin-configs`) remained unchanged across the target-only apply. These entries were already present immediately before that apply; the `plugin-configs` test source includes this change's regression coverage. No unrelated targets were applied.
 - Other machines: pending for manual rollout, as explicitly requested by the user. Local and synthetic results do not establish fleet acceptance.
+
+## Archive record (2026-10-16)
+
+- Archived at the user’s explicit request after the review fix. Task 2.3 remains unchecked for manual acceptance on other machines; archiving does not claim fleet verification.
+- Synced four modified requirements and one added requirement into `openspec/specs/plugin-configs/spec.md`, preserving unrelated requirements and the existing Purpose. `openspec validate --specs` passed all 116 specifications with warnings about long requirement text and existing placeholder purposes.
+- Pullfrog’s rendering-error assertion was tightened to `missing value for if`; all eight plugin-config tests passed and the review thread was resolved.
