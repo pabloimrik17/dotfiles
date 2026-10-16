@@ -42,6 +42,9 @@ interface FixtureSession {
     cmdOverride?: string;
     extraArgs?: string;
     agent_session_id?: string | null;
+    state?: string;
+    omitState?: boolean;
+    archivedBeforeTrash?: boolean;
 }
 
 interface FixtureState {
@@ -61,12 +64,19 @@ interface FixtureState {
         exitCode?: number;
         delayMs?: number;
     };
+    lifecycle?: {
+        noTransition?: "restore" | "unarchive";
+        refresh?: "fail" | "missing" | "omit-state";
+        refreshPending?: boolean;
+    };
     failures: {
         wt?: boolean;
         gh?: boolean;
         add?: boolean;
         addAfterCreate?: boolean;
         start?: boolean;
+        restore?: boolean;
+        unarchive?: boolean;
     };
 }
 
@@ -785,6 +795,311 @@ describe("durable identity, reuse, and recovery", () => {
     });
 });
 
+const hiddenCases = [
+    { label: "trashed", state: "trashed", archivedBeforeTrash: false, operations: ["restore"] },
+    { label: "archived", state: "archived", archivedBeforeTrash: false, operations: ["unarchive"] },
+    {
+        label: "archived then trashed",
+        state: "trashed",
+        archivedBeforeTrash: true,
+        operations: ["restore", "unarchive"],
+    },
+];
+
+describe("session revival", () => {
+    for (const modality of ["normal", "review"] as const) {
+        const failureCases = hiddenCases.flatMap((scenario) => {
+            const operation = scenario.operations.at(-1)! as "restore" | "unarchive";
+            return [
+                {
+                    ...scenario,
+                    label: `${scenario.label} command failure`,
+                    failures: { [operation]: true },
+                    lifecycle: {},
+                    diagnostic: `Unable to ${operation}`,
+                },
+                {
+                    ...scenario,
+                    label: `${scenario.label} no transition`,
+                    failures: {},
+                    lifecycle: { noTransition: operation },
+                    diagnostic: `not live after ${operation}`,
+                },
+            ];
+        });
+        for (const scenario of [
+            ...failureCases,
+            ...(["fail", "missing", "omit-state"] as const).map((refresh) => ({
+                ...hiddenCases[0]!,
+                label: `refresh ${refresh}`,
+                failures: {},
+                lifecycle: { refresh },
+                diagnostic:
+                    refresh === "fail"
+                        ? "after restore: Unable to list"
+                        : refresh === "missing"
+                          ? "disappeared after restore"
+                          : "state: missing",
+            })),
+        ]) {
+            test(`${modality} revival retries retained ID after ${scenario.label}`, async () => {
+                const harness = await setup();
+                const fixture = await readFixture(harness);
+                const before: FixtureSession = {
+                    id: "retained-session",
+                    title: `${modality === "review" ? "review" : "pr"} owner/dotfiles#123`,
+                    path: harness.worktree,
+                    group: "Preserved group",
+                    profile: "main",
+                    state: scenario.state,
+                    archivedBeforeTrash: scenario.archivedBeforeTrash,
+                    agent_session_id: "00000000-0000-4000-8000-000000000123",
+                };
+                fixture.sessions = [before];
+                fixture.failures = scenario.failures;
+                fixture.lifecycle = scenario.lifecycle;
+                await writeFixture(harness, fixture);
+
+                const failed = await run(harness, modality);
+                expect(failed.exitCode).toBe(1);
+                expect(failed.stdout).toBe("");
+                expect(failed.stderr).toContain(scenario.diagnostic);
+                expect(failed.stderr).toContain(before.id);
+                const afterFailure = await readFixture(harness);
+                expect(afterFailure.sessions).toHaveLength(1);
+                expect(afterFailure.starts ?? 0).toBe(0);
+                const recorded = await calls(harness);
+                expect(
+                    recorded.filter(
+                        (call) =>
+                            call.command === "claude" ||
+                            call.args.includes("add") ||
+                            call.args.includes("start"),
+                    ),
+                ).toHaveLength(0);
+                expect(
+                    recorded
+                        .filter((call) => ["restore", "unarchive"].includes(call.args[3]!))
+                        .map((call) => call.args),
+                ).toEqual(
+                    scenario.operations.map((operation) => [
+                        "--profile",
+                        "main",
+                        "session",
+                        operation,
+                        before.id,
+                    ]),
+                );
+                const records = await readdir(path.join(harness.stateRoot, "records"));
+                const record = JSON.parse(
+                    await readFile(path.join(harness.stateRoot, "records", records[0]!), "utf8"),
+                );
+                expect(record.associations[modality].id).toBe(before.id);
+                if (scenario.operations.length === 2)
+                    expect(afterFailure.sessions[0]!.state).toBe("archived");
+
+                afterFailure.failures = {};
+                afterFailure.lifecycle = {};
+                await writeFixture(harness, afterFailure);
+                await writeFile(harness.logPath, "");
+                const retried = await run(harness, modality);
+                expect(retried.exitCode).toBe(0);
+                expect(retried.stdout).toContain(before.id);
+                expect(retried.stdout).toContain(modality === "review" ? "resumed" : "queued");
+                const afterRetry = await readFixture(harness);
+                expect(afterRetry.sessions).toEqual([{ ...before, state: "live" }]);
+                expect(afterRetry.starts ?? 0).toBe(modality === "review" ? 1 : 0);
+                const retryCalls = await calls(harness);
+                expect(
+                    retryCalls.filter(
+                        (call) => call.command === "claude" || call.args.includes("add"),
+                    ),
+                ).toHaveLength(0);
+                const remaining =
+                    afterFailure.sessions[0]!.state === "live" ? [] : scenario.operations.slice(-1);
+                expect(
+                    retryCalls
+                        .filter((call) => ["restore", "unarchive"].includes(call.args[3]!))
+                        .map((call) => call.args[3]),
+                ).toEqual(remaining);
+                if (modality === "review")
+                    expect(afterRetry.lastLaunchArgs).toEqual([
+                        "--resume",
+                        before.agent_session_id!,
+                    ]);
+            }, 30_000);
+        }
+    }
+
+    for (const recovery of ["pending", "legacy"] as const) {
+        for (const modality of ["normal", "review"] as const) {
+            for (const state of ["trashed", "archived"]) {
+                test(`${recovery} ${modality} recovery revives ${state}`, async () => {
+                    const harness = await setup();
+                    if (recovery === "pending") {
+                        const fixture = await readFixture(harness);
+                        fixture.failures.addAfterCreate = true;
+                        await writeFixture(harness, fixture);
+                        expect((await run(harness, modality)).exitCode).toBe(1);
+                    }
+                    const fixture = await readFixture(harness);
+                    if (recovery === "legacy") {
+                        fixture.sessions.push({
+                            id: "legacy-session",
+                            title: `${modality === "review" ? "review" : "pr"} owner/dotfiles#123`,
+                            path: harness.worktree,
+                            group: "Legacy group",
+                            profile: "main",
+                        });
+                    }
+                    Object.assign(fixture.sessions[0]!, {
+                        state,
+                        agent_session_id: "00000000-0000-4000-8000-000000000123",
+                    });
+                    const before = { ...fixture.sessions[0]! };
+                    await writeFixture(harness, fixture);
+                    await writeFile(harness.logPath, "");
+                    const result = await run(harness, modality);
+                    expect(result.exitCode).toBe(0);
+                    expect(result.stdout).toContain(before.id);
+                    expect(result.stdout).toContain(`${before.group}/${before.title}`);
+                    expect((await readFixture(harness)).sessions).toEqual([
+                        { ...before, state: "live" },
+                    ]);
+                    const recorded = await calls(harness);
+                    expect(
+                        recorded.filter(
+                            (call) => call.command === "claude" || call.args.includes("add"),
+                        ),
+                    ).toHaveLength(0);
+                    expect(
+                        recorded.filter((call) =>
+                            call.args.includes(state === "trashed" ? "restore" : "unarchive"),
+                        ),
+                    ).toHaveLength(1);
+                    const records = await readdir(path.join(harness.stateRoot, "records"));
+                    const record = JSON.parse(
+                        await readFile(
+                            path.join(harness.stateRoot, "records", records[0]!),
+                            "utf8",
+                        ),
+                    );
+                    expect(record.associations[modality].id).toBe(before.id);
+                    expect(record.pending).toBeUndefined();
+                    if (modality === "review") {
+                        expect((await readFixture(harness)).lastLaunchArgs).toContain("--resume");
+                    }
+                });
+            }
+        }
+    }
+
+    for (const scenario of hiddenCases) {
+        test(`review resumes the same conversation after ${scenario.label}`, async () => {
+            const harness = await setup();
+            expect((await run(harness, "review")).exitCode).toBe(0);
+            const fixture = await readFixture(harness);
+            Object.assign(fixture.sessions[0]!, {
+                state: scenario.state,
+                archivedBeforeTrash: scenario.archivedBeforeTrash,
+                title: "My review title",
+                group: "My review group",
+            });
+            fixture.runtime = [];
+            const before = { ...fixture.sessions[0]! };
+            await writeFixture(harness, fixture);
+            await writeFile(harness.logPath, "");
+            const result = await run(harness, "review");
+            expect(result.exitCode).toBe(0);
+            expect(result.stdout).toContain("resumed");
+            expect(result.stdout).toContain(`${before.group}/${before.title}`);
+            const after = await readFixture(harness);
+            expect(after.sessions).toEqual([{ ...before, state: "live" }]);
+            expect(after.starts).toBe(2);
+            expect(after.lastLaunchArgs).toEqual([
+                "/review-team",
+                "owner/dotfiles#123",
+                "--resume",
+                before.agent_session_id!,
+            ]);
+            const recorded = await calls(harness);
+            expect(recorded.filter((call) => call.command === "claude")).toHaveLength(0);
+            const aoe = recorded.filter((call) => call.command === "aoe");
+            expect(aoe.filter((call) => call.args.includes("add"))).toHaveLength(0);
+            expect(
+                aoe
+                    .filter((call) => ["restore", "unarchive", "start"].includes(call.args[3]!))
+                    .map((call) => call.args),
+            ).toEqual(
+                [...scenario.operations, "start"].map((operation) => [
+                    "--profile",
+                    "main",
+                    "session",
+                    operation,
+                    before.id,
+                ]),
+            );
+            expect(aoe.flatMap((call) => call.args)).not.toContain("/review-team");
+        });
+    }
+
+    for (const scenario of [
+        ...hiddenCases,
+        { label: "live", state: "live", operations: [] },
+        { label: "omitted state", state: "live", omitState: true, operations: [] },
+        { label: "unknown state", state: "future-state", operations: [] },
+    ]) {
+        test(`normal reuse of ${scenario.label} preserves identity`, async () => {
+            const harness = await setup();
+            const args = ["--profile", "secondary"];
+            expect((await run(harness, "normal", args)).exitCode).toBe(0);
+            const fixture = await readFixture(harness);
+            Object.assign(fixture.sessions[0]!, scenario, {
+                title: "My chosen title",
+                group: "My chosen group",
+                agent_session_id: "00000000-0000-4000-8000-000000000123",
+            });
+            const before = { ...fixture.sessions[0]! };
+            // The same ID in another profile must not be mutated.
+            fixture.sessions.unshift({ ...before, profile: "main", state: "trashed" });
+            await writeFixture(harness, fixture);
+            await writeFile(harness.logPath, "");
+            const result = await run(harness, "normal", args);
+            expect(result.exitCode).toBe(0);
+            expect(result.stdout).toContain("queued");
+            expect(result.stdout).toContain(before.id);
+            expect(result.stdout).toContain(`${before.group}/${before.title}`);
+            const after = await readFixture(harness);
+            expect(after.sessions).toHaveLength(2);
+            expect(after.sessions[0]!.state).toBe("trashed");
+            expect(after.sessions[1]).toEqual({
+                ...before,
+                state: scenario.operations.length ? "live" : before.state,
+            });
+            const recorded = await calls(harness);
+            expect(recorded.filter((call) => call.command === "claude")).toHaveLength(0);
+            const aoe = recorded.filter((call) => call.command === "aoe");
+            expect(
+                aoe.filter((call) => call.args.includes("add") || call.args.includes("start")),
+            ).toHaveLength(0);
+            expect(
+                aoe.filter((call) => call.args.includes("session")).map((call) => call.args),
+            ).toEqual(
+                scenario.operations.map((operation) => [
+                    "--profile",
+                    "secondary",
+                    "session",
+                    operation,
+                    before.id,
+                ]),
+            );
+            expect(aoe.filter((call) => call.args.includes("list"))).toHaveLength(
+                1 + scenario.operations.length,
+            );
+        });
+    }
+});
+
 describe("review lifecycle", () => {
     test("registers before starting through the installed shim", async () => {
         const harness = await setup();
@@ -923,5 +1238,11 @@ describe("gh-dash integration", () => {
         expect(renderedText).toContain("10-second timeout");
         expect(renderedText).toContain("Review - &lt;title&gt;");
         expect(renderedText).toContain("without repeating");
+        expect(renderedText).toContain(
+            "Restores trashed or archived sessions before reuse, preserving their conversation.",
+        );
+        expect(renderedText).toContain(
+            "Restores trashed or archived sessions before starting or resuming the review.",
+        );
     });
 });

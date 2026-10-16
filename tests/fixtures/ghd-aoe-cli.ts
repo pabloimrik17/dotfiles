@@ -13,6 +13,9 @@ interface FixtureSession {
     cmdOverride?: string;
     extraArgs?: string;
     agent_session_id?: string | null;
+    state?: string;
+    omitState?: boolean;
+    archivedBeforeTrash?: boolean;
 }
 
 interface Fixture {
@@ -37,12 +40,19 @@ interface Fixture {
         exitCode?: number;
         delayMs?: number;
     };
+    lifecycle?: {
+        noTransition?: "restore" | "unarchive";
+        refresh?: "fail" | "missing" | "omit-state";
+        refreshPending?: boolean;
+    };
     failures?: {
         wt?: boolean;
         gh?: boolean;
         add?: boolean;
         addAfterCreate?: boolean;
         start?: boolean;
+        restore?: boolean;
+        unarchive?: boolean;
     };
 }
 
@@ -103,7 +113,9 @@ const fixture = await readFixture();
 fixture.sessions ??= [];
 fixture.runtime ??= [];
 const requireSession = (id: string): FixtureSession => {
-    const session = fixture.sessions?.find((candidate) => candidate.id === id);
+    const session = fixture.sessions?.find(
+        (candidate) => candidate.id === id && candidate.profile === profile,
+    );
     if (!session) {
         console.error("fixture session missing");
         process.exit(35);
@@ -126,7 +138,22 @@ if (commandArgs[0] === "profile" && commandArgs[1] === "default") {
 }
 
 if (commandArgs[0] === "list") {
-    console.log(JSON.stringify(fixture.sessions.filter((session) => session.profile === profile)));
+    const refresh = fixture.lifecycle?.refreshPending ? fixture.lifecycle.refresh : undefined;
+    if (refresh === "fail") {
+        console.error("fixture lifecycle refresh failure");
+        process.exit(38);
+    }
+    const sessions = fixture.sessions
+        .filter((session) => session.profile === profile)
+        .filter(() => refresh !== "missing")
+        .map((session) => ({
+            ...session,
+            state:
+                session.omitState || refresh === "omit-state"
+                    ? undefined
+                    : (session.state ?? "live"),
+        }));
+    console.log(JSON.stringify(sessions));
     process.exit(0);
 }
 
@@ -188,6 +215,24 @@ if (commandArgs[0] === "add") {
     process.exit(0);
 }
 
+if (commandArgs[0] === "session" && ["restore", "unarchive"].includes(commandArgs[1]!)) {
+    const operation = commandArgs[1] as "restore" | "unarchive";
+    const session = requireSession(commandArgs[2]!);
+    if (fixture.failures?.[operation]) {
+        console.error("fixture AoE " + operation + " failure");
+        process.exit(39);
+    }
+    if (fixture.lifecycle?.noTransition !== operation) {
+        session.state =
+            operation === "restore" && session.archivedBeforeTrash ? "archived" : "live";
+    }
+    fixture.lifecycle ??= {};
+    fixture.lifecycle.refreshPending = true;
+    await writeFixture(fixture);
+    console.log("Completed " + operation);
+    process.exit(0);
+}
+
 if (commandArgs[0] === "session" && commandArgs[1] === "show") {
     const id = commandArgs[2]!;
     const session = requireSession(id);
@@ -203,6 +248,10 @@ if (commandArgs[0] === "session" && commandArgs[1] === "start") {
     }
     const id = commandArgs[2]!;
     const session = requireSession(id);
+    if (session.state === "trashed" || session.state === "archived") {
+        console.error("fixture cannot start hidden session");
+        process.exit(40);
+    }
     const resume = Boolean(session.agent_session_id);
     const conversation = session.agent_session_id || "00000000-0000-4000-8000-000000000001";
     fixture.lastLaunchArgs = [
