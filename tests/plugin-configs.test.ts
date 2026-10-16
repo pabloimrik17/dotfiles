@@ -251,7 +251,7 @@ describe("encrypted autonomous template deployment", () => {
         await writeFile(target, "sentinel\n");
         const result = chezmoi("--exclude", "scripts", "apply", "--parent-dirs", target);
         expect(result.exitCode).not.toBe(0);
-        expect(result.stderr).toContain("template");
+        expect(result.stderr).toContain("missing value for if");
         expect(await readFile(target, "utf8")).toBe("sentinel\n");
     });
 
