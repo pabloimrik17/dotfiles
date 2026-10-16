@@ -1473,7 +1473,8 @@
                                     the project group and an English title of up to four words. New
                                     groups use a human-readable repository name. After a 10-second
                                     timeout or inference failure, use a repo-based group and a short
-                                    PR-title fallback.
+                                    PR-title fallback. Restores trashed or archived sessions before
+                                    reuse, preserving their conversation.
                                 </td>
                             </tr>
                             <tr>
@@ -1483,7 +1484,8 @@
                                     <code>Review - &lt;title&gt;</code>, sharing the normal
                                     session's group and base title. Reuses the conversation without
                                     repeating <code>/review-team</code> (3 agents; none post to the
-                                    PR).
+                                    PR). Restores trashed or archived sessions before starting or
+                                    resuming the review.
                                 </td>
                             </tr>
                         </tbody>

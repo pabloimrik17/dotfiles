@@ -57,6 +57,7 @@ interface AoESession {
     group?: string;
     profile?: string;
     tool?: string;
+    state?: string;
 }
 
 interface SessionDetail extends AoESession {
@@ -788,6 +789,48 @@ function sessionForAssociation(sessions: AoESession[], association: Association)
     return session;
 }
 
+async function reviveSession(
+    session: AoESession,
+    profile: string,
+    env: NodeJS.ProcessEnv,
+    runner: ProcessRunner,
+): Promise<AoESession> {
+    if (session.state !== "trashed" && session.state !== "archived") return session;
+
+    const id = session.id;
+    const transition = async (operation: "restore" | "unarchive"): Promise<AoESession> => {
+        const result = await runner("aoe", aoeArgs(profile, "session", operation, id), {
+            env,
+            timeoutMs: DEFAULT_COMMAND_TIMEOUT_MS,
+        });
+        if (result.exitCode !== 0) {
+            throw commandFailure(`Unable to ${operation} AoE session ${id}`, result);
+        }
+        let refreshed: AoESession | undefined;
+        try {
+            refreshed = (await listSessions(profile, env, runner)).find((row) => row.id === id);
+        } catch (error) {
+            throw new Error(
+                `Unable to verify AoE session ${id} after ${operation}: ${error instanceof Error ? error.message : String(error)}`,
+            );
+        }
+        if (!refreshed) throw new Error(`AoE session ${id} disappeared after ${operation}`);
+        if (
+            refreshed.state !== "live" &&
+            !(operation === "restore" && refreshed.state === "archived")
+        ) {
+            throw new Error(
+                `AoE session ${id} is not live after ${operation} (state: ${refreshed.state ?? "missing"})`,
+            );
+        }
+        return refreshed;
+    };
+
+    if (session.state === "trashed") session = await transition("restore");
+    if (session.state === "archived") session = await transition("unarchive");
+    return session;
+}
+
 async function registerSession(options: {
     profile: string;
     modality: Modality;
@@ -1070,7 +1113,12 @@ export async function runIntegration(
             await atomicJsonWrite(stateFile, record);
         }
 
-        const session = sessionForAssociation(sessions, association);
+        const session = await reviveSession(
+            sessionForAssociation(sessions, association),
+            profile,
+            env,
+            runner,
+        );
         if (cli.modality === "normal") {
             return {
                 id: association.id,
