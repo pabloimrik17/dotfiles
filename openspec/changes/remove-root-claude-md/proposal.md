@@ -1,6 +1,6 @@
 ## Why
 
-Claude Code >= 2.1.277 reads repo-root `AGENTS.md` natively, but only when no `CLAUDE.md` exists in the working directory or any ancestor. The root `CLAUDE.md` (`@AGENTS.md` import) is now redundant and blocks that native discovery. Same fleet convention as agentic-task-wmqd.10 (monolab): `AGENTS.md` is the sole instruction source.
+Claude Code >= 2.1.277 reads repo-root `AGENTS.md` natively, but only when no `CLAUDE.md` exists in the working directory or any ancestor. The root `CLAUDE.md` (`@AGENTS.md` import) is now redundant, because Claude Code reads `AGENTS.md` directly. Same fleet convention as agentic-task-wmqd.10 (monolab): `AGENTS.md` is the sole instruction source.
 
 ## What Changes
 
@@ -21,4 +21,4 @@ None.
 
 ## Impact
 
-Repo-only files and docs. Claude Code versions older than 2.1.277 no longer receive the Bun policy from this repo.
+Repo-only files and docs. Claude Code versions older than 2.1.277 no longer receive the Bun policy from this repo. Per the Claude memory docs, native `AGENTS.md` reading is also unavailable with the built-in AGENTS plugin disabled and, in some cases, in the first session after upgrading from 2.1.276 or earlier; those sessions read `CLAUDE.md` only.

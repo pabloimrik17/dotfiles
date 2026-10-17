@@ -2,7 +2,7 @@
 
 ### Requirement: Repository instructions have one maintained body
 
-The repository SHALL maintain its shared instructions in root `AGENTS.md`. Root `CLAUDE.md` SHALL NOT exist: Claude Code reads root `AGENTS.md` natively only when no `CLAUDE.md` exists in the working directory or any ancestor, so a compatibility import would block that discovery. The migration SHALL preserve all existing instructions, including the Bun package-manager policy.
+The repository SHALL maintain its shared instructions in root `AGENTS.md`. Root `CLAUDE.md` SHALL NOT exist: Claude Code (2.1.277 or later) reads root `AGENTS.md` natively, so a compatibility import is no longer needed. A `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md` in the working directory or any ancestor makes Claude Code read only the `CLAUDE.md` files. The migration SHALL preserve all existing instructions, including the Bun package-manager policy.
 
 #### Scenario: Existing identical files
 
@@ -22,7 +22,7 @@ The migration SHALL preserve instruction discovery by the repository's supported
 
 #### Scenario: Repository discovery
 
-- **WHEN** a fresh supported agent session starts in the repository
+- **WHEN** a fresh supported agent session starts in the repository, with native `AGENTS.md` support available (Claude Code 2.1.277 or later, built-in AGENTS plugin enabled)
 - **THEN** it SHALL receive the Bun policy through root `AGENTS.md`, which Claude Code reads natively
 - **AND** no independent duplicate policy body SHALL be maintained
 
