@@ -10,7 +10,7 @@ Related: Beads agentic-task-5vg, agentic-task-wmqd.4 and agentic-task-wmqd.14; d
 
 - Manage `pluginConfigs."cc-plugin-agents-md@builtin".options.instructionFiles = "claude-md-and-agents-md"` in `dot_claude/modify_settings.json.tmpl`.
 - Merge `pluginConfigs` down to `options`, so other plugin entries and other options of this plugin survive an apply.
-- Add regression tests and a short manual note.
+- Add a short manual note.
 
 ## Capabilities
 
