@@ -467,7 +467,8 @@ MANAGED = json.loads(r'''
 # `pluginConfigs` descends to `options` so only `instructionFiles` is owned: with
 # the default `claude-md-or-agents-md`, any CLAUDE.md in the cwd or a parent hides
 # every AGENTS.md, and bd init / Claude /init keep recreating one. Claude Code
-# honours this key only in user settings, --settings or managed settings.
+# honours this key only in user settings, --settings or managed settings, and
+# only from v2.1.285 (earlier builds used the ID `agents-md@builtin`).
 MERGE_CONTAINERS = {
     ("enabledPlugins",),
     ("extraKnownMarketplaces",),

@@ -2,7 +2,7 @@
 
 ### Requirement: Claude Code loads CLAUDE.md and AGENTS.md together
 
-The managed key set SHALL include `pluginConfigs."cc-plugin-agents-md@builtin".options.instructionFiles` set to `"claude-md-and-agents-md"` in `dot_claude/modify_settings.json.tmpl`. Claude Code honours this key only in user settings, a `--settings` file or managed settings, so it MUST live in the user-scope source. The merge SHALL descend through `pluginConfigs`, the plugin entry and `options`, so other plugin entries and other options survive.
+The managed key set SHALL include `pluginConfigs."cc-plugin-agents-md@builtin".options.instructionFiles` set to `"claude-md-and-agents-md"` in `dot_claude/modify_settings.json.tmpl`. Claude Code honours this key only in user settings, a `--settings` file or managed settings, so it MUST live in the user-scope source. The `cc-plugin-agents-md@builtin` ID is read only from Claude Code v2.1.285; earlier builds used `agents-md@builtin` and ignore an entry under the new ID. The merge SHALL descend through `pluginConfigs`, the plugin entry and `options`, so other plugin entries and other options survive.
 
 #### Scenario: Fresh settings select both files
 
