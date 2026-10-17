@@ -8,18 +8,18 @@ Keep agent instructions in a canonical AGENTS.md body while preserving discovery
 
 ### Requirement: Repository instructions have one maintained body
 
-The repository SHALL maintain its shared instructions in root `AGENTS.md`. Root `CLAUDE.md` SHALL contain only an `@AGENTS.md` compatibility import rather than a second instruction body. The migration SHALL preserve all existing instructions, including the Bun package-manager policy.
+The repository SHALL maintain its shared instructions in root `AGENTS.md`. Root `CLAUDE.md` SHALL NOT exist: Claude Code (2.1.277 or later) reads root `AGENTS.md` natively, so a compatibility import is no longer needed. A `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md` in the working directory or any ancestor makes Claude Code read only the `CLAUDE.md` files. The migration SHALL preserve all existing instructions, including the Bun package-manager policy.
 
 #### Scenario: Existing identical files
 
 - **WHEN** the repository's current identical instruction files are migrated
-- **THEN** `AGENTS.md` SHALL retain the complete instruction body and `CLAUDE.md` SHALL import it
+- **THEN** `AGENTS.md` SHALL retain the complete instruction body and root `CLAUDE.md` SHALL be removed
 - **AND** a future edit to that body SHALL require editing only `AGENTS.md`
 
 #### Scenario: Source files diverged before implementation
 
 - **WHEN** either instruction file has gained unique content
-- **THEN** migration SHALL preserve that content before reducing the compatibility file
+- **THEN** migration SHALL preserve that content in `AGENTS.md` before removing `CLAUDE.md`
 - **AND** contradictory instructions SHALL be presented to the user rather than silently discarded
 
 ### Requirement: Migration preserves user scope and ownership
@@ -50,14 +50,15 @@ The migration SHALL preserve instruction discovery by the repository's supported
 
 #### Scenario: Repository discovery
 
-- **WHEN** a fresh supported agent session starts in the repository
-- **THEN** it SHALL receive the Bun policy through root `AGENTS.md` or Claude's import
+- **WHEN** a fresh supported agent session starts in the repository, with native `AGENTS.md` support available (Claude Code 2.1.277 or later, built-in AGENTS plugin enabled)
+- **THEN** it SHALL receive the Bun policy through root `AGENTS.md`, which Claude Code reads natively
 - **AND** no independent duplicate policy body SHALL be maintained
 
 #### Scenario: Repository files are not deployed to the home directory
 
 - **WHEN** chezmoi computes targets
-- **THEN** root `AGENTS.md` and `CLAUDE.md` SHALL remain ignored as repo tooling
+- **THEN** root `AGENTS.md` SHALL remain ignored as repo tooling
+- **AND** a root `CLAUDE.md` SHALL stay ignored should one be recreated
 
 #### Scenario: OpenCode 1 global precedence
 
