@@ -19,7 +19,8 @@ jobs:
                   persist-credentials: false
 
             - name: 🔍 Fallow audit
-              uses: fallow-rs/fallow@ecf5a314fd3e10974acb4f5a7f867c433030522d # v3.17.0
+              # actions-up-ignore-next-line
+              uses: fallow-rs/fallow@71369f80d099e25726ad04382f15aef14a251abc # v3.31.0
               with:
                   command: audit
                   gate: new-only
