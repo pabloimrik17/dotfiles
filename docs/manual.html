@@ -2854,6 +2854,17 @@
                         entry point. No managed user body currently needs migration. See
                         <a href="https://code.claude.com/docs/en/memory#agentsmd">Claude memory</a>.
                     </p>
+                    <p>
+                        The managed user settings also set
+                        <code
+                            >pluginConfigs."cc-plugin-agents-md@builtin".options.instructionFiles</code
+                        >
+                        to <code>"claude-md-and-agents-md"</code>. In the default mode a single
+                        <code>CLAUDE.md</code> or <code>CLAUDE.local.md</code> in the working
+                        directory or a parent hides every <code>AGENTS.md</code>, and tools such as
+                        <code>bd init</code> and <code>/init</code> recreate it; Claude Code honours
+                        this key only in user, <code>--settings</code> or managed settings.
+                    </p>
                     <h3 id="plannotator-inbox">Plannotator Inbox</h3>
                     <p>
                         One local window for agent questions, files and replies. The existing

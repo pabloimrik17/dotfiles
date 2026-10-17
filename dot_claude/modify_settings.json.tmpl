@@ -439,6 +439,13 @@ MANAGED = json.loads(r'''
       "mcp__ibkr__delete_order_instruction"
     ]
   },
+  "pluginConfigs": {
+    "cc-plugin-agents-md@builtin": {
+      "options": {
+        "instructionFiles": "claude-md-and-agents-md"
+      }
+    }
+  },
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
   "statusLine": {
@@ -457,12 +464,20 @@ MANAGED = json.loads(r'''
 # is not listed here is a leaf and replaces the live value entirely (so
 # `permissions.allow` stays the curated list in git, and each `hooks.<Event>`
 # array is imposed as a whole -- which is the unit AoE itself regenerates).
+# `pluginConfigs` descends to `options` so only `instructionFiles` is owned: with
+# the default `claude-md-or-agents-md`, any CLAUDE.md in the cwd or a parent hides
+# every AGENTS.md, and bd init / Claude /init keep recreating one. Claude Code
+# honours this key only in user settings, --settings or managed settings, and
+# only from v2.1.285 (earlier builds used the ID `agents-md@builtin`).
 MERGE_CONTAINERS = {
     ("enabledPlugins",),
     ("extraKnownMarketplaces",),
     ("env",),
     ("hooks",),
     ("permissions",),
+    ("pluginConfigs",),
+    ("pluginConfigs", "cc-plugin-agents-md@builtin"),
+    ("pluginConfigs", "cc-plugin-agents-md@builtin", "options"),
 }
 
 # Paths deleted from the live file. `hooks.PreCompact` held only the duplicate
