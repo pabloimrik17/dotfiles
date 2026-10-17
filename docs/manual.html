@@ -2844,13 +2844,14 @@
                 <div class="section-content">
                     <h3>Canonical agent instructions</h3>
                     <p>
-                        This repository maintains its Bun policy in <code>AGENTS.md</code>. Root
-                        <code>CLAUDE.md</code> contains only <code>@AGENTS.md</code>, a
-                        compatibility import for CLAUDE-only sessions. Both stay outside home
-                        deployment. Current Claude Code also supports native AGENTS discovery. User
-                        instructions remain at <code>~/.claude/CLAUDE.md</code> or in
-                        <code>~/.claude/rules/</code>; a global AGENTS body needs an explicit Claude
-                        entry point. No managed user body currently needs migration. See
+                        This repository maintains its Bun policy in <code>AGENTS.md</code>. There is
+                        no root <code>CLAUDE.md</code>: Claude Code 2.1.277+ reads
+                        <code>AGENTS.md</code> natively, but only when no <code>CLAUDE.md</code>
+                        exists in the working directory or any ancestor. Both names stay outside
+                        home deployment. User instructions remain at
+                        <code>~/.claude/CLAUDE.md</code> or in <code>~/.claude/rules/</code>; a
+                        global AGENTS body needs an explicit Claude entry point. No managed user
+                        body currently needs migration. See
                         <a href="https://code.claude.com/docs/en/memory#agentsmd">Claude memory</a>.
                     </p>
                     <h3 id="plannotator-inbox">Plannotator Inbox</h3>
