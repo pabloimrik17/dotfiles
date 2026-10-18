@@ -8,7 +8,7 @@ tickrs TUI configuration -- chart defaults and the curated US-equity ticker watc
 
 ### Requirement: tickrs config.yml is managed by chezmoi at the macOS path
 
-A chezmoi-managed `Library/Application Support/tickrs/config.yml` SHALL be deployed to `~/Library/Application Support/tickrs/config.yml` — the path the macOS `tickrs` binary reads (Rust `dirs` crate convention). The file SHALL be a static (non-template) YAML file — no host-specific values, no `.tmpl` suffix — so chezmoi copies it byte-for-byte. Linux deployment is out of scope for `chezmoi apply` in this repo; Linux users follow the printed instructions and place the file at `~/.config/tickrs/config.yml` manually if they want the curated dashboard.
+A chezmoi-managed `Library/Application Support/tickrs/config.yml` SHALL be deployed byte-for-byte to `~/Library/Application Support/tickrs/config.yml`, the macOS path read by tickrs. It SHALL be static YAML without host-specific values or a `.tmpl` suffix. Linux deployment SHALL remain manual.
 
 #### Scenario: Config deployed on chezmoi apply
 
@@ -19,6 +19,11 @@ A chezmoi-managed `Library/Application Support/tickrs/config.yml` SHALL be deplo
 
 - **WHEN** the same dotfiles repo is applied on two different macOS machines
 - **THEN** both hosts produce the same `~/Library/Application Support/tickrs/config.yml` byte-for-byte
+
+#### Scenario: Linux setup is manual
+
+- **WHEN** a Linux user wants the curated dashboard
+- **THEN** the printed instructions direct them to place the configuration at `~/.config/tickrs/config.yml` manually; `chezmoi apply` does not deploy it there
 
 ### Requirement: Chart defaults match the curated dashboard preferences
 
@@ -44,18 +49,26 @@ These values control how `tickrs` renders charts at launch (one-month candle vie
 - **WHEN** the contents of `~/Library/Application Support/tickrs/config.yml` are read
 - **THEN** the five top-level keys (`chart_type`, `time_frame`, `update_interval`, `enable_pre_post`, `show_volumes`) appear with the values from the table above
 
-### Requirement: Symbol watchlist is the curated 37-ticker list
+### Requirement: Symbol watchlist is owner-managed configuration
 
-The `config.yml` SHALL define a `symbols:` YAML sequence containing exactly the following 37 US-equity ticker symbols, in this order:
-
-`ACM, ADBE, AMT, BAH, BMI, BSX, CDNS, CMG, CPNG, CPRT, DUOL, EXLS, HLI, HLNE, INTU, IPAR, ISRG, JKHY, LII, LMAT, LVS, MCD, MSFT, NKE, NOMD, ODD, OTIS, PAYX, PEP, PLNT, PNR, PODD, RMBS, ROL, SYK, UHS, VEEV`
+The `config.yml` SHALL define a non-empty `symbols:` YAML sequence of unique, non-empty strings. This owner-managed sequence SHALL determine the watchlist and its order at launch. Specific symbols, their count, and their order are NOT enumerated in this spec; valid changes to them SHALL NOT require a specification update.
 
 #### Scenario: tickrs loads the curated watchlist on launch
 
 - **WHEN** the user runs `tickrs` after `chezmoi apply`
-- **THEN** the dashboard streams quotes for all 37 tickers above and no others
+- **THEN** the dashboard uses exactly the symbols in the deployed `symbols:` sequence as its watchlist
 
 #### Scenario: Symbol order is preserved
 
+- **WHEN** the user runs `tickrs` after `chezmoi apply`
+- **THEN** the watchlist follows the order of the deployed `symbols:` sequence
+
+#### Scenario: Watchlist content changes without a specification update
+
+- **WHEN** the owner adds, removes, or reorders symbols and deploys the updated configuration with `chezmoi apply`
+- **THEN** the next launch uses the updated watchlist and order without requiring this specification to enumerate its contents or count
+
+#### Scenario: Symbol sequence is structurally valid
+
 - **WHEN** the YAML `symbols:` sequence is parsed
-- **THEN** the tickers appear in the order shown above (ACM first, VEEV last)
+- **THEN** it contains at least one entry, every entry is a non-empty string, and no entries are duplicated

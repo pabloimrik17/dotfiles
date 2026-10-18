@@ -7,22 +7,21 @@ show_volumes: true
 symbols:
     - ACM
     - ADBE
+    - ADSK
     - AMT
+    - ATMU
+    - AVGO
     - BAH
     - BMI
     - BSX
-    - CDNS
     - CMG
     - CPNG
     - CPRT
+    - CW
     - DUOL
     - EXLS
     - HLI
-    - HLNE
     - INTU
-    - IPAR
-    - ISRG
-    - JKHY
     - LII
     - LMAT
     - LVS
@@ -31,14 +30,12 @@ symbols:
     - NKE
     - NOMD
     - ODD
-    - OTIS
-    - PAYX
     - PEP
     - PLNT
     - PNR
     - PODD
-    - RMBS
     - ROL
     - SYK
+    - TMUS
     - UHS
     - VEEV
