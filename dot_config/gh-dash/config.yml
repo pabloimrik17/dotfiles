@@ -63,13 +63,15 @@ showAuthorIcons: true
 smartFilteringAtLaunch: true
 
 keybindings:
+    # Checked against gh-dash v4.26.2 key tables and section-mode dispatch.
+    # Keep built-in t (smart filtering), L (label), and ctrl+s n/x available.
     universal:
-        - key: L
+        - key: J
           name: Lazygit
           command: cd {{.RepoPath}} && lazygit
     prs:
         # Direct execution (suspends TUI)
-        - key: t
+        - key: i
           name: CI checks (inline)
           command: ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}
         # z/Z, not n/N: custom keys dispatch before section mode, so `n` would
@@ -78,7 +80,7 @@ keybindings:
           name: Review in tuicr
           command: cd {{.RepoPath}} && tuicr pr {{.PrNumber}}
         # Tmux variants (split pane, or popup for Z)
-        - key: T
+        - key: I
           name: CI checks (tmux)
           command: tmux split-window -h 'ENHANCE_THEME=catppuccin_mocha gh enhance -R {{.RepoName}} {{.PrNumber}}'
         # Popup, not a split: a diff wants full width, plus a frame and title.
