@@ -1,6 +1,8 @@
-# Package Manager
+# Code comments
 
-This project uses **bun** as the package manager. Always use `bun` instead of `npm`/`yarn`/`pnpm`.
+Before writing or editing code comments, use the experiments:writing-comments skill.
+
+# Package Manager
 
 ## Common npm-to-bun equivalents
 
