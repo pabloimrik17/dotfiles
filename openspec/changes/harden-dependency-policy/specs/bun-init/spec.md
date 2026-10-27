@@ -21,7 +21,7 @@ Repository-local `bunfig.toml` SHALL set `[install].minimumReleaseAge` to `86400
 
 ### Requirement: Dependency lifecycle trust is explicit
 
-`package.json` SHALL declare only dependencies whose installation lifecycle scripts are required for repository tooling in `trustedDependencies`, using an empty array when none are needed. The project-level Husky prepare script SHALL remain enabled. Trust SHALL be verified with the pinned Bun version and a clean installation.
+`package.json` SHALL declare only dependencies whose installation lifecycle scripts are required for repository tooling in `trustedDependencies`, using an empty array when none are needed. When the list is empty, `bun.lock` SHALL record `"trustedDependencies": []` as well. The project-level Husky prepare script SHALL remain enabled. Trust SHALL be verified with the pinned Bun version and a clean frozen-lockfile installation that confirms dependency lifecycle scripts remain blocked while the root `prepare` script remains enabled.
 
 #### Scenario: No dependency install scripts are required
 

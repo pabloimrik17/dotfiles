@@ -50,6 +50,7 @@ Use Bun 1.3.14 in an isolated installation with no node_modules and a dedicated 
 
 - Locked versions bypass Bun's new-resolution age filter → document this boundary; security fixes newly resolved by Bun remain subject to the one-day floor, but do not claim that already locked fixes are rechecked.
 - Current Bun docs describe a newer runtime → verify empty-trust semantics and age behavior under 1.3.14; report incompatibility before changing runtime policy.
+- Bun 1.3.14 drops the empty trust list from bun.lock whenever it regenerates the lockfile, including Renovate's weekly lock-file maintenance → accepted without a CI guard; no locked package declares install scripts. Restore the entry when reviewing Renovate bun.lock changes; recheck on a Bun upgrade.
 - OSV integration is experimental and direct-dependency-only → do not describe it as a transitive scanner.
 - Existing formatting or test failures may be unrelated → record baseline and avoid editing parallel work.
 - PR and green CI remain part of the Beads acceptance criteria → leave the task open until authorized publishing and CI complete.
