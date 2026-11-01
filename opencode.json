@@ -4,7 +4,7 @@
         "servers": {
             "eslint": {
                 "type": "local",
-                "command": ["npx", "-y", "@eslint/mcp@0.3.12"],
+                "command": ["npx", "-y", "@eslint/mcp@0.3.15"],
                 "disabled": false
             },
             "context7": {
