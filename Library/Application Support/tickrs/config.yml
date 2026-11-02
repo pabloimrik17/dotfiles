@@ -8,21 +8,23 @@ symbols:
     - ACM
     - ADBE
     - ADSK
+    - AGI
     - AMT
     - ATMU
     - AVGO
-    - BAH
+    - BKNG
     - BMI
     - BSX
+    - CAT
     - CMG
     - CPNG
     - CPRT
     - CW
     - DUOL
     - EXLS
+    - GOOG
     - HLI
     - INTU
-    - LII
     - LMAT
     - LVS
     - MCD
@@ -30,12 +32,10 @@ symbols:
     - NKE
     - NOMD
     - ODD
-    - PEP
     - PLNT
     - PNR
     - PODD
-    - ROL
-    - SYK
+    - RMBS
     - TMUS
     - UHS
     - VEEV
