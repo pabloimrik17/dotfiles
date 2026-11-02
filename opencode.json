@@ -9,7 +9,7 @@
             },
             "context7": {
                 "type": "local",
-                "command": ["npx", "-y", "@upstash/context7-mcp@4.1.1"],
+                "command": ["npx", "-y", "@upstash/context7-mcp@4.4.4"],
                 "disabled": false
             },
             "knip": {
