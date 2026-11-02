@@ -73,7 +73,7 @@ On a personal machine each account SHALL carry its own switch line, applied to b
 
 ### Requirement: Rotation policy is a documented trial
 
-The tiers and lines SHALL be marked as a trial policy chosen from the simulation published at https://claude.ai/artifact/6TgAbxVLuaYbFj3Psick5k (private to its owner) and recorded in the design of change `add-optional-claude-account`. Changes to them SHALL come through a later change informed by the user's feedback on real usage.
+The tiers and lines SHALL be marked as a trial policy chosen from the simulation published at https://claude.ai/artifact/6TgAbxVLuaYbFj3Psick5k (shared by link) and recorded in the design of change `add-optional-claude-account`. Changes to them SHALL come through a later change informed by the user's feedback on real usage.
 
 #### Scenario: Reader finds the trial status
 

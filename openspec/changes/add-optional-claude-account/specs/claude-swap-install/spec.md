@@ -108,6 +108,17 @@ The dotfiles SHALL install a dedicated guided claude-swap setup command. After a
 - **THEN** the setup switches back to `work` after the capture
 - **AND** it does not force `personal`
 
+#### Scenario: Current login belongs to another account
+
+- **WHEN** the user confirms a capture while the current Claude login is already enrolled under a different alias or slot
+- **THEN** the setup refuses before calling `cswap add`, and every account keeps its alias and slot
+- **AND** it tells the user to `/login` as the intended account first
+
+#### Scenario: Recapture keeps the runtime policy
+
+- **WHEN** `--reauth` recaptures an account that is held out of rotation or has a tier and line
+- **THEN** after the run the account is still held out and has its declared tier and line
+
 ### Requirement: Upstream owns the menubar LaunchAgent
 
 The guided setup SHALL install and verify the login service through `cswap menubar --install-service` on both machine types. Dotfiles SHALL NOT track its generated plist or the menubar app wrapper upstream builds under `/Applications`. After a declared version change, an already-installed service SHALL be refreshed so it runs the newly pinned executable.

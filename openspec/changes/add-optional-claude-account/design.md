@@ -37,7 +37,7 @@ The setup gains `--enroll personal2` and allows `--reauth personal2` on personal
 
 ### D2. Completeness depends on aliases only; captures restore the previous account
 
-`setup_is_complete` checks only the required aliases (and, on work machines, that no other account exists). `personal` is selected only when the run itself enrolled a missing required account. `--enroll` and `--reauth` record the active alias before the `/login` capture and switch back to it afterwards.
+`setup_is_complete` checks only the required aliases (and, on work machines, that no other account exists). `personal` is selected only when the run itself enrolled a missing required account. `--enroll` and `--reauth` record the active alias before the `/login` capture and switch back to it afterwards. A capture refuses when the current login is already enrolled under another alias or slot, because upstream `add --alias` overwrites that account's alias and `add --slot` moves it.
 
 Alternative rejected: keep forcing `personal`. It contradicts "restart preserves the active identity", and the offer script would show a false "incomplete" after this change bumps `SETUP_COMMAND_REVISION`.
 
@@ -56,7 +56,7 @@ All candidates below were run through the real 0.29.0 engine, over two simulated
 | P2 hourly shrinking work reserve | 15 % | 114 min | 90–95 % |
 | P1 with `personal` disabled | 38 % | 102 min | 90–100 % |
 
-Simulation: https://claude.ai/artifact/6TgAbxVLuaYbFj3Psick5k (private to the owner). Harness and assumptions: `simulation/README.md`. The demand used is a ceiling: weekday evenings and weekends, all heavy. The user's real pace is lower, so walls are an upper bound.
+Simulation: https://claude.ai/artifact/6TgAbxVLuaYbFj3Psick5k (shared by link). Harness and assumptions: `simulation/README.md`. The demand used is a ceiling: weekday evenings and weekends, all heavy. The user's real pace is lower, so walls are an upper bound.
 
 Engine facts that drove the choice, all observed in the simulation:
 
@@ -93,7 +93,7 @@ These still hold in 0.29.0: `list`/`status --json` keep `schemaVersion: 1`, `dis
 
 The menubar now builds `/Applications/claude-swap Menubar.app` on every start. It is upstream-owned and untracked, and `CLAUDE_SWAP_NO_BUNDLE` is not set.
 
-Released 2026-10-28; the bump lands at least one week later. The install helpers keep the exact-pin and menubar-runtime checks.
+Released 2026-10-28. The install helpers keep the exact-pin and menubar-runtime checks.
 
 ### D6. Tests move to the 0.29.0 engine
 
@@ -133,10 +133,11 @@ Criteria:
 
 - [The personal Mac hits walls in heavy weeks] → Accepted: that is the user's current practice of slowing Claude Code. A manual `cs-global` onto an account above its line is respected while nothing else qualifies.
 - [Lines are not caps, so the last account in use can pass its line] → `personal` sits last as the designated overflow; this is documented in the manual.
+- [Priority mode sends no "all exhausted" notification, unlike `best`] → Accepted for the trial: the engine's `BLOCKED` is visible through `cswap auto --once --dry-run` and the menu's usage rows. Notifications stay a non-goal; feedback can reopen it.
 - [A manual `work` choice (Fable) is reverted within a minute] → The manual documents pausing Auto-switch in the menu.
 - [The real poller sees an inactive account's reset 5–10 min late] → This only delays a return to a higher tier; it is harmless.
 - [A forgotten `cswap disable personal2` while unpaid] → Upstream behaviour for a lapsed plan is unverified (#350, #499). It could be chosen if its usage reads 0 %. The manual makes "unpaid month → disable" the rule.
-- [0.29.0 is young] → The one-week lag, the exact pin, the tests against the live tool, and rollback by pin revert.
+- [0.29.0 is young] → The exact pin, the tests against the live tool, and rollback by pin revert.
 
 ## Migration Plan
 
@@ -144,4 +145,4 @@ Criteria:
 2. Optional: `claude-swap-setup --enroll personal2`.
 3. Verify with `cswap priority`, `cswap threshold` and `cswap auto --once --dry-run`.
 
-Rollback: revert the change. `chezmoi apply` restores pin 0.26.0 and the 85 % `best` settings. Run `cswap priority <alias> --unset` and `cswap threshold <alias> --unset` for each account, or leave them: the `best` strategy ignores tiers.
+Rollback: revert the change. `chezmoi apply` restores pin 0.26.0 and the 85 % `best` settings. Optionally run `cswap priority <alias> --unset` and `cswap threshold <alias> --unset` for each account first, before the revert/apply: 0.26.0 has neither command. Leaving them is harmless, since 0.26.0 ignores those per-account fields.

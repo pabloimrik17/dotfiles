@@ -1,6 +1,6 @@
 # claude-swap rotation simulator
 
-Drives the real `AutoSwitchEngine` from claude-swap 0.29.0 with a fake switcher, fake usage and a fake clock. No CLI, no Keychain, no network. Evidence for the trial policy in `../design.md`; published as https://claude.ai/artifact/6TgAbxVLuaYbFj3Psick5k (private to the owner).
+Drives the real `AutoSwitchEngine` from claude-swap 0.29.0 with a fake switcher, fake usage and a fake clock. No CLI, no Keychain, no network. Evidence for the trial policy in `../design.md`; published as https://claude.ai/artifact/6TgAbxVLuaYbFj3Psick5k (shared by link).
 
 ## Run
 
