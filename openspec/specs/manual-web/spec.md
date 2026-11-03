@@ -248,12 +248,13 @@ Section 11 of `docs/manual.html` SHALL describe `"tui": "fullscreen"` as the che
 
 ### Requirement: Claude Code section documents claude-swap operations and boundaries
 
-Section 11 of `docs/manual.html` SHALL document the pinned claude-swap integration within the existing 15-section structure. It SHALL cover machine-role policy, guided account enrollment, native account aliases, the 85% autoswitch policy, `cs-list`/`cs-current`/`cs-global`, global-versus-isolated behavior, dry-run, menu activation and pause, LaunchAgent status, pin-based updates, credential ownership, recovery, and accepted upstream limitations.
+Section 11 of `docs/manual.html` SHALL document the pinned claude-swap integration within the existing 15-section structure. It SHALL cover machine-role policy, guided enrollment including the optional `personal2`, native aliases, the trial priority rotation with its tiers, lines and simulation link, `cs-list`/`cs-current`/`cs-global`, global-versus-isolated behavior, dry-run, menu activation and pause, LaunchAgent status, pin updates, credentials, recovery, and upstream limitations.
 
 #### Scenario: Personal-machine operator follows the full workflow
 
 - **WHEN** a personal-machine user reads the claude-swap subsection
 - **THEN** they can enroll `personal` and `work` without `/logout`, verify `personal` is active, run a dry-run, install/check the menu service, and enable auto-switch from the supported menu toggle
+- **AND** they can enroll `personal2` with `claude-swap-setup --enroll personal2` and hold it out of rotation in unpaid months
 
 #### Scenario: Work-machine operator avoids accidental rotation
 
@@ -265,6 +266,7 @@ Section 11 of `docs/manual.html` SHALL document the pinned claude-swap integrati
 - **WHEN** the reader consults `cs-global` or `cswap switch`
 - **THEN** the manual states that the default Claude Code identity changes globally
 - **AND** it does not present `cswap run` as part of the managed workflow
+- **AND** it states that a manual choice of a lower-tier account holds only while Auto-switch is paused
 
 #### Scenario: Reader can recover safely
 
@@ -276,3 +278,9 @@ Section 11 of `docs/manual.html` SHALL document the pinned claude-swap integrati
 
 - **WHEN** the manual is rendered after adding the subsection
 - **THEN** Claude Code remains Section 11 and all existing sections retain their order through Agent Sessions as Section 15
+
+#### Scenario: Reader sees the trial status
+
+- **WHEN** a reader looks up why the rotation uses its tiers and lines
+- **THEN** the subsection labels them a trial, lists the values, and links the simulation artifact
+- **AND** it explains that switch lines decide departure and landing but are not usage caps
