@@ -12,8 +12,8 @@ for _case in ('draw10to15', 'flat15'):
 for _k in ('P1-w60', 'P1-w65', 'P1-w70'):
     sw['configs'].setdefault(_k, {'weekly': None, 'native': 'P1 with work line ' + _k[4:]})
 ORDER = [k for k in ORDER if k in sw['cases']['draw10to15'] and k in sw['cases']['flat15']]
-if 'P1-w60' not in ORDER:
-    sys.exit('missing P1-w60: run week2tune.py for draw10to15 and flat15 first')
+if 'A' not in ORDER or 'P1-w60' not in ORDER:
+    sys.exit('missing A or P1-w60: run week2.py and week2tune.py for draw10to15 and flat15 first')
 t0, t1 = sw['cases']['draw10to15']['A']['metrics']['measurementWindow']
 res = {'window': [t0, t1], 'assumptions': sw['assumptions'], 'configs': {}}
 for case in ('draw10to15', 'flat15'):

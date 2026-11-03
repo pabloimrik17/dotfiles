@@ -3758,7 +3758,8 @@
                                 <td>
                                     Apply only the rotation tiers and switch lines to the enrolled
                                     accounts; never prompts, captures, or switches.
-                                    <code>chezmoi apply</code> runs it on personal machines
+                                    <code>chezmoi apply</code> runs it on personal machines when the
+                                    declared values change
                                 </td>
                             </tr>
                         </tbody>
@@ -3907,9 +3908,12 @@
                         menu shows only the usage rows and sends no notification, and the active
                         account keeps serving Claude Code until it is exhausted: slow down, or
                         switch manually knowing that it spends a reserve. Tiers and lines live in
-                        upstream&rsquo;s runtime state; setup and <code>chezmoi apply</code> reapply
-                        them. Restarts preserve the active identity. Work machines get no tiers or
-                        lines and keep automatic switching off.
+                        upstream&rsquo;s runtime state. Every setup run except
+                        <code>--check</code> reapplies them; <code>chezmoi apply</code> only when
+                        the declared values, pin, or setup revision change, so after a lost tier run
+                        <code>claude-swap-setup --apply-policy</code>. Restarts preserve the active
+                        identity. Work machines get no tiers or lines and keep automatic switching
+                        off.
                     </p>
 
                     <h4>Ownership, recovery, and rollback</h4>

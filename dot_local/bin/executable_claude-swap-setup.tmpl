@@ -216,7 +216,11 @@ reauthenticate_alias() {
     load_status || return 1
     local current_slot
     current_slot="$(active_number)"
-    if [ -n "$current_slot" ] && [ "$current_slot" != "$slot" ]; then
+    if [ -z "$current_slot" ]; then
+        error "The current Claude login is not an enrolled account; capturing it would overwrite '$alias' in slot $slot. Use /login to authenticate '$alias', then re-run this command. Nothing was changed."
+        return 1
+    fi
+    if [ "$current_slot" != "$slot" ]; then
         error "The current Claude login is account $current_slot, not '$alias'; capturing it would move that account into slot $slot. Use /login to authenticate '$alias', then re-run this command. Nothing was changed."
         return 1
     fi

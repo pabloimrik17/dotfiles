@@ -114,6 +114,11 @@ The dotfiles SHALL install a dedicated guided claude-swap setup command. After a
 - **THEN** the setup refuses before calling `cswap add`, and every account keeps its alias and slot
 - **AND** it tells the user to `/login` as the intended account first
 
+#### Scenario: Reauth login is not enrolled
+
+- **WHEN** the user confirms `--reauth` while the current Claude login is not an enrolled account
+- **THEN** the setup refuses before calling `cswap add`, and the alias keeps its slot and stored login
+
 #### Scenario: Recapture keeps the runtime policy
 
 - **WHEN** `--reauth` recaptures an account that is held out of rotation or has a tier and line

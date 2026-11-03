@@ -6,17 +6,17 @@ LOG, ACCOUNTS = sys.argv[1], sys.argv[2]
 use = re.compile(r'^(\S+ \S+),\d+ - INFO - usage (\S+): 5h ([\d.]+)%.*?7d ([\d.]+)% \(resets ([^)]+)\)')
 sw = re.compile(r'^(\S+ \S+),\d+ - INFO - Switched from account (\d+) to (\d+)')
 accounts = json.load(open(ACCOUNTS, encoding='utf-8'))['accounts']
-num = {str(a['number']): a['alias'] for a in accounts}
-alias_of = {a['email']: a['alias'] for a in accounts}
+label = {a['email']: a.get('alias') or f"account {a['number']}" for a in accounts}
+num = {str(a['number']): label[a['email']] for a in accounts}
 rows, active = [], None
 for line in open(LOG, encoding='utf-8', errors='replace'):
     m = sw.match(line)
     if m:
         active = num.get(m.group(3)); continue
     m = use.match(line)
-    if m and m.group(2) in alias_of:
+    if m and m.group(2) in label:
         t = datetime.strptime(m.group(1), '%Y-%m-%d %H:%M:%S')
-        rows.append((t, alias_of[m.group(2)], float(m.group(3)), float(m.group(4)), active))
+        rows.append((t, label[m.group(2)], float(m.group(3)), float(m.group(4)), active))
 # 7d value just before each drop (weekly reset) per account
 for a in num.values():
     print(f'== {a}: 7d just before each weekly reset')

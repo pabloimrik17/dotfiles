@@ -216,7 +216,7 @@ async function runSetupFixture(options: {
     input?: string;
     malformedList?: boolean;
     includeClaude?: boolean;
-    loginAtPrompt?: "new" | "unchanged";
+    loginAtPrompt?: "new" | "unchanged" | number;
 }): Promise<{
     exitCode: number;
     stdout: string;
@@ -267,14 +267,23 @@ case "$1" in
         fi
         ;;
     status)
-        # The only status read not right after "list --json" is the pre-capture guard. In "new"
-        # mode it reports an unmanaged login, as if the user really ran /login.
+        # The only status read not right after "list --json" is the pre-capture guard. "new"
+        # reports an unmanaged login, as if the user really ran /login; a slot number reports
+        # that slot's managed account, as upstream does after a correct reauth /login.
         previous="$(/usr/bin/tail -n 2 "$COMMAND_LOG" | /usr/bin/head -n 1)"
-        if [ "$CSWAP_LOGIN_AT_PROMPT" = "new" ] && [ "$previous" != "list --json" ]; then
-            echo '{"schemaVersion":1,"active":{"email":"new@example.com","managed":false}}'
-        else
-        jq '{schemaVersion: 1, active: ((.activeAccountNumber as $number | [.accounts[] | select(.number == $number)][0]) // null)}' "$CSWAP_STATE"
-        fi
+        login="$CSWAP_LOGIN_AT_PROMPT"
+        [ "$previous" = "list --json" ] && login="unchanged"
+        case "$login" in
+            new)
+                echo '{"schemaVersion":1,"active":{"email":"new@example.com","managed":false}}'
+                ;;
+            unchanged)
+                jq '{schemaVersion: 1, active: ((.activeAccountNumber as $number | [.accounts[] | select(.number == $number)][0]) // null)}' "$CSWAP_STATE"
+                ;;
+            *)
+                jq --argjson number "$login" '{schemaVersion: 1, active: ([.accounts[] | select(.number == $number)][0] // null)}' "$CSWAP_STATE"
+                ;;
+        esac
         ;;
     add)
         if [ "$2" = "--slot" ]; then
@@ -380,7 +389,7 @@ esac
             COMMAND_LOG: logFile,
             CSWAP_STATE: stateFile,
             CSWAP_SERVICE: serviceFile,
-            CSWAP_LOGIN_AT_PROMPT: options.loginAtPrompt ?? "new",
+            CSWAP_LOGIN_AT_PROMPT: String(options.loginAtPrompt ?? "new"),
         },
         stdin: options.input,
     });
@@ -888,6 +897,7 @@ describe("re-runnable claude-swap setup", () => {
             activeAccountNumber: 1,
             args: ["--reauth", "work"],
             input: "\n",
+            loginAtPrompt: 2,
         });
 
         expect(result.exitCode, result.stderr).toBe(0);
@@ -1092,6 +1102,7 @@ describe("re-runnable claude-swap setup", () => {
             activeAccountNumber: 2,
             args: ["--reauth", "personal2"],
             input: "\n",
+            loginAtPrompt: 3,
         });
 
         expect(result.exitCode, result.stderr).toBe(0);
@@ -1123,6 +1134,7 @@ describe("re-runnable claude-swap setup", () => {
             activeAccountNumber: 2,
             args: ["--reauth", "personal2"],
             input: "\n",
+            loginAtPrompt: 3,
         });
 
         expect(result.exitCode, result.stderr).toBe(0);
@@ -1141,6 +1153,7 @@ describe("re-runnable claude-swap setup", () => {
             activeAccountNumber: 2,
             args: ["--reauth", "personal2"],
             input: "\n",
+            loginAtPrompt: 3,
         });
 
         expect(result.exitCode, result.stderr).toBe(0);
@@ -1261,6 +1274,25 @@ describe("re-runnable claude-swap setup", () => {
         expect(result.exitCode).not.toBe(0);
         expect(result.stderr).toContain("account 2");
         expect(result.log.some((command) => command.startsWith("add --slot"))).toBe(false);
+    });
+
+    // Upstream `add --slot` over a different account prompts to overwrite: declining exits 0,
+    // accepting deletes the stored slot.
+    test("refuses reauthentication while the login is not enrolled", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: personalAccounts({ personal2: true, active: 2 }),
+            activeAccountNumber: 2,
+            args: ["--reauth", "personal2"],
+            input: "\n",
+        });
+
+        expect(result.exitCode).not.toBe(0);
+        expect(result.stderr).toContain("not an enrolled account");
+        expect(result.log.some((command) => command.startsWith("add --slot"))).toBe(false);
+        expect(result.state.accounts.find((account) => account.alias === "personal2")?.number).toBe(
+            3,
+        );
     });
 
     test("reauthenticates personal2 when it is already the current login", async () => {

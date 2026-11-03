@@ -319,7 +319,7 @@ cswap threshold             personal2 95  · work 60 · personal 80</pre>
         <tbody id="cmp-body"></tbody>
       </table>
     </div>
-    <p class="sub">Dos semanas, del miércoles 4 al miércoles 18 de noviembre. "Sin cuota" son minutos con la cuenta activa al 100 % y ningún destino disponible. "Mac del curro al 100 %" cuenta los minutos laborables (09–18) con <span class="acc">work</span> agotada; entre paréntesis, los que pasó por encima del 95 %.</p>
+    <p class="sub">Dos semanas, del miércoles 4 al miércoles 18 de noviembre. "Sin cuota" son minutos con la cuenta activa al 100 % y ningún destino disponible. "Mac del curro al 100 %" cuenta los minutos laborables (09–18) con <span class="acc">work</span> al 100 % en su ventana de 5h o en la de 7d; entre paréntesis, los que pasó por encima del 95 %.</p>
   </section>
 
   <section aria-labelledby="h-exp">
@@ -442,11 +442,11 @@ function accHtml(a) { return `<span class="acc"><i class="dot d-${a}"></i>${a}</
   document.getElementById("p1-walls-pct").textContent = nf.format(Math.round(100 - rec.metrics.draw10to15.served)) + " %";
   const box = document.getElementById("max5-callout");
   const tune = ["P1", "P1-w60", "P1-w65", "P1-w70"].filter(k => D.configs[k]);
-  if (tune.length > 1) {
+  if (["P1-w65", "P1-w70"].every(k => D.configs[k])) {
     const parts = tune.map(k => {
       const a = D.configs[k].metrics.draw10to15, b = D.configs[k].metrics.flat15;
       const line = k === "P1" ? "55" : k.slice(4);
-      return `<b>${line}</b>: ${nf.format(Math.round(100 - a.served))} % sin cuota aquí; curro al 100 % ${nf.format(a.workBlocked)} / ${nf.format(b.workBlocked)} min, ≥ 95 % ${nf.format(a.starved)} / ${nf.format(b.starved)} min`;
+      return `<b>${line}</b>: ${nf.format(Math.round(100 - a.served))} % sin cuota aquí; curro al 100 % (5h o 7d) ${nf.format(a.workBlocked)} / ${nf.format(b.workBlocked)} min, ≥ 95 % ${nf.format(a.starved)} / ${nf.format(b.starved)} min`;
     });
     box.innerHTML = `<b>Por qué la línea de work en 60.</b> Con 60 y con 65 el Mac del curro no llega nunca al 100 % con ninguna de las dos cargas (10–15 % por día / 15 % fijo). 65 deja menos muros aquí, pero 60 da más margen por debajo del 95 %: ${parts.join(" · ")}. Con 70 ya llega al 100 %.`;
   } else {
