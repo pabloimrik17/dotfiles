@@ -27,7 +27,7 @@ Omitting them does not produce a confirmation prompt. `permissions.defaultMode` 
 - **WHEN** Claude Code attempts to call `mcp__context7__query-docs`
 - **THEN** the tool call SHALL execute without prompting the user
 
-#### Scenario: memory write is not pre-approved
+#### Scenario: memory write prompts
 
 - **WHEN** Claude Code attempts to call `mcp__memory__create_entities`
 - **THEN** no allow rule SHALL match
