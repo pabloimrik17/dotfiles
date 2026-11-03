@@ -178,6 +178,34 @@ interface FakeAccount {
     email: string;
     alias?: string;
     active?: boolean;
+    usageStatus?: string;
+    priority?: number;
+    threshold?: number;
+    disabled?: boolean;
+}
+
+function personalAccounts(options: {
+    active: number;
+    personal2?: boolean;
+    personal2Status?: string;
+}): FakeAccount[] {
+    const accounts: FakeAccount[] = [
+        { number: 1, email: "personal@example.com", alias: "personal" },
+        { number: 2, email: "work@example.com", alias: "work" },
+    ];
+    if (options.personal2) {
+        accounts.push({
+            number: 3,
+            email: "personal2@example.com",
+            alias: "personal2",
+            ...(options.personal2Status ? { usageStatus: options.personal2Status } : {}),
+        });
+    }
+    return accounts.map((account) => ({ ...account, active: account.number === options.active }));
+}
+
+function activeAlias(state: { activeAccountNumber: number | null; accounts: FakeAccount[] }) {
+    return state.accounts.find((account) => account.number === state.activeAccountNumber)?.alias;
 }
 
 async function runSetupFixture(options: {
@@ -188,6 +216,7 @@ async function runSetupFixture(options: {
     input?: string;
     malformedList?: boolean;
     includeClaude?: boolean;
+    loginAtPrompt?: "new" | "unchanged" | number;
 }): Promise<{
     exitCode: number;
     stdout: string;
@@ -228,7 +257,7 @@ exit 0
 printf '%s\n' "$*" >>"$COMMAND_LOG"
 case "$1" in
     --version)
-        echo "cswap 0.26.0"
+        echo "cswap 0.29.0"
         ;;
     list)
         if [ "${options.malformedList ? "1" : "0"}" = "1" ]; then
@@ -238,7 +267,23 @@ case "$1" in
         fi
         ;;
     status)
-        jq '{schemaVersion: 1, active: ((.activeAccountNumber as $number | [.accounts[] | select(.number == $number)][0]) // null)}' "$CSWAP_STATE"
+        # The only status read not right after "list --json" is the pre-capture guard. "new"
+        # reports an unmanaged login, as if the user really ran /login; a slot number reports
+        # that slot's managed account, as upstream does after a correct reauth /login.
+        previous="$(/usr/bin/tail -n 2 "$COMMAND_LOG" | /usr/bin/head -n 1)"
+        login="$CSWAP_LOGIN_AT_PROMPT"
+        [ "$previous" = "list --json" ] && login="unchanged"
+        case "$login" in
+            new)
+                echo '{"schemaVersion":1,"active":{"email":"new@example.com","managed":false}}'
+                ;;
+            unchanged)
+                jq '{schemaVersion: 1, active: ((.activeAccountNumber as $number | [.accounts[] | select(.number == $number)][0]) // null)}' "$CSWAP_STATE"
+                ;;
+            *)
+                jq --argjson number "$login" '{schemaVersion: 1, active: ([.accounts[] | select(.number == $number)][0] // null)}' "$CSWAP_STATE"
+                ;;
+        esac
         ;;
     add)
         if [ "$2" = "--slot" ]; then
@@ -246,15 +291,19 @@ case "$1" in
             jq --argjson slot "$slot" '
                 if any(.accounts[]; .number == $slot) then
                     .activeAccountNumber = $slot |
-                    .accounts |= map(.active = (.number == $slot))
+                    .accounts |= map(.active = (.number == $slot)) |
+                    .accounts |= map(if .number == $slot then del(.disabled, .priority, .threshold) else . end)
                 else
                     error("missing slot")
                 end
             ' "$CSWAP_STATE" >"$CSWAP_STATE.tmp" && /bin/mv "$CSWAP_STATE.tmp" "$CSWAP_STATE"
         else
             alias_name="$3"
-            jq --arg alias "$alias_name" '
-                if any(.accounts[]; (.alias // "") == $alias) then .
+            jq --arg alias "$alias_name" --arg mode "$CSWAP_LOGIN_AT_PROMPT" '
+                if $mode == "unchanged" and .activeAccountNumber != null then
+                    .activeAccountNumber as $active |
+                    .accounts |= map(if .number == $active then .alias = $alias else . end)
+                elif any(.accounts[]; (.alias // "") == $alias) then .
                 else
                     ((([.accounts[].number] | max) // 0) + 1) as $number |
                     .accounts += [{number: $number, email: ($alias + "@example.com"), alias: $alias, active: true}] |
@@ -265,13 +314,32 @@ case "$1" in
         fi
         ;;
     switch)
-        alias_name="$2"
-        jq --arg alias "$alias_name" '
-            ([.accounts[] | select((.alias // "") == $alias)][0].number) as $number |
+        jq --arg id "$2" '
+            (if ($id | test("^[0-9]+$")) then ($id | tonumber)
+            else [.accounts[] | select((.alias // "") == $id)][0].number end) as $number |
             if $number == null then error("missing alias")
             else
                 .activeAccountNumber = $number |
                 .accounts |= map(.active = (.number == $number))
+            end
+        ' "$CSWAP_STATE" >"$CSWAP_STATE.tmp" && /bin/mv "$CSWAP_STATE.tmp" "$CSWAP_STATE"
+        ;;
+    priority|threshold)
+        jq -e --arg key "$1" --arg alias "$2" --argjson value "$3" '
+            if any(.accounts[]; (.alias // "") == $alias) then
+                .accounts |= map(if (.alias // "") == $alias then .[$key] = $value else . end)
+            else
+                error("missing alias")
+            end
+        ' "$CSWAP_STATE" >"$CSWAP_STATE.tmp" && /bin/mv "$CSWAP_STATE.tmp" "$CSWAP_STATE"
+        echo "Set $2 $1 to $3."
+        ;;
+    disable)
+        jq -e --arg alias "$2" '
+            if any(.accounts[]; (.alias // "") == $alias) then
+                .accounts |= map(if (.alias // "") == $alias then .disabled = true else . end)
+            else
+                error("missing alias")
             end
         ' "$CSWAP_STATE" >"$CSWAP_STATE.tmp" && /bin/mv "$CSWAP_STATE.tmp" "$CSWAP_STATE"
         ;;
@@ -321,6 +389,7 @@ esac
             COMMAND_LOG: logFile,
             CSWAP_STATE: stateFile,
             CSWAP_SERVICE: serviceFile,
+            CSWAP_LOGIN_AT_PROMPT: String(options.loginAtPrompt ?? "new"),
         },
         stdin: options.input,
     });
@@ -339,10 +408,15 @@ esac
     };
 }
 
-async function renderOffer(role: "personal" | "work"): Promise<string> {
+async function renderOffer(
+    role: "personal" | "work",
+    source: string = repositoryRoot,
+): Promise<string> {
     const result = run([
         "chezmoi",
         "execute-template",
+        "--source",
+        source,
         "--config",
         "/dev/null",
         "--config-format",
@@ -350,7 +424,7 @@ async function renderOffer(role: "personal" | "work"): Promise<string> {
         "--override-data",
         JSON.stringify({ machineType: role }),
         "--file",
-        offerTemplate,
+        path.join(source, path.basename(offerTemplate)),
     ]);
     expect(result.exitCode, result.stderr).toBe(0);
     return result.stdout;
@@ -358,6 +432,8 @@ async function renderOffer(role: "personal" | "work"): Promise<string> {
 
 async function runOfferFixture(options: {
     checkExitCode: number;
+    applyPolicyExitCode?: number;
+    role?: "personal" | "work";
     forceTty?: boolean;
     input?: string;
 }): Promise<{ exitCode: number; stdout: string; stderr: string; log: string[] }> {
@@ -372,6 +448,11 @@ async function runOfferFixture(options: {
     await writeExecutable(
         path.join(localBin, "claude-swap-setup"),
         `#!/bin/sh
+if [ "$1" = "--apply-policy" ]; then
+    echo "apply-policy" >>"$OFFER_LOG"
+    echo "policy applied"
+    exit ${options.applyPolicyExitCode ?? 0}
+fi
 if [ "$1" = "--check" ]; then
     echo "check" >>"$OFFER_LOG"
     exit ${options.checkExitCode}
@@ -380,7 +461,7 @@ echo "run" >>"$OFFER_LOG"
 echo "guided setup ran"
 `,
     );
-    await writeExecutable(offer, await renderOffer("personal"));
+    await writeExecutable(offer, await renderOffer(options.role ?? "personal"));
 
     const result = run([offer], {
         env: {
@@ -509,12 +590,13 @@ describe("managed claude-swap policy", () => {
                 intervalSeconds: 60,
                 cooldownSeconds: 300,
                 hysteresisPct: 10,
-                strategy: "best",
+                strategy: "priority-consume-first",
                 includeApiKeyAccounts: false,
                 unhealthyTicks: 3,
             },
         });
         expect(settings.autoswitch).not.toHaveProperty("model");
+        expect(settings.autoswitch).not.toHaveProperty("weeklyThreshold");
     });
 
     test("applies with owner-only modes and converges after drift", async () => {
@@ -570,13 +652,25 @@ describe("managed claude-swap policy", () => {
 
         const version = run(["cswap", "--version"], { env: { HOME: root } });
         expect(version.exitCode, version.stderr).toBe(0);
-        expect(version.stdout.trim()).toBe("cswap 0.26.0");
+        expect(version.stdout.trim()).toBe("cswap 0.29.0");
 
         const threshold = run(["cswap", "config", "get", "autoswitch.threshold"], {
             env: { HOME: root },
         });
         expect(threshold.exitCode, threshold.stderr).toBe(0);
         expect(threshold.stdout.trim()).toBe("85");
+
+        const strategy = run(["cswap", "config", "get", "autoswitch.strategy"], {
+            env: { HOME: root },
+        });
+        expect(strategy.exitCode, strategy.stderr).toBe(0);
+        expect(strategy.stdout.trim()).toBe("priority-consume-first");
+
+        const weekly = run(["cswap", "config", "get", "autoswitch.weeklyThreshold", "--json"], {
+            env: { HOME: root },
+        });
+        expect(weekly.exitCode, weekly.stderr).toBe(0);
+        expect(JSON.parse(weekly.stdout)).toMatchObject({ value: null, isSet: false });
 
         const model = run(["cswap", "config", "get", "autoswitch.model", "--json"], {
             env: { HOME: root },
@@ -592,7 +686,7 @@ describe("managed claude-swap policy", () => {
 
 describe("pinned claude-swap installer", () => {
     test("skips an exact menubar-capable version without requiring uv", async () => {
-        const result = await runInstallerHelper({ cswapVersion: "0.26.0" });
+        const result = await runInstallerHelper({ cswapVersion: "0.29.0" });
 
         expect(result.output).toContain("already installed, skipping");
         expect(result.output).toContain("RESULT rc=0 errors=0");
@@ -601,15 +695,15 @@ describe("pinned claude-swap installer", () => {
 
     test("repairs an exact base-only installation missing the menubar runtime", async () => {
         const result = await runInstallerHelper({
-            cswapVersion: "0.26.0",
+            cswapVersion: "0.29.0",
             menubarReady: false,
             uvExitCode: 0,
         });
 
         expect(result.log).toContain(
-            "uv tool install --managed-python --force claude-swap[menubar]==0.26.0",
+            "uv tool install --managed-python --force claude-swap[menubar]==0.29.0",
         );
-        expect(result.output).toContain("claude-swap 0.26.0 installed and verified");
+        expect(result.output).toContain("claude-swap 0.29.0 installed and verified");
         expect(result.output).toContain("RESULT rc=0 errors=0");
     });
 
@@ -624,25 +718,25 @@ describe("pinned claude-swap installer", () => {
         const result = await runInstallerHelper({ uvExitCode: 9 });
 
         expect(result.log).toContain(
-            "uv tool install --managed-python --force claude-swap[menubar]==0.26.0",
+            "uv tool install --managed-python --force claude-swap[menubar]==0.29.0",
         );
         expect(result.output).toContain("ERROR: claude-swap: uv tool installation failed");
         expect(result.output).toContain("RESULT rc=1 errors=1");
     });
 
     test("rejects a mismatched post-install version", async () => {
-        const result = await runInstallerHelper({ cswapVersion: "0.25.0", uvExitCode: 0 });
+        const result = await runInstallerHelper({ cswapVersion: "0.26.0", uvExitCode: 0 });
 
         expect(result.output).toContain(
-            "ERROR: claude-swap: version verification failed (expected 0.26.0, got 0.25.0)",
+            "ERROR: claude-swap: version verification failed (expected 0.29.0, got 0.26.0)",
         );
         expect(result.output).toContain("RESULT rc=1 errors=1");
     });
 
     test("rejects a missing post-install menubar runtime", async () => {
         const result = await runInstallerHelper({
-            cswapVersion: "0.25.0",
-            postInstallVersion: "0.26.0",
+            cswapVersion: "0.26.0",
+            postInstallVersion: "0.29.0",
             postInstallMenubarReady: false,
             uvExitCode: 0,
         });
@@ -678,10 +772,10 @@ describe("pinned claude-swap installer", () => {
         expect(result.stdout).not.toContain("uv tool install --managed-python");
     });
 
-    test("refreshes an existing upstream menu service after a pin change", async () => {
+    test("upgrades from the previous 0.26.0 pin and refreshes the menu service", async () => {
         const result = await runInstallerHelper({
-            cswapVersion: "0.25.0",
-            postInstallVersion: "0.26.0",
+            cswapVersion: "0.26.0",
+            postInstallVersion: "0.29.0",
             serviceInstalled: true,
             uvExitCode: 0,
         });
@@ -691,7 +785,7 @@ describe("pinned claude-swap installer", () => {
         expect(result.log.trim().split("\n")).toEqual([
             "--version",
             "menubar --service-status",
-            "uv tool install --managed-python --force claude-swap[menubar]==0.26.0",
+            "uv tool install --managed-python --force claude-swap[menubar]==0.29.0",
             "--version",
             "menubar --install-service",
         ]);
@@ -699,8 +793,8 @@ describe("pinned claude-swap installer", () => {
 
     test("does not create a service when none existed before the pin change", async () => {
         const result = await runInstallerHelper({
-            cswapVersion: "0.25.0",
-            postInstallVersion: "0.26.0",
+            cswapVersion: "0.26.0",
+            postInstallVersion: "0.29.0",
             serviceInstalled: false,
             uvExitCode: 0,
         });
@@ -710,10 +804,27 @@ describe("pinned claude-swap installer", () => {
         expect(result.log).not.toContain("menubar --install-service");
     });
 
-    test("does not track the upstream LaunchAgent plist", async () => {
+    test("does not track the upstream LaunchAgent plist or menubar app wrapper", async () => {
         const tracked = run(["git", "ls-files"]);
         expect(tracked.exitCode, tracked.stderr).toBe(0);
         expect(tracked.stdout).not.toContain("com.cswap.menubar.plist");
+        expect(tracked.stdout).not.toContain("Menubar.app");
+    });
+
+    // Upstream contracts re-verified against 0.29.0 on 2026-11-02, unchanged from 0.26.0:
+    // `add --alias`/`--slot` flags, the `Menu bar service:` status prefix, and the
+    // `auto --once` exit codes (0 switched, 2 no action, 3 blocked).
+    test("pinned cswap keeps schema-v1 public JSON", async () => {
+        const root = await mkdtemp(path.join(tmpdir(), "claude-swap-contract-"));
+        temporaryDirectories.push(root);
+
+        const list = run(["cswap", "list", "--json"], { env: { HOME: root } });
+        expect(list.exitCode, list.stderr).toBe(0);
+        expect(JSON.parse(list.stdout)).toMatchObject({ schemaVersion: 1, accounts: [] });
+
+        const status = run(["cswap", "status", "--json"], { env: { HOME: root } });
+        expect(status.exitCode, status.stderr).toBe(0);
+        expect(JSON.parse(status.stdout)).toEqual({ schemaVersion: 1, active: null });
     });
 
     test("is repo-pinned rather than Homebrew-, self-, or update-extra-managed", async () => {
@@ -766,13 +877,17 @@ describe("re-runnable claude-swap setup", () => {
             "--version",
             "list --json",
             "status --json",
+            "priority work 50",
+            "threshold work 60",
+            "priority personal 10",
+            "threshold personal 80",
             "auto --once --dry-run",
             "menubar --install-service",
             "menubar --service-status",
         ]);
     });
 
-    test("reauthenticates an existing alias in place and restores the required identity", async () => {
+    test("reauthenticates an existing alias in place and restores the previously active account", async () => {
         const result = await runSetupFixture({
             role: "personal",
             accounts: [
@@ -782,11 +897,12 @@ describe("re-runnable claude-swap setup", () => {
             activeAccountNumber: 1,
             args: ["--reauth", "work"],
             input: "\n",
+            loginAtPrompt: 2,
         });
 
         expect(result.exitCode, result.stderr).toBe(0);
         expect(result.log).toContain("add --slot 2");
-        expect(result.log).toContain("switch personal");
+        expect(result.log).toContain("switch 1");
         expect(result.state.accounts.find((account) => account.alias === "work")?.number).toBe(2);
         expect(result.state.activeAccountNumber).toBe(1);
     });
@@ -812,7 +928,7 @@ describe("re-runnable claude-swap setup", () => {
 
         expect(result.exitCode).toBe(2);
         expect(result.stderr).toContain(
-            "Usage: claude-swap-setup [--check | --reauth personal|work]",
+            "Usage: claude-swap-setup [--check | --apply-policy | --enroll personal2 | --reauth personal|work|personal2]",
         );
         expect(result.log.some((command) => command.startsWith("add "))).toBe(false);
     });
@@ -915,6 +1031,8 @@ describe("re-runnable claude-swap setup", () => {
             result.log.indexOf("menubar --install-service"),
         );
         expect(result.log).toContain("menubar --service-status");
+        expect(result.log.some((command) => command.startsWith("switch "))).toBe(false);
+        expect(result.state.activeAccountNumber).toBe(2);
         expect(result.stdout).toContain("Enable Settings → Auto-switch accounts");
     });
 
@@ -927,7 +1045,372 @@ describe("re-runnable claude-swap setup", () => {
 
         expect(result.exitCode, result.stderr).toBe(0);
         expect(result.log).not.toContain("auto --once --dry-run");
+        expect(result.log.some((command) => /^(priority|threshold) /.test(command))).toBe(false);
         expect(result.stdout).toContain("Leave Settings → Auto-switch accounts disabled");
+    });
+
+    test.each([
+        ["work", 2],
+        ["personal2", 3],
+    ] as const)("passes --check with %s active without switching", async (_alias, active) => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: personalAccounts({ personal2: true, active }),
+            activeAccountNumber: active,
+            args: ["--check"],
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.stdout).toContain("Setup is complete for this personal machine");
+        expect(result.log).toEqual(["--version", "list --json", "status --json"]);
+    });
+
+    test("finishes a fresh personal enrollment on personal", async () => {
+        const result = await runSetupFixture({ role: "personal", input: "\n\n" });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.log).toContain("add --alias personal");
+        expect(result.log).toContain("add --alias work");
+        expect(result.log).toContain("switch personal");
+        expect(activeAlias(result.state)).toBe("personal");
+    });
+
+    test("enrolls personal2 in a new slot and restores the active account", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: personalAccounts({ active: 2 }),
+            activeAccountNumber: 2,
+            args: ["--enroll", "personal2"],
+            input: "\n",
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.stdout).toContain("Do NOT run /logout");
+        expect(result.log).toContain("add --alias personal2");
+        expect(result.log).toContain("switch 2");
+        expect(result.log).not.toContain("switch personal");
+        expect(result.state.accounts.find((account) => account.alias === "personal2")?.number).toBe(
+            3,
+        );
+        expect(activeAlias(result.state)).toBe("work");
+    });
+
+    test("reauthenticates personal2 in its slot and ends on the previously active work", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: personalAccounts({ personal2: true, active: 2 }),
+            activeAccountNumber: 2,
+            args: ["--reauth", "personal2"],
+            input: "\n",
+            loginAtPrompt: 3,
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.stdout).toContain("Do NOT run /logout");
+        expect(result.log).toContain("add --slot 3");
+        expect(result.log).not.toContain("switch personal");
+        const personal2 = result.state.accounts.find((account) => account.alias === "personal2");
+        expect(personal2?.number).toBe(3);
+        expect(personal2?.priority).toBe(100);
+        expect(personal2?.threshold).toBe(95);
+        const addIndex = result.log.indexOf("add --slot 3");
+        const policyIndexes = result.log
+            .map((command, index) =>
+                /^(priority|threshold) personal2 /.test(command) ? index : -1,
+            )
+            .filter((index) => index >= 0);
+        expect(policyIndexes.length).toBeGreaterThan(0);
+        expect(policyIndexes.every((index) => index > addIndex)).toBe(true);
+        expect(activeAlias(result.state)).toBe("work");
+    });
+
+    test("keeps a held-out personal2 out of rotation across --reauth", async () => {
+        const accounts = personalAccounts({ personal2: true, active: 2 }).map((account) =>
+            account.alias === "personal2" ? { ...account, disabled: true } : account,
+        );
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts,
+            activeAccountNumber: 2,
+            args: ["--reauth", "personal2"],
+            input: "\n",
+            loginAtPrompt: 3,
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.log.indexOf("disable personal2")).toBeGreaterThan(
+            result.log.indexOf("add --slot 3"),
+        );
+        expect(
+            result.state.accounts.find((account) => account.alias === "personal2")?.disabled,
+        ).toBe(true);
+    });
+
+    test("does not disable personal2 on --reauth when it was not held out", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: personalAccounts({ personal2: true, active: 2 }),
+            activeAccountNumber: 2,
+            args: ["--reauth", "personal2"],
+            input: "\n",
+            loginAtPrompt: 3,
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.log.some((command) => command.startsWith("disable "))).toBe(false);
+    });
+
+    test.each([
+        ["--enroll", "personal2", "Cannot enroll 'personal2' on a work machine"],
+        ["--reauth", "personal2", "Cannot reauthenticate 'personal2' on a work machine"],
+    ])("rejects %s %s on a work machine", async (flag, alias, message) => {
+        const result = await runSetupFixture({
+            role: "work",
+            accounts: [{ number: 1, email: "work@example.com", alias: "work", active: true }],
+            activeAccountNumber: 1,
+            args: [flag, alias],
+        });
+
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain(message);
+        expect(result.log.some((command) => command.startsWith("add "))).toBe(false);
+    });
+
+    test.each(["work", "personal", "other"])("rejects --enroll %s", async (alias) => {
+        const result = await runSetupFixture({
+            role: "personal",
+            args: ["--enroll", alias],
+        });
+
+        expect(result.exitCode).toBe(2);
+        expect(result.stderr).toContain("Usage: claude-swap-setup");
+        expect(result.log.some((command) => command.startsWith("add "))).toBe(false);
+    });
+
+    test.each([
+        ["absent", personalAccounts({ active: 1 })],
+        ["lapsed", personalAccounts({ personal2: true, active: 1, personal2Status: "expired" })],
+    ])("prints nothing about personal2 when it is %s", async (_state, accounts) => {
+        for (const args of [["--check"], []]) {
+            const result = await runSetupFixture({
+                role: "personal",
+                accounts,
+                activeAccountNumber: 1,
+                args,
+            });
+
+            expect(result.exitCode, result.stderr).toBe(0);
+            expect(result.stdout + result.stderr).not.toContain("personal2");
+        }
+    });
+
+    test("refuses to enroll personal2 while the login is another enrolled account", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: personalAccounts({ active: 1 }),
+            activeAccountNumber: 1,
+            args: ["--enroll", "personal2"],
+            input: "\n",
+            loginAtPrompt: "unchanged",
+        });
+
+        expect(result.exitCode).not.toBe(0);
+        expect(result.stderr).toContain("'personal'");
+        expect(result.log.some((command) => command.startsWith("add "))).toBe(false);
+        expect(result.state.accounts.map((account) => account.alias).sort()).toEqual([
+            "personal",
+            "work",
+        ]);
+    });
+
+    test("refuses a required alias capture while the login is another enrolled account", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: [
+                { number: 1, email: "personal@example.com", alias: "personal", active: true },
+            ],
+            activeAccountNumber: 1,
+            input: "\n",
+            loginAtPrompt: "unchanged",
+        });
+
+        expect(result.exitCode).not.toBe(0);
+        expect(result.log.some((command) => command.startsWith("add "))).toBe(false);
+        expect(result.state.accounts.map((account) => account.alias)).toEqual(["personal"]);
+    });
+
+    test("adopts an unaliased managed account as personal2", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: [
+                ...personalAccounts({ active: 3 }),
+                { number: 3, email: "hand@example.com", active: true },
+            ],
+            activeAccountNumber: 3,
+            args: ["--enroll", "personal2"],
+            input: "\n",
+            loginAtPrompt: "unchanged",
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.log).toContain("add --alias personal2");
+        expect(result.state.accounts.map((account) => [account.number, account.alias])).toEqual([
+            [1, "personal"],
+            [2, "work"],
+            [3, "personal2"],
+        ]);
+    });
+
+    test("refuses reauthentication while the login is another enrolled account", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: personalAccounts({ personal2: true, active: 2 }),
+            activeAccountNumber: 2,
+            args: ["--reauth", "personal2"],
+            input: "\n",
+            loginAtPrompt: "unchanged",
+        });
+
+        expect(result.exitCode).not.toBe(0);
+        expect(result.stderr).toContain("account 2");
+        expect(result.log.some((command) => command.startsWith("add --slot"))).toBe(false);
+    });
+
+    // Upstream `add --slot` over a different account prompts to overwrite: declining exits 0,
+    // accepting deletes the stored slot.
+    test("refuses reauthentication while the login is not enrolled", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: personalAccounts({ personal2: true, active: 2 }),
+            activeAccountNumber: 2,
+            args: ["--reauth", "personal2"],
+            input: "\n",
+        });
+
+        expect(result.exitCode).not.toBe(0);
+        expect(result.stderr).toContain("not an enrolled account");
+        expect(result.log.some((command) => command.startsWith("add --slot"))).toBe(false);
+        expect(result.state.accounts.find((account) => account.alias === "personal2")?.number).toBe(
+            3,
+        );
+    });
+
+    test("reauthenticates personal2 when it is already the current login", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: personalAccounts({ personal2: true, active: 3 }),
+            activeAccountNumber: 3,
+            args: ["--reauth", "personal2"],
+            input: "\n",
+            loginAtPrompt: "unchanged",
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.log).toContain("add --slot 3");
+    });
+
+    test("treats personal2 on a work machine as an unexpected account", async () => {
+        const result = await runSetupFixture({
+            role: "work",
+            accounts: [
+                { number: 1, email: "work@example.com", alias: "work", active: true },
+                { number: 2, email: "personal2@example.com", alias: "personal2", active: false },
+            ],
+            activeAccountNumber: 1,
+        });
+
+        expect(result.exitCode).not.toBe(0);
+        expect(result.stdout).toContain("alias: personal2");
+        expect(result.stderr).toContain("remove it explicitly with 'cswap remove");
+        expect(result.log.some((command) => /^(remove|disable)\b/.test(command))).toBe(false);
+    });
+});
+
+describe("claude-swap rotation policy", () => {
+    const fullPolicy = [
+        "priority personal2 100",
+        "threshold personal2 95",
+        "priority work 50",
+        "threshold work 60",
+        "priority personal 10",
+        "threshold personal 80",
+    ];
+    const policyCommands = (log: string[]) =>
+        log.filter((command) => /^(priority|threshold) /.test(command));
+
+    test("applies every declared tier and line to the enrolled aliases", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: personalAccounts({ personal2: true, active: 1 }),
+            activeAccountNumber: 1,
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(policyCommands(result.log)).toEqual(fullPolicy);
+        expect(
+            result.state.accounts.map(({ alias, priority, threshold }) => [
+                alias,
+                priority,
+                threshold,
+            ]),
+        ).toEqual([
+            ["personal", 10, 80],
+            ["work", 50, 60],
+            ["personal2", 100, 95],
+        ]);
+    });
+
+    test("skips personal2 when it is not enrolled", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: personalAccounts({ active: 1 }),
+            activeAccountNumber: 1,
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(policyCommands(result.log)).toEqual(fullPolicy.slice(2));
+    });
+
+    test("converges hand-made drift on a re-run without re-enrolling", async () => {
+        const accounts = personalAccounts({ personal2: true, active: 1 }).map((account) =>
+            account.alias === "work" ? { ...account, priority: 100, threshold: 90 } : account,
+        );
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts,
+            activeAccountNumber: 1,
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(policyCommands(result.log)).toEqual(fullPolicy);
+        expect(result.log.some((command) => command.startsWith("add "))).toBe(false);
+        const work = result.state.accounts.find((account) => account.alias === "work");
+        expect([work?.priority, work?.threshold]).toEqual([50, 60]);
+    });
+
+    test("--apply-policy only applies tiers and lines", async () => {
+        const result = await runSetupFixture({
+            role: "personal",
+            accounts: personalAccounts({ personal2: true, active: 2 }),
+            activeAccountNumber: 2,
+            args: ["--apply-policy"],
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.log).toEqual(["--version", "list --json", "status --json", ...fullPolicy]);
+        expect(result.state.activeAccountNumber).toBe(2);
+    });
+
+    test("--apply-policy sets nothing on a work machine", async () => {
+        const result = await runSetupFixture({
+            role: "work",
+            accounts: [{ number: 1, email: "work@example.com", alias: "work", active: true }],
+            activeAccountNumber: 1,
+            args: ["--apply-policy"],
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.log).toEqual(["--version", "list --json", "status --json"]);
     });
 });
 
@@ -940,7 +1423,7 @@ describe("post-apply claude-swap setup offer", () => {
             expect(result.exitCode, result.stderr).toBe(0);
             expect(result.stdout).toContain("already complete");
             expect(result.stdout).not.toContain("Run the guided setup now?");
-            expect(result.log).toEqual(["check"]);
+            expect(result.log).toEqual(["apply-policy", "check"]);
         },
         shellIntegrationTimeoutMs,
     );
@@ -957,7 +1440,7 @@ describe("post-apply claude-swap setup offer", () => {
             expect(result.exitCode, result.stderr).toBe(0);
             expect(result.stdout).toContain("Run the guided setup now?");
             expect(result.stdout).toContain("guided setup ran");
-            expect(result.log).toEqual(["check", "run"]);
+            expect(result.log).toEqual(["apply-policy", "check", "run"]);
         },
         shellIntegrationTimeoutMs,
     );
@@ -970,7 +1453,7 @@ describe("post-apply claude-swap setup offer", () => {
             expect(result.exitCode, result.stderr).toBe(0);
             expect(result.stdout).toContain("non-interactive apply will not prompt");
             expect(result.stdout).toContain(".local/bin/claude-swap-setup");
-            expect(result.log).toEqual(["check"]);
+            expect(result.log).toEqual(["apply-policy", "check"]);
         },
         shellIntegrationTimeoutMs,
     );
@@ -984,8 +1467,72 @@ describe("post-apply claude-swap setup offer", () => {
             expect(personal).not.toBe(work);
             expect(personal).toContain('MACHINE_TYPE="personal"');
             expect(work).toContain('MACHINE_TYPE="work"');
-            expect(personal).toContain('CLAUDE_SWAP_VERSION="0.26.0"');
-            expect(personal).toContain('SETUP_COMMAND_REVISION="1"');
+            expect(personal).toContain('CLAUDE_SWAP_VERSION="0.29.0"');
+            expect(personal).toContain('SETUP_COMMAND_REVISION="2"');
+            expect(personal).toContain(
+                'ROTATION_POLICY="personal2:100:95 work:50:60 personal:10:80"',
+            );
+        },
+        shellIntegrationTimeoutMs,
+    );
+
+    test.each([true, false])(
+        "applies the rotation policy without prompting (TTY: %p)",
+        async (forceTty) => {
+            const result = await runOfferFixture({ checkExitCode: 0, forceTty });
+
+            expect(result.exitCode, result.stderr).toBe(0);
+            expect(result.stdout).toContain("policy applied");
+            expect(result.stdout).not.toContain("Run the guided setup now?");
+            expect(result.log).toEqual(["apply-policy", "check"]);
+        },
+        shellIntegrationTimeoutMs,
+    );
+
+    test(
+        "runs no policy command on a work machine",
+        async () => {
+            const result = await runOfferFixture({ checkExitCode: 0, role: "work" });
+
+            expect(result.exitCode, result.stderr).toBe(0);
+            expect(result.log).toEqual(["check"]);
+        },
+        shellIntegrationTimeoutMs,
+    );
+
+    test(
+        "keeps going when the policy cannot be applied",
+        async () => {
+            const result = await runOfferFixture({ checkExitCode: 0, applyPolicyExitCode: 1 });
+
+            expect(result.exitCode, result.stderr).toBe(0);
+            expect(result.stdout).toContain("retry with:");
+            expect(result.log).toEqual(["apply-policy", "check"]);
+        },
+        shellIntegrationTimeoutMs,
+    );
+
+    test(
+        "changes its rendered content when a declared tier or line changes",
+        async () => {
+            const source = await mkdtemp(path.join(tmpdir(), "claude-swap-offer-source-"));
+            temporaryDirectories.push(source);
+            const setupCopy = path.join(source, path.relative(repositoryRoot, setupTemplate));
+            await mkdir(path.dirname(setupCopy), { recursive: true });
+            await writeFile(
+                setupCopy,
+                (await readFile(setupTemplate, "utf8")).replace("work:50:60", "work:50:55"),
+            );
+            await writeFile(
+                path.join(source, path.basename(offerTemplate)),
+                await readFile(offerTemplate),
+            );
+
+            const original = await renderOffer("personal");
+            const changed = await renderOffer("personal", source);
+
+            expect(changed).not.toBe(original);
+            expect(changed).toContain("work:50:55");
         },
         shellIntegrationTimeoutMs,
     );
@@ -1023,7 +1570,7 @@ describe("claude-swap zsh aliases", () => {
 });
 
 describe("upstream claude-swap autoswitch policy", () => {
-    test("matches the personal-machine decision and failure matrix", async () => {
+    test("matches the trial priority rotation and failure matrix", async () => {
         const executable = run(["which", "cswap"]);
         expect(executable.exitCode, executable.stderr).toBe(0);
         const cswapPath = executable.stdout.trim();
@@ -1034,21 +1581,52 @@ describe("upstream claude-swap autoswitch policy", () => {
         expect(result.exitCode, result.stderr).toBe(0);
         const report = JSON.parse(result.stdout);
 
-        expect(report.claudeSwap).toBe("0.26.0");
+        expect(report.claudeSwap).toBe("0.29.0");
+        expect(report.policy).toEqual({
+            tiers: { personal2: 100, work: 50, personal: 10 },
+            lines: { personal2: 95, work: 60, personal: 80 },
+        });
+        const stay = (active: string, outcome: string, ...reasons: string[]) => ({
+            active,
+            outcome,
+            reasons,
+        });
+        const switched = (to: string, trigger: string) => ({ outcome: "SWITCHED", to, trigger });
         expect(report.scenarios).toEqual({
-            allAboveThreshold: "SWITCHED",
-            allExhausted: "BLOCKED",
-            authenticationQuarantine: "BLOCKED",
-            cooldown: "NO_ACTION",
-            hysteresis: "BLOCKED",
-            recoveredInactive: "NO_ACTION",
+            activeExhausted: stay("personal", "BLOCKED", "no-qualifying-candidate"),
+            authenticationQuarantine: stay(
+                "personal2",
+                "BLOCKED",
+                "invalid_grant",
+                "no-viable-target",
+            ),
+            cooldown: stay("work", "NO_ACTION", "cooldown"),
+            heldOut: stay("work", "NO_ACTION", "already-consuming-priority"),
+            heldOutMovesOn: switched("personal", "proactive"),
+            higherTierUsable: switched("personal2", "priority"),
+            lineDeparture: switched("work", "proactive"),
+            manualLowerTierReverted: [
+                stay("personal2", "NO_ACTION", "already-consuming-priority"),
+                switched("personal2", "priority"),
+            ],
+            noReadableCandidate: [
+                stay("personal2", "NO_ACTION", "active-usage-unknown"),
+                stay("personal2", "NO_ACTION", "active-usage-unknown"),
+                stay("personal2", "BLOCKED", "no-qualifying-candidate"),
+            ],
+            noneQualify: stay("personal2", "BLOCKED", "no-qualifying-candidate"),
             stale429: {
-                acceptedLimitation: "stale last-good usage can delay a threshold switch",
-                outcome: "NO_ACTION",
+                ...stay("personal2", "NO_ACTION", "already-consuming-priority"),
+                acceptedLimitation: "stale last-good usage can delay a line departure",
             },
-            threeUnhealthyTicks: ["NO_ACTION", "NO_ACTION", "SWITCHED"],
-            threshold: "SWITCHED",
-            unreadableCandidate: "BLOCKED",
+            threeUnhealthyTicks: [
+                stay("personal2", "NO_ACTION", "active-usage-unknown"),
+                stay("personal2", "NO_ACTION", "active-usage-unknown"),
+                switched("work", "failover"),
+            ],
+            weeklyLineDeparture: switched("work", "proactive"),
+            unreadableCandidate: stay("personal2", "BLOCKED", "no-qualifying-candidate"),
+            workAboveLineSkipped: switched("personal", "proactive"),
         });
     });
 });
@@ -1085,7 +1663,15 @@ describe("claude-swap documentation", () => {
         for (const requiredText of [
             "claude-swap accounts and quota (macOS)",
             "claude-swap-setup",
-            "claude-swap-setup --reauth personal|work",
+            "claude-swap-setup --reauth personal|work|personal2",
+            "claude-swap-setup --enroll personal2",
+            "claude-swap-setup --apply-policy",
+            "cswap disable personal2",
+            "priority-consume-first",
+            "<strong>trial</strong>",
+            "https://claude.ai/artifact/6TgAbxVLuaYbFj3Psick5k",
+            "<strong>not usage caps</strong>",
+            "Fable",
             "cs-list",
             "cs-current",
             "cs-global",

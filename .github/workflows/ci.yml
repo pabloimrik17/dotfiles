@@ -24,7 +24,7 @@ jobs:
             - name: Install test prerequisites
               run: |
                   brew install chezmoi jq uv
-                  uv tool install --managed-python 'claude-swap[menubar]==0.26.0'
+                  uv tool install --managed-python 'claude-swap[menubar]==0.29.0'
                   echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
             - name: Install dependencies

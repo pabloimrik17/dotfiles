@@ -5,7 +5,7 @@
         "intervalSeconds": 60,
         "cooldownSeconds": 300,
         "hysteresisPct": 10,
-        "strategy": "best",
+        "strategy": "priority-consume-first",
         "includeApiKeyAccounts": false,
         "unhealthyTicks": 3
     }

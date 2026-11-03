@@ -1,0 +1,668 @@
+<title>Rotación de cuentas cswap</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column; the explorer and tables widen inside it. Accounts keep one fixed hue everywhere. */
+:root {
+  --bg: #f4f5f3;
+  --surface: #fcfcfb;
+  --ink: #121514;
+  --ink-2: #4b504d;
+  --muted: #7c817e;
+  --rule: #e0e2dd;
+  --axis: #c3c6c0;
+  --ring: rgba(11, 11, 11, 0.10);
+  --wash: rgba(18, 21, 20, 0.05);
+  --sel-bg: #121514;
+  --sel-fg: #fcfcfb;
+  --s-p2: #2a78d6;
+  --s-work: #eb6834;
+  --s-personal: #1baf7a;
+  --good: #0ca30c;
+  --good-text: #006300;
+  --warn: #fab219;
+  --critical: #d03b3b;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1110;
+    --surface: #1a1a19;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #8d8b85;
+    --rule: #2c2c2a;
+    --axis: #3e3e3b;
+    --ring: rgba(255, 255, 255, 0.10);
+    --wash: rgba(255, 255, 255, 0.05);
+    --sel-bg: #f0efec;
+    --sel-fg: #1a1a19;
+    --s-p2: #3987e5;
+    --s-work: #d95926;
+    --s-personal: #199e70;
+    --good-text: #0ca30c;
+    --critical: #e05454;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1110;
+  --surface: #1a1a19;
+  --ink: #f0efec;
+  --ink-2: #c3c2b7;
+  --muted: #8d8b85;
+  --rule: #2c2c2a;
+  --axis: #3e3e3b;
+  --ring: rgba(255, 255, 255, 0.10);
+  --wash: rgba(255, 255, 255, 0.05);
+  --sel-bg: #f0efec;
+  --sel-fg: #1a1a19;
+  --s-p2: #3987e5;
+  --s-work: #d95926;
+  --s-personal: #199e70;
+  --good-text: #0ca30c;
+  --critical: #e05454;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 72px;
+  display: grid;
+  gap: 48px;
+}
+h1, h2, h3 { text-wrap: balance; margin: 0; font-weight: 600; }
+h1 { font-size: clamp(28px, 4.2vw, 40px); line-height: 1.12; letter-spacing: -0.01em; }
+h2 { font-size: 22px; line-height: 1.25; }
+h3 { font-size: 15px; line-height: 1.35; }
+p { margin: 0; max-width: 68ch; }
+code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+section { display: grid; gap: 18px; min-width: 0; }
+.head { display: grid; gap: 14px; }
+.lead { color: var(--ink-2); font-size: 17px; }
+.sub { color: var(--ink-2); }
+.acc { font-family: var(--font-mono); font-size: 0.9em; font-weight: 500; white-space: nowrap; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0.05em; }
+.d-personal2 { background: var(--s-p2); }
+.d-work { background: var(--s-work); }
+.d-personal { background: var(--s-personal); }
+
+.rec {
+  background: var(--surface);
+  border: 1px solid var(--ring);
+  border-radius: 10px;
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+}
+.rec-top { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: baseline; justify-content: space-between; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+  padding: 2px 8px; border-radius: 999px; background: var(--wash); color: var(--ink-2);
+  white-space: nowrap;
+}
+.chip.good { color: var(--good-text); }
+.chip.bad { color: var(--critical); }
+.chip.good::before, .chip.bad::before { content: ""; width: 7px; height: 7px; border-radius: 50%; }
+.chip.good::before { background: var(--good); }
+.chip.bad::before { background: var(--critical); }
+pre.settings {
+  margin: 0; padding: 14px 16px; border-radius: 8px; background: var(--wash);
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.7; overflow-x: auto;
+}
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px 28px; }
+.cols > div { display: grid; gap: 8px; align-content: start; min-width: 0; }
+ul.tight { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+ul.tight li { max-width: 62ch; }
+.label { font-size: 12px; font-family: var(--font-mono); letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+
+.mech { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px 32px; }
+.mech > div { display: grid; gap: 6px; align-content: start; border-top: 1px solid var(--rule); padding-top: 12px; }
+.mech p { color: var(--ink-2); }
+
+.panel { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { display: inline-block; width: 18px; height: 0; border-top: 2px solid var(--muted); }
+.sw.thin { border-top-width: 1px; }
+.sw.dash { border-top: 1.5px dashed var(--ink-2); }
+.sw.box { width: 14px; height: 10px; border: 0; border-radius: 2px; }
+
+.cap svg { display: block; width: 100%; height: auto; }
+.cap-notes { display: grid; gap: 6px; color: var(--ink-2); font-size: 14px; }
+
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--ring); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 860px; font-size: 13.5px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 500; color: var(--muted); font-size: 12px; font-family: var(--font-mono); letter-spacing: 0.03em; }
+td.num { font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-size: 13px; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+tr.is-rec td { background: var(--wash); }
+.cfg-name { font-weight: 600; }
+.cfg-desc { color: var(--ink-2); font-size: 13px; display: block; max-width: 34ch; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 3px; border-radius: 9px; background: var(--wash); }
+.seg button {
+  font: inherit; font-size: 13px; border: 0; background: transparent; color: var(--ink-2);
+  padding: 5px 10px; border-radius: 7px; cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--sel-bg); color: var(--sel-fg); }
+.seg button:focus-visible { outline: 2px solid var(--s-p2); outline-offset: 1px; }
+.seg button:hover:not([aria-pressed="true"]) { background: var(--wash); color: var(--ink); }
+
+.explorer { position: relative; }
+.explorer svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.tip {
+  position: absolute; pointer-events: none; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--ring); border-radius: 8px; padding: 8px 10px; font-size: 12.5px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); display: grid; gap: 3px; min-width: 190px;
+  font-variant-numeric: tabular-nums;
+}
+.tip .t { font-family: var(--font-mono); color: var(--muted); font-size: 12px; }
+.tip .r { display: flex; justify-content: space-between; gap: 12px; }
+.tip .v { font-family: var(--font-mono); }
+.cfg-explain { color: var(--ink-2); font-size: 14px; }
+.log { max-height: 280px; overflow: auto; border-top: 1px solid var(--rule); padding-top: 10px; display: grid; gap: 2px; font-size: 13px; }
+.log div { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; padding: 3px 0; }
+.log .when { font-family: var(--font-mono); color: var(--muted); font-size: 12.5px; }
+.log .what { min-width: 0; }
+.log .why { color: var(--ink-2); }
+
+.native td:first-child { font-weight: 500; }
+.verdict { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+.verdict.yes { color: var(--good-text); }
+.verdict.no { color: var(--critical); }
+.verdict.part { color: var(--ink-2); }
+.foot { color: var(--ink-2); font-size: 14px; display: grid; gap: 6px; }
+@media (prefers-reduced-motion: no-preference) {
+  .seg button { transition: background 120ms ease, color 120ms ease; }
+}
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <div class="eyebrow">claude-swap 0.29.0 · simulado con el motor real</div>
+    <h1>Rotación de cuentas cswap</h1>
+    <p class="lead">Tres cuentas y dos Macs, simulados minuto a minuto durante dos semanas laborables. Aquí se compara qué protege cada configuración y quién paga cuando la cuota no llega para todo.</p>
+    <p class="sub"><span class="chip">en prueba</span> P1·60 es la configuración que se va a probar para comprobar si encaja con lo que buscas. Se revisará con el uso real.</p>
+    <div class="legend" aria-label="Cuentas">
+      <span><i class="dot d-personal2"></i><b class="acc">personal2</b> Pro, la pagas tú, solo Claude Code</span>
+      <span><i class="dot d-work"></i><b class="acc">work</b> Max 5x, compartida con el Mac del curro</span>
+      <span><i class="dot d-personal"></i><b class="acc">personal</b> Pro, compartida con la app</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="h-rec">
+    <h2 id="h-rec">Recomendación</h2>
+    <div class="rec">
+      <div class="rec-top">
+        <h3>P1·60 · prioridad nativa con líneas fijas por cuenta</h3>
+        <span class="chip good">Mac del curro: nunca al 100 %</span>
+      </div>
+      <pre class="settings">autoswitch.strategy        priority-consume-first
+autoswitch.weeklyThreshold  (sin definir)
+cswap priority              personal2 100 · work 50 · personal 10
+cswap threshold             personal2 95  · work 60 · personal 80</pre>
+      <div class="cols">
+        <div>
+          <div class="label">Lo que consigue</div>
+          <ul class="tight">
+            <li>El Mac del curro no llega nunca al 100 % en las dos semanas, con ninguna de las dos cargas. Con un 15 % diario fijo pasa 36 min por encima del 95 %.</li>
+            <li><span class="acc">personal2</span> llega a su reset al 90–97 %: la exprimes.</li>
+            <li>Todo nativo. No hay job propio y el spec no cambia de principio.</li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Lo que cuesta</div>
+          <ul class="tight">
+            <li>Con la demanda supuesta, este Mac se queda sin cuota el <b id="p1-walls-pct">25 %</b> del tiempo que quiere trabajar.</li>
+            <li>En semanas de exceso <span class="acc">personal</span> acaba al 100 %. La app lo nota poco: 6 puntos sin servir en dos semanas.</li>
+            <li><span class="acc">work</span> llega a su reset con 7–12 puntos sin usar.</li>
+          </ul>
+        </div>
+      </div>
+      <p id="max5-callout" class="sub"></p>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-mech">
+    <h2 id="h-mech">Cómo decide el motor</h2>
+    <p class="sub">Comprobado ejecutando el motor de 0.29.0 y leyendo su código. Estas reglas explican casi todos los resultados de abajo.</p>
+    <div class="mech">
+      <div>
+        <h3>Una línea no es un tope</h3>
+        <p>La línea decide cuándo salir de una cuenta y si sirve como destino. Si ninguna otra está por debajo de sus líneas, el motor se queda en la activa y esta se gasta hasta el 100 %.</p>
+      </div>
+      <div>
+        <h3>La prioridad vuelve arriba en cuanto puede</h3>
+        <p>En cuanto <span class="acc">personal2</span> resetea su ventana de 5h, el motor vuelve a ella aunque estés bien en <span class="acc">work</span>. Solo lo frena el cooldown de 5 minutos.</p>
+      </div>
+      <div>
+        <h3>La prioridad nunca salta a una cuenta por encima de su línea</h3>
+        <p>Ni siquiera con la activa al 100 %. Protege las reservas a cambio de que este Mac choque con un muro.</p>
+      </div>
+      <div>
+        <h3>Tu cambio manual dura un minuto</h3>
+        <p>Si pasas a <span class="acc">work</span> a mano con <span class="acc">personal2</span> disponible, el siguiente tick te devuelve. Para usar <span class="acc">work</span> a propósito, pausa Auto-switch en el menubar. Si no hay otra cuenta disponible, tu cambio se respeta.</p>
+      </div>
+      <div>
+        <h3>La línea semanal por cuenta tiene un precio</h3>
+        <p>Solo existe si quitas <code>weeklyThreshold</code>, y entonces el mismo número es también la línea de 5h de esa cuenta. Nunca puede bajar de 50.</p>
+      </div>
+      <div>
+        <h3><code>best</code> se olvida de personal2</h3>
+        <p>No sale de una cuenta que esté por debajo de su línea. Como <span class="acc">work</span> sube despacio, se queda en ella días enteros y <span class="acc">personal2</span> acaba la semana al 24–50 %.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-cap">
+    <h2 id="h-cap">La cuota no llega para todo</h2>
+    <p class="sub">Minutos de uso intenso por semana que caben en cada cuenta sin tocar la reserva del curro ni la de la app, frente a lo que pide este Mac en la simulación. Es aritmética con los ritmos de tu log, no una tirada del motor.</p>
+    <div class="panel cap">
+      <div class="legend">
+        <span><i class="sw box d-personal2"></i>personal2</span>
+        <span><i class="sw box d-work"></i>sobrante de work</span>
+        <span><i class="sw box d-personal"></i>personal sin la app</span>
+        <span><i class="sw dash"></i>demanda supuesta de este Mac</span>
+      </div>
+      <div id="cap-chart"></div>
+      <div class="cap-notes">
+        <p>Faltan unos 440 minutos por semana, o unos 730 si el curro gasta un 15 % cada día. Ese hueco lo paga alguien: este Mac con un muro, la app con <span class="acc">personal</span> al 100 % o el Mac del curro con <span class="acc">work</span> al 100 %. Ninguna configuración lo evita, solo elige quién. Como <span class="acc">personal2</span> es siempre Pro, el hueco no se cierra con dinero: lo cubres frenando Claude Code en las semanas de más demanda, como haces ahora.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-cmp">
+    <h2 id="h-cmp">Comparativa</h2>
+    <div class="toolbar">
+      <span class="label">Uso del Mac del curro</span>
+      <div class="seg" role="group" aria-label="Uso del Mac del curro">
+        <button type="button" id="case-draw" aria-pressed="true" data-case="draw10to15">10–15 % por día</button>
+        <button type="button" id="case-flat" aria-pressed="false" data-case="flat15">15 % cada día</button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Configuración</th>
+            <th scope="col">Este Mac sin cuota</th>
+            <th scope="col">Mac del curro al 100 %</th>
+            <th scope="col">work en su reset</th>
+            <th scope="col">personal2 en su reset</th>
+            <th scope="col">personal: Claude Code / máx.</th>
+            <th scope="col">Cambios/día</th>
+          </tr>
+        </thead>
+        <tbody id="cmp-body"></tbody>
+      </table>
+    </div>
+    <p class="sub">Dos semanas, del miércoles 4 al miércoles 18 de noviembre. "Sin cuota" son minutos con la cuenta activa al 100 % y ningún destino disponible. "Mac del curro al 100 %" cuenta los minutos laborables (09–18) con <span class="acc">work</span> al 100 % en su ventana de 5h o en la de 7d; entre paréntesis, los que pasó por encima del 95 %.</p>
+  </section>
+
+  <section aria-labelledby="h-exp">
+    <h2 id="h-exp">Explora la simulación</h2>
+    <p class="sub">Siempre con el Mac del curro al 10–15 % por día; el selector de la comparativa no cambia esta vista.</p>
+    <div class="panel">
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Configuración" id="cfg-seg"></div>
+        <div class="seg" role="group" aria-label="Periodo" id="range-seg">
+          <button type="button" id="range-w1" data-range="w1" aria-pressed="true">Semana 1</button>
+          <button type="button" id="range-w2" data-range="w2" aria-pressed="false">Semana 2</button>
+          <button type="button" id="range-all" data-range="all" aria-pressed="false">Las dos</button>
+        </div>
+      </div>
+      <p class="cfg-explain" id="cfg-explain"></p>
+      <div class="legend">
+        <span><i class="sw" style="border-top-color: var(--ink-2)"></i>7d</span>
+        <span><i class="sw thin" style="border-top-color: var(--muted)"></i>5h</span>
+        <span><i class="sw dash"></i>línea de la cuenta (7d; en P1–P3 también 5h)</span>
+        <span><i class="sw box" style="background: var(--wash); outline: 1px solid var(--rule)"></i>horario del Mac del curro</span>
+        <span><i class="sw box" style="background: var(--critical)"></i>work ≥ 95 % en horario laboral</span>
+      </div>
+      <div class="explorer" id="explorer"><div class="tip" id="tip" hidden></div></div>
+      <div>
+        <div class="label" id="log-title">Cambios de cuenta</div>
+        <div class="log" id="log"></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-nat">
+    <h2 id="h-nat">Qué se puede hacer con cswap nativo</h2>
+    <div class="tbl-wrap">
+      <table class="native">
+        <thead><tr><th scope="col">Pieza</th><th scope="col">¿Nativo en 0.29.0?</th><th scope="col">Cómo, o qué haría falta</th></tr></thead>
+        <tbody>
+          <tr><td>Orden personal2 → work → personal</td><td><span class="verdict yes">sí</span></td><td><code>cswap priority</code> + <code>priority-consume-first</code>.</td></tr>
+          <tr><td>Volver a personal2 en cuanto resetea</td><td><span class="verdict yes">sí</span></td><td>Lo hace la prioridad sola, como mucho una vez por cada reset de 5h.</td></tr>
+          <tr><td>Techo semanal fijo por cuenta</td><td><span class="verdict part">sí, con condiciones</span></td><td>Solo sin <code>weeklyThreshold</code>. El número vale también para la ventana de 5h, el mínimo es 50 y no es un tope.</td></tr>
+          <tr><td>Reserva de work que se encoge hacia el reset</td><td><span class="verdict no">no</span></td><td>Un job propio cada hora con <code>cswap threshold work N</code>, y cambiar el spec, que hoy prohíbe watchers propios.</td></tr>
+          <tr><td>Tope real ("no gastes más de X")</td><td><span class="verdict no">no existe</span></td><td>El motor solo decide de dónde sale y adónde va. Cuando no hay salida, la activa sigue gastándose.</td></tr>
+          <tr><td>Pausar para usar work a propósito (Fable)</td><td><span class="verdict yes">sí</span></td><td>El interruptor Auto-switch del menubar.</td></tr>
+          <tr><td>Aviso cuando todas están sobre su línea</td><td><span class="verdict no">no</span></td><td>El menubar solo avisa de cambios, cuarentenas y "todo agotado". Lo verías en su icono, no en una notificación.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-out">
+    <h2 id="h-out">Qué dejamos fuera con P1·60</h2>
+    <div class="cols">
+      <div>
+        <h3>Aprovechar el sobrante de work antes del reset</h3>
+        <p class="sub">Son 7–12 puntos por semana. P2 los recupera y reduce los muros de este Mac a la mitad, pero necesita un job propio. Además, con la fórmula probada, el Mac del curro pasó 114 min al 100 % en dos semanas, porque la línea no es un tope. Antes de plantearlo habría que darle más margen a la fórmula.</p>
+      </div>
+      <div>
+        <h3>Proteger personal del todo</h3>
+        <p class="sub">Si la sacas de la rotación (P1 sin personal), queda intacta, pero el exceso pasa a <span class="acc">work</span>: 102 min del Mac del curro al 100 % y más muros aquí. Con P1, <span class="acc">personal</span> se gasta en las semanas de exceso y la app apenas lo nota.</p>
+      </div>
+      <div>
+        <h3>Un tope de verdad o un aviso</h3>
+        <p class="sub">cswap no tiene ninguno de los dos. Hoy lo cubres tú frenando Claude Code. Con P1 seguirás haciéndolo, pero solo en las semanas en que la cuota de verdad no llega.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-sup">
+    <h2 id="h-sup">Supuestos</h2>
+    <div class="foot" id="assumptions">
+      <p>Demanda de este Mac: tardes entre semana (19–24) y fines de semana (10–13 y 16–20), siempre a ritmo intenso. Unas 39 h por semana; es el supuesto que más mueve las cifras absolutas. Tu uso real (ratos los fines de semana y alguna tarde) es bastante menor, así que los minutos sin cuota de este Mac son un techo.</p>
+      <p>Ritmos sacados de tu log: una Pro sube el 5h a 1,1 %/min en uso intenso y <span class="acc">work</span> a 0,22 %/min; el 7d se mueve una sexta parte que el 5h.</p>
+      <p>Mac del curro: 10–15 puntos de la semana de <span class="acc">work</span> por día laborable, repartidos entre 09 y 18. App: 30 puntos por semana de <span class="acc">personal</span>.</p>
+      <p>Resets: <span class="acc">work</span> el miércoles a las 12:00, <span class="acc">personal</span> el jueves a las 08:00 y <span class="acc">personal2</span> el sábado a las 10:00. El motor hace un tick cada 60 s y ve siempre datos frescos; el real ve los resets de las cuentas inactivas con 5–10 min de retraso.</p>
+      <p>El orden entre configuraciones se mantiene con las dos cargas del curro. Las cifras de minutos dependen de la demanda supuesta.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+const D = /*DATA*/null;
+const MAX5 = /*MAX5*/null;
+const ACC = ["personal2", "work", "personal"];
+const COLOR_VAR = { personal2: "--s-p2", work: "--s-work", personal: "--s-personal" };
+const CFG_ORDER = ["A", "P0", "P1", "P1-w60", "P1-w65", "P1-w70", "P2", "P3", "P0-noPersonal", "P1-noPersonal", "P2-noPersonal"].filter(k => D.configs[k]);
+const CFG = {
+  "A": { short: "A", title: "best", desc: "Lo acordado al principio: best con 85 / 95, sin prioridades." },
+  "P0": { short: "P0", title: "Tu orden literal", desc: "Prioridad personal2 → work → personal con 85 / 95, sin líneas por cuenta." },
+  "P1": { short: "P1", title: "Prioridad + líneas fijas", desc: "Sin weeklyThreshold. Líneas: personal2 95, work 55, personal 80." },
+  "P1-w60": { short: "P1·60", title: "P1 con work en 60", desc: "Igual que P1, con la línea de work en 60.", rec: true },
+  "P1-w65": { short: "P1·65", title: "P1 con work en 65", desc: "Igual que P1, con la línea de work en 65." },
+  "P1-w70": { short: "P1·70", title: "P1 con work en 70", desc: "Igual que P1, con la línea de work en 70." },
+  "P2": { short: "P2", title: "P1 + reserva de work que se encoge", desc: "Un job cada hora fija la línea de work en 100 − 15 × días laborables que quedan (50–95)." },
+  "P3": { short: "P3", title: "P2 + reserva de personal", desc: "La línea de personal también se mueve según los días que quedan hasta su reset (50–95)." },
+  "P0-noPersonal": { short: "P0 −p", title: "P0 sin personal", desc: "Como P0, con personal fuera de la rotación (cswap disable)." },
+  "P1-noPersonal": { short: "P1 −p", title: "P1 sin personal", desc: "Como P1, con personal fuera de la rotación." },
+  "P2-noPersonal": { short: "P2 −p", title: "P2 sin personal", desc: "Como P2, con personal fuera de la rotación." },
+};
+const TRIGGER = {
+  "proactive": "llegó a su línea",
+  "priority": "vuelve a la de más prioridad",
+  "at-limit": "agotada",
+  "consume-first": "la que antes resetea",
+  "failover": "sin lectura",
+};
+const DOW = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+const nf = new Intl.NumberFormat("es-ES");
+const state = { cfg: "P1-w60", range: "w1", caseKey: "draw10to15" };
+
+function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function dateOf(t) { const [m, d] = t.slice(0, 5).split("-").map(Number); return new Date(Date.UTC(2026, m - 1, d)); }
+function dayLabel(t) { const dt = dateOf(t); return DOW[dt.getUTCDay()] + " " + dt.getUTCDate(); }
+function hourOf(t) { return Number(t.slice(6, 8)) + Number(t.slice(9, 11)) / 60; }
+function isWorkHour(t) { const w = dateOf(t).getUTCDay(); const h = hourOf(t); return w >= 1 && w <= 5 && h >= 9 && h < 18; }
+function el(tag, attrs = {}, html = "") { const e = document.createElement(tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (html) e.innerHTML = html; return e; }
+function accHtml(a) { return `<span class="acc"><i class="dot d-${a}"></i>${a}</span>`; }
+
+/* Recommendation callouts */
+(function fillRec() {
+  const rec = D.configs["P1-w60"];
+  document.getElementById("p1-walls-pct").textContent = nf.format(Math.round(100 - rec.metrics.draw10to15.served)) + " %";
+  const box = document.getElementById("max5-callout");
+  const tune = ["P1", "P1-w60", "P1-w65", "P1-w70"].filter(k => D.configs[k]);
+  if (["P1-w65", "P1-w70"].every(k => D.configs[k])) {
+    const parts = tune.map(k => {
+      const a = D.configs[k].metrics.draw10to15, b = D.configs[k].metrics.flat15;
+      const line = k === "P1" ? "55" : k.slice(4);
+      return `<b>${line}</b>: ${nf.format(Math.round(100 - a.served))} % sin cuota aquí; curro al 100 % (5h o 7d) ${nf.format(a.workBlocked)} / ${nf.format(b.workBlocked)} min, ≥ 95 % ${nf.format(a.starved)} / ${nf.format(b.starved)} min`;
+    });
+    box.innerHTML = `<b>Por qué la línea de work en 60.</b> Con 60 y con 65 el Mac del curro no llega nunca al 100 % con ninguna de las dos cargas (10–15 % por día / 15 % fijo). 65 deja menos muros aquí, pero 60 da más margen por debajo del 95 %: ${parts.join(" · ")}. Con 70 ya llega al 100 %.`;
+  } else {
+    box.hidden = true;
+  }
+})();
+
+/* Capacity chart */
+function drawCapacity() {
+  const host = document.getElementById("cap-chart");
+  const rows = [
+    { label: "Curro 10–15 % por día", segs: [["personal2", 545], ["work", 970], ["personal", 382]] },
+    { label: "Curro 15 % cada día", segs: [["personal2", 545], ["work", 673], ["personal", 382]] },
+  ];
+  const demand = 2340;
+  const W = Math.max(320, host.clientWidth || 600);
+  const labelW = W < 520 ? 0 : 172;
+  const top = 6, barH = 26, gap = W < 520 ? 34 : 18, axisH = 26;
+  const H = top + rows.length * (barH + gap) + axisH;
+  const maxV = 2500;
+  const x = v => labelW + v / maxV * (W - labelW - 16);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Presupuesto semanal de minutos intensos frente a la demanda">`;
+  for (let v = 0; v <= maxV; v += 500) {
+    s += `<line x1="${x(v)}" x2="${x(v)}" y1="${top}" y2="${H - axisH}" stroke="var(--rule)" stroke-width="1"/>`;
+    s += `<text x="${x(v)}" y="${H - 8}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="var(--font-mono)">${nf.format(v)}${v === maxV ? " min" : ""}</text>`;
+  }
+  rows.forEach((r, i) => {
+    const y0 = top + i * (barH + gap) + (W < 520 ? 16 : 0);
+    if (labelW) s += `<text x="0" y="${y0 + barH / 2 + 4}" font-size="12.5" fill="var(--ink-2)">${r.label}</text>`;
+    else s += `<text x="0" y="${y0 - 5}" font-size="12" fill="var(--ink-2)">${r.label}</text>`;
+    let acc = 0;
+    const total = r.segs.reduce((a, b) => a + b[1], 0);
+    r.segs.forEach(([a, v], j) => {
+      const x0 = x(acc) + (j ? 1 : 0), x1 = x(acc + v) - 1;
+      s += `<rect x="${x0}" y="${y0}" width="${Math.max(0, x1 - x0)}" height="${barH}" rx="3" fill="var(${COLOR_VAR[a]})"><title>${a}: ${nf.format(v)} min</title></rect>`;
+      acc += v;
+    });
+    s += `<text x="${Math.min(x(total) + 6, W - 4)}" y="${y0 + barH / 2 + 4}" font-size="12" fill="var(--ink)" font-family="var(--font-mono)" text-anchor="${x(total) + 60 > W ? "end" : "start"}">${nf.format(total)}</text>`;
+  });
+  s += `<line x1="${x(demand)}" x2="${x(demand)}" y1="${top - 2}" y2="${H - axisH + 2}" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  s += `<text x="${x(demand) + 5}" y="${H - axisH - 4}" font-size="11.5" fill="var(--ink-2)">demanda ${nf.format(demand)}</text>`;
+  s += `</svg>`;
+  host.innerHTML = s;
+}
+
+/* Comparison table */
+function fmtMin(v) { return nf.format(Math.round(v)) + " min"; }
+function drawTable() {
+  const body = document.getElementById("cmp-body");
+  body.innerHTML = "";
+  for (const k of CFG_ORDER) {
+    const c = D.configs[k], m = c.metrics[state.caseKey], info = CFG[k];
+    const tr = el("tr", { class: info.rec ? "is-rec" : "" });
+    const wallsPct = Math.round(100 - m.served);
+    const workChip = m.workBlocked === 0
+      ? `<span class="chip good">0 min</span>`
+      : `<span class="chip bad">${fmtMin(m.workBlocked)}</span>`;
+    tr.innerHTML = `
+      <td><span class="cfg-name">${info.short} · ${info.title}</span>${info.rec ? ' <span class="chip">recomendada</span>' : ""}<span class="cfg-desc">${info.desc}</span></td>
+      <td class="num">${fmtMin(m.walls)}<br><span class="sub">${wallsPct} % de la demanda</span></td>
+      <td class="num">${workChip}<br><span class="sub">(${fmtMin(m.starved)} ≥ 95 %)</span></td>
+      <td class="num">${m.workAtReset.map(v => v + " %").join(" · ")}</td>
+      <td class="num">${m.p2AtReset.map(v => v + " %").join(" · ")}</td>
+      <td class="num">${m.personalCC} pts / ${m.personalMax} %</td>
+      <td class="num">${nf.format(m.switchesPerDay)}<br><span class="sub">mín. ${nf.format(m.minGap)} min</span></td>`;
+    body.appendChild(tr);
+  }
+}
+
+/* Explorer */
+const RANGES = () => { const n = D.configs.P1.t.length; const h = Math.floor(n / 2); return { w1: [0, h], w2: [h, n - 1], all: [0, n - 1] }; };
+function lineFor(c, ai, i) { return c.spec.weekly ? c.spec.weekly : (c.lines[ai][i] || 85); }
+function drawExplorer() {
+  const host = document.getElementById("explorer");
+  const c = D.configs[state.cfg];
+  const [i0, i1] = RANGES()[state.range];
+  const W = Math.max(320, host.clientWidth || 900);
+  const narrow = W < 560;
+  const padL = narrow ? 34 : 86, padR = 10;
+  const stripH = 14, rowH = narrow ? 70 : 92, gap = 16, top = 18, axisH = 24;
+  const rowTop = r => top + stripH + gap + r * (rowH + gap);
+  const H = rowTop(3) + axisH - gap + 6;
+  const n = i1 - i0;
+  const x = i => padL + (i - i0) / n * (W - padL - padR);
+  const y = (r, v) => rowTop(r) + rowH - Math.max(0, Math.min(100, v)) / 100 * rowH;
+  const step = Math.max(1, Math.floor(n / Math.max(200, (W - padL) * 1.2)));
+  let s = `<svg viewBox="0 0 ${W} ${H}" id="exp-svg" role="img" aria-label="Uso 5h y 7d de cada cuenta y cuenta activa en la configuración ${state.cfg}">`;
+
+  /* day grid */
+  for (let i = i0; i <= i1; i++) {
+    const t = c.t[i];
+    if (t.slice(6) === "00:00") {
+      s += `<line x1="${x(i)}" x2="${x(i)}" y1="${top}" y2="${rowTop(3) - gap}" stroke="var(--rule)" stroke-width="1"/>`;
+      const every = state.range === "all" && narrow ? 2 : 1;
+      if ((dateOf(t).getUTCDate() % every) === 0) s += `<text x="${x(i) + 3}" y="${H - 8}" font-size="11" fill="var(--muted)">${dayLabel(t)}</text>`;
+    }
+  }
+  /* active strip */
+  s += `<text x="0" y="${top + stripH - 3}" font-size="11" fill="var(--muted)">${narrow ? "" : "activa"}</text>`;
+  let segStart = i0;
+  for (let i = i0 + 1; i <= i1 + 1; i++) {
+    if (i > i1 || c.active[i] !== c.active[segStart]) {
+      const a = ACC[c.active[segStart]];
+      if (a) s += `<rect x="${x(segStart)}" y="${top}" width="${Math.max(0.5, x(Math.min(i, i1)) - x(segStart))}" height="${stripH}" fill="var(${COLOR_VAR[a]})"/>`;
+      segStart = i;
+    }
+  }
+  /* account rows */
+  ACC.forEach((a, r) => {
+    const yt = rowTop(r);
+    s += `<rect x="${padL}" y="${yt}" width="${W - padL - padR}" height="${rowH}" fill="none" stroke="var(--rule)"/>`;
+    if (a === "work") {
+      let st = null;
+      for (let i = i0; i <= i1 + 1; i++) {
+        const on = i <= i1 && isWorkHour(c.t[i]);
+        if (on && st === null) st = i;
+        if (!on && st !== null) { s += `<rect x="${x(st)}" y="${yt}" width="${x(i - 1) - x(st)}" height="${rowH}" fill="var(--wash)"/>`; st = null; }
+      }
+    }
+    /* active shading */
+    let st = null;
+    for (let i = i0; i <= i1 + 1; i++) {
+      const on = i <= i1 && c.active[i] === r;
+      if (on && st === null) st = i;
+      if (!on && st !== null) { s += `<rect x="${x(st)}" y="${yt}" width="${Math.max(0.5, x(i - 1) - x(st))}" height="${rowH}" fill="var(${COLOR_VAR[a]})" opacity="0.10"/>`; st = null; }
+    }
+    [0, 50, 100].forEach(v => {
+      s += `<line x1="${padL}" x2="${W - padR}" y1="${y(r, v)}" y2="${y(r, v)}" stroke="var(--rule)" stroke-width="${v === 0 ? 1 : 0.7}"/>`;
+      s += `<text x="${padL - 4}" y="${y(r, v) + 4}" font-size="10.5" text-anchor="end" fill="var(--muted)" font-family="var(--font-mono)">${v}</text>`;
+    });
+    if (!narrow) s += `<text x="0" y="${yt + 14}" font-size="12.5" font-weight="500" fill="var(--ink)" font-family="var(--font-mono)">${a}</text>`;
+    else s += `<text x="${padL + 4}" y="${yt + 12}" font-size="11" font-weight="500" fill="var(--ink)" font-family="var(--font-mono)">${a}</text>`;
+    /* governing line */
+    let lp = "";
+    for (let i = i0; i <= i1; i += step) { lp += (lp ? "L" : "M") + x(i).toFixed(1) + " " + y(r, lineFor(c, r, i)).toFixed(1); }
+    s += `<path d="${lp}" fill="none" stroke="var(--ink-2)" stroke-width="1.2" stroke-dasharray="4 3"/>`;
+    /* 5h then 7d */
+    let p5 = "", p7 = "";
+    for (let i = i0; i <= i1; i += step) {
+      p5 += (p5 ? "L" : "M") + x(i).toFixed(1) + " " + y(r, c.h5[r][i]).toFixed(1);
+      p7 += (p7 ? "L" : "M") + x(i).toFixed(1) + " " + y(r, c.d7[r][i]).toFixed(1);
+    }
+    s += `<path d="${p5}" fill="none" stroke="var(${COLOR_VAR[a]})" stroke-width="1" opacity="0.45"/>`;
+    s += `<path d="${p7}" fill="none" stroke="var(${COLOR_VAR[a]})" stroke-width="2" stroke-linejoin="round"/>`;
+    if (a === "work") {
+      for (let i = i0; i <= i1; i++) {
+        if (isWorkHour(c.t[i]) && (c.d7[r][i] >= 95 || c.h5[r][i] >= 95)) s += `<rect x="${x(i)}" y="${yt + rowH + 2}" width="${Math.max(1.5, x(i + 1) - x(i))}" height="4" fill="var(--critical)"/>`;
+      }
+    }
+  });
+  s += `<line id="xhair" x1="0" x2="0" y1="${top}" y2="${rowTop(3) - gap}" stroke="var(--ink-2)" stroke-width="1" opacity="0"/>`;
+  s += `<rect id="hit" x="${padL}" y="${top}" width="${W - padL - padR}" height="${rowTop(3) - gap - top}" fill="transparent"/>`;
+  s += `</svg>`;
+  const tip = document.getElementById("tip");
+  host.innerHTML = s;
+  host.appendChild(tip);
+  const svg = document.getElementById("exp-svg");
+  const hit = document.getElementById("hit"), xh = document.getElementById("xhair");
+  function move(ev) {
+    const rect = svg.getBoundingClientRect();
+    const px = (ev.clientX - rect.left) * (W / rect.width);
+    const i = Math.max(i0, Math.min(i1, Math.round(i0 + (px - padL) / (W - padL - padR) * n)));
+    xh.setAttribute("x1", x(i)); xh.setAttribute("x2", x(i)); xh.setAttribute("opacity", "0.6");
+    const t = c.t[i];
+    const act = ACC[c.active[i]] || "—";
+    let rows = `<div class="t">${dayLabel(t)} · ${t.slice(6)}</div><div class="r"><span>activa</span><span>${act === "—" ? act : accHtml(act)}</span></div>`;
+    ACC.forEach((a, r) => {
+      rows += `<div class="r"><span>${accHtml(a)}</span><span class="v">5h ${Math.round(c.h5[r][i])} · 7d ${Math.round(c.d7[r][i])} / ${Math.round(lineFor(c, r, i))}</span></div>`;
+    });
+    tip.innerHTML = rows;
+    tip.hidden = false;
+    const hx = (ev.clientX - host.getBoundingClientRect().left);
+    const tw = tip.offsetWidth;
+    tip.style.left = (hx + 14 + tw > host.clientWidth ? hx - tw - 14 : hx + 14) + "px";
+    tip.style.top = "8px";
+  }
+  hit.addEventListener("pointermove", move);
+  hit.addEventListener("pointerdown", move);
+  hit.addEventListener("pointerleave", () => { tip.hidden = true; xh.setAttribute("opacity", "0"); });
+
+  document.getElementById("cfg-explain").innerHTML = `<b>${CFG[state.cfg].short} · ${CFG[state.cfg].title}.</b> ${CFG[state.cfg].desc}`;
+  const log = document.getElementById("log");
+  const t0 = c.t[i0], t1 = c.t[i1];
+  const sws = c.switches.filter(w => w.t >= t0 && w.t <= t1);
+  document.getElementById("log-title").textContent = `Cambios de cuenta en el periodo (${sws.length})`;
+  log.innerHTML = sws.length ? "" : `<div><span class="when">—</span><span class="what why">Ningún cambio en este periodo.</span></div>`;
+  sws.forEach(w => {
+    const row = el("div");
+    row.innerHTML = `<span class="when">${dayLabel(w.t)} ${w.time}</span><span class="what">${accHtml(w.from)} → ${accHtml(w.to)} <span class="why">· ${TRIGGER[w.trigger] || w.trigger} · ${w.from} estaba en 5h ${w.f5} / 7d ${w.f7}</span></span>`;
+    log.appendChild(row);
+  });
+}
+
+function buildControls() {
+  const seg = document.getElementById("cfg-seg");
+  CFG_ORDER.forEach(k => {
+    const b = el("button", { type: "button", id: "cfg-" + k, "data-cfg": k, "aria-pressed": String(k === state.cfg) }, CFG[k].short);
+    b.addEventListener("click", () => { state.cfg = k; seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.cfg === k))); drawExplorer(); });
+    seg.appendChild(b);
+  });
+  document.querySelectorAll("#range-seg button").forEach(b => b.addEventListener("click", () => {
+    state.range = b.dataset.range;
+    document.querySelectorAll("#range-seg button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    drawExplorer();
+  }));
+  document.querySelectorAll("[data-case]").forEach(b => b.addEventListener("click", () => {
+    state.caseKey = b.dataset.case;
+    document.querySelectorAll("[data-case]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    drawTable();
+  }));
+}
+
+buildControls();
+drawCapacity();
+drawTable();
+drawExplorer();
+let rz;
+window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { drawCapacity(); drawExplorer(); }, 120); });
+</script>

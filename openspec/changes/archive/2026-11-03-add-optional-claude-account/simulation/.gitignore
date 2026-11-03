@@ -1,0 +1,7 @@
+.venv/
+home/
+runs/
+results/
+results.json
+page/data.json
+__pycache__/

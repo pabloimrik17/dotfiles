@@ -1,11 +1,13 @@
 #!/bin/bash
 
-# The rendered role, pin, and revision deliberately participate in chezmoi's
-# run_onchange content hash. Bump SETUP_COMMAND_REVISION when the offer/check
-# contract changes even if its path stays the same.
+# Role, pin, revision and rotation policy feed chezmoi's run_onchange hash.
+# Bump SETUP_COMMAND_REVISION when the offer/check contract changes.
 MACHINE_TYPE={{ get . "machineType" | default "" | quote }}
-CLAUDE_SWAP_VERSION="0.26.0"
-SETUP_COMMAND_REVISION="1"
+CLAUDE_SWAP_VERSION="0.29.0"
+SETUP_COMMAND_REVISION="2"
+{{ $policy := include "dot_local/bin/executable_claude-swap-setup.tmpl" | regexFind "(?m)^ROTATION_POLICY=\"[^\"\n]*\"$" -}}
+{{ if not $policy }}{{ fail "ROTATION_POLICY is missing from dot_local/bin/executable_claude-swap-setup.tmpl" }}{{ end -}}
+{{ $policy }}
 SETUP_COMMAND="$HOME/.local/bin/claude-swap-setup"
 
 info() {
@@ -32,6 +34,15 @@ fi
 if [ ! -x "$SETUP_COMMAND" ]; then
     info "claude-swap setup is unavailable; re-run chezmoi apply, then run: $SETUP_COMMAND"
     exit 0
+fi
+
+if [ "$MACHINE_TYPE" = "personal" ]; then
+    if ! policy_output="$("$SETUP_COMMAND" --apply-policy </dev/null 2>&1)"; then
+        printf '%s\n' "$policy_output" >&2
+        info "claude-swap rotation policy was not applied; retry with: $SETUP_COMMAND --apply-policy"
+    elif [ -n "$policy_output" ]; then
+        printf '%s\n' "$policy_output"
+    fi
 fi
 
 check_output="$($SETUP_COMMAND --check 2>&1)"
@@ -66,4 +77,4 @@ fi
 
 # Referencing these values in output-free shell keeps the trigger inputs
 # explicit without changing user-visible behavior.
-: "$CLAUDE_SWAP_VERSION" "$SETUP_COMMAND_REVISION"
+: "$CLAUDE_SWAP_VERSION" "$SETUP_COMMAND_REVISION" "$ROTATION_POLICY"
