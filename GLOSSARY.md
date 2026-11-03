@@ -53,5 +53,5 @@ The part of `work`'s weekly quota the work Mac will not need before the weekly r
 _Avoid_: leftover, spare quota
 
 **Switch line**:
-The utilization at which autoswitch leaves the active account and above which no account is a proactive target. The 5-hour window and the weekly windows each have their own.
+The utilization at which autoswitch leaves the active account and above which no account is a proactive target. Each account has one line, applied to both its 5-hour and 7-day windows.
 _Avoid_: threshold (alone), limit

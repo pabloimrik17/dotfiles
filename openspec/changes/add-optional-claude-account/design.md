@@ -50,7 +50,7 @@ All candidates below were run through the real 0.29.0 engine, over two simulated
 | A `best` 85/95 | 3 % | 2051 · 2255 min | 24–50 % |
 | P0 tiers only, 85/95 | 3 % | 1230 · 1594 min | 82–95 % |
 | P1 tiers + lines (work 55) | 31 % | 0 · 0 | 90–97 % |
-| **P1·60 (work 60)** | **25 %** | **0 · 0** | **90–96 %** |
+| **P1·60 (work 60)** | **25 %** | **0 · 0 (0 · 36 min ≥ 95 %)** | **90–96 %** |
 | P1·65 | 21 % | 0 · 0 (102 · 360 min ≥ 95 %) | 90–96 % |
 | P1·70 | 13 % | 102 · 362 min | 90–95 % |
 | P2 hourly shrinking work reserve | 15 % | 114 min | 90–95 % |
@@ -65,7 +65,7 @@ Engine facts that drove the choice, all observed in the simulation:
 - **A per-account line covers the weekly window only when `weeklyThreshold` is unset.** The same number is then also that account's 5h line. Valid range 50–99.9.
 - **Lines are not caps.** When nothing qualifies, the engine stays on the active account until it is exhausted, so the last account in use absorbs any overflow.
 
-Why 60 for `work`: it is the highest line with zero work-Mac minutes at 100 % under both work-Mac loads. Why `personal` stays in rotation at 80: disabling it moves the overflow onto `work` (102 min at 100 %), while with P1·60 the app lost 6 pts in two weeks. Why `personal2` at 95: it is Claude Code-only, so the line is purely a safety margin. 95 → 100 % takes about 4.5 min at the observed Pro pace, and the 60 s polling sees it in time.
+Why 60 for `work`: 60 and 65 both keep the work Mac off 100 % under both work-Mac loads. 65 has fewer walls (21 % vs 25 %), but the work Mac spends 102 · 360 min at or above 95 %, against 0 · 36 with 60. 60 trades those walls for that margin. Why `personal` stays in rotation at 80: disabling it moves the overflow onto `work` (102 min at 100 %), while with P1·60 the app lost 6 pts in two weeks. Why `personal2` at 95: it is Claude Code-only, so the line is purely a safety margin. 95 → 100 % takes about 4.5 min at the observed Pro pace, and the 60 s polling sees it in time.
 
 Alternatives rejected:
 

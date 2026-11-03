@@ -324,6 +324,7 @@ cswap threshold             personal2 95  · work 60 · personal 80</pre>
 
   <section aria-labelledby="h-exp">
     <h2 id="h-exp">Explora la simulación</h2>
+    <p class="sub">Siempre con el Mac del curro al 10–15 % por día; el selector de la comparativa no cambia esta vista.</p>
     <div class="panel">
       <div class="toolbar">
         <div class="seg" role="group" aria-label="Configuración" id="cfg-seg"></div>
@@ -425,7 +426,7 @@ const TRIGGER = {
 };
 const DOW = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
 const nf = new Intl.NumberFormat("es-ES");
-const state = { cfg: D.configs["P1-w60"] ? "P1-w60" : "P1", range: "w1", caseKey: "draw10to15" };
+const state = { cfg: "P1-w60", range: "w1", caseKey: "draw10to15" };
 
 function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
 function dateOf(t) { const [m, d] = t.slice(0, 5).split("-").map(Number); return new Date(Date.UTC(2026, m - 1, d)); }
@@ -437,7 +438,7 @@ function accHtml(a) { return `<span class="acc"><i class="dot d-${a}"></i>${a}</
 
 /* Recommendation callouts */
 (function fillRec() {
-  const rec = D.configs["P1-w60"] || D.configs.P1;
+  const rec = D.configs["P1-w60"];
   document.getElementById("p1-walls-pct").textContent = nf.format(Math.round(100 - rec.metrics.draw10to15.served)) + " %";
   const box = document.getElementById("max5-callout");
   const tune = ["P1", "P1-w60", "P1-w65", "P1-w70"].filter(k => D.configs[k]);
@@ -445,9 +446,9 @@ function accHtml(a) { return `<span class="acc"><i class="dot d-${a}"></i>${a}</
     const parts = tune.map(k => {
       const a = D.configs[k].metrics.draw10to15, b = D.configs[k].metrics.flat15;
       const line = k === "P1" ? "55" : k.slice(4);
-      return `<b>${line}</b>: ${nf.format(Math.round(100 - a.served))} % sin cuota aquí; curro al 100 % ${nf.format(a.workBlocked)} / ${nf.format(b.workBlocked)} min`;
+      return `<b>${line}</b>: ${nf.format(Math.round(100 - a.served))} % sin cuota aquí; curro al 100 % ${nf.format(a.workBlocked)} / ${nf.format(b.workBlocked)} min, ≥ 95 % ${nf.format(a.starved)} / ${nf.format(b.starved)} min`;
     });
-    box.innerHTML = `<b>Por qué la línea de work en 60.</b> Es la línea más alta con la que el Mac del curro no llega nunca al 100 % con ninguna de las dos cargas (10–15 % por día / 15 % fijo): ${parts.join(" · ")}. Con 65 roza el límite y con 70 ya lo cruza.`;
+    box.innerHTML = `<b>Por qué la línea de work en 60.</b> Con 60 y con 65 el Mac del curro no llega nunca al 100 % con ninguna de las dos cargas (10–15 % por día / 15 % fijo). 65 deja menos muros aquí, pero 60 da más margen por debajo del 95 %: ${parts.join(" · ")}. Con 70 ya llega al 100 %.`;
   } else {
     box.hidden = true;
   }

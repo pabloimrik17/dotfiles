@@ -27,7 +27,7 @@ To rebuild the page, replace `/*DATA*/null` in `page/template.html` with `page/d
 - `week2tune.py`: `week2.py` plus P1 variants with work lines 60, 65 and 70.
 - `extras.py`, `probes2.py`: manual-switch revert, micro-switch gaps, per-account weekly line checks.
 - `report.py`, `report2.py`: text summaries.
-- `log-weekly-stats.py`: reads a real `~/.claude-swap-backup/claude-swap.log`; prints 7d before each weekly reset and when work crossed 95 %. Run with `python3 -I log-weekly-stats.py <log>`.
+- `log-weekly-stats.py`: reads a real `~/.claude-swap-backup/claude-swap.log`; prints 7d before each weekly reset and when work crossed 95 %. Slots and emails map to aliases through `cswap list --json`: `python3 -I log-weekly-stats.py <log> <(cswap list --json)`.
 
 ## Assumptions
 

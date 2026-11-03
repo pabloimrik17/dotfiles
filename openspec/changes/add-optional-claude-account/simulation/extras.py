@@ -17,7 +17,7 @@ def burn_until_switch(name, cname, accts, active, rate=1.2, minutes=30, disabled
     clock = h.Clock(h.T0)
     world = h.World(clock=clock, accts={h.SLOT[n]: a for n, a in accts.items()},
                     active=h.SLOT[active], tiers=cfg["tiers"], lines=cfg["lines"],
-                    disabled={h.SLOT[n] for n in disabled})
+                    disabled={h.SLOT[n] for n in disabled} | cfg.get("disabled", set()))
     run = h.Run(root, f"{name}-{cname}", world, cfg["strategy"])
     log = []
     for m in range(minutes):

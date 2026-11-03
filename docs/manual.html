@@ -3700,7 +3700,9 @@
                         slot, run
                         <code>claude-swap-setup --reauth personal|work|personal2</code> first, then
                         do <code>/login</code> at its prompt. Setup records the active account when
-                        it starts and switches back to it after the capture.
+                        it starts and switches back to it after the capture, unless the same run
+                        completes an incomplete setup: then it ends on <code>personal</code> on a
+                        personal machine and on <code>work</code> on a work machine.
                     </p>
                     <table>
                         <thead>
@@ -3739,7 +3741,9 @@
                                     Re-runnable role-aware enrollment, validation, dry-run, and
                                     upstream menu-service setup; normal runs reconcile the service
                                     even when account setup is complete, while <code>--check</code>
-                                    only inspects the required aliases, whichever account is active
+                                    only inspects the required aliases: on a personal machine
+                                    whichever account is active; on a work machine
+                                    <code>work</code> must be the only account and active
                                 </td>
                             </tr>
                             <tr>
