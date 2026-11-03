@@ -9,12 +9,12 @@
             },
             "context7": {
                 "type": "local",
-                "command": ["npx", "-y", "@upstash/context7-mcp@4.1.1"],
+                "command": ["npx", "-y", "@upstash/context7-mcp@4.4.4"],
                 "disabled": false
             },
             "knip": {
                 "type": "local",
-                "command": ["npx", "-y", "@knip/mcp@0.0.36"],
+                "command": ["npx", "-y", "@knip/mcp@0.0.37"],
                 "disabled": false
             },
             "memory": {

@@ -62,7 +62,7 @@ Explicit `ask` rules are required rather than sufficient by omission: `permissio
 - **WHEN** Claude Code attempts to call `mcp__context7__query-docs`
 - **THEN** the tool call SHALL execute without prompting the user
 
-#### Scenario: memory write is routed to the classifier
+#### Scenario: memory write prompts
 
 - **WHEN** Claude Code attempts to call `mcp__memory__create_entities`
 - **THEN** no deny, ask, or allow rule SHALL match
