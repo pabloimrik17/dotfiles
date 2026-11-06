@@ -13,7 +13,7 @@
         "@commitlint/config-conventional": "21.2.4",
         "@commitlint/types": "21.2.3",
         "@types/bun": "1.4.3",
-        "fallow": "3.31.0",
+        "fallow": "3.34.0",
         "husky": "9.1.7",
         "lint-staged": "17.1.0",
         "oxfmt": "0.59.0"
