@@ -425,6 +425,7 @@ export PATH="$HOME/.opencode/bin:$PATH"
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+[ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
 
 # Zoxide - MUST be last (chpwd hook conflicts if anything comes after)
 # --cmd cd: replaces cd/cdi directly (with proper completions), no aliases needed
