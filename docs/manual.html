@@ -2116,6 +2116,53 @@
                         </tbody>
                     </table>
 
+                    <h3 id="agent-shell">Agent shell</h3>
+                    <p>
+                        Claude Code's Bash tool builds a snapshot by sourcing
+                        <code>~/.zshrc</code> non-interactively with <code>CLAUDECODE</code> set. A
+                        block at the end of <code>dot_zshrc.tmpl</code> runs only then (<code
+                            >CLAUDECODE</code
+                        >
+                        set and the shell not interactive). Interactive terminals, even ones that
+                        inherited <code>CLAUDECODE</code>, keep the human defaults.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Change</th>
+                                <th>Why</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>unsetopt nomatch equals</code></td>
+                                <td>
+                                    An unmatched unquoted glob and a word starting with
+                                    <code>=</code> no longer abort the command
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>setopt sh_word_split</code></td>
+                                <td>An unquoted <code>$FILES</code> splits into arguments</td>
+                            </tr>
+                            <tr>
+                                <td><code>unalias ls cat</code></td>
+                                <td>System <code>ls</code>/<code>cat</code> instead of eza/bat</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flow-only">
+                        <strong>Flow: Apply the agent shell</strong><br />
+                        <code>chezmoi apply</code> &rarr; restart Claude Code &rarr; new snapshot (a
+                        running session keeps its old one)
+                    </div>
+                    <p>
+                        Not covered: Claude Code's own <code>grep</code>/<code>find</code> functions
+                        (appended after <code>~/.zshrc</code>), <code>timeout</code> and GNU
+                        <code>sed</code> (not installed), and Codex (Beads
+                        <code>agentic-task-wmqd.17</code>).
+                    </p>
+
                     <h3>Passive / transparent plugins</h3>
                     <table>
                         <thead>
