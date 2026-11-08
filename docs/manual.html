@@ -2853,10 +2853,9 @@
                         no root <code>CLAUDE.md</code>: Claude Code 2.1.277+ reads
                         <code>AGENTS.md</code> natively, but only when no <code>CLAUDE.md</code>,
                         <code>.claude/CLAUDE.md</code> or <code>CLAUDE.local.md</code> exists in the
-                        working directory or any ancestor. Both names stay outside home deployment.
-                        User instructions remain at <code>~/.claude/CLAUDE.md</code> or in
-                        <code>~/.claude/rules/</code>; a global AGENTS body needs an explicit Claude
-                        entry point. No managed user body currently needs migration. See
+                        working directory or any ancestor. User instructions remain at
+                        <code>~/.claude/CLAUDE.md</code> or in <code>~/.claude/rules/</code>; a
+                        global AGENTS body needs an explicit Claude entry point. See
                         <a href="https://code.claude.com/docs/en/memory#agentsmd">Claude memory</a>.
                     </p>
                     <p>
@@ -2939,13 +2938,10 @@
                     <p>
                         Automatic apply configures availability only: it does not open the UI,
                         install instruction notes, send messages or wait for answers. Resolve the
-                        binary from PATH or <code>~/.local/bin/plannotator</code>. Setup reuses
-                        successful Inbox guide output, installs missing/old releases with the
-                        official <code>--non-interactive</code> installer with Git installed earlier
-                        in setup. Version/help execution errors stop that step; run the reported
-                        command in your terminal before retrying. There is no service manager or
-                        fixed port. The Inbox binds loopback; publishing over Tailscale requires a
-                        separate user choice.
+                        binary from PATH or <code>~/.local/bin/plannotator</code>. Version/help
+                        execution errors stop that step; run the reported command in your terminal
+                        before retrying. There is no service manager or fixed port. The Inbox binds
+                        loopback; publishing over Tailscale requires a separate user choice.
                     </p>
                     <h3>Inbox instruction notes</h3>
                     <p>
@@ -2953,8 +2949,6 @@
                         and paths in chat and request consent only for missing notes the person
                         wants. Then run <code>plannotator inbox --notes &lt;ids&gt;</code>
                         with only approved comma-separated IDs. Without a yes, write nothing.
-                        Existing notes and user edits remain Plannotator-owned; chezmoi neither
-                        copies them nor recreates removed notes.
                     </p>
                     <table>
                         <thead>
@@ -3674,22 +3668,16 @@
 
                     <h3>beads telemetry (opted out)</h3>
                     <p>
-                        The <code>beads</code> plugin declares <code>bd prime</code> hooks with an
-                        empty matcher, so <code>bd</code> runs on every session start and compaction
-                        in every directory. beads metrics default to <em>on</em> and
-                        <code>prime</code> is on its suppressed-notice list, so the consent banner
-                        never reaches a hook &mdash; the upload would be silent. Chezmoi ships
+                        Chezmoi ships
                         <code>~/.config/bd/config.yaml</code> with
-                        <code>metrics.disabled:&nbsp;true</code> to turn it off (equivalent to
-                        <code>bd metrics off</code>, but reproducible on a new machine).
+                        <code>metrics.disabled:&nbsp;true</code> to turn beads metrics off
+                        (equivalent to <code>bd metrics off</code>, but reproducible on a new
+                        machine).
                     </p>
                     <p>
                         That file is the <strong>only</strong> place the switch works: beads reads
                         consent from the user-global config alone, so a repository&rsquo;s
-                        <code>.beads/config.yaml</code> can neither disable nor re-enable it. It
-                        also carries <code>metrics.endpoint</code> &mdash; unused while disabled,
-                        but bd writes any missing key back on its next run, which would drift the
-                        managed file.
+                        <code>.beads/config.yaml</code> can neither disable nor re-enable it.
                     </p>
 
                     <h3>claude-swap accounts and quota (macOS)</h3>
@@ -4089,8 +4077,8 @@
                         manage this preference. <code>PLANNOTATOR_INBOX_TOOL</code> overrides the
                         preference. Start Inbox once, then restart OpenCode to discover the native
                         tool. OpenCode 2 delivers replies when idle; older OpenCode 1 sessions
-                        require <code>wait_for_reply</code>. No duplicate MCP entry is added. Follow
-                        the <a href="#plannotator-inbox">Inbox workflow</a>.
+                        require <code>wait_for_reply</code>. Follow the
+                        <a href="#plannotator-inbox">Inbox workflow</a>.
                     </p>
                     <h3>OpenCode 2 configuration</h3>
                     <p>
@@ -4109,9 +4097,9 @@
                         <code>theme.name: catppuccin-macchiato</code> and
                         <code>scroll.acceleration: true</code>; other CLI preferences survive. The
                         legacy <code>tui.json</code> source is retired; an existing live file can
-                        stay in place but v2 no longer reads it. The previous v1 configuration
-                        remains in Git history. Do not run a v1 client against native v2 files. See
-                        the <a href="https://opencode.ai/v2/docs/migrate-v1">migration guide</a> and
+                        stay in place but v2 no longer reads it. Do not run a v1 client against
+                        native v2 files. See the
+                        <a href="https://opencode.ai/v2/docs/migrate-v1">migration guide</a> and
                         <a href="https://opencode.ai/v2/docs/cli/config">CLI settings</a>.
                     </p>
                     <h3>Plugins</h3>
@@ -4355,8 +4343,8 @@
                         disabled/conflicting entries are preserved for manual review. Inspect
                         <code>codex mcp get plannotator-inbox --json</code> and restart the CLI, app
                         or IDE session after registration. Replies require
-                        <code>wait_for_reply</code>. The existing user Inbox note remains unmanaged.
-                        See the <a href="#plannotator-inbox">Inbox workflow</a>.
+                        <code>wait_for_reply</code>. See the
+                        <a href="#plannotator-inbox">Inbox workflow</a>.
                     </p>
                     <h3>Install &amp; lifecycle</h3>
                     <table>
