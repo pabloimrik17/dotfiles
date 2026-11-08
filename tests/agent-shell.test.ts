@@ -100,4 +100,7 @@ describe("interactive shell with inherited CLAUDECODE", () => {
 
 test("non-interactive shell without CLAUDECODE keeps the defaults", () => {
     expect(run(options, { claudecode: false }).stdout).toBe("on on off\n");
+    const { stdout } = run("type ls; type cat", { claudecode: false });
+    expect(stdout).toContain("ls is an alias for eza");
+    expect(stdout).toContain("cat is an alias for bat");
 });
