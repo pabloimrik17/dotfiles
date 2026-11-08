@@ -46,5 +46,4 @@ None.
 
 - `dot_zshrc.tmpl`: new guarded block at the end, after `zoxide init`.
 - `tests/`: a new test that extracts the block and checks agent and interactive shells.
-- `docs/manual.html`: agent shell note.
 - Existing Claude Code sessions keep their old snapshot until they restart.
