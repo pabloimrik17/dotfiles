@@ -425,7 +425,19 @@ export PATH="$HOME/.opencode/bin:$PATH"
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+[ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
 
-# Zoxide - MUST be last (chpwd hook conflicts if anything comes after)
+# Zoxide - MUST be last (chpwd hook conflicts if anything comes after), except the
+# agent shell block below: it only changes options and removes aliases, no hooks.
 # --cmd cd: replaces cd/cdi directly (with proper completions), no aliases needed
 eval "$(zoxide init zsh --cmd cd)"
+
+# >>> agent shell >>>
+# Claude Code builds its Bash tool snapshot by sourcing this file non-interactively
+# with CLAUDECODE=1. A running session keeps its old snapshot until restarted.
+if [[ -n ${CLAUDECODE-} && ! -o interactive ]]; then
+  unsetopt nomatch equals
+  setopt sh_word_split
+  unalias ls cat
+fi
+# <<< agent shell <<<
