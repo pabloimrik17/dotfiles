@@ -36,8 +36,8 @@
 - [x] 5.3 Validate the rendered settings JSON parses: `chezmoi cat ~/.claude/settings.json | jq empty`, and confirm the alphabetical ordering of the two new keys.
 - [x] 5.4 Run `chezmoi apply`, answer yes to the Claude Code plugin dependencies group, then confirm `claude plugin marketplace list` shows `sentry-mcp` and `claude plugin list` shows `sentry-mcp@sentry-mcp`. (Applied via a targeted `chezmoi apply` of `opencode.jsonc` plus an explicit `claude plugin marketplace add`/`install`, because a full apply is blocked by the unmerged `brew-update` state.)
 - [x] 5.5 `claude mcp list --scope user` — Sentry MUST NOT appear; also check `jq '.mcpServers.sentry' ~/.claude.json` yields `null`.
-- [ ] 5.6 Inside a Claude Code session, `/mcp` lists exactly one Sentry server, `plugin:sentry-mcp:sentry`; complete the OAuth sign-in from there and confirm the `sentry-mcp` subagent is available.
-- [ ] 5.7 Spot-check permissions: a `search_issues` call runs without a prompt, and an `execute_sentry_tool` call prompts.
-- [ ] 5.8 `opencode mcp auth sentry` completes the OAuth flow, and the Sentry tools appear in an OpenCode session.
+- [x] 5.6 Inside a Claude Code session, `/mcp` lists exactly one Sentry server, `plugin:sentry-mcp:sentry`; complete the OAuth sign-in from there and confirm the `sentry-mcp` subagent is available.
+- [x] 5.7 Spot-check permissions: a `search_issues` call runs without a prompt, and an `execute_sentry_tool` call prompts.
+- [x] 5.8 `opencode mcp auth sentry` completes the OAuth flow, and the Sentry tools appear in an OpenCode session.
 - [x] 5.9 Re-run the install script and confirm idempotency: the marketplace and plugin report "already registered/installed, skipping". (Group 8's guards were exercised in isolation — the full script is not safe to re-run non-interactively, it does `brew uninstall`/`brew untap`/`claude mcp remove`.)
 - [x] 5.10 `openspec validate add-sentry-mcp --strict` passes, and `openspec show add-sentry-mcp --json --deltas-only` lists `claude-code-plugins` (ADDED), `mcp-global-config` (ADDED) and `claude-user-preferences` (MODIFIED).
