@@ -3,6 +3,7 @@
 ## Purpose
 TBD - created by archiving change renovate-best-practices. Update Purpose after archive.
 ## Requirements
+
 ### Requirement: Renovate extends the best-practices baseline
 
 `renovate.json` SHALL extend `config:best-practices` as its base preset and SHALL NOT extend `config:recommended` directly. Presets transitively enabled by `config:best-practices` (such as `:dependencyDashboard`) SHALL NOT be listed explicitly in `extends`, with one deliberate exception: `:maintainLockFilesWeekly` MAY be listed explicitly for cross-repo parity with the monolab migration — it is bundled by `config:best-practices` in renovate@43, so re-listing it is idempotent and validator-clean. Presets that `config:best-practices` does NOT enable and that the repo still requires — `:semanticCommits` and `:enableVulnerabilityAlertsWithLabel(security)` — SHALL remain in `extends`.
@@ -74,7 +75,7 @@ TBD - created by archiving change renovate-best-practices. Update Purpose after 
 
 ### Requirement: npm release-age floor is preserved
 
-`renovate.json` SHALL keep an effective `minimumReleaseAge` of at least `14 days` for npm packages. Because `config:best-practices` bundles `security:minimumReleaseAgeNpm` (a 3-day npm `packageRule`) that overrides the top-level value for npm, `renovate.json` SHALL re-assert the floor with a trailing npm `packageRule` ordered after the preset's rule.
+`renovate.json` SHALL retain a top-level `minimumReleaseAge` of `14 days`, override npm major/minor updates to `14 days`, and set patch updates across datasources to `3 days`. The local rules SHALL preserve the inherited null-age exemptions and PR notes for pin, replacement, and lockFileMaintenance. The security preset SHALL NOT be removed with `ignorePresets`.
 
 #### Scenario: Top-level floor raised
 
@@ -83,9 +84,19 @@ TBD - created by archiving change renovate-best-practices. Update Purpose after 
 
 #### Scenario: npm window re-asserted
 
-- **WHEN** `renovate.json` `packageRules` is inspected
-- **THEN** a rule with `matchDatasources: ["npm"]` sets `minimumReleaseAge` to `"14 days"`
-- **AND** it appears after any preset-provided npm release-age rule so it takes precedence
+- **WHEN** an npm major or minor update is evaluated
+- **THEN** a local rule matching npm and only major/minor sets the effective age to `14 days` after preset rules
+
+#### Scenario: Patch window applies across datasources
+
+- **WHEN** a routine patch update is evaluated
+- **THEN** the local patch rule sets its release age to `3 days` without a datasource filter
+
+#### Scenario: Preset exemptions survive
+
+- **WHEN** an npm pin, replacement, or lockFileMaintenance update is evaluated
+- **THEN** the inherited null-age exemption and PR notes remain effective
+- **AND** weekly lockfile maintenance remains enabled
 
 ### Requirement: CI validates the Renovate config
 
@@ -112,3 +123,17 @@ A standalone, path-filtered GitHub Actions workflow (`.github/workflows/renovate
 - **WHEN** the workflow validation step is inspected
 - **THEN** it invokes a fixed `renovate@<ver>` rather than a floating/unpinned version
 
+### Requirement: OSV supplies vulnerability-fix alerts
+
+`renovate.json` SHALL enable `osvVulnerabilityAlerts`. Security updates SHALL preserve Renovate's default age bypass and existing vulnerability PR limit overrides, without requiring Dependabot alerts to be enabled.
+
+#### Scenario: Direct dependency has an available security fix
+
+- **WHEN** OSV reports a supported direct dependency vulnerability with an available fix
+- **THEN** Renovate is configured to propose a vulnerability-fix update
+- **AND** Renovate's routine release-age window does not delay the security update
+
+#### Scenario: Scope of protection is explicit
+
+- **WHEN** this configuration's coverage is documented
+- **THEN** it covers supported direct dependencies without claiming transitive vulnerability scanning

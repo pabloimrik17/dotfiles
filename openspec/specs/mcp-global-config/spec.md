@@ -4,6 +4,7 @@
 
 Global MCP server configuration managed by chezmoi — defines which MCP servers are available in every Claude Code session across all machines.
 ## Requirements
+
 ### Requirement: Global MCP servers are registered via Claude CLI in install script
 
 `run_onchange_install-packages.sh.tmpl` SHALL register the following 17 MCP servers via `claude mcp add --scope user`, which writes to `~/.claude.json`:
@@ -510,3 +511,114 @@ The setup SHALL use native OpenCode v2 configuration for the existing managed se
 - **WHEN** OpenCode reloads the migrated configuration
 - **THEN** the existing Plannotator plugin and native Inbox tool SHALL be discoverable
 - **AND** runtime credentials and session state SHALL remain outside Git
+
+### Requirement: PostHog MCP is provided by the Claude Code plugin, not the install-script registry
+
+For Claude Code, the PostHog MCP server SHALL reach the machine exclusively through the `posthog@claude-plugins-official` plugin, which ships its own http MCP definition (`https://mcp.posthog.com/mcp`, header `x-posthog-mcp-consumer: plugin`) and exposes it under the plugin scope as `plugin:posthog:posthog`.
+
+The `MCP_HTTP_SERVERS` array in `run_onchange_install-packages.sh.tmpl` SHALL NOT contain a `posthog` entry, and the install script SHALL NOT run `claude mcp add --scope user` for PostHog. Registering it in both places would connect the same server twice in every session (its single `exec` dispatcher tool as `mcp__posthog__exec` alongside `mcp__plugin_posthog_posthog__exec`) and require two independent OAuth logins against the same account, for no extra capability.
+
+#### Scenario: Install script template has no posthog MCP entry
+
+- **WHEN** reading the `MCP_STDIO_SERVERS` and `MCP_HTTP_SERVERS` arrays in `run_onchange_install-packages.sh.tmpl`
+- **THEN** neither array SHALL contain an entry named `posthog`
+
+#### Scenario: PostHog appears only under the plugin scope
+
+- **WHEN** the plugin is installed and enabled and the user runs `claude mcp list`
+- **THEN** PostHog SHALL appear once, as the plugin-scoped server `plugin:posthog:posthog`
+- **AND** no user-scoped `posthog` server SHALL be present in `~/.claude.json`
+
+#### Scenario: Registered server count is unchanged
+
+- **WHEN** the install script completes the MCP servers group after this change
+- **THEN** the number of servers it registers via `claude mcp add --scope user` SHALL be identical to before the change
+- **AND** the pre-scan summary count SHALL NOT include PostHog
+
+### Requirement: PostHog MCP server is registered globally in OpenCode config
+
+`dot_config/opencode/opencode.jsonc` SHALL contain a `posthog` entry in its `mcp` object using the OpenCode remote MCP format: `type: "remote"`, `url: "https://mcp.posthog.com/mcp"`, `enabled: true`. OpenCode does not consume Claude Code plugins, so this entry is the only way PostHog reaches OpenCode; it follows the same `remote` shape already used for `gh_grep` in the project-level OpenCode config.
+
+#### Scenario: PostHog MCP server present in OpenCode config after chezmoi apply
+
+- **WHEN** `chezmoi apply` is run on a new machine
+- **THEN** `~/.config/opencode/opencode.jsonc` SHALL contain an `mcp` object with a `posthog` entry of type `"remote"`, url `"https://mcp.posthog.com/mcp"`, and `enabled: true`
+
+#### Scenario: OpenCode PostHog entry does not affect existing config keys
+
+- **WHEN** `chezmoi apply` deploys the updated OpenCode config
+- **THEN** the `model`, `tui`, `plugin`, `formatter`, and `permission` keys SHALL remain unchanged
+- **AND** the existing `expect` entry inside `mcp` SHALL remain unchanged
+
+#### Scenario: No credentials stored in the config
+
+- **WHEN** reading the `posthog` entry in `dot_config/opencode/opencode.jsonc`
+- **THEN** it SHALL contain no API key, personal access token, or `headers` block carrying a secret
+- **AND** access SHALL be obtained through the OAuth flow at first use instead
+
+### Requirement: Manual instructions cover PostHog authentication
+
+The "Manual Installation Required" section of `run_onchange_install-packages.sh.tmpl` SHALL note that the PostHog MCP requires OAuth authentication, naming the entry point for each client: `/mcp` → `plugin:posthog:posthog` in Claude Code, and `opencode mcp auth` in OpenCode.
+
+#### Scenario: Manual auth instructions printed for PostHog
+
+- **WHEN** the install script reaches the manual instructions section
+- **THEN** it SHALL include a line stating that the PostHog MCP requires OAuth authentication
+- **AND** the line SHALL name both `/mcp` (Claude Code, under `plugin:posthog:posthog`) and `opencode mcp auth` (OpenCode)
+
+#### Scenario: PostHog tools are unavailable until authenticated
+
+- **WHEN** the plugin is installed and the OpenCode entry deployed, but the OAuth flow has not been completed
+- **THEN** PostHog tool calls SHALL fail with an authentication error
+- **AND** no other MCP server connection SHALL be affected
+
+### Requirement: Sentry MCP server is registered globally in OpenCode config
+
+`dot_config/opencode/opencode.jsonc` SHALL contain a `sentry` entry inside its `mcp` object, using the OpenCode remote MCP format: `type: "remote"`, `url: "https://mcp.sentry.dev/mcp"`, and `enabled: true`. No headers and no `oauth` key SHALL be set — OpenCode performs OAuth discovery with PKCE and Dynamic Client Registration automatically for remote servers.
+
+#### Scenario: Sentry MCP server present in OpenCode config after chezmoi apply
+
+- **WHEN** `chezmoi apply` is run on a new machine
+- **THEN** `~/.config/opencode/opencode.jsonc` SHALL contain an `mcp` object with a `sentry` entry of type `"remote"`, url `"https://mcp.sentry.dev/mcp"`, and `enabled: true`
+
+#### Scenario: Existing expect server is preserved
+
+- **WHEN** `chezmoi apply` deploys the updated OpenCode config
+- **THEN** the `expect` entry SHALL remain in the `mcp` object unchanged
+
+#### Scenario: OpenCode MCP section does not affect existing config keys
+
+- **WHEN** `chezmoi apply` deploys the updated OpenCode config
+- **THEN** the `model`, `tui`, `plugin`, `formatter`, and `permission` keys SHALL remain unchanged
+
+#### Scenario: OAuth sign-in for the remote server
+
+- **WHEN** the user runs `opencode mcp auth sentry`
+- **THEN** OpenCode SHALL start the OAuth flow against `https://mcp.sentry.dev/mcp` and store the credentials outside the dotfiles repo
+- **AND** no token SHALL be committed to the repository or added to the age-encrypted file
+
+#### Scenario: Server can be turned off without removing the entry
+
+- **WHEN** the user sets `enabled: false` on the `sentry` entry
+- **THEN** OpenCode SHALL NOT connect to the server and its tools SHALL NOT be loaded into context
+
+### Requirement: Sentry MCP is provided by the Claude Code plugin, not the install script
+
+For Claude Code, the Sentry MCP server SHALL be provided exclusively by the `sentry-mcp@sentry-mcp` plugin, which ships its own `.mcp.json`. Therefore `run_onchange_install-packages.sh.tmpl` SHALL NOT contain any `sentry` entry in `MCP_STDIO_SERVERS` or `MCP_HTTP_SERVERS`, and the server counts of that group SHALL be unchanged by this capability. Registering the same endpoint through `claude mcp add --scope user` would open a second connection to `https://mcp.sentry.dev/mcp` and load a duplicate copy of the Sentry toolset into context.
+
+#### Scenario: Install script arrays contain no Sentry entry
+
+- **WHEN** reading `run_onchange_install-packages.sh.tmpl`
+- **THEN** neither `MCP_STDIO_SERVERS` nor `MCP_HTTP_SERVERS` SHALL contain an entry whose name is `sentry`
+- **AND** the group's `TOTAL_MCP` count SHALL be unchanged
+
+#### Scenario: No user-scope Sentry server in Claude config
+
+- **WHEN** the install script has run to completion on a machine with `claude` and `jq` available
+- **THEN** `jq '.mcpServers.sentry' ~/.claude.json` SHALL yield `null`
+- **AND** `claude mcp list --scope user` SHALL NOT list a `sentry` server
+
+#### Scenario: Exactly one Sentry server visible in a session
+
+- **WHEN** the user runs `/mcp` inside a Claude Code session with the plugin installed and enabled
+- **THEN** exactly one Sentry server SHALL be listed, namely `plugin:sentry-mcp:sentry`
