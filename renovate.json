@@ -14,7 +14,9 @@
     "reviewers": ["pabloimrik17"],
     "labels": ["dependencies"],
     "baseBranchPatterns": ["main"],
-    "dependencyDashboardTitle": "📦 Dependency Dashboard",
+    "dependencyDashboard": {
+        "title": "📦 Dependency Dashboard"
+    },
     "prConcurrentLimit": 10,
     "prHourlyLimit": 2,
     "minimumReleaseAge": "14 days",
