@@ -475,8 +475,9 @@ MANAGED = json.loads(r'''
 # a plugin enabled outside chezmoi or a hook event we do not manage survives an
 # apply. The document root is always merged key-by-key; every managed path that
 # is not listed here is a leaf and replaces the live value entirely (so
-# `permissions.allow` stays the curated list in git, and each `hooks.<Event>`
-# array is imposed as a whole -- which is the unit AoE itself regenerates).
+# `permissions.allow` stays the curated list in git). Each managed
+# `hooks.<Event>` array is the exception, merged by matcher group in
+# merge_hook_groups below, so a group another tool installs (Rex) survives.
 # `pluginConfigs` descends to `options` so only `instructionFiles` is owned: with
 # the default `claude-md-or-agents-md`, any CLAUDE.md in the cwd or a parent hides
 # every AGENTS.md, and bd init / Claude /init keep recreating one. Claude Code
@@ -527,7 +528,12 @@ def overlay(live, managed, path):
     """
     for key, value in managed.items():
         child = path + (key,)
-        if child in MERGE_CONTAINERS:
+        if path == ("hooks",):
+            merged = merge_hook_groups(live.get(key), value)
+            # Keep AoE's key order when nothing changed (see the leaf branch).
+            if json.dumps(live.get(key), sort_keys=True) != json.dumps(merged, sort_keys=True):
+                live[key] = merged
+        elif child in MERGE_CONTAINERS:
             node = live.get(key)
             if not isinstance(node, dict):
                 node = OrderedDict()
@@ -542,6 +548,33 @@ def overlay(live, managed, path):
             # plain `!=` would rewrite objects that already hold the managed
             # value just to impose the source's key order.
             live[key] = value
+
+
+AOE_SENTINEL = "# aoe-hooks"
+
+
+def aoe_owned(group):
+    # AoE's own sweep rule: a group is AoE's when every command carries the
+    # sentinel. A group mixing in a foreign command is not AoE's to replace.
+    hooks = group.get("hooks") if isinstance(group, dict) else None
+    return bool(hooks) and all(
+        isinstance(h, dict) and AOE_SENTINEL in str(h.get("command", "")) for h in hooks
+    )
+
+
+def merge_hook_groups(live_groups, managed_groups):
+    """Live groups that are neither AoE's nor a managed copy, in live order,
+    then the managed groups. Converges: the output's managed tail is dropped and
+    re-appended on the next pass, and its foreign head is kept as is."""
+    if not isinstance(live_groups, list):
+        live_groups = []
+    managed_keys = {json.dumps(g, sort_keys=True) for g in managed_groups}
+    kept = [
+        g
+        for g in live_groups
+        if not aoe_owned(g) and json.dumps(g, sort_keys=True) not in managed_keys
+    ]
+    return kept + list(managed_groups)
 
 
 def drop(doc, path):

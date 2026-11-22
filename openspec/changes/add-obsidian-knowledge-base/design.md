@@ -76,6 +76,30 @@ The group first registers the missing marketplaces that pending plugins need. A 
 
 There is no official Obsidian MCP server. The community servers require the Local REST API plugin, which opens an HTTP port. The official CLI plus the skills cover the same ground.
 
+### Hook merge keeps foreign matcher groups
+
+Found by 5.2's `chezmoi diff`. The merge replaced each managed `hooks.<Event>` array wholesale. Rex (`rex skill setup`, or the app's Settings → Integrations → Coding Agents) adds a `SessionStart` group running `rex __internal session-start`, which tells the agent its Rex session and pane. Every apply deleted it; Rex re-added it.
+
+New rule, mirroring AoE's installer: per managed event, drop live groups that are AoE-owned (every command carries `# aoe-hooks`) or equal to a managed group. Keep the rest in live order, then append the managed groups. A repeat merge is byte-identical.
+
+- **Alternative: manage Rex's hook in the template.** Rejected. Rex changes its hook text (its Codex hook label changed in server/0.1.0-preview.21, 2026-11-17), and `rex skill status` would report "outdated".
+- **Alternative: allowlist known foreign writers.** Rejected. Every new tool needs a line, and the next one fails silently.
+
+Codex is unaffected: Rex's Codex hook lives in `~/.codex/hooks.json`, which chezmoi does not manage.
+
+### `~/.config/gws` stays 0700
+
+The source dir `dot_config/gws` made chezmoi set 0755. `gws` keeps `client_secret.json`, `credentials.enc` and `token_cache.json` there at 0700. Rename it to `dot_config/private_gws`.
+
+### claude-hud config holds only what we customise
+
+claude-hud 0.15.4. A `hud set` on 6 Nov rewrote the live file as 2-space JSON, mode 0600, with `environmentThreshold` clamped from 200 to 100, so `chezmoi diff` drifts.
+
+- `environmentThreshold: 200` never worked. The plugin clamps it to 0–100 (`src/config.ts:423`), and it hides the config-counts segment until CLAUDE.md, rules, MCPs and hooks reach it (27 today). The counts were on and always hidden.
+- Hide the counts: drop `showConfigCounts` (default false) and `environmentThreshold`.
+- Drop the seven keys that repeat defaults: `gitStatus.enabled`, `gitStatus.showDirty`, `display.showModel`, `showContextBar`, `showTokenBreakdown`, `showUsage`, `usageBarEnabled`.
+- Rename the source to `private_config.json` (0600, as the plugin writes it). Keep 2-space JSON, and add it to `.oxfmtignore` so lint-staged's oxfmt leaves it alone.
+
 ## Risks / Trade-offs
 
 - **The work Mac's `gh` is logged into an account that cannot read the repo.** The clone fails and warns with the manual command. The run continues.
@@ -83,6 +107,9 @@ There is no official Obsidian MCP server. The community servers require the Loca
 - **Both Macs append to the same package hub.** Git conflicts are possible in `updates/`. Runs are infrequent, `index.json` is gitignored (derived), and the conflicts are resolved by hand through Obsidian Git.
 - **`obsidian-skills` and the vault's Obsidian Git plugin update unpinned.** This matches the other auto-updating marketplaces. Obsidian is a cask with `auto_updates`, which cannot be pinned.
 - **The vault holds `work`-scope notes in a personal private repo.** Accepted in the grill: no isolation is required.
+- **chezmoi no longer wipes hand-added hooks** (for example via `/hooks`). Accepted: a foreign hook is removed with its own tool (`rex skill remove`) or by hand.
+- **A managed group without the AoE sentinel would linger when its text changes.** The old copy is neither AoE-owned nor equal to the new one, so it survives as foreign. Every managed group carries the sentinel today; a future non-AoE managed hook needs a removal entry when it changes.
+- **A `hud set` rewrites the claude-hud file.** `chezmoi diff` then shows the change; the source wins on apply.
 
 ## Migration Plan
 

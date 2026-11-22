@@ -204,7 +204,7 @@ chezmoi add <file>
 
 `gws` uses the `googleworkspace-cli|0.22.5` row of `BREW_VERSIONS`. A fresh install after a newer formula release produces a drift warning. Before upgrading, run the consumer check beside `BREW_PACKAGES` on the candidate, then `brew-upgrade-pinned googleworkspace-cli` and bump the row.
 
-Google setup is one-time-ever: create your own Cloud project with the Sheets API enabled, complete OAuth branding with an app name, support email, public homepage and privacy-policy URL, set the External consent screen **In production** (Testing refresh tokens expire after 7 days), and create a **Desktop app** OAuth client. Encrypt its JSON as `dot_config/gws/encrypted_private_client_secret.json.age`; `chezmoi apply` deploys `~/.config/gws/client_secret.json` with mode `600`. On each machine, only `gws auth login --scopes https://www.googleapis.com/auth/spreadsheets.readonly` remains. Credentials stay encrypted with the key in the macOS Keychain; never commit tokens.
+Google setup is one-time-ever: create your own Cloud project with the Sheets API enabled, complete OAuth branding with an app name, support email, public homepage and privacy-policy URL, set the External consent screen **In production** (Testing refresh tokens expire after 7 days), and create a **Desktop app** OAuth client. Encrypt its JSON as `dot_config/private_gws/encrypted_private_client_secret.json.age`; `chezmoi apply` deploys `~/.config/gws/client_secret.json` with mode `600`. On each machine, only `gws auth login --scopes https://www.googleapis.com/auth/spreadsheets.readonly` remains. Credentials stay encrypted with the key in the macOS Keychain; never commit tokens.
 
 **Edit an encrypted file** (e.g. `~/.ticker.yaml`):
 

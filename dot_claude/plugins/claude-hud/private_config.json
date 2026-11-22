@@ -1,0 +1,17 @@
+{
+  "lineLayout": "compact",
+  "showSeparators": true,
+  "pathLevels": 2,
+  "gitStatus": {
+    "showAheadBehind": true,
+    "showFileStats": true
+  },
+  "display": {
+    "showTools": true,
+    "showAgents": true,
+    "showTodos": true,
+    "showDuration": true,
+    "usageThreshold": 60,
+    "sevenDayThreshold": 70
+  }
+}
