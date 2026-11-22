@@ -51,9 +51,20 @@
 - [x] 5.1 Run `bun test`, `bash -n` on the darwin and linux renders, and `openspec validate add-obsidian-knowledge-base --strict`. Verify all pass.
 - [x] 5.2 Run `chezmoi diff --source <worktree>` on this Mac. Verify the only target changes are the settings keys from 3.2–3.3, the new rule file and the install script.
 
+## 6. Settings drift (stacked PR `fix/claude-settings-drift`)
+
+- [x] 6.1 In `dot_claude/modify_settings.json.tmpl`, merge each managed `hooks.<Event>` by group: drop live groups that are AoE-owned or equal to a managed group, keep the rest in live order, append the managed groups. Update the comment above `MERGE_CONTAINERS`. Verify with merge tests for every scenario in `specs/claude-settings-merge/spec.md`, and by running the rendered script read-only on the live `~/.claude/settings.json`: the Rex `SessionStart` group survives and the AoE groups are unchanged.
+- [x] 6.2 Rename `dot_config/gws` to `dot_config/private_gws`. Update `tests/gws-client-secret.test.ts` and every mention of the old source path outside `openspec/` (the main spec changes at archive). Verify `bun test tests/gws-client-secret.test.ts` passes and `chezmoi managed --source <worktree>` still lists `.config/gws/client_secret.json`.
+- [x] 6.3 Rename the claude-hud source to `private_config.json` with only the customised keys, as 2-space JSON. Add it to `.oxfmtignore`. Verify with `tests/claude-hud-config.test.ts`: the exact key set, no `showConfigCounts` or `environmentThreshold`, and the `.oxfmtignore` entry.
+- [x] 6.4 Update `docs/manual.html` via `update-manual` (and the README if a path or behaviour it names changed): foreign hooks survive apply, the hidden config counts. Verify that neither names `dot_config/gws/` or `environmentThreshold`.
+- [x] 6.5 Integration. Verify:
+  - `bun test` and `openspec validate add-obsidian-knowledge-base --strict` pass.
+  - `chezmoi diff --source <worktree>` shows no removal of the Rex hook and no mode change on `~/.config/gws`. For claude-hud it shows only the intended key removals.
+
 ## Workflow follow-up
 
-- Open the PR from `feature/add-obsidian`, merge it, and run `chezmoi update` on each Mac.
+- Open both PRs with `gh stack submit` (`feature/add-obsidian`, then `fix/claude-settings-drift` on top). Merge bottom-up with `gh stack merge`.
+- Run `chezmoi update` on each Mac only after both have merged.
 - On the personal Mac, after apply:
   1. Check that `match-knowledge.mjs` with no `--root` resolves `~/WebstormProjects/knowledge/updates` and finds a migrated package.
   2. Delete `~/.claude/experiments/knowledge` and remove its entry from Obsidian's vault list. Both vaults are named `knowledge`, and `vault=knowledge` opens the old one until that entry is gone.

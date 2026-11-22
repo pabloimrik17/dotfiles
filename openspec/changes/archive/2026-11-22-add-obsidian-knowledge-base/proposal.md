@@ -17,6 +17,10 @@ Knowledge about tools and projects has no durable home that a person reads. Obsi
 - Install `obsidian@obsidian-skills` in Codex. This first registers the `obsidianmd/obsidian-skills` marketplace through the Codex CLI.
 - Deploy a managed user rule, `~/.claude/rules/knowledge-base.md`. It says where the knowledge base is, that agents write to it only when asked, and that the vault's `AGENTS.md` holds the conventions.
 - Update the README and the manual.
+- Fix three drifts that task 5.2's `chezmoi diff` found in targets this change touches. They ship as the stacked PR `fix/claude-settings-drift`:
+  - The settings merge keeps foreign hook groups. Today it replaces each `hooks.<Event>` array, so every apply deletes the `SessionStart` group Rex adds and Rex re-adds it.
+  - `~/.config/gws` stays 0700: the source dir becomes `dot_config/private_gws`.
+  - The claude-hud config drops the config counts (`environmentThreshold: 200` never worked) and the keys that repeat defaults, and deploys as `private_config.json` (0600, 2-space JSON, ignored by oxfmt), as `hud set` writes it.
 
 Out of scope: an Obsidian MCP server, OpenCode, Obsidian Sync and Headless, and a Codex counterpart of the rule. Creating the `knowledge` repo is a one-off done outside dotfiles, and so is its content.
 
@@ -31,6 +35,9 @@ Out of scope: an Obsidian MCP server, OpenCode, Obsidian Sync and Headless, and 
 - `gui-app-install`: the core cask set gains `obsidian` under Productivity: 22 rows on `arm64`, 21 on `amd64`.
 - `claude-code-plugins`: the `obsidian-skills` marketplace and the `obsidian@obsidian-skills` plugin are provisioned and enabled.
 - `codex-plugins`: the installer registers the Codex marketplaces it needs and installs `obsidian@obsidian-skills`.
+- `claude-settings-merge`: managed `hooks.<Event>` arrays keep foreign matcher groups; only AoE-owned groups and copies of managed groups are replaced.
+- `claude-hud-config`: config counts hidden, only customised keys, deployed at 0600 and ignored by oxfmt.
+- `googleworkspace-cli-install`: the client file's source moves to `dot_config/private_gws`, and `~/.config/gws` stays 0700.
 
 ## Impact
 
@@ -40,8 +47,10 @@ Out of scope: an Obsidian MCP server, OpenCode, Obsidian Sync and Headless, and 
   - `CC_MARKETPLACES` and `CC_PLUGINS`.
   - A Codex marketplace list and `CODEX_PLUGINS`.
   - The non-macOS fallback text.
-- `dot_claude/modify_settings.json.tmpl`: `enabledPlugins`, `extraKnownMarketplaces`, `pluginConfigs."experiments@monolab"` and `MERGE_CONTAINERS`.
+- `dot_claude/modify_settings.json.tmpl`: `enabledPlugins`, `extraKnownMarketplaces`, `pluginConfigs."experiments@monolab"`, `MERGE_CONTAINERS` and the `hooks.<Event>` merge.
 - New `dot_claude/rules/knowledge-base.md`.
-- `tests/install-script.test.ts`, plus the settings-merge tests.
+- `dot_config/gws/` renamed to `dot_config/private_gws/`.
+- `dot_claude/plugins/claude-hud/config.json` renamed to `private_config.json` and trimmed; `.oxfmtignore`.
+- `tests/install-script.test.ts`, the settings-merge tests, `tests/gws-client-secret.test.ts` and `tests/claude-hud-config.test.ts`.
 - `README.md` and `docs/manual.html`.
 - External: the private GitHub repo `knowledge`, created outside this change. Existing run knowledge moves from `~/.claude/experiments/knowledge`; the old path is removed once the new `knowledge_root` is live.

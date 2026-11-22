@@ -2323,9 +2323,9 @@
                         days. For personal use (fewer than 100 users), no verification is needed;
                         Google's unverified-app screen appears once at consent. Save the client JSON
                         to <code>~/.config/gws/client_secret.json</code> and encrypt it as
-                        <code>dot_config/gws/encrypted_private_client_secret.json.age</code>. On a
-                        new machine, <code>chezmoi apply</code> deploys it with mode 600; only the
-                        login below remains.
+                        <code>dot_config/private_gws/encrypted_private_client_secret.json.age</code
+                        >. On a new machine, <code>chezmoi apply</code> deploys it with mode 600;
+                        only the login below remains.
                     </p>
                     <table>
                         <thead>
@@ -5036,9 +5036,13 @@
                             <tr>
                                 <td>Status column</td>
                                 <td>
-                                    five self-gating session-status hooks baked into
-                                    <code>~/.claude/settings.json</code> report Claude state to AoE
-                                    (no-op when <code>$AOE_INSTANCE_ID</code> is unset)
+                                    self-gating session-status hooks across eight events, baked into
+                                    <code>~/.claude/settings.json</code>, report Claude state to AoE
+                                    (no-op when <code>$AOE_INSTANCE_ID</code> is unset). An apply
+                                    replaces only the hook groups AoE itself claims (every command
+                                    ends in <code>0 # aoe-hooks</code> or carries the legacy
+                                    <code>aoe-hooks/$AOE_INSTANCE_ID</code> path); groups other
+                                    tools add, such as Rex's <code>SessionStart</code> hook, survive
                                 </td>
                             </tr>
                             <tr>

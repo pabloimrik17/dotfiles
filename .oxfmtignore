@@ -14,3 +14,5 @@ dot_config/private_agent-of-empires/modify_private_config.toml
 dot_claude/modify_settings.json.tmpl
 dot_junie/mcp/modify_mcp.json.tmpl
 dot_config/opencode/modify_private_cli.json
+# claude-hud `hud set` rewrites this as 2-space JSON; oxfmt would reformat it and drift.
+dot_claude/plugins/claude-hud/private_config.json
