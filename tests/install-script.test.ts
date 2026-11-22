@@ -31,8 +31,9 @@ function run(command: string[], env?: Record<string, string>) {
 
 const renders = new Map<string, string>();
 
-function render(os: string): string {
-    const cached = renders.get(os);
+function render(os: string, arch = "arm64", machineType = "personal"): string {
+    const key = `${os}|${arch}|${machineType}`;
+    const cached = renders.get(key);
     if (cached !== undefined) return cached;
     const result = run([
         "chezmoi",
@@ -43,14 +44,14 @@ function render(os: string): string {
         "toml",
         "--override-data",
         JSON.stringify({
-            machineType: "personal",
-            chezmoi: { os, arch: "arm64", destDir: "/home/test" },
+            machineType,
+            chezmoi: { os, arch, destDir: "/home/test" },
         }),
         "--file",
         installerTemplate,
     ]);
     expect(result.exitCode, result.stderr).toBe(0);
-    renders.set(os, result.stdout);
+    renders.set(key, result.stdout);
     return result.stdout;
 }
 
@@ -128,4 +129,50 @@ test("an installed CLI cask is counted and not reinstalled", async () => {
     expect(result.output).toContain("INFO: Brew packages: 1/1 installed");
     expect(result.output).not.toContain("CONFIRM:");
     expect(result.log).not.toContain("install");
+});
+
+// Evaluates a rendered top-level array assignment in bash and returns its rows.
+function renderedArray(rendered: string, name: string): string[] {
+    const assignment = rendered.match(new RegExp(`^${name}=\\(\\n[\\s\\S]*?^\\)$`, "m"))?.[0];
+    expect(assignment, name).toBeDefined();
+    const result = run(["/bin/bash", "-c", `${assignment}\nprintf '%s\\n' "\${${name}[@]}"`]);
+    expect(result.exitCode, result.stderr).toBe(0);
+    return result.stdout.split("\n").filter(Boolean);
+}
+
+const obsidianRow = "obsidian|Obsidian|Productivity|Knowledge base";
+
+test.each([
+    ["arm64", 22],
+    ["amd64", 21],
+] as const)("the %s core cask set has %i rows and includes obsidian", (arch, count) => {
+    const core = renderedArray(render("darwin", arch), "ALL_CASKS").filter(
+        (row) => row.split("|")[2] !== "Optional",
+    );
+    expect(core).toHaveLength(count);
+    expect(core).toContain(obsidianRow);
+    expect(core.indexOf(obsidianRow)).toBe(
+        core.indexOf("adobe-acrobat-reader|Adobe Acrobat Reader|Productivity|PDF reader") + 1,
+    );
+});
+
+test("obsidian carries no brew pin or version freeze", () => {
+    const rendered = render("darwin");
+    for (const name of ["BREW_VERSIONS", "BREW_HOLDS"]) {
+        const names = renderedArray(rendered, name).map((row) => row.split("|")[0]);
+        expect(names.length, name).toBeGreaterThan(0);
+        expect(
+            names.some((entry) => entry.split("/").pop() === "obsidian"),
+            name,
+        ).toBe(false);
+    }
+});
+
+test("the Claude Code plugin arrays and the non-macOS fallback carry obsidian-skills", () => {
+    const rendered = render("darwin");
+    expect(renderedArray(rendered, "CC_MARKETPLACES")).toContain("obsidianmd/obsidian-skills");
+    expect(renderedArray(rendered, "CC_PLUGINS")).toContain("obsidian@obsidian-skills");
+    const fallback =
+        'info "    - claude plugin marketplace add obsidianmd/obsidian-skills && claude plugin install obsidian@obsidian-skills"';
+    expect(render("linux").split("\n")).toContain(fallback);
 });

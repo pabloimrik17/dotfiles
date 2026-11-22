@@ -2607,6 +2607,47 @@
                         <code>update-extra</code> (self-updating tools handle themselves;
                         repo-pinned tools use a pin bump; held packages stay put by declaration)
                     </div>
+
+                    <h3 id="knowledge-base-install">Knowledge base (Obsidian)</h3>
+                    <p>
+                        <code>obsidian</code> is a core cask (Productivity). The installer's
+                        knowledge-base group then sets up the vault and checks the CLI.
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Step</th>
+                                <th>Behaviour</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Vault clone</td>
+                                <td>
+                                    Absent <code>~/WebstormProjects/knowledge</code> is cloned from
+                                    the private <code>pabloimrik17/knowledge</code> repo with
+                                    <code>gh repo clone</code>. Run <code>gh auth login</code>
+                                    first; without it the group warns and prints the command
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Never pulls</td>
+                                <td>
+                                    Obsidian Git inside the vault owns sync. An existing path is
+                                    never touched; a non-git directory there only warns
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Obsidian CLI check</td>
+                                <td>
+                                    Warns only. Turn it on in Obsidian: Settings &rarr; General
+                                    &rarr; Command line interface. It registers
+                                    <code>/usr/local/bin/obsidian</code> and sets
+                                    <code>"cli": true</code> in <code>obsidian.json</code>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </details>
 
@@ -3447,6 +3488,45 @@
                                     CodeRabbit's
                                 </td>
                                 <td>Matt's standalone <code>code-review</code> is excluded</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3 id="knowledge-base">Knowledge base</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Piece</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>obsidian@obsidian-skills</code></td>
+                                <td>
+                                    Plugin from the <code>obsidianmd/obsidian-skills</code>
+                                    marketplace, auto-updating. Skills such as
+                                    <code>obsidian-cli</code> and <code>obsidian-markdown</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>knowledge_root</code></td>
+                                <td>
+                                    <code
+                                        >pluginConfigs."experiments@monolab".options.knowledge_root</code
+                                    >
+                                    is <code>~/WebstormProjects/knowledge/updates</code>, so run
+                                    knowledge lands inside the knowledge base
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>~/.claude/rules/knowledge-base.md</code></td>
+                                <td>
+                                    Managed rule (source
+                                    <code>dot_claude/rules/knowledge-base.md</code>). Tells agents
+                                    where the knowledge base is and to write only when asked;
+                                    <code>updates/</code> is script-owned and never edited
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -4566,6 +4646,18 @@
                                     <code>jq</code> is not a provisioned package &mdash; on Linux
                                     and on macOS below 15 it is absent, so the group warns and skips
                                     and this command is yours to run by hand
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Install Obsidian skills</td>
+                                <td>
+                                    <code>obsidian@obsidian-skills</code> &mdash; the installer
+                                    first registers its marketplace with
+                                    <code
+                                        >codex plugin marketplace add
+                                        obsidianmd/obsidian-skills</code
+                                    >, then runs
+                                    <code>codex plugin add obsidian@obsidian-skills</code>
                                 </td>
                             </tr>
                             <tr>

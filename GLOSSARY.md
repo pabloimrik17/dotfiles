@@ -55,3 +55,21 @@ _Avoid_: leftover, spare quota
 **Switch line**:
 The utilization at which autoswitch leaves the active account and above which no account is a proactive target. Each account has one line, applied to both its 5-hour and 7-day windows.
 _Avoid_: threshold (alone), limit
+
+### Knowledge
+
+**Knowledge base**:
+The single vault of notes a person reads about tools and projects, written by the user or by an agent when asked.
+_Avoid_: vault (alone), wiki, second brain
+
+**Run knowledge**:
+The part of the knowledge base the update commands write after a deep update run: one note per run, one hub per package. Script-owned; never edited by hand.
+_Avoid_: update notes, changelog cache
+
+**Scope**:
+The area a knowledge-base note belongs to: `personal`, `work` or `common`. Independent of the machine type it was written on.
+_Avoid_: context, area, machine type
+
+**Agent memory**:
+Facts and rules kept to steer an agent's behaviour, outside the knowledge base. If the reader is an agent being told how to act, it is agent memory, not knowledge.
+_Avoid_: knowledge, notes

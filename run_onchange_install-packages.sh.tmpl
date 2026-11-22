@@ -1284,6 +1284,7 @@ ALL_CASKS=(
     "iina|IINA|Media|Modern media player"
     "superwhisper|superwhisper|AI|Voice-to-text via Whisper"
     "adobe-acrobat-reader|Adobe Acrobat Reader|Productivity|PDF reader"
+    "obsidian|Obsidian|Productivity|Knowledge base"
     "telegram|Telegram|Optional|Messaging"
     "whatsapp|WhatsApp.localized/WhatsApp|Optional|Messaging"
     "microsoft-teams|Microsoft Teams|Optional|Video conferencing"
@@ -1412,6 +1413,62 @@ else
         else
             info "  Skipping GUI apps."
         fi
+    fi
+fi
+
+# ------------------------------------------------------------------
+# Group 4.5: Knowledge base (vault checkout + Obsidian CLI check)
+# Clones once and never pulls: Obsidian Git inside the vault owns sync.
+# The owner is fixed because gh would resolve a bare name against whichever
+# account is logged in. Paths are env-overridable for tests only.
+# ------------------------------------------------------------------
+KNOWLEDGE_REPO="pabloimrik17/knowledge"
+KNOWLEDGE_DIR="${KNOWLEDGE_DIR:-$HOME/WebstormProjects/knowledge}"
+OBSIDIAN_APP="${OBSIDIAN_APP:-/Applications/Obsidian.app}"
+OBSIDIAN_CLI_LINK="${OBSIDIAN_CLI_LINK:-/usr/local/bin/obsidian}"
+OBSIDIAN_CONFIG="${OBSIDIAN_CONFIG:-$HOME/Library/Application Support/obsidian/obsidian.json}"
+KNOWLEDGE_CLONE_CMD="gh repo clone $KNOWLEDGE_REPO $KNOWLEDGE_DIR"
+
+if [ -e "$KNOWLEDGE_DIR" ] || [ -L "$KNOWLEDGE_DIR" ]; then
+    if [ -e "$KNOWLEDGE_DIR/.git" ]; then
+        info "Knowledge base: present at $KNOWLEDGE_DIR"
+    else
+        warn "Knowledge base: $KNOWLEDGE_DIR exists but is not a knowledge-base checkout (no .git); leaving it untouched"
+        warn "  To recover: move it aside, run '$KNOWLEDGE_CLONE_CMD', then copy its updates/ back"
+    fi
+elif ! command -v gh &>/dev/null || ! gh auth status &>/dev/null; then
+    warn "Knowledge base not cloned: gh is missing or not authenticated"
+    warn "  Run 'gh auth login', then: $KNOWLEDGE_CLONE_CMD"
+elif confirm "Clone the knowledge base ($KNOWLEDGE_REPO) to $KNOWLEDGE_DIR?"; then
+    if gh repo clone "$KNOWLEDGE_REPO" "$KNOWLEDGE_DIR" && [ -e "$KNOWLEDGE_DIR/.git" ]; then
+        info "  Knowledge base cloned to $KNOWLEDGE_DIR"
+    else
+        # The path was absent before this attempt, so whatever is there now is a partial clone.
+        rm -rf "$KNOWLEDGE_DIR"
+        warn "Knowledge base clone failed (the gh account may lack access to $KNOWLEDGE_REPO); nothing was left at $KNOWLEDGE_DIR"
+        warn "  Retry manually: $KNOWLEDGE_CLONE_CMD"
+    fi
+else
+    info "  Skipping knowledge base clone."
+fi
+
+# Warn only: the symlink needs sudo and the running app rewrites obsidian.json,
+# while the in-app toggle does both in one admin dialog.
+if [ -d "$OBSIDIAN_APP" ]; then
+    obsidian_cli_problems=()
+    if [ "$(readlink "$OBSIDIAN_CLI_LINK" 2>/dev/null)" != "$OBSIDIAN_APP/Contents/MacOS/obsidian-cli" ]; then
+        obsidian_cli_problems+=("$OBSIDIAN_CLI_LINK does not link to the bundled obsidian-cli")
+    fi
+    # -expect bool rejects a "true" string; plutil exits non-zero on a missing key or file.
+    if ! obsidian_cli_flag="$(plutil -extract cli raw -expect bool -o - "$OBSIDIAN_CONFIG" 2>/dev/null)" \
+        || [ "$obsidian_cli_flag" != "true" ]; then
+        obsidian_cli_problems+=("obsidian.json lacks \"cli\": true")
+    fi
+    if [ "${#obsidian_cli_problems[@]}" -gt 0 ]; then
+        for problem in "${obsidian_cli_problems[@]}"; do
+            warn "Obsidian CLI not registered: $problem"
+        done
+        warn "  Turn it on in Obsidian: Settings → General → Command line interface (approve the admin prompt)"
     fi
 fi
 
@@ -1677,6 +1734,7 @@ CC_MARKETPLACES=(
     "fallow-rs/fallow-skills"
     "getsentry/sentry-mcp"
     "typesafe-ai/skills"
+    "obsidianmd/obsidian-skills"
 )
 
 CC_PLUGINS=(
@@ -1714,6 +1772,7 @@ CC_PLUGINS=(
     "posthog@claude-plugins-official"
     "sentry-mcp@sentry-mcp"
     "typesafe@typesafe-ai"
+    "obsidian@obsidian-skills"
 )
 
 # Replaced plugins, as "old:replacement". The old copy is uninstalled only once
@@ -2188,6 +2247,13 @@ unset -f configure_codex_mcp_servers reconcile_codex_http_mcp codex_mcp_entry_ma
 # official CLI idempotently, the same way Group 8 drives `claude plugin`.
 CODEX_PLUGINS=(
     "superpowers@openai-curated"
+    "obsidian@obsidian-skills"
+)
+
+# name|source rows for marketplaces Codex does not ship. A plugin's marketplace
+# is the part after `@`; built-in ones (openai-curated) have no row.
+CODEX_MARKETPLACES=(
+    "obsidian-skills|obsidianmd/obsidian-skills"
 )
 
 if ! command -v codex &>/dev/null; then
@@ -2218,6 +2284,55 @@ else
             >/dev/null 2>&1 <<<"$CODEX_PLUGIN_JSON"
     }
 
+    CODEX_MP_QUERIED=0
+    CODEX_MP_VALID=0
+    CODEX_MP_JSON=""
+    CODEX_MP_OK=" "
+    CODEX_MP_BAD=" "
+
+    # Succeeds when the marketplace needs no registration or is now registered.
+    # The listing is queried once, lazily; verdicts are cached per marketplace
+    # so each failure warns once however many plugins it blocks.
+    codex_marketplace_ready() {
+        local name="$1" row source=""
+        for row in "${CODEX_MARKETPLACES[@]}"; do
+            if [ "${row%%|*}" = "$name" ]; then
+                source="${row#*|}"
+            fi
+        done
+        [ -n "$source" ] || return 0
+        case "$CODEX_MP_OK" in *" $name "*) return 0 ;; esac
+        case "$CODEX_MP_BAD" in *" $name "*) return 1 ;; esac
+
+        if [ "$CODEX_MP_QUERIED" -eq 0 ]; then
+            CODEX_MP_QUERIED=1
+            # An unreadable listing must not look empty: that would re-add a
+            # marketplace that is already registered.
+            if CODEX_MP_JSON="$(codex plugin marketplace list --json 2>/dev/null)" &&
+                jq -e '(.marketplaces | type) == "array"' >/dev/null 2>&1 <<<"$CODEX_MP_JSON"; then
+                CODEX_MP_VALID=1
+            fi
+        fi
+        if [ "$CODEX_MP_VALID" -ne 1 ]; then
+            warn "Could not read Codex marketplaces — skipping plugins from $name"
+            CODEX_MP_BAD="$CODEX_MP_BAD$name "
+            return 1
+        fi
+        if jq -e --arg n "$name" '.marketplaces[]? | select(.name == $n)' \
+            >/dev/null 2>&1 <<<"$CODEX_MP_JSON"; then
+            CODEX_MP_OK="$CODEX_MP_OK$name "
+            return 0
+        fi
+        info "  Registering Codex marketplace $name ($source)..."
+        if codex plugin marketplace add "$source"; then
+            CODEX_MP_OK="$CODEX_MP_OK$name "
+            return 0
+        fi
+        warn "Could not register Codex marketplace $name ($source) — skipping its plugins"
+        CODEX_MP_BAD="$CODEX_MP_BAD$name "
+        return 1
+    }
+
     PENDING_CODEX=0
     TOTAL_CODEX=${#CODEX_PLUGINS[@]}
     for plugin in "${CODEX_PLUGINS[@]}"; do
@@ -2235,6 +2350,8 @@ else
         for plugin in "${CODEX_PLUGINS[@]}"; do
             if codex_plugin_installed "$plugin"; then
                 info "  $plugin — already installed, skipping"
+            elif ! codex_marketplace_ready "${plugin#*@}"; then
+                warn "Skipping Codex plugin $plugin — its marketplace is unavailable"
             else
                 info "  Installing $plugin..."
                 if ! codex plugin add "$plugin"; then
@@ -2451,6 +2568,9 @@ info "    - gh extension install github/gh-stack"
 info "  gh agent skills (requires gh 2.90+):"
 info "    - gh skill install cli/cli gh --agent claude-code --scope user --force"
 info "    - gh skill install github/gh-stack gh-stack --agent claude-code --scope user --force"
+info "  Knowledge base (requires an authenticated gh; never pulled afterwards):"
+info "    - gh repo clone pabloimrik17/knowledge ~/WebstormProjects/knowledge"
+info "    - Obsidian CLI: turn on Settings → General → Command line interface in the Obsidian app"
 info "  Bat theme: Catppuccin Mocha"
 info "    mkdir -p \"\$(bat --config-dir)/themes\""
 info "    curl -fsSLo \"\$(bat --config-dir)/themes/Catppuccin Mocha.tmTheme\" https://raw.githubusercontent.com/catppuccin/bat/main/themes/Catppuccin%20Mocha.tmTheme"
@@ -2468,6 +2588,7 @@ info "    - claude plugin marketplace add max-sixty/worktrunk && claude plugin i
 info "    - claude plugin marketplace add getsentry/sentry-mcp && claude plugin install sentry-mcp@sentry-mcp"
 info "    - claude plugin marketplace add mattpocock/skills && claude plugin install mattpocock-skills@mattpocock"
 info "    - claude plugin marketplace add typesafe-ai/skills && claude plugin install typesafe@typesafe-ai"
+info "    - claude plugin marketplace add obsidianmd/obsidian-skills && claude plugin install obsidian@obsidian-skills"
 info "  Agent skills (requires npx/Node.js):"
 info "    npx -y skills add vercel-labs/skills --skill find-skills -g -y"
 info "    npx -y skills add vercel-labs/agent-skills --skill vercel-react-best-practices -g -y"

@@ -105,6 +105,7 @@ MANAGED = json.loads(r'''
     "fallow@fallow-skills": true,
     "frontend-design@claude-plugins-official": true,
     "mattpocock-skills@mattpocock": true,
+    "obsidian@obsidian-skills": true,
     "plannotator@plannotator": true,
     "plugin-dev@claude-plugins-official": true,
     "posthog@claude-plugins-official": true,
@@ -187,6 +188,13 @@ MANAGED = json.loads(r'''
       "autoUpdate": true,
       "source": {
         "repo": "nrwl/nx-ai-agents-config",
+        "source": "github"
+      }
+    },
+    "obsidian-skills": {
+      "autoUpdate": true,
+      "source": {
+        "repo": "obsidianmd/obsidian-skills",
         "source": "github"
       }
     },
@@ -444,6 +452,11 @@ MANAGED = json.loads(r'''
       "options": {
         "instructionFiles": "claude-md-and-agents-md"
       }
+    },
+    "experiments@monolab": {
+      "options": {
+        "knowledge_root": "~/WebstormProjects/knowledge/updates"
+      }
     }
   },
   "skipAutoPermissionPrompt": true,
@@ -478,6 +491,8 @@ MERGE_CONTAINERS = {
     ("pluginConfigs",),
     ("pluginConfigs", "cc-plugin-agents-md@builtin"),
     ("pluginConfigs", "cc-plugin-agents-md@builtin", "options"),
+    ("pluginConfigs", "experiments@monolab"),
+    ("pluginConfigs", "experiments@monolab", "options"),
 }
 
 # Paths deleted from the live file. `hooks.PreCompact` held only the duplicate
