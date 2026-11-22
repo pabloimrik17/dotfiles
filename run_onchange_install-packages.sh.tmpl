@@ -1436,18 +1436,31 @@ if [ -e "$KNOWLEDGE_DIR" ] || [ -L "$KNOWLEDGE_DIR" ]; then
         warn "Knowledge base: $KNOWLEDGE_DIR exists but is not a knowledge-base checkout (no .git); leaving it untouched"
         warn "  To recover: move it aside, run '$KNOWLEDGE_CLONE_CMD', then copy its updates/ back"
     fi
-elif ! command -v gh &>/dev/null || ! gh auth status &>/dev/null; then
-    warn "Knowledge base not cloned: gh is missing or not authenticated"
+elif ! command -v gh &>/dev/null || ! gh auth status --hostname github.com --active &>/dev/null; then
+    warn "Knowledge base not cloned: gh is missing or not authenticated to github.com"
     warn "  Run 'gh auth login', then: $KNOWLEDGE_CLONE_CMD"
 elif confirm "Clone the knowledge base ($KNOWLEDGE_REPO) to $KNOWLEDGE_DIR?"; then
-    if gh repo clone "$KNOWLEDGE_REPO" "$KNOWLEDGE_DIR" && [ -e "$KNOWLEDGE_DIR/.git" ]; then
-        info "  Knowledge base cloned to $KNOWLEDGE_DIR"
+    # Staged beside the destination: mv stays a same-filesystem rename, and cleanup
+    # never reaches a path that appeared while the prompt waited.
+    knowledge_parent="$(dirname "$KNOWLEDGE_DIR")"
+    knowledge_stage=""
+    if mkdir -p "$knowledge_parent" \
+        && knowledge_stage="$(mktemp -d "$knowledge_parent/.knowledge-clone.XXXXXX")" \
+        && gh repo clone "$KNOWLEDGE_REPO" "$knowledge_stage/repo" \
+        && [ -e "$knowledge_stage/repo/.git" ]; then
+        if [ -e "$KNOWLEDGE_DIR" ] || [ -L "$KNOWLEDGE_DIR" ]; then
+            warn "Knowledge base: $KNOWLEDGE_DIR appeared during the clone; leaving it untouched"
+        elif mv "$knowledge_stage/repo" "$KNOWLEDGE_DIR"; then
+            info "  Knowledge base cloned to $KNOWLEDGE_DIR"
+        else
+            warn "Knowledge base clone could not be moved into $KNOWLEDGE_DIR"
+            warn "  Retry manually: $KNOWLEDGE_CLONE_CMD"
+        fi
     else
-        # The path was absent before this attempt, so whatever is there now is a partial clone.
-        rm -rf "$KNOWLEDGE_DIR"
-        warn "Knowledge base clone failed (the gh account may lack access to $KNOWLEDGE_REPO); nothing was left at $KNOWLEDGE_DIR"
+        warn "Knowledge base clone failed (the gh account may lack access to $KNOWLEDGE_REPO); nothing was written to $KNOWLEDGE_DIR"
         warn "  Retry manually: $KNOWLEDGE_CLONE_CMD"
     fi
+    [ -z "$knowledge_stage" ] || rm -rf "$knowledge_stage"
 else
     info "  Skipping knowledge base clone."
 fi

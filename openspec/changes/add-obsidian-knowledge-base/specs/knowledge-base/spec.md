@@ -49,6 +49,11 @@ When `~/WebstormProjects/knowledge` already exists, the installer SHALL NOT clon
 - **WHEN** the installer runs and `~/WebstormProjects/knowledge` exists without `.git`
 - **THEN** it warns that the path is not a knowledge-base checkout and leaves its contents untouched
 
+#### Scenario: Path appears while the clone prompt waits
+
+- **WHEN** the path is absent at the check, appears before the clone finishes, and the clone then succeeds or fails
+- **THEN** the installer clones into a staging directory beside the path, warns, leaves the path's contents untouched, and removes only the staging directory
+
 ### Requirement: The Obsidian CLI registration is checked
 
 On macOS, when `/Applications/Obsidian.app` exists, the installer SHALL warn when `/usr/local/bin/obsidian` does not resolve to the app's bundled CLI, or when Obsidian's `obsidian.json` lacks `"cli": true`. The warning SHALL say how to turn the CLI on: Settings → General → Command line interface. The installer SHALL NOT create the symlink or change Obsidian's settings.

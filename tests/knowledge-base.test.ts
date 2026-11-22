@@ -85,6 +85,7 @@ type Options = {
     gh?: "missing" | "unauthenticated" | "authenticated";
     clone?: "succeeds" | "fails";
     reply?: "yes" | "no";
+    appearsDuringPrompt?: boolean;
     setup?: (paths: Paths) => Promise<void>;
 };
 
@@ -166,7 +167,14 @@ async function runGroup(options: Options = {}) {
 info() { printf 'INFO: %s\\n' "$*"; }
 warn() { printf 'WARN: %s\\n' "$*"; }
 error() { printf 'ERROR: %s\\n' "$*"; ERRORS=$((ERRORS + 1)); }
-confirm() { printf 'CONFIRM: %s\\n' "$1"; [ "$CONFIRM_REPLY" = yes ]; }
+confirm() {
+    printf 'CONFIRM: %s\\n' "$1"
+    if [ -n "$APPEARS_DURING_PROMPT" ]; then
+        mkdir -p "$KNOWLEDGE_DIR"
+        printf 'kept\\n' > "$KNOWLEDGE_DIR/note.md"
+    fi
+    [ "$CONFIRM_REPLY" = yes ]
+}
 ${group()}
 printf 'END ERRORS=%s\\n' "$ERRORS"
 `,
@@ -178,6 +186,7 @@ printf 'END ERRORS=%s\\n' "$ERRORS"
         GH_AUTH: options.gh ?? "authenticated",
         GH_CLONE: options.clone ?? "succeeds",
         CONFIRM_REPLY: options.reply ?? "yes",
+        APPEARS_DURING_PROMPT: options.appearsDuringPrompt ? "1" : "",
         KNOWLEDGE_DIR: paths.knowledge,
         OBSIDIAN_APP: paths.app,
         OBSIDIAN_CLI_LINK: paths.link,
@@ -192,13 +201,32 @@ printf 'END ERRORS=%s\\n' "$ERRORS"
     };
 }
 
+function cloneTarget(log: string): string {
+    const line = log.split("\n").find((entry) => entry.startsWith(`${cloneCommand} `));
+    expect(line).toBeDefined();
+    return line!.slice(cloneCommand.length + 1);
+}
+
+function expectStagedClone(log: string, paths: Paths) {
+    const target = cloneTarget(log);
+    expect(path.dirname(path.dirname(target))).toBe(path.dirname(paths.knowledge));
+    expect(path.basename(path.dirname(target))).toStartWith(".knowledge-clone.");
+    expect(path.basename(target)).toBe("repo");
+}
+
+async function stagingLeftovers(paths: Paths): Promise<string[]> {
+    const entries = await readdir(path.dirname(paths.knowledge));
+    return entries.filter((entry) => entry.startsWith(".knowledge-clone."));
+}
+
 describe("knowledge-base clone", () => {
     test("absent path with an authenticated gh clones the fixed owner after confirmation", async () => {
         const { paths, output, log } = await runGroup();
         expect(output).toContain("CONFIRM: Clone the knowledge base");
-        expect(log).toContain("gh auth status");
-        expect(log).toContain(`${cloneCommand} ${paths.knowledge}`);
+        expect(log).toContain("gh auth status --hostname github.com --active");
+        expectStagedClone(log, paths);
         expect(existsSync(path.join(paths.knowledge, ".git"))).toBe(true);
+        expect(await stagingLeftovers(paths)).toEqual([]);
         expect(output).toContain(`INFO:   Knowledge base cloned to ${paths.knowledge}`);
         expect(output).not.toContain("WARN:");
     });
@@ -224,14 +252,31 @@ describe("knowledge-base clone", () => {
 
     test("a failed clone warns and leaves no partial checkout", async () => {
         const { paths, output, log } = await runGroup({ clone: "fails" });
-        expect(log).toContain(`${cloneCommand} ${paths.knowledge}`);
+        expectStagedClone(log, paths);
         expect(output).toContain("WARN: Knowledge base clone failed");
         expect(output).toContain(`Retry manually: ${cloneCommand} ${paths.knowledge}`);
         expect(output).not.toContain("present");
         expect(output).not.toContain("cloned to");
         expect(existsSync(paths.knowledge)).toBe(false);
         expect(existsSync(path.dirname(paths.knowledge))).toBe(true);
+        expect(await stagingLeftovers(paths)).toEqual([]);
     });
+
+    // Guards the race where the confirm prompt waited while the vault was created elsewhere,
+    // and the old cleanup deleted it.
+    test.each(["succeeds", "fails"] as const)(
+        "a path that appears during the prompt is left untouched when the clone %s",
+        async (clone) => {
+            const { paths, output } = await runGroup({ clone, appearsDuringPrompt: true });
+            expect(output).toContain(
+                clone === "succeeds" ? "appeared during the clone" : "clone failed",
+            );
+            expect(output).not.toContain("cloned to");
+            expect(await readdir(paths.knowledge)).toEqual(["note.md"]);
+            expect(await readFile(path.join(paths.knowledge, "note.md"), "utf8")).toBe("kept\n");
+            expect(await stagingLeftovers(paths)).toEqual([]);
+        },
+    );
 
     test("declining skips the clone and reports it", async () => {
         const { paths, output, log } = await runGroup({ reply: "no" });
@@ -243,7 +288,7 @@ describe("knowledge-base clone", () => {
 
     test.each(["personal", "work"])("the %s render contains the step", (machineType) => {
         const slice = group(machineType);
-        expect(slice).toContain(`gh repo clone "$KNOWLEDGE_REPO" "$KNOWLEDGE_DIR"`);
+        expect(slice).toContain(`gh repo clone "$KNOWLEDGE_REPO" "$knowledge_stage/repo"`);
         expect(slice).toContain('KNOWLEDGE_REPO="pabloimrik17/knowledge"');
     });
 });
