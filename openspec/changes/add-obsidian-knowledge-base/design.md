@@ -80,7 +80,7 @@ There is no official Obsidian MCP server. The community servers require the Loca
 
 Found by 5.2's `chezmoi diff`. The merge replaced each managed `hooks.<Event>` array wholesale. Rex (`rex skill setup`, or the app's Settings → Integrations → Coding Agents) adds a `SessionStart` group running `rex __internal session-start`, which tells the agent its Rex session and pane. Every apply deleted it; Rex re-added it.
 
-New rule, mirroring AoE's installer: per managed event, drop live groups that are AoE-owned (every command carries `# aoe-hooks`) or equal to a managed group. Keep the rest in live order, then append the managed groups. A repeat merge is byte-identical.
+New rule, mirroring AoE's installer: per managed event, drop live groups that are AoE-owned (every command is one AoE v1.14.0's `is_aoe_hook_command` claims: it ends in `0 # aoe-hooks` once trailing quotes and whitespace are stripped, or it contains `aoe-hooks/$AOE_INSTANCE_ID`) or equal to a managed group. Keep the rest in live order, then append the managed groups. A repeat merge is byte-identical.
 
 - **Alternative: manage Rex's hook in the template.** Rejected. Rex changes its hook text (its Codex hook label changed in server/0.1.0-preview.21, 2026-11-17), and `rex skill status` would report "outdated".
 - **Alternative: allowlist known foreign writers.** Rejected. Every new tool needs a line, and the next one fails silently.
