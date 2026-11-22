@@ -70,6 +70,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **AI Tooling** | [Plannotator](https://plannotator.ai/)                                          | Local plan/code reviews and an async Inbox for agent questions and files                                   |
 | **AI Tooling** | [CodeRabbit](https://www.coderabbit.ai/)                                        | AI code review CLI                                                                                         |
 | **Network**    | [Tailscale](https://tailscale.com/)                                             | Mesh VPN (WireGuard-based) for secure device-to-device networking                                          |
+| **Knowledge**  | [Obsidian](https://obsidian.md/)                                                | Knowledge base editor with its official CLI and agent skills; vault at `~/WebstormProjects/knowledge`      |
 
 ## MCP Servers
 
@@ -146,6 +147,10 @@ recipient in `.chezmoi.toml.tmpl` in sync. Losing the identity makes encrypted a
     personal machines enable auto-switch once from the menu after the dry-run; see
     [Section 11 of the manual](docs/manual.html#claude) for the complete account, toggle,
     validation, and recovery workflow.
+
+    Run `gh auth login` first: the installer clones the private `pabloimrik17/knowledge` repo to
+    `~/WebstormProjects/knowledge` (never pulled; Obsidian Git owns sync). Then turn on the Obsidian
+    CLI in Obsidian under Settings → General → Command line interface.
 
 4. Open the Plannotator Inbox:
 
