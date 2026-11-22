@@ -5039,9 +5039,10 @@
                                     self-gating session-status hooks across eight events, baked into
                                     <code>~/.claude/settings.json</code>, report Claude state to AoE
                                     (no-op when <code>$AOE_INSTANCE_ID</code> is unset). An apply
-                                    replaces only AoE's hook groups (every command tagged
-                                    <code># aoe-hooks</code>); groups other tools add, such as Rex's
-                                    <code>SessionStart</code> hook, survive
+                                    replaces only the hook groups AoE itself claims (every command
+                                    ends in <code>0 # aoe-hooks</code> or carries the legacy
+                                    <code>aoe-hooks/$AOE_INSTANCE_ID</code> path); groups other
+                                    tools add, such as Rex's <code>SessionStart</code> hook, survive
                                 </td>
                             </tr>
                             <tr>

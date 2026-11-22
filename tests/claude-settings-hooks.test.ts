@@ -129,6 +129,27 @@ describe("hooks.<Event> merge by matcher group", () => {
         expect(hooks.Stop).toEqual([mixed, ...managed.Stop]);
     });
 
+    test("foreign command mentioning the sentinel mid-string is kept", () => {
+        const mention: Group = {
+            hooks: [{ type: "command", command: "echo '# aoe-hooks marks AoE groups' >> log" }],
+        };
+        const { hooks } = merge({ hooks: { Stop: [mention] } });
+        expect(hooks.Stop).toEqual([mention, ...managed.Stop]);
+    });
+
+    test("legacy AoE group with only the path marker is replaced", () => {
+        const legacy: Group = {
+            hooks: [
+                {
+                    type: "command",
+                    command: `sh -c 'mkdir -p "/tmp/aoe-hooks/$AOE_INSTANCE_ID"; printf idle > status'`,
+                },
+            ],
+        };
+        const { hooks } = merge({ hooks: { Stop: [legacy] } });
+        expect(hooks.Stop).toEqual(managed.Stop);
+    });
+
     test("live copy of a managed group is not duplicated", () => {
         const { hooks } = merge({ hooks: { Notification: managed.Notification } });
         expect(hooks.Notification).toEqual(managed.Notification);

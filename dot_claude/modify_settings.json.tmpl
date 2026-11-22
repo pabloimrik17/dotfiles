@@ -68,6 +68,7 @@ fi
 prog="$work/merge.py"
 cat >"$prog" <<'PYEOF'
 import json
+import re
 import sys
 from collections import OrderedDict
 
@@ -550,16 +551,25 @@ def overlay(live, managed, path):
             live[key] = value
 
 
-AOE_SENTINEL = "# aoe-hooks"
+# Mirrors AoE v1.14.0's `is_aoe_hook_command` (src/hooks/mod.rs). The trailer is
+# anchored so `# aoe-hooks` inside an echo stays foreign; the path catches legacy
+# AoE commands that carry no trailer.
+AOE_TRAILER = "0 # aoe-hooks"
+AOE_LEGACY_PATH = "aoe-hooks/$AOE_INSTANCE_ID"
+AOE_TRAILING_JUNK = re.compile(r"[\s'\"]+\Z")
+
+
+def aoe_command(command):
+    return isinstance(command, str) and (
+        AOE_TRAILING_JUNK.sub("", command).endswith(AOE_TRAILER) or AOE_LEGACY_PATH in command
+    )
 
 
 def aoe_owned(group):
-    # AoE's own sweep rule: a group is AoE's when every command carries the
-    # sentinel. A group mixing in a foreign command is not AoE's to replace.
+    # AoE's own sweep rule: a group is AoE's when every command is. A group
+    # mixing in a foreign command is not AoE's to replace.
     hooks = group.get("hooks") if isinstance(group, dict) else None
-    return bool(hooks) and all(
-        isinstance(h, dict) and AOE_SENTINEL in str(h.get("command", "")) for h in hooks
-    )
+    return bool(hooks) and all(isinstance(h, dict) and aoe_command(h.get("command")) for h in hooks)
 
 
 def merge_hook_groups(live_groups, managed_groups):
