@@ -119,3 +119,12 @@ The Codex plugin list SHALL include `obsidian@obsidian-skills` from the `obsidia
 
 - **WHEN** a new Codex session starts after `obsidian@obsidian-skills` is installed
 - **THEN** the session discovers the plugin's `obsidian-cli` skill
+
+### Requirement: Expo installs in Codex
+
+The Codex plugin list SHALL include `expo@openai-curated` from the built-in curated marketplace, so Codex gets the Expo skills without adding a custom marketplace.
+
+#### Scenario: Plugin missing
+
+- **WHEN** the installer runs, `expo@openai-curated` is not installed and the user confirms
+- **THEN** it runs `codex plugin add expo@openai-curated` and no `codex plugin marketplace add`

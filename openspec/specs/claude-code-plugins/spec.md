@@ -62,6 +62,15 @@ The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL 
 - **WHEN** `chezmoi apply` is run on a machine with an older version of the managed settings file
 - **THEN** the file is updated to include `expo@expo-plugins` in `enabledPlugins`, and the deprecated entries `expo-app-design@expo-plugins`, `upgrading-expo@expo-plugins`, and `expo-deployment@expo-plugins` are no longer present
 
+### Requirement: The installer provisions the plugins the Expo marketplace publishes
+
+The package installer's Claude Code plugin list SHALL include `expo@expo-plugins` and `expo-experiments@expo-plugins`, and SHALL NOT include `expo-app-design@expo-plugins`, `upgrading-expo@expo-plugins` or `expo-deployment@expo-plugins`, which `expo/skills` no longer publishes.
+
+#### Scenario: Fresh machine setup
+
+- **WHEN** the installer runs on a machine without the Expo plugins and the user confirms
+- **THEN** it installs `expo@expo-plugins` and `expo-experiments@expo-plugins` and none of the removed plugins
+
 ### Requirement: Beads plugin is enabled by default
 
 The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"beads@beads-marketplace": true` in the `enabledPlugins` object.
