@@ -1,6 +1,6 @@
 ## Purpose
 
-Global installation of CodeRabbit agent skills (`code-review`, `autofix`) via `skills.sh` for use by AI coding agents.
+Global installation of CodeRabbit agent skills (`coderabbit-review`, renamed from upstream's `code-review`, and `autofix`) via `skills.sh` for use by AI coding agents.
 
 ## Requirements
 

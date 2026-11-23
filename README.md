@@ -69,6 +69,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **AI Tooling** | [Agent of Empires](https://github.com/njbrake/agent-of-empires)                 | tmux-native TUI for managing parallel AI agent sessions (`aoe`)                                            |
 | **AI Tooling** | [Plannotator](https://plannotator.ai/)                                          | Local plan/code reviews and an async Inbox for agent questions and files                                   |
 | **AI Tooling** | [CodeRabbit](https://www.coderabbit.ai/)                                        | AI code review CLI                                                                                         |
+| **AI Tooling** | [Greptile CLI](https://www.greptile.com/)                                       | AI code review CLI for committed branch changes; sign in with `greptile login`                             |
 | **Network**    | [Tailscale](https://tailscale.com/)                                             | Mesh VPN (WireGuard-based) for secure device-to-device networking                                          |
 | **Knowledge**  | [Obsidian](https://obsidian.md/)                                                | Knowledge base editor with its official CLI and agent skills; vault at `~/WebstormProjects/knowledge`      |
 
@@ -265,6 +266,6 @@ update-extra          # the rest: gh extensions, omz plugins, skills, plannotato
 
 Brew packages are upgraded **per package**, not in bulk: a changelog can carry a behaviour change, a removed flag, or a new key that lands in a chezmoi-managed file — see the `classify-tool-updates` skill. The install script freezes every declared formula, CLI cask and font cask at a pinned version and warns when a host differs from its `BREW_VERSIONS` row. If brew refuses because a pinned dependency is outdated (`aoe` needs `tmux`), upgrade that dependency first with `brew-upgrade-pinned`. A version that is wrong for this repo can also be held with a reason and exit condition; an installed held package is pinned, a missing one is not installed, and `brew-upgrade-pinned` refuses any hold the install script has recorded. The freeze and holds are declared in `run_onchange_install-packages.sh.tmpl`, so they apply on both machines when its rendered content changes.
 
-Self-updating tools (Claude Code, Codex, OpenCode, CodeRabbit) use their own update paths.
+Self-updating tools (Claude Code, Codex, OpenCode, CodeRabbit, Greptile CLI) use their own update paths.
 Repo-pinned tools such as claude-swap update through a reviewed pin change followed by
 `chezmoi apply`, never through `update-extra`.

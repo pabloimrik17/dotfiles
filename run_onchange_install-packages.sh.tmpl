@@ -1664,6 +1664,27 @@ else
 fi
 
 # ------------------------------------------------------------------
+# Group 6.6: Greptile CLI (global npm install; updates itself)
+# ------------------------------------------------------------------
+# Not the greptileai/tap formula: it depends on Homebrew's node, a second Node
+# that on the Intel host lands in /usr/local/bin and shadows nvm in
+# non-interactive shells.
+if command -v greptile &>/dev/null; then
+    info "greptile — already installed ($(greptile --version 2>/dev/null | head -n1)), skipping"
+elif ! command -v node &>/dev/null || ! command -v npm &>/dev/null; then
+    warn "node/npm is not available — skipping Greptile CLI install"
+elif ! [ "$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null)" -ge 22 ] 2>/dev/null; then
+    warn "Greptile CLI needs Node 22 or newer (found $(node --version 2>/dev/null)) — skipping install"
+elif confirm "Install the Greptile CLI globally via npm?"; then
+    info "  Installing greptile..."
+    if ! npm install -g greptile; then
+        error "Failed to install greptile"
+    fi
+else
+    info "Skipping Greptile CLI."
+fi
+
+# ------------------------------------------------------------------
 # Group 7: Plannotator CLI (serves OpenCode, Claude Code, and Codex)
 # ------------------------------------------------------------------
 # Keep these helpers available for the later Codex stdio reconciliation.
@@ -1754,7 +1775,6 @@ CC_PLUGINS=(
     "typescript-lsp@claude-plugins-official"
     "frontend-design@claude-plugins-official"
     "mattpocock-skills@mattpocock"
-    "code-review@claude-plugins-official"
     "commit-commands@claude-plugins-official"
     "claude-md-management@claude-plugins-official"
     "plugin-dev@claude-plugins-official"
@@ -1792,6 +1812,13 @@ CC_PLUGINS=(
 # its replacement is installed, so a declined or failed install keeps it working.
 CC_PLUGINS_RETIRED=(
     "mattpocock-skills@claude-plugins-official:mattpocock-skills@mattpocock"
+)
+
+# Plugins removed without a replacement, uninstalled whenever installed.
+# code-review@claude-plugins-official repeats the built-in /code-review and
+# stops on draft pull requests.
+CC_PLUGINS_REMOVED=(
+    "code-review@claude-plugins-official"
 )
 
 if command -v claude &>/dev/null; then
@@ -1842,6 +1869,11 @@ if command -v claude &>/dev/null; then
             PENDING_RT=$((PENDING_RT + 1))
         fi
     done
+    for plugin in "${CC_PLUGINS_REMOVED[@]}"; do
+        if plugin_installed "$plugin"; then
+            PENDING_RT=$((PENDING_RT + 1))
+        fi
+    done
 
     if [ "$PENDING_MP" -eq 0 ] && [ "$PENDING_PL" -eq 0 ] && [ "$PENDING_RT" -eq 0 ]; then
         info "CC marketplaces: $TOTAL_MP/$TOTAL_MP registered"
@@ -1873,6 +1905,11 @@ if command -v claude &>/dev/null; then
                 replacement="${pair#*:}"
                 if plugin_installed "$retired" && plugin_installed "$replacement"; then
                     run_claude_step "retire $retired" claude plugin uninstall "$retired"
+                fi
+            done
+            for plugin in "${CC_PLUGINS_REMOVED[@]}"; do
+                if plugin_installed "$plugin"; then
+                    run_claude_step "remove $plugin" claude plugin uninstall "$plugin"
                 fi
             done
         else
@@ -2439,19 +2476,31 @@ if confirm "Install global agent skills via skills.sh?"; then
             done
         }
 
+        # install_skill <repo> <name> [agents] [installed name]
         install_skill() {
             local repo="$1"
             local name="$2"
             local agents="$3"
-            if skill_installed "$name" "$agents"; then
-                info "  $name — already installed, skipping"
+            local installed="${4:-$2}"
+            local rename=()
+            [ "$installed" = "$name" ] || rename=(--rename "$installed")
+            if skill_installed "$installed" "$agents"; then
+                info "  $installed — already installed, skipping"
             elif [ -n "$agents" ]; then
                 # Intentional word splitting: $agents is a space-separated
                 # list for the variadic --agent flag.
-                run_claude_step "skill $name" npx -y skills add "$repo" --skill "$name" -g -y --agent $agents
+                run_claude_step "skill $installed" npx -y skills add "$repo" --skill "$name" "${rename[@]}" -g -y --agent $agents
             else
-                run_claude_step "skill $name" npx -y skills add "$repo" --skill "$name" -g -y
+                run_claude_step "skill $installed" npx -y skills add "$repo" --skill "$name" "${rename[@]}" -g -y
             fi
+        }
+
+        refresh_installed_skills() {
+            INSTALLED_SKILLS="$(npx -y skills list -g --json 2>/dev/null)" || INSTALLED_SKILLS=""
+        }
+
+        skills_query() {
+            [ -n "$INSTALLED_SKILLS" ] && echo "$INSTALLED_SKILLS" | jq -e "$1" >/dev/null 2>&1
         }
 
         install_skill "vercel-labs/skills" "find-skills"
@@ -2464,7 +2513,23 @@ if confirm "Install global agent skills via skills.sh?"; then
         install_skill "anthropics/skills" "pptx"
         install_skill "anthropics/skills" "docx"
         install_skill "anthropics/skills" "xlsx"
-        install_skill "coderabbitai/skills" "code-review"
+        # Renamed: a skill with the flat name `code-review` shadows Claude
+        # Code's built-in /code-review (coderabbitai/skills#18).
+        install_skill "coderabbitai/skills" "code-review" "" "coderabbit-review"
+
+        # Drop the old unrenamed copy, only once its replacement is in.
+        refresh_installed_skills
+        if ! command -v jq &>/dev/null; then
+            if echo "$INSTALLED_SKILLS" | grep -q '"name": "code-review"'; then
+                warn "jq is not available to check the source of code-review — skipping removal of the old CodeRabbit copy"
+            fi
+        elif skills_query 'any(.[]; .name == "coderabbit-review")' \
+            && skills_query 'any(.[]; .name == "code-review" and .source == "coderabbitai/skills" and .renamedFrom == null)'; then
+            info "  code-review — removing the old CodeRabbit copy, now coderabbit-review"
+            run_claude_step "remove old code-review" npx -y skills remove code-review -g -y
+            refresh_installed_skills
+        fi
+
         install_skill "coderabbitai/skills" "autofix"
         install_skill "slidevjs/slidev" "slidev"
         install_skill "gluestack/agent-skills" "gluestack-ui-v5" "claude-code opencode junie codex"
@@ -2473,6 +2538,19 @@ if confirm "Install global agent skills via skills.sh?"; then
         install_skill "greptileai/skills" "check-pr" "claude-code opencode junie codex"
         install_skill "greptileai/skills" "cli-review" "claude-code opencode junie codex"
         install_skill "mattpocock/skills" "ask-matt" "opencode junie"
+        # skills.sh keeps one folder per flat name. Installing over another
+        # source's code-review would hand Claude Code's surviving link to
+        # Matt's skill, and the lock would stop naming CodeRabbit, so the
+        # removal above could never run again.
+        if [ -z "$INSTALLED_SKILLS" ]; then
+            warn "  code-review — skipped: the skills list is unavailable, so a code-review from another source cannot be ruled out"
+        elif ! command -v jq &>/dev/null; then
+            warn "  code-review — skipped: jq is not available to check the source of an installed code-review"
+        elif skills_query 'any(.[]; .name == "code-review" and .source != "mattpocock/skills")'; then
+            warn "  code-review — skipped: a code-review from another source is still installed; Matt Pocock's would replace it"
+        else
+            install_skill "mattpocock/skills" "code-review" "opencode junie"
+        fi
         install_skill "mattpocock/skills" "diagnosing-bugs" "opencode junie"
         install_skill "mattpocock/skills" "grill-with-docs" "opencode junie"
         install_skill "mattpocock/skills" "triage" "opencode junie"
@@ -2502,6 +2580,9 @@ if confirm "Install global agent skills via skills.sh?"; then
 else
     info "Skipping agent skills."
 fi
+if [ -e "$HOME/.claude/skills/code-review" ] || [ -L "$HOME/.claude/skills/code-review" ]; then
+    warn "$HOME/.claude/skills/code-review exists and shadows Claude Code's built-in /code-review"
+fi
 # ------------------------------------------------------------------
 # Manual install instructions (always printed)
 # ------------------------------------------------------------------
@@ -2516,6 +2597,7 @@ info "  - 1Password for Safari: install from the Mac App Store (Safari extension
 info "  - CodeRabbit: authenticates on first use; sign in explicitly with 'coderabbit auth login' (browser sign-in also selects your org; 'coderabbit auth org' switches orgs)"
 info "  - CodeRabbit setup check: run 'coderabbit doctor' to verify auth, network, git state, and config"
 info "  - Codex: run 'codex' for first-use authentication; update with 'codex update' or rerun the standalone installer"
+info "  - Greptile CLI: sign in with 'greptile login', or set GREPTILE_API_KEY for non-interactive use; it updates itself with 'greptile update'"
 info "  - Atlassian MCP: requires OAuth authentication — run 'claude mcp get atlassian' or use on first invocation"
 info "  - Figma MCP: requires OAuth authentication — run 'claude mcp get figma' or use on first invocation"
 print_linear_mcp_guidance
@@ -2552,6 +2634,8 @@ info "    - CodeRabbit: curl -fsSL https://cli.coderabbit.ai/install.sh | sh  (o
 info "    - Codex: curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh  (official standalone installer; installs to ~/.local/bin)"
 info "      Authenticate on first use: codex"
 info "      Update: codex update  (or rerun the standalone installer)"
+info "    - Greptile CLI: npm install -g greptile  (needs Node 22 or newer; updates itself with 'greptile update')"
+info "      Sign in: greptile login  (or set GREPTILE_API_KEY for non-interactive use)"
 print_linear_mcp_guidance
 print_linear_cli_guidance
 print_gws_guidance
@@ -2612,7 +2696,7 @@ info "    npx -y skills add anthropics/skills --skill pdf -g -y"
 info "    npx -y skills add anthropics/skills --skill pptx -g -y"
 info "    npx -y skills add anthropics/skills --skill docx -g -y"
 info "    npx -y skills add anthropics/skills --skill xlsx -g -y"
-info "    npx -y skills add coderabbitai/skills --skill code-review -g -y"
+info "    npx -y skills add coderabbitai/skills --skill code-review --rename coderabbit-review -g -y"
 info "    npx -y skills add coderabbitai/skills --skill autofix -g -y"
 info "    npx -y skills add slidevjs/slidev --skill slidev -g -y"
 info "    npx -y skills add gluestack/agent-skills --skill gluestack-ui-v5 -g -y --agent claude-code opencode junie codex"
@@ -2620,7 +2704,7 @@ info "    npx -y skills add agavra/tuicr --skill tuicr -g -y --agent claude-code
 info "    npx -y skills add greptileai/skills --skill greploop -g -y --agent claude-code opencode junie codex"
 info "    npx -y skills add greptileai/skills --skill check-pr -g -y --agent claude-code opencode junie codex"
 info "    npx -y skills add greptileai/skills --skill cli-review -g -y --agent claude-code opencode junie codex"
-info "    npx -y skills add mattpocock/skills --skill ask-matt --skill diagnosing-bugs --skill grill-with-docs --skill triage --skill improve-codebase-architecture --skill setup-matt-pocock-skills --skill tdd --skill to-spec --skill to-tickets --skill wayfinder --skill implement --skill prototype --skill research --skill domain-modeling --skill codebase-design --skill wizard --skill grill-me --skill grilling --skill handoff --skill teach --skill to-questionnaire --skill wait-what --skill writing-for-agents -g -y --agent opencode junie"
+info "    npx -y skills add mattpocock/skills --skill ask-matt --skill code-review --skill diagnosing-bugs --skill grill-with-docs --skill triage --skill improve-codebase-architecture --skill setup-matt-pocock-skills --skill tdd --skill to-spec --skill to-tickets --skill wayfinder --skill implement --skill prototype --skill research --skill domain-modeling --skill codebase-design --skill wizard --skill grill-me --skill grilling --skill handoff --skill teach --skill to-questionnaire --skill wait-what --skill writing-for-agents -g -y --agent opencode junie"
 info "    npx -y skills add typesafe-ai/skills --skill typesafe-ai -g -y --agent opencode junie codex"
 info ""
 
