@@ -71,6 +71,15 @@ The package installer's Claude Code plugin list SHALL include `expo@expo-plugins
 - **WHEN** the installer runs on a machine without the Expo plugins and the user confirms
 - **THEN** it installs `expo@expo-plugins` and `expo-experiments@expo-plugins` and none of the removed plugins
 
+### Requirement: Expo experiments plugin is enabled by default
+
+The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"expo-experiments@expo-plugins": true` in the `enabledPlugins` object.
+
+#### Scenario: Fresh machine setup
+
+- **WHEN** `chezmoi apply` is run on a machine without Claude Code settings
+- **THEN** `~/.claude/settings.json` lists `expo-experiments@expo-plugins` in `enabledPlugins`
+
 ### Requirement: Beads plugin is enabled by default
 
 The Claude Code settings dotfile (`dot_claude/modify_settings.json.tmpl`) SHALL include `"beads@beads-marketplace": true` in the `enabledPlugins` object.
