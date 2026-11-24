@@ -2,7 +2,7 @@
 
 ### Requirement: Account enrollment follows the immutable machine type
 
-The guided setup SHALL use native claude-swap account aliases. A personal machine SHALL contain the required `personal`, `work` and `work2`, SHALL permit the optional `personal2`, and SHALL finish its first enrollment with `personal` active. Completeness SHALL depend only on the required aliases, never on which account is active. A work machine SHALL contain only the required `work` and `work2` and SHALL finish its first enrollment with `work` active. The guide SHALL warn not to run `/logout` before capturing the current account.
+The guided setup SHALL use native claude-swap account aliases. A personal machine SHALL contain the required `personal`, `work` and `work2`, SHALL permit the optional `personal2`, and SHALL finish its first enrollment with `personal` active. Its completeness SHALL depend only on the required aliases, never on which account is active. A work machine SHALL contain only the required `work` and `work2`, SHALL count as complete only while one of them is the current Claude login, and SHALL finish its first enrollment with `work` active. The guide SHALL warn not to run `/logout` before capturing the current account.
 
 #### Scenario: Personal machine completes enrollment
 
@@ -33,6 +33,12 @@ The guided setup SHALL use native claude-swap account aliases. A personal machin
 - **THEN** `claude-swap-setup --check` reports the setup complete
 - **AND** no command switches the active account
 
+#### Scenario: Work machine with an unmanaged login
+
+- **WHEN** a work machine has `work` and `work2` enrolled and the current Claude login is neither
+- **THEN** `claude-swap-setup --check` reports the setup incomplete
+- **AND** the guided setup switches to `work` without capturing anything or adding `--auto-switch`
+
 #### Scenario: Existing machine lacks work2
 
 - **WHEN** a personal or work machine enrolled before `work2` existed has every other required account
@@ -41,7 +47,7 @@ The guided setup SHALL use native claude-swap account aliases. A personal machin
 
 ### Requirement: Manual choice and restart preserve the active identity
 
-Manual switches SHALL change the global default identity, not launch an isolated `cswap run` session. While autoswitch is on, a manual choice SHALL hold only until the engine prefers another account: a usable higher tier, or within a tier a usable account whose weekly window resets sooner. To keep the choice, the user SHALL pause Auto-switch in the menu. Restarting the menu or Mac, or re-running setup, SHALL preserve the current active identity and persisted anti-flap state rather than forcing the first-enrollment default.
+Manual switches SHALL change the global default identity, not launch an isolated `cswap run` session. While autoswitch is on, a manual choice SHALL hold only until the engine prefers another account: a usable higher tier, or within a tier a usable account whose weekly window resets sooner. To keep the choice, the user SHALL pause Auto-switch in the menu. Restarting the menu or Mac, or re-running setup, SHALL preserve the current active identity and persisted anti-flap state rather than forcing the first-enrollment default. The one exception is an unmanaged login on a work machine, which setup replaces with `work`.
 
 #### Scenario: User switches globally to work
 
@@ -205,13 +211,24 @@ The documented operating contract SHALL state that the policy keeps the work Mac
 
 ### Requirement: Setup activates autoswitch through the upstream service
 
-Dotfiles SHALL leave `menubar_settings.json` application-owned. On both machine types, the setup run that completes a missing required account SHALL run a side-effect-free dry run and then install the service with `cswap menubar --install-service --auto-switch`. Other runs SHALL install or refresh the service without the flag. Pause, notifications and manual controls SHALL use the upstream menu rather than a second daemon or notification layer.
+Dotfiles SHALL leave `menubar_settings.json` application-owned. On both machine types, the setup run that completes a missing required account SHALL run a side-effect-free dry run and then install the service with `cswap menubar --install-service --auto-switch`. Later setup runs SHALL retry it until one succeeds. Other runs SHALL install or refresh the service without the flag. Pause, notifications and manual controls SHALL use the upstream menu, not a second daemon or notification layer.
 
 #### Scenario: Activation follows the dry run
 
 - **WHEN** a guided setup run enrolls the last missing required account on a personal or work machine
 - **THEN** it runs `cswap auto --once --dry-run` before installing the service with `--auto-switch`
 - **AND** it does not edit `menubar_settings.json`
+
+#### Scenario: Failed activation is retried
+
+- **WHEN** the run that captures the last missing required account fails before installing the service, a failed dry run included, and a later setup run starts on the now complete setup
+- **THEN** that later run runs the dry run and installs the service with `--auto-switch`
+- **AND** the run after it uses no flag
+
+#### Scenario: Repair run survives a failed dry run
+
+- **WHEN** `cswap auto --once --dry-run` fails during a repair, `--reauth` or `--enroll personal2` run on a complete setup
+- **THEN** the setup warns and still installs or refreshes the service without `--auto-switch`
 
 #### Scenario: Repair run keeps a pause
 

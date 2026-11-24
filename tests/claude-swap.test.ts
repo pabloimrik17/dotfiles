@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, setDefaultTimeout, test } from "bun:test";
-import { chmod, mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { access, chmod, mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -221,6 +221,29 @@ function activeAlias(state: { activeAccountNumber: number | null; accounts: Fake
     return state.accounts.find((account) => account.number === state.activeAccountNumber)?.alias;
 }
 
+async function prepareAutoswitchState(
+    root: string,
+    options: { dryRunExitCode?: number; autoswitchPending?: boolean },
+): Promise<{ env: Record<string, string>; pendingMarker: string }> {
+    const stateHome = path.join(root, ".local", "state");
+    const pendingMarker = path.join(stateHome, "dotfiles", "claude-swap-autoswitch-pending");
+    if (options.autoswitchPending) {
+        await mkdir(path.dirname(pendingMarker), { recursive: true });
+        await writeFile(pendingMarker, "");
+    }
+    return {
+        env: { XDG_STATE_HOME: stateHome, CSWAP_DRY_RUN_EXIT: String(options.dryRunExitCode ?? 2) },
+        pendingMarker,
+    };
+}
+
+function fileExists(file: string): Promise<boolean> {
+    return access(file).then(
+        () => true,
+        () => false,
+    );
+}
+
 async function runSetupFixture(options: {
     role: "personal" | "work";
     accounts?: FakeAccount[];
@@ -230,12 +253,15 @@ async function runSetupFixture(options: {
     malformedList?: boolean;
     includeClaude?: boolean;
     loginAtPrompt?: "new" | "unchanged" | number;
+    dryRunExitCode?: number;
+    autoswitchPending?: boolean;
 }): Promise<{
     exitCode: number;
     stdout: string;
     stderr: string;
     log: string[];
     state: { activeAccountNumber: number | null; accounts: FakeAccount[] };
+    autoswitchPending: boolean;
 }> {
     const root = await mkdtemp(path.join(tmpdir(), "claude-swap-setup-"));
     temporaryDirectories.push(root);
@@ -245,6 +271,7 @@ async function runSetupFixture(options: {
     const logFile = path.join(root, "commands.log");
     const setup = path.join(root, "claude-swap-setup");
     await mkdir(bin);
+    const autoswitchState = await prepareAutoswitchState(root, options);
 
     const accounts = options.accounts ?? [];
     const activeAccountNumber = options.activeAccountNumber ?? null;
@@ -356,7 +383,7 @@ case "$1" in
         ' "$CSWAP_STATE" >"$CSWAP_STATE.tmp" && /bin/mv "$CSWAP_STATE.tmp" "$CSWAP_STATE"
         ;;
     auto)
-        exit 2
+        exit "$CSWAP_DRY_RUN_EXIT"
         ;;
     menubar)
         if [ "$2" = "--install-service" ]; then
@@ -397,6 +424,7 @@ esac
     const result = run([setup, ...(options.args ?? [])], {
         env: {
             HOME: root,
+            ...autoswitchState.env,
             PATH: pathValue,
             COMMAND_LOG: logFile,
             CSWAP_STATE: stateFile,
@@ -417,6 +445,7 @@ esac
         stderr: result.stderr,
         log: commandLog.trim() ? commandLog.trim().split("\n") : [],
         state: JSON.parse(await readFile(stateFile, "utf8")),
+        autoswitchPending: await fileExists(autoswitchState.pendingMarker),
     };
 }
 
@@ -697,6 +726,18 @@ describe("managed claude-swap policy", () => {
 });
 
 describe("pinned claude-swap installer", () => {
+    test("CI installs the same claude-swap pin as the installer", async () => {
+        const installer = await readFile(installerTemplate, "utf8");
+        const ci = await readFile(
+            path.join(repositoryRoot, ".github", "workflows", "ci.yml"),
+            "utf8",
+        );
+        const pin = installer.match(/^CLAUDE_SWAP_VERSION="([^"]+)"$/m)?.[1];
+
+        expect(pin).toBeDefined();
+        expect(ci).toContain(`'claude-swap[menubar]==${pin}'`);
+    });
+
     test("skips an exact menubar-capable version without requiring uv", async () => {
         const result = await runInstallerHelper({ cswapVersion: "1.2.0" });
 
@@ -1090,6 +1131,101 @@ describe("re-runnable claude-swap setup", () => {
         expect(result.stderr).toContain("Nothing was removed or disabled");
         expect(result.log.some((command) => /^(remove|disable)\b/.test(command))).toBe(false);
         expect(result.state.accounts).toHaveLength(3);
+    });
+
+    test("keeps Auto-switch pending when the completing run's dry run fails", async () => {
+        const result = await runSetupFixture({
+            role: "work",
+            accounts: workAccounts({ active: 1, work2: false }),
+            activeAccountNumber: 1,
+            input: "\n",
+            dryRunExitCode: 1,
+        });
+
+        expect(result.exitCode).not.toBe(0);
+        expect(result.log).toContain("add --alias work2");
+        expect(result.log.some((command) => command.startsWith("menubar --install-service"))).toBe(
+            false,
+        );
+        expect(result.stderr).toContain("re-run claude-swap-setup to turn it on");
+        expect(result.autoswitchPending).toBe(true);
+    });
+
+    test.each(["personal", "work"] as const)(
+        "turns Auto-switch on in the next run on a complete %s machine with a pending activation",
+        async (role) => {
+            const accounts =
+                role === "personal" ? personalAccounts({ active: 2 }) : workAccounts({ active: 1 });
+            const result = await runSetupFixture({
+                role,
+                accounts,
+                activeAccountNumber: accounts.find((account) => account.active)!.number,
+                autoswitchPending: true,
+            });
+
+            expect(result.exitCode, result.stderr).toBe(0);
+            expect(result.log.some((command) => command.startsWith("add "))).toBe(false);
+            expect(result.log.indexOf("auto --once --dry-run")).toBeLessThan(
+                result.log.indexOf("menubar --install-service --auto-switch"),
+            );
+            expect(result.autoswitchPending).toBe(false);
+        },
+    );
+
+    test("clears the pending activation once the completing run succeeds", async () => {
+        const result = await runSetupFixture({
+            role: "work",
+            accounts: workAccounts({ active: 1, work2: false }),
+            activeAccountNumber: 1,
+            input: "\n",
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.log).toContain("menubar --install-service --auto-switch");
+        expect(result.autoswitchPending).toBe(false);
+    });
+
+    test.each([
+        ["personal", personalAccounts({ active: 2 }), 2],
+        ["work", workAccounts({ active: 1 }), 1],
+    ] as const)(
+        "warns and still refreshes the service when a %s repair run's dry run fails",
+        async (role, accounts, active) => {
+            const result = await runSetupFixture({
+                role,
+                accounts: [...accounts],
+                activeAccountNumber: active,
+                dryRunExitCode: 1,
+            });
+
+            expect(result.exitCode, result.stderr).toBe(0);
+            expect(result.stderr).toContain("WARNING: Autoswitch dry-run failed (exit 1)");
+            expect(result.log).toContain("menubar --install-service");
+            expect(result.log).not.toContain("menubar --install-service --auto-switch");
+        },
+    );
+
+    test("reports a work machine whose live login is unmanaged incomplete and switches to work", async () => {
+        const check = await runSetupFixture({
+            role: "work",
+            accounts: workAccounts({ active: null }),
+            activeAccountNumber: null,
+            args: ["--check"],
+        });
+        expect(check.exitCode).toBe(2);
+        expect(check.stdout).toContain("one of them must be the current Claude login");
+
+        const result = await runSetupFixture({
+            role: "work",
+            accounts: workAccounts({ active: null }),
+            activeAccountNumber: null,
+        });
+
+        expect(result.exitCode, result.stderr).toBe(0);
+        expect(result.log.some((command) => command.startsWith("add "))).toBe(false);
+        expect(result.log).toContain("switch work");
+        expect(result.log).not.toContain("menubar --install-service --auto-switch");
+        expect(activeAlias(result.state)).toBe("work");
     });
 
     test("runs the dry run before a repair install that keeps the autoswitch state", async () => {

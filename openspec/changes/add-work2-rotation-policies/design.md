@@ -44,7 +44,7 @@ The motivation is in proposal.md, Why. State on 2026-11-24:
 `work2` is required on both machine types:
 
 - the personal Mac requires `personal`, `work` and `work2`; `personal2` stays optional;
-- the work Mac requires exactly `work` and `work2`;
+- the work Mac requires exactly `work` and `work2`, and one of them must be the current login: setup switches an unmanaged login back to `work`, as the old `work`-active rule did;
 - `--enroll work2` and `--reauth work2` are valid on both.
 
 The first enrollment on a work Mac still ends on `work`. Adopting the already captured account 4 works through `cswap add --alias work2` (1.2.0 sets the alias in place) or a runtime `cswap alias`.
@@ -134,7 +134,8 @@ Both machine types use the existing `private_settings.json`:
 
 The menu service is installed with `cswap menubar --install-service --auto-switch` only when the run enrolled the last missing required account, after `cswap auto --once --dry-run`.
 
-- **Dry run.** It now runs on both machine types.
+- **Pending marker.** That run writes `$XDG_STATE_HOME/dotfiles/claude-swap-autoswitch-pending` before its first capture and removes it after the `--auto-switch` install. While it exists, every setup run passes the flag, so a run that fails after a capture is finished by the next one.
+- **Dry run.** It now runs on both machine types. A failure stops a run that passes `--auto-switch`; any other run warns and still refreshes the service.
 - **All other runs** (repair, `--reauth`, `--enroll personal2`, and the installer's pin-change refresh) install or refresh without a flag, so a menu pause survives them.
 - **`menubar_settings.json`** stays app-owned.
 - **Migration.** The work Mac turns autoswitch on for the first time when it enrolls `work2`. The personal Mac is already complete, with `work2` aliased, so nothing changes there.
@@ -155,7 +156,9 @@ Alternative rejected: keep asking the user for the menu toggle. A supported flag
 - `--enroll work2` and `--reauth work2` on both machine types;
 - adopting an unaliased login;
 - per-machine-type tiers and lines, and `--apply-policy` on a work machine;
-- `--auto-switch` only on the completing run;
+- `--auto-switch` only on the completing run, and on later runs while its activation is pending;
+- a failed dry run stopping only an activating run;
+- a work Mac with an unmanaged login reported incomplete and switched back to `work`;
 - the hold-out kept across `--reauth` with no restore call;
 - the offer hash covering both policy lines.
 
@@ -191,7 +194,8 @@ Criteria, in order:
 - [`personal2` lapses unnoticed] → The engine ignores the Free label, so the rule "unpaid month → `cswap disable personal2`" stays manual.
 - [1.2.0 is three days old] → Exact pin, tests against the live tool, rollback by pin revert.
 - [A work Mac that captured `work2` before this lands is reported non-compliant] → Nothing is deleted. Applying this change clears the error.
-- [The completing run fails after a capture, or `work2` was captured by hand: later runs see a complete setup and leave autoswitch off, since they cannot tell it from a pause] → Upstream warns `auto-switch: off` on each service refresh and the menu's health row shows it. The manual's recovery row gives `cswap menubar --install-service --auto-switch`.
+- [`work2` was captured by hand: setup sees a complete setup and leaves autoswitch off, since it cannot tell it from a pause] → Upstream warns `auto-switch: off` on each service refresh and the menu's health row shows it. The manual's recovery row gives `cswap menubar --install-service --auto-switch`. A completing run that fails after a capture is covered by the pending marker (D6).
+- [Autoswitch on can revert a `--reauth` login before the capture] → The prompt and the manual tell the user to pause Auto-switch first.
 
 ## Migration Plan
 

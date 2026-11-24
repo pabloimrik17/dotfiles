@@ -56,7 +56,9 @@ autoswitch.random.random = lambda: 0.5
 NOW = datetime(2026, 11, 4, 18, 0, tzinfo=timezone.utc).timestamp()
 HOUR = 3600.0
 DAY = 86400.0
-# Personal-Mac slot numbers are the real ones; the work Mac enrolls work first.
+# Personal-Mac slot numbers are the real ones, because sequence order breaks
+# within-tier ties. The setup tests number slots their own way: they never rank
+# accounts. The work Mac enrolls work first.
 SLOTS = {
     "personal": {"work": "1", "personal": "2", "personal2": "3", "work2": "4"},
     "work": {"work": "1", "work2": "2"},

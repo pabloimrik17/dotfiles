@@ -97,7 +97,7 @@ The dotfiles SHALL install a dedicated guided claude-swap setup command. After a
 
 #### Scenario: Unaliased login adopted as work2
 
-- **WHEN** the current Claude login is an enrolled account without an alias and the setup captures `work2`
+- **WHEN** on a personal machine the current Claude login is an enrolled account without an alias and the setup captures `work2`
 - **THEN** that account receives the `work2` alias in its existing slot
 - **AND** no second record is created
 

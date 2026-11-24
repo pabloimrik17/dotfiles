@@ -65,3 +65,11 @@
 - Verify on both Macs: `cswap priority`, `cswap threshold`, `cswap auto --once --dry-run`, and the menu health row.
 - Archive the change after review; close Beads `agentic-task-v4sb`.
 - Trial review after real weeks: `python3 -I simulation/log-weekly-stats.py ~/.claude-swap-backup/claude-swap.log <(cswap list --json)` against the design's D9 criteria. A retune goes through a new change.
+
+## 8. Review fixes
+
+- [x] 8.1 Pin CI's claude-swap install to 1.2.0 and test that `.github/workflows/ci.yml` matches the installer's `CLAUDE_SWAP_VERSION`.
+- [x] 8.2 Keep a pending-activation marker from the completing run's first capture until its `--auto-switch` install; later runs pass the flag while it exists. Verify with tests for a failed completing dry run, the retry on each machine type, and the marker cleared on success.
+- [x] 8.3 A failed dry run stops only an activating run; other runs warn and refresh the service. Verify with a repair-run test on each machine type.
+- [x] 8.4 Report a work machine incomplete when its live login is neither work account, and switch it back to `work` without `--auto-switch`. Verify with a `--check` and setup test.
+- [x] 8.5 Tell the user to pause Auto-switch before a `--reauth` login, in the prompt and the manual. Limit the unaliased-adoption scenario to personal machines, and reword the manual's dry-run flows.
