@@ -1,13 +1,16 @@
 #!/bin/bash
 
-# Role, pin, revision and rotation policy feed chezmoi's run_onchange hash.
+# Role, pin, revision and rotation policies feed chezmoi's run_onchange hash.
 # Bump SETUP_COMMAND_REVISION when the offer/check contract changes.
 MACHINE_TYPE={{ get . "machineType" | default "" | quote }}
-CLAUDE_SWAP_VERSION="0.29.0"
-SETUP_COMMAND_REVISION="2"
-{{ $policy := include "dot_local/bin/executable_claude-swap-setup.tmpl" | regexFind "(?m)^ROTATION_POLICY=\"[^\"\n]*\"$" -}}
-{{ if not $policy }}{{ fail "ROTATION_POLICY is missing from dot_local/bin/executable_claude-swap-setup.tmpl" }}{{ end -}}
+CLAUDE_SWAP_VERSION="1.2.0"
+SETUP_COMMAND_REVISION="3"
+{{ $setup := include "dot_local/bin/executable_claude-swap-setup.tmpl" -}}
+{{ range list "ROTATION_POLICY_PERSONAL" "ROTATION_POLICY_WORK" -}}
+{{ $policy := regexFind (printf "(?m)^%s=\"[^\"\n]*\"$" .) $setup -}}
+{{ if not $policy }}{{ fail (printf "%s is missing from dot_local/bin/executable_claude-swap-setup.tmpl" .) }}{{ end -}}
 {{ $policy }}
+{{ end -}}
 SETUP_COMMAND="$HOME/.local/bin/claude-swap-setup"
 
 info() {
@@ -36,13 +39,11 @@ if [ ! -x "$SETUP_COMMAND" ]; then
     exit 0
 fi
 
-if [ "$MACHINE_TYPE" = "personal" ]; then
-    if ! policy_output="$("$SETUP_COMMAND" --apply-policy </dev/null 2>&1)"; then
-        printf '%s\n' "$policy_output" >&2
-        info "claude-swap rotation policy was not applied; retry with: $SETUP_COMMAND --apply-policy"
-    elif [ -n "$policy_output" ]; then
-        printf '%s\n' "$policy_output"
-    fi
+if ! policy_output="$("$SETUP_COMMAND" --apply-policy </dev/null 2>&1)"; then
+    printf '%s\n' "$policy_output" >&2
+    info "claude-swap rotation policy was not applied; retry with: $SETUP_COMMAND --apply-policy"
+elif [ -n "$policy_output" ]; then
+    printf '%s\n' "$policy_output"
 fi
 
 check_output="$($SETUP_COMMAND --check 2>&1)"
@@ -77,4 +78,4 @@ fi
 
 # Referencing these values in output-free shell keeps the trigger inputs
 # explicit without changing user-visible behavior.
-: "$CLAUDE_SWAP_VERSION" "$SETUP_COMMAND_REVISION" "$ROTATION_POLICY"
+: "$CLAUDE_SWAP_VERSION" "$SETUP_COMMAND_REVISION" "$ROTATION_POLICY_PERSONAL" "$ROTATION_POLICY_WORK"

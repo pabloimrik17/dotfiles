@@ -1,0 +1,147 @@
+profile flat (work-Mac day factors), personal Mac at ceiling demand
+
+Work-Mac wall minutes at x1/x1.5/x2 (active exhausted and no other work account below W)
+S          W  L50            L60            L70            L80          
+best      95  0/0/0          0/0/0          0/0/19         0/0/21       
+best      98  0/0/0          0/0/0          0/0/0          0/0/0        
+wkfirst   95  0/0/0          0/0/0          0/0/19         0/0/21       
+wkfirst   98  0/0/0          0/0/0          0/0/0          0/0/0        
+consume   95  0/0/0          0/0/0          0/0/0          0/0/0        
+consume   98  0/0/0          0/0/0          0/0/0          0/0/0        
+pcf       95  0/0/0          0/0/0          0/0/0          0/0/0        
+pcf       98  0/0/0          0/0/0          0/0/0          0/0/0        
+off        -  L60 0/1198/2700  (status quo: work Mac on work only)
+
+Every run
+S        W   L   D     wall  @100 unserv  >=95   pmW%  surp/wk  p2@rst appS  sw wm/pm wm<10/<15 pm<10/<15 unused%@reset
+best      95  50 x1       0     0      0     0   2.07   60.8   95/95   10   0/36  0/0       0/0       w:13/13 w2:50/50
+best      95  50 x1.5     0     0      0     0   0.70   58.4   95/95    5   4/46  0/0       0/0       w:5/5 w2:5/5
+best      95  50 x2       0     0      0     0  21.28   30.3   95/97   20   4/31  0/0       0/1       w:5/5 w2:5/5
+best      95  60 x1       0     0      0     0   0.00   65.8   95/95    0   1/30  0/0       0/0       w:5/49 w2:24/12
+best      95  60 x1.5     0     0      0     0   0.00   64.4   95/95    0   4/32  0/0       1/1       w:5/5 w2:5/5
+best      95  60 x2       0     0      0    48  15.73   35.0   95/96   75   4/32  0/0       2/2       w:5/5 w2:5/3
+best      95  70 x1       0     0      0     0   0.00   66.8   95/95    0   1/25  0/0       0/0       w:5/49 w2:23/12
+best      95  70 x1.5     0     0      0     0   0.00   65.6   95/95    0   4/29  0/0       0/0       w:5/5 w2:5/5
+best      95  70 x2      19    19     21   292  11.27   41.4   95/95   72   5/28  0/0       0/0       w:5/3 w2:5/0
+best      95  80 x1       0     0      0     0   0.00   66.8   95/95    0   2/27  0/0       0/0       w:5/52 w2:20/5
+best      95  80 x1.5     0     0      0     0   0.00   66.8   95/95    0   4/26  0/0       0/0       w:5/5 w2:5/5
+best      95  80 x2      21    21     23   296  11.16   41.5   95/95   72   5/29  0/0       1/1       w:5/3 w2:5/0
+best      98  50 x1       0     0      0     0   2.07   60.8   95/95   10   0/36  0/0       0/0       w:13/13 w2:50/50
+best      98  50 x1.5     0     0      0   358   0.40   62.3   95/95    0   4/40  0/0       0/0       w:2/2 w2:2/2
+best      98  50 x2       0     0      0   269  14.88   36.8   95/95   20   4/36  0/0       1/1       w:2/2 w2:2/2
+best      98  60 x1       0     0      0   210   0.00   66.8   95/95    0   0/32  0/0       0/0       w:3/3 w2:52/51
+best      98  60 x1.5     0     0      0   359   0.00   65.2   95/95    0   4/31  0/0       1/1       w:2/2 w2:2/2
+best      98  60 x2       0     0      0   271  12.25   38.5   95/95   80   4/36  0/0       1/1       w:2/2 w2:2/2
+best      98  70 x1       0     0      0   252   0.00   66.8   95/95    0   0/26  0/0       0/0       w:2/2 w2:51/51
+best      98  70 x1.5     0     0      0   360   0.00   66.6   95/95    0   4/29  0/0       1/1       w:2/2 w2:2/2
+best      98  70 x2       0     0      0   280  11.27   41.1   95/95   80   4/32  0/0       2/2       w:2/2 w2:2/2
+best      98  80 x1       0     0      0   167   0.00   66.8   95/95    0   1/27  0/0       0/0       w:2/55 w2:20/4
+best      98  80 x1.5     0     0      0   360   0.00   66.8   95/95    0   4/25  0/0       0/0       w:2/2 w2:2/2
+best      98  80 x2       0     0      0   360  10.41   42.9   95/95   72   5/29  0/0       0/0       w:2/2 w2:2/2
+wkfirst   95  50 x1       0     0      0     0   2.07   60.8   95/95   10   0/36  0/0       0/0       w:13/13 w2:50/50
+wkfirst   95  50 x1.5     0     0      0     0   0.70   58.4   95/95    5   4/46  0/0       0/0       w:5/5 w2:5/5
+wkfirst   95  50 x2       0     0      0     0  21.28   30.3   95/97   20   4/31  0/0       0/1       w:5/5 w2:5/5
+wkfirst   95  60 x1       0     0      0     0   0.00   65.8   95/95    0   1/30  0/0       0/0       w:5/49 w2:24/12
+wkfirst   95  60 x1.5     0     0      0     0   0.00   64.4   95/95    0   4/32  0/0       1/1       w:5/5 w2:5/5
+wkfirst   95  60 x2       0     0      0    48  15.73   35.0   95/96   75   4/32  0/0       2/2       w:5/5 w2:5/3
+wkfirst   95  70 x1       0     0      0     0   0.00   66.8   95/95    0   1/25  0/0       0/0       w:5/49 w2:23/12
+wkfirst   95  70 x1.5     0     0      0     0   0.00   65.6   95/95    0   4/29  0/0       0/0       w:5/5 w2:5/5
+wkfirst   95  70 x2      19    19     21   292  11.27   41.4   95/95   72   5/28  0/0       0/0       w:5/3 w2:5/0
+wkfirst   95  80 x1       0     0      0     0   0.00   66.8   95/95    0   2/27  0/0       0/0       w:5/52 w2:20/5
+wkfirst   95  80 x1.5     0     0      0     0   0.00   66.8   95/95    0   4/26  0/0       0/0       w:5/5 w2:5/5
+wkfirst   95  80 x2      21    21     23   296  11.16   41.5   95/95   72   5/29  0/0       1/1       w:5/3 w2:5/0
+wkfirst   98  50 x1       0     0      0     0   2.07   60.8   95/95   10   0/36  0/0       0/0       w:13/13 w2:50/50
+wkfirst   98  50 x1.5     0     0      0   358   0.40   62.3   95/95    0   4/40  0/0       0/0       w:2/2 w2:2/2
+wkfirst   98  50 x2       0     0      0   269  14.88   36.8   95/95   20   4/36  0/0       1/1       w:2/2 w2:2/2
+wkfirst   98  60 x1       0     0      0   210   0.00   66.8   95/95    0   0/32  0/0       0/0       w:3/3 w2:52/51
+wkfirst   98  60 x1.5     0     0      0   359   0.00   65.2   95/95    0   4/31  0/0       1/1       w:2/2 w2:2/2
+wkfirst   98  60 x2       0     0      0   271  12.25   38.5   95/95   80   4/36  0/0       1/1       w:2/2 w2:2/2
+wkfirst   98  70 x1       0     0      0   252   0.00   66.8   95/95    0   0/26  0/0       0/0       w:2/2 w2:51/51
+wkfirst   98  70 x1.5     0     0      0   360   0.00   66.6   95/95    0   4/29  0/0       1/1       w:2/2 w2:2/2
+wkfirst   98  70 x2       0     0      0   280  11.27   41.1   95/95   80   4/32  0/0       2/2       w:2/2 w2:2/2
+wkfirst   98  80 x1       0     0      0   167   0.00   66.8   95/95    0   1/27  0/0       0/0       w:2/55 w2:20/4
+wkfirst   98  80 x1.5     0     0      0   360   0.00   66.8   95/95    0   4/25  0/0       0/0       w:2/2 w2:2/2
+wkfirst   98  80 x2       0     0      0   360  10.41   42.9   95/95   72   5/29  0/0       0/0       w:2/2 w2:2/2
+consume   95  50 x1       0     0      0     0   0.00   64.1   95/95    0   4/34  0/0       0/0       w:29/27 w2:34/33
+consume   95  50 x1.5     0     0      0     0   0.00   64.1   95/95    0   4/36  0/0       1/1       w:6/5 w2:14/11
+consume   95  50 x2       0     0      0     0   6.85   50.3   95/95   20   4/41  0/0       1/1       w:5/5 w2:5/5
+consume   95  60 x1       0     0      0     0   0.00   65.8   95/95    0   4/30  0/0       0/0       w:27/20 w2:34/34
+consume   95  60 x1.5     0     0      0     0   0.00   65.8   95/95    0   4/30  0/0       0/0       w:8/5 w2:16/13
+consume   95  60 x2       0     0      0     0   4.78   55.8   95/95   10   4/40  0/0       1/2       w:5/5 w2:5/5
+consume   95  70 x1       0     0      0     0   0.00   66.8   95/95    0   4/27  0/0       0/0       w:29/25 w2:30/30
+consume   95  70 x1.5     0     0      0     0   0.00   66.8   95/95    0   4/26  0/0       0/0       w:7/5 w2:12/8
+consume   95  70 x2       0     0      0     0   4.78   56.6   95/95   10   4/36  0/0       1/1       w:5/5 w2:5/5
+consume   95  80 x1       0     0      0     0   0.00   66.8   95/95    0   4/26  0/0       0/0       w:29/29 w2:24/24
+consume   95  80 x1.5     0     0      0     0   0.00   66.8   95/95    0   4/26  0/0       0/0       w:7/5 w2:12/8
+consume   95  80 x2       0     0      0     0   2.07   61.4   95/95   10   4/28  0/0       1/1       w:5/5 w2:5/5
+consume   98  50 x1       0     0      0     0   0.00   64.1   95/95    0   4/34  0/0       0/0       w:29/27 w2:34/33
+consume   98  50 x1.5     0     0      0    69   0.00   64.1   95/95    0   4/36  0/0       0/0       w:6/3 w2:14/13
+consume   98  50 x2       0     0      0   270   5.03   50.9   95/95   10   4/41  0/0       0/0       w:2/2 w2:2/2
+consume   98  60 x1       0     0      0     0   0.00   65.8   95/95    0   4/30  0/0       0/0       w:27/20 w2:34/34
+consume   98  60 x1.5     0     0      0     0   0.00   65.8   95/95    0   4/30  0/0       0/0       w:8/5 w2:16/13
+consume   98  60 x2       0     0      0   269   4.78   56.0   95/95   10   4/39  0/0       0/0       w:2/2 w2:2/2
+consume   98  70 x1       0     0      0     0   0.00   66.8   95/95    0   4/27  0/0       0/0       w:29/25 w2:30/30
+consume   98  70 x1.5     0     0      0    90   0.00   66.8   95/95    0   4/26  0/0       0/0       w:7/2 w2:12/11
+consume   98  70 x2       0     0      0   269   2.07   60.0   95/95   10   4/34  0/0       0/0       w:2/2 w2:2/2
+consume   98  80 x1       0     0      0     0   0.00   66.8   95/95    0   4/26  0/0       0/0       w:29/29 w2:24/24
+consume   98  80 x1.5     0     0      0    90   0.00   66.8   95/95    0   4/26  0/0       0/0       w:7/2 w2:12/11
+consume   98  80 x2       0     0      0   271   0.00   65.9   95/95    0   4/30  0/0       0/0       w:2/2 w2:2/2
+pcf       95  50 x1       0     0      0     0   0.00   64.1   95/95    0   4/34  0/0       0/0       w:29/27 w2:34/33
+pcf       95  50 x1.5     0     0      0     0   0.00   64.1   95/95    0   4/36  0/0       1/1       w:6/5 w2:14/11
+pcf       95  50 x2       0     0      0     0   6.85   50.3   95/95   20   4/41  0/0       1/1       w:5/5 w2:5/5
+pcf       95  60 x1       0     0      0     0   0.00   65.8   95/95    0   4/30  0/0       0/0       w:27/20 w2:34/34
+pcf       95  60 x1.5     0     0      0     0   0.00   65.8   95/95    0   4/30  0/0       0/0       w:8/5 w2:16/13
+pcf       95  60 x2       0     0      0     0   4.78   55.8   95/95   10   4/40  0/0       1/2       w:5/5 w2:5/5
+pcf       95  70 x1       0     0      0     0   0.00   66.8   95/95    0   4/27  0/0       0/0       w:29/25 w2:30/30
+pcf       95  70 x1.5     0     0      0     0   0.00   66.8   95/95    0   4/26  0/0       0/0       w:7/5 w2:12/8
+pcf       95  70 x2       0     0      0     0   4.78   56.6   95/95   10   4/36  0/0       1/1       w:5/5 w2:5/5
+pcf       95  80 x1       0     0      0     0   0.00   66.8   95/95    0   4/26  0/0       0/0       w:29/29 w2:24/24
+pcf       95  80 x1.5     0     0      0     0   0.00   66.8   95/95    0   4/26  0/0       0/0       w:7/5 w2:12/8
+pcf       95  80 x2       0     0      0     0   2.07   61.4   95/95   10   4/28  0/0       1/1       w:5/5 w2:5/5
+pcf       98  50 x1       0     0      0     0   0.00   64.1   95/95    0   4/34  0/0       0/0       w:29/27 w2:34/33
+pcf       98  50 x1.5     0     0      0    69   0.00   64.1   95/95    0   4/36  0/0       0/0       w:6/3 w2:14/13
+pcf       98  50 x2       0     0      0   270   5.03   50.9   95/95   10   4/41  0/0       0/0       w:2/2 w2:2/2
+pcf       98  60 x1       0     0      0     0   0.00   65.8   95/95    0   4/30  0/0       0/0       w:27/20 w2:34/34
+pcf       98  60 x1.5     0     0      0     0   0.00   65.8   95/95    0   4/30  0/0       0/0       w:8/5 w2:16/13
+pcf       98  60 x2       0     0      0   269   4.78   56.0   95/95   10   4/39  0/0       0/0       w:2/2 w2:2/2
+pcf       98  70 x1       0     0      0     0   0.00   66.8   95/95    0   4/27  0/0       0/0       w:29/25 w2:30/30
+pcf       98  70 x1.5     0     0      0    90   0.00   66.8   95/95    0   4/26  0/0       0/0       w:7/2 w2:12/11
+pcf       98  70 x2       0     0      0   269   2.07   60.0   95/95   10   4/34  0/0       0/0       w:2/2 w2:2/2
+pcf       98  80 x1       0     0      0     0   0.00   66.8   95/95    0   4/26  0/0       0/0       w:29/29 w2:24/24
+pcf       98  80 x1.5     0     0      0    90   0.00   66.8   95/95    0   4/26  0/0       0/0       w:7/2 w2:12/11
+pcf       98  80 x2       0     0      0   271   0.00   65.9   95/95    0   4/30  0/0       0/0       w:2/2 w2:2/2
+off        -  60 x1       0     0      0   210   0.00   66.8   95/95    0   0/32  0/0       0/0       w:3/3 w2:52/51
+off        -  60 x1.5  1198  1198   1200  1498   3.16   60.0   95/95   20   0/32  0/0       0/0       w:0/0 w2:40/40
+off        -  60 x2    2700  2700   2700  2924   3.16   60.0   95/95   20   0/32  0/0       0/0       w:0/0 w2:40/40
+
+Selection rule (criterion 1 at x1, x1.5 and x2)
+  best W95: highest L 60; p2>85 True; no app shortfall False; switch gaps <10 3, <15 3 (all demands, both Macs); surplus/wk x1/x1.5/x2 65.8/64.4/35.0
+  best W98: highest L 80; p2>85 True; no app shortfall False; switch gaps <10 0, <15 0 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/42.9
+  wkfirst W95: highest L 60; p2>85 True; no app shortfall False; switch gaps <10 3, <15 3 (all demands, both Macs); surplus/wk x1/x1.5/x2 65.8/64.4/35.0
+  wkfirst W98: highest L 80; p2>85 True; no app shortfall False; switch gaps <10 0, <15 0 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/42.9
+  consume W95: highest L 80; p2>85 True; no app shortfall False; switch gaps <10 1, <15 1 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/61.4
+  consume W98: highest L 80; p2>85 True; no app shortfall True; switch gaps <10 0, <15 0 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/65.9
+  pcf W95: highest L 80; p2>85 True; no app shortfall False; switch gaps <10 1, <15 1 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/61.4
+  pcf W98: highest L 80; p2>85 True; no app shortfall True; switch gaps <10 0, <15 0 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/65.9
+  ranked: consume W98 L80, pcf W98 L80, best W98 L80, wkfirst W98 L80, consume W95 L80, pcf W95 L80, best W95 L60, wkfirst W95 L60
+
+Selection rule with criterion 1 relaxed to x1 and x1.5
+  best W95: highest L 80; p2>85 True; no app shortfall False; switch gaps <10 1, <15 1 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/41.5
+  best W98: highest L 80; p2>85 True; no app shortfall False; switch gaps <10 0, <15 0 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/42.9
+  wkfirst W95: highest L 80; p2>85 True; no app shortfall False; switch gaps <10 1, <15 1 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/41.5
+  wkfirst W98: highest L 80; p2>85 True; no app shortfall False; switch gaps <10 0, <15 0 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/42.9
+  consume W95: highest L 80; p2>85 True; no app shortfall False; switch gaps <10 1, <15 1 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/61.4
+  consume W98: highest L 80; p2>85 True; no app shortfall True; switch gaps <10 0, <15 0 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/65.9
+  pcf W95: highest L 80; p2>85 True; no app shortfall False; switch gaps <10 1, <15 1 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/61.4
+  pcf W98: highest L 80; p2>85 True; no app shortfall True; switch gaps <10 0, <15 0 (all demands, both Macs); surplus/wk x1/x1.5/x2 66.8/66.8/65.9
+  ranked: consume W98 L80, pcf W98 L80, best W98 L80, wkfirst W98 L80, best W95 L80, consume W95 L80, pcf W95 L80, wkfirst W95 L80
+
+x2 trade-off: surplus/wk and x2 work-Mac walls per L, for (S, W) wall-free at x1 and x1.5
+  best W95: L50: x2 wall 0 (unserved 0), surplus 60.8/58.4/30.3; L60: x2 wall 0 (unserved 0), surplus 65.8/64.4/35.0; L70: x2 wall 19 (unserved 21), surplus 66.8/65.6/41.4; L80: x2 wall 21 (unserved 23), surplus 66.8/66.8/41.5
+  best W98: L50: x2 wall 0 (unserved 0), surplus 60.8/62.3/36.8; L60: x2 wall 0 (unserved 0), surplus 66.8/65.2/38.5; L70: x2 wall 0 (unserved 0), surplus 66.8/66.6/41.1; L80: x2 wall 0 (unserved 0), surplus 66.8/66.8/42.9
+  wkfirst W95: L50: x2 wall 0 (unserved 0), surplus 60.8/58.4/30.3; L60: x2 wall 0 (unserved 0), surplus 65.8/64.4/35.0; L70: x2 wall 19 (unserved 21), surplus 66.8/65.6/41.4; L80: x2 wall 21 (unserved 23), surplus 66.8/66.8/41.5
+  wkfirst W98: L50: x2 wall 0 (unserved 0), surplus 60.8/62.3/36.8; L60: x2 wall 0 (unserved 0), surplus 66.8/65.2/38.5; L70: x2 wall 0 (unserved 0), surplus 66.8/66.6/41.1; L80: x2 wall 0 (unserved 0), surplus 66.8/66.8/42.9
+  consume W95: L50: x2 wall 0 (unserved 0), surplus 64.1/64.1/50.3; L60: x2 wall 0 (unserved 0), surplus 65.8/65.8/55.8; L70: x2 wall 0 (unserved 0), surplus 66.8/66.8/56.6; L80: x2 wall 0 (unserved 0), surplus 66.8/66.8/61.4
+  consume W98: L50: x2 wall 0 (unserved 0), surplus 64.1/64.1/50.9; L60: x2 wall 0 (unserved 0), surplus 65.8/65.8/56.0; L70: x2 wall 0 (unserved 0), surplus 66.8/66.8/60.0; L80: x2 wall 0 (unserved 0), surplus 66.8/66.8/65.9
+  pcf W95: L50: x2 wall 0 (unserved 0), surplus 64.1/64.1/50.3; L60: x2 wall 0 (unserved 0), surplus 65.8/65.8/55.8; L70: x2 wall 0 (unserved 0), surplus 66.8/66.8/56.6; L80: x2 wall 0 (unserved 0), surplus 66.8/66.8/61.4
+  pcf W98: L50: x2 wall 0 (unserved 0), surplus 64.1/64.1/50.9; L60: x2 wall 0 (unserved 0), surplus 65.8/65.8/56.0; L70: x2 wall 0 (unserved 0), surplus 66.8/66.8/60.0; L80: x2 wall 0 (unserved 0), surplus 66.8/66.8/65.9
