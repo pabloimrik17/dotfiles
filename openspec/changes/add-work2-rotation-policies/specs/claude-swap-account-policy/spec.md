@@ -191,7 +191,7 @@ On a work machine, autoswitch SHALL be on and SHALL use `priority-consume-first`
 
 ### Requirement: Heavy work weeks hold the work accounts out on the personal machine
 
-The documented operating contract SHALL state that the policy keeps the work Mac wall-free up to 1.5 times its measured weekday demand while `personal2` is usable, and up to that demand in a month without it, not beyond. For a heavier week, the user SHALL hold `work` and `work2` out of the personal machine's rotation with the upstream disable control from the weekend before, and re-enable them afterwards. The setup SHALL NOT re-enable or warn about held-out work accounts.
+The documented operating contract SHALL state that the policy keeps the work Mac wall-free up to 1.5 times its measured weekday demand while `personal2` is usable, and up to that demand in a month without it, not beyond. For a week above 1.5 times, the user SHALL hold `work` and `work2` out of the personal machine's rotation with the upstream disable control from the weekend before, and re-enable them afterwards. The setup SHALL NOT re-enable or warn about held-out work accounts.
 
 #### Scenario: Work accounts held out on the personal machine
 
@@ -204,10 +204,16 @@ The documented operating contract SHALL state that the policy keeps the work Mac
 - **WHEN** the work accounts are held out and `claude-swap-setup`, `--check` or `--apply-policy` runs on the personal machine
 - **THEN** the setup reports completeness as usual and both accounts stay held out
 
+#### Scenario: Month without personal2 accepts walls below 1.5 times
+
+- **WHEN** `personal2` is held out and the user expects a work week between 1 and 1.5 times the measured work-Mac demand
+- **THEN** the work accounts stay in the personal machine's rotation
+- **AND** the work Mac may wall for up to the simulated 97 min
+
 #### Scenario: Reader learns the limit
 
 - **WHEN** a maintainer reads the manual's claude-swap subsection
-- **THEN** it states the 1.5× limit, the 1× limit without `personal2`, and the hold-out step for heavier weeks
+- **THEN** it states the 1.5× limit, the 1× limit without `personal2` and the walls accepted between them, and the hold-out step for weeks above 1.5×
 
 ### Requirement: Setup activates autoswitch through the upstream service
 

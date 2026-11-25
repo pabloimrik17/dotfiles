@@ -41,5 +41,5 @@ Section 11 of `docs/manual.html` SHALL document the pinned claude-swap integrati
 
 #### Scenario: Reader plans a heavy work week
 
-- **WHEN** a personal-machine user expects a work week above 1.5 times the measured work-Mac demand, or above that demand in a month without `personal2`
+- **WHEN** a personal-machine user expects a work week above 1.5 times the measured work-Mac demand
 - **THEN** the subsection tells them to hold `work` and `work2` out with `cswap disable` from the weekend before and to re-enable them with `cswap enable` afterwards

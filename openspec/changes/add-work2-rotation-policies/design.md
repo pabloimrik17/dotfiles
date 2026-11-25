@@ -86,7 +86,7 @@ W is the work Mac's line on both work accounts. L is the personal Mac's line on 
 
 At ×1 and ×1.5 this gives no wall on either Mac, `personal2` at 95 % at every reset, no app shortfall, and no switch gap under 10 min.
 
-Without `personal2` (an unpaid month), a probe at L 70 stays wall-free at ×1 on every profile and at ×1.5 on `peakFri` and `flat`. On `peakTue` the chosen policy walls 97 min at ×1.5, so in such a month D8 applies from ×1.
+Without `personal2` (an unpaid month), a probe at L 70 stays wall-free at ×1 on every profile and at ×1.5 on `peakFri` and `flat`. On `peakTue` the chosen policy walls 97 min at ×1.5. Holding the work accounts out instead would leave the personal Mac on `personal` alone: an estimate with the same demand model leaves 78 % of its demand unserved, with no usable account from Monday to Thursday. So such a month accepts those minutes.
 
 **Why criterion 1 stops at ×1.5.** No configuration is wall-free at ×2, not even L 50, the engine's minimum line. Two facts explain it:
 
@@ -168,7 +168,7 @@ Tests still need the live `cswap` at the pin. Implementation installs 1.2.0 with
 
 ### D8. Heavy work weeks: a documented manual hold-out
 
-For a week expected above ×1.5, or above ×1 in a month without `personal2`, the user runs `cswap disable work` and `cswap disable work2` on the personal Mac from the weekend before, and `cswap enable` afterwards. The setup never enables a held-out account and never warns about one. The manual documents the rule and both limits.
+For a week expected above ×1.5, the user runs `cswap disable work` and `cswap disable work2` on the personal Mac from the weekend before, and `cswap enable` afterwards. The setup never enables a held-out account and never warns about one. In a month without `personal2`, a week between ×1 and ×1.5 is not held out: the work Mac may wall for up to 97 min, while the hold-out would starve the personal Mac. The manual documents the rule and both limits.
 
 ### D9. Trial and review
 
@@ -188,7 +188,7 @@ Criteria, in order:
 
 ## Risks / Trade-offs
 
-- [A week above ×1.5, or above ×1 without `personal2`, walls the work Mac] → D8 hold-out. Upstream's `BLOCKED` state and the menu's usage rows make it visible.
+- [A week above ×1.5 walls the work Mac] → D8 hold-out. Without `personal2`, a week between ×1 and ×1.5 can wall it for up to 97 min; accepted, because the hold-out would leave the personal Mac on `personal` alone. Upstream's `BLOCKED` state and the menu's usage rows make it visible.
 - [Both Macs drain the same work account first] → Accepted. It only matters above ×1.5; see Open Questions.
 - [The day profile is an assumption: the Tuesday peak is 2.2× a normal day] → `peakFri` and `flat` probes bracket it, and the trial review measures the real profile.
 - [`priority-consume-first` lands just under a line (92–94.8 against 95) and leaves 5–21 min later; 2 ping-pongs in 18 runs] → Accepted, since gaps stayed over 5 min. The trial checks criterion 5.

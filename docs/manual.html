@@ -3898,11 +3898,13 @@
                         The policy keeps the work Mac wall-free up to
                         <strong>1.5&times;</strong> its measured weekday demand, or
                         <strong>1&times;</strong> in a month with <code>personal2</code> held out.
-                        For a heavier week, on the personal Mac run
-                        <code>cswap disable work</code> and <code>cswap disable work2</code> from
-                        the weekend before &rarr; after the week, <code>cswap enable work</code> and
-                        <code>cswap enable work2</code>. Setup never re-enables them and never warns
-                        about them.
+                        Between the two in such a month, accept up to about 97 min of work-Mac
+                        walls: holding the work accounts out would leave the personal Mac on
+                        <code>personal</code> alone. For a week above 1.5&times;, on the personal
+                        Mac run <code>cswap disable work</code> and
+                        <code>cswap disable work2</code> from the weekend before &rarr; after the
+                        week, <code>cswap enable work</code> and <code>cswap enable work2</code>.
+                        Setup never re-enables them and never warns about them.
                     </div>
 
                     <h4>Managed policy and menu service</h4>
@@ -4048,9 +4050,12 @@
                         <strong>1.5&times;</strong> its measured weekday demand (about 16 points of
                         a weekly quota per working day), not beyond, and up to
                         <strong>1&times;</strong> in a month with <code>personal2</code> held out.
-                        For a heavier week, hold both work accounts out of the personal Mac&rsquo;s
-                        rotation from the weekend before and re-enable them afterwards (see the
-                        heavy-week flow above).
+                        In such a month a week between 1&times; and 1.5&times; is not held out: the
+                        work Mac may wall for up to about 97 min, while the hold-out would leave the
+                        personal Mac on <code>personal</code> alone. For a week above 1.5&times;,
+                        hold both work accounts out of the personal Mac&rsquo;s rotation from the
+                        weekend before and re-enable them afterwards (see the heavy-week flow
+                        above).
                     </p>
 
                     <h4>Ownership, recovery, and rollback</h4>
