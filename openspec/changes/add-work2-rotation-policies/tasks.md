@@ -75,3 +75,4 @@
 - [x] 8.5 Tell the user to pause Auto-switch before a `--reauth` login, in the prompt and the manual. Limit the unaliased-adoption scenario to personal machines, and reword the manual's dry-run flows.
 - [x] 8.6 Probe the personal Mac without `personal2` (`twomac.py --no-p2`, `probes.sh`), and limit the wall-free claim to ×1 in such a month, with D8 applying from ×1. Verify the probe tables in the three summaries and that the existing runs in `results.json` are unchanged.
 - [x] 8.7 Make the simulation scripts fail on a failed shard and pass `--profile` to the report, record relative paths in `results.json`, require each command in the setup tests' ordering checks, run `--no-auto-switch` before the rollback's revert, and state that a reverted work Mac needs `work2` removed.
+- [x] 8.8 Remove the pending marker as soon as the `--auto-switch` install succeeds, before the service-status check. Verify with a test whose status check fails after a successful install.

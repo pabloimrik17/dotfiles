@@ -231,7 +231,7 @@ function expectInOrder(log: readonly string[], ...commands: string[]): void {
 
 async function prepareAutoswitchState(
     root: string,
-    options: { dryRunExitCode?: number; autoswitchPending?: boolean },
+    options: { dryRunExitCode?: number; autoswitchPending?: boolean; serviceStatusFails?: boolean },
 ): Promise<{ env: Record<string, string>; pendingMarker: string }> {
     const stateHome = path.join(root, ".local", "state");
     const pendingMarker = path.join(stateHome, "dotfiles", "claude-swap-autoswitch-pending");
@@ -240,7 +240,11 @@ async function prepareAutoswitchState(
         await writeFile(pendingMarker, "");
     }
     return {
-        env: { XDG_STATE_HOME: stateHome, CSWAP_DRY_RUN_EXIT: String(options.dryRunExitCode ?? 2) },
+        env: {
+            XDG_STATE_HOME: stateHome,
+            CSWAP_DRY_RUN_EXIT: String(options.dryRunExitCode ?? 2),
+            CSWAP_SERVICE_STATUS_FAILS: options.serviceStatusFails ? "1" : "0",
+        },
         pendingMarker,
     };
 }
@@ -263,6 +267,7 @@ async function runSetupFixture(options: {
     loginAtPrompt?: "new" | "unchanged" | number;
     dryRunExitCode?: number;
     autoswitchPending?: boolean;
+    serviceStatusFails?: boolean;
 }): Promise<{
     exitCode: number;
     stdout: string;
@@ -397,6 +402,8 @@ case "$1" in
         if [ "$2" = "--install-service" ]; then
             : >"$CSWAP_SERVICE"
             echo "Menu bar service installed (com.cswap.menubar)."
+        elif [ "$2" = "--service-status" ] && [ "$CSWAP_SERVICE_STATUS_FAILS" = 1 ]; then
+            exit 1
         elif [ "$2" = "--service-status" ] && [ -f "$CSWAP_SERVICE" ]; then
             echo "Menu bar service: running (pid 123)"
         else
@@ -1191,6 +1198,21 @@ describe("re-runnable claude-swap setup", () => {
 
         expect(result.exitCode, result.stderr).toBe(0);
         expect(result.log).toContain("menubar --install-service --auto-switch");
+        expect(result.autoswitchPending).toBe(false);
+    });
+
+    test("clears the pending activation when only the service-status check fails", async () => {
+        const result = await runSetupFixture({
+            role: "work",
+            accounts: workAccounts({ active: 1, work2: false }),
+            activeAccountNumber: 1,
+            input: "\n",
+            serviceStatusFails: true,
+        });
+
+        expect(result.exitCode).not.toBe(0);
+        expect(result.log).toContain("menubar --install-service --auto-switch");
+        expect(result.stderr).toContain("Could not query the upstream menu service");
         expect(result.autoswitchPending).toBe(false);
     });
 

@@ -348,6 +348,9 @@ install_menu_service() {
         error "Could not install the upstream menu service"
         return 1
     fi
+    if [ "$1" -eq 1 ] && ! rm -f "$AUTOSWITCH_PENDING"; then
+        warn "Could not remove $AUTOSWITCH_PENDING; the next setup run turns Auto-switch on again."
+    fi
 
     local service_status
     if ! service_status="$(cswap menubar --service-status)"; then
@@ -464,9 +467,6 @@ main() {
     apply_rotation_policy || return 1
     run_dry_run "$completing" || return 1
     install_menu_service "$completing" || return 1
-    if [ "$completing" -eq 1 ] && ! rm -f "$AUTOSWITCH_PENDING"; then
-        warn "Could not remove $AUTOSWITCH_PENDING; the next setup run turns Auto-switch on again."
-    fi
 
     info "To keep a manual account choice, pause Auto-switch from the claude-swap menu."
     info "Setup complete. Re-run this command later for repair or reauthentication."
