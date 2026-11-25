@@ -81,3 +81,13 @@ _Avoid_: context, area, machine type
 **Agent memory**:
 Facts and rules kept to steer an agent's behaviour, outside the knowledge base. If the reader is an agent being told how to act, it is agent memory, not knowledge.
 _Avoid_: knowledge, notes
+
+### Agent skills
+
+**Flat name**:
+A skill's name without a plugin prefix: `code-review`, not `code-review:code-review`. Each agent has one owner per flat name.
+_Avoid_: bare name, global name
+
+**Shadowing**:
+A user skill taking the flat name of a built-in command, so the slash command runs the skill and the built-in can no longer be reached by name.
+_Avoid_: override, conflict

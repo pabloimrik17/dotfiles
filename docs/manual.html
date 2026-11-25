@@ -1582,6 +1582,41 @@
                         <kbd>Enter</kbd> to return to lazygit &rarr; fix findings &rarr; stage all
                         (<kbd>a</kbd>) &rarr; commit (<kbd>c</kbd>)
                     </div>
+
+                    <h3>Greptile CLI (local review)</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>greptile login</code></td>
+                                <td>
+                                    Sign in on this device &mdash; set
+                                    <code>GREPTILE_API_KEY</code> instead for non-interactive use
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>greptile whoami</code></td>
+                                <td>Show the active identity and organizations</td>
+                            </tr>
+                            <tr>
+                                <td><code>greptile review</code></td>
+                                <td>Review committed changes on the current branch</td>
+                            </tr>
+                            <tr>
+                                <td><code>greptile update</code></td>
+                                <td>Update the CLI &mdash; it updates itself</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        Installed with <code>npm install -g greptile</code> (Node 22+) into nvm's
+                        Node, not through Homebrew.
+                    </p>
                     <div class="flow-only">
                         <strong>Flow: Full feature cycle</strong><br />
                         <code>gcb feat/x</code> &rarr; code &rarr; <code>gaa</code> &rarr;
@@ -3271,8 +3306,12 @@
                                 <td>Guided plugin creation workflow</td>
                             </tr>
                             <tr>
-                                <td><code>/code-review</code></td>
-                                <td>Review a pull request (CodeRabbit)</td>
+                                <td><code>/coderabbit-review</code></td>
+                                <td>
+                                    Review a pull request (CodeRabbit). Renamed from upstream's
+                                    <code>code-review</code>, so Claude Code's built-in
+                                    <code>/code-review</code> stays reachable
+                                </td>
                             </tr>
                             <tr>
                                 <td><code>/autofix</code></td>
@@ -3454,7 +3493,7 @@
                             <tr>
                                 <td>Codex, Cursor, Gemini CLI, GitHub Copilot, OpenCode</td>
                                 <td>
-                                    Same 23 skills from <code>mattpocock/skills</code>, auto-loaded
+                                    Same 24 skills from <code>mattpocock/skills</code>, auto-loaded
                                     from the canonical <code>~/.agents/skills</code>; these are
                                     universal agents, so there is no per-agent copy and
                                     <code>~/.config/opencode/skills</code> stays empty
@@ -3464,7 +3503,7 @@
                             <tr>
                                 <td>Junie</td>
                                 <td>
-                                    Same 23 skills as symlinks to
+                                    Same 24 skills as symlinks to
                                     <code>~/.agents/skills/&lt;name&gt;</code> under
                                     <code>~/.junie/skills</code>; Junie is not universal, so it is
                                     the only agent that needs a skills.sh target
@@ -3483,11 +3522,15 @@
                             <tr>
                                 <td>Flat <code>code-review</code></td>
                                 <td>
-                                    CodeRabbit-owned across the standalone channel &mdash; the
-                                    canonical <code>~/.agents/skills/code-review</code> is
-                                    CodeRabbit's
+                                    Matt Pocock's, for the standalone agents only; none in Claude
+                                    Code, where a flat <code>code-review</code> shadows the built-in
+                                    <code>/code-review</code>
                                 </td>
-                                <td>Matt's standalone <code>code-review</code> is excluded</td>
+                                <td>
+                                    Installed once no <code>code-review</code> from another source
+                                    remains; the install script warns if
+                                    <code>~/.claude/skills/code-review</code> exists
+                                </td>
                             </tr>
                         </tbody>
                     </table>
