@@ -8,7 +8,7 @@ Manage Matt Pocock's standalone skills for OpenCode and Junie while preserving d
 
 ### Requirement: Selected Matt Pocock skills are installed globally
 
-The installation configuration SHALL manage these skills from `mattpocock/skills`: `ask-matt`, `diagnosing-bugs`, `grill-with-docs`, `triage`, `improve-codebase-architecture`, `setup-matt-pocock-skills`, `tdd`, `to-spec`, `to-tickets`, `wayfinder`, `implement`, `prototype`, `research`, `domain-modeling`, `codebase-design`, `resolving-merge-conflicts`, `wizard`, `grill-me`, `grilling`, `handoff`, `teach`, `to-questionnaire`, `wait-what`, and `writing-for-agents`.
+The installation configuration SHALL manage these skills from `mattpocock/skills`: `ask-matt`, `diagnosing-bugs`, `grill-with-docs`, `triage`, `improve-codebase-architecture`, `setup-matt-pocock-skills`, `tdd`, `to-spec`, `to-tickets`, `wayfinder`, `implement`, `prototype`, `research`, `domain-modeling`, `codebase-design`, `wizard`, `grill-me`, `grilling`, `handoff`, `teach`, `to-questionnaire`, `wait-what`, and `writing-for-agents`.
 
 #### Scenario: Selected skill is not yet installed
 
@@ -29,6 +29,11 @@ The installation configuration SHALL manage these skills from `mattpocock/skills
 
 - **WHEN** a selected Matt Pocock skill installation fails
 - **THEN** the installer reports the failure and continues processing the remaining selected skills
+
+#### Scenario: Retired upstream skill is not requested
+
+- **WHEN** the rendered package installer and fallback instructions are inspected
+- **THEN** no skills.sh add operation selects `resolving-merge-conflicts`
 
 ### Requirement: Standalone skills target only OpenCode and Junie
 
@@ -77,10 +82,10 @@ The managed Matt Pocock standalone skills SHALL remain registered with skills.sh
 
 ### Requirement: Manual fallback preserves selection and scope
 
-The non-macOS fallback SHALL print a non-interactive skills.sh command that selects all 24 managed Matt Pocock skills, targets only OpenCode and Junie, and excludes `code-review`.
+The non-macOS fallback SHALL print a non-interactive skills.sh command that selects all 23 managed Matt Pocock skills, targets only OpenCode and Junie, and excludes `code-review`.
 
 #### Scenario: Automatic installation is unavailable
 
 - **WHEN** the package installer renders its non-macOS manual instructions
-- **THEN** the output contains a reproducible skills.sh command for the 24 selected skills with explicit `opencode` and `junie` targets
+- **THEN** the output contains a reproducible skills.sh command for the 23 selected skills with explicit `opencode` and `junie` targets
 - **AND** the output does not select all upstream skills or target Claude Code
