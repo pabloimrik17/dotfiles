@@ -144,9 +144,9 @@ recipient in `.chezmoi.toml.tmpl` in sync. Losing the identity makes encrypted a
     `chezmoi apply` triggers the interactive package installer. On macOS it may also offer the
     re-runnable `~/.local/bin/claude-swap-setup` account guide when role-specific enrollment is
     incomplete. claude-swap credentials and runtime state remain Keychain/application-owned, and
-    personal machines enable auto-switch once from the menu after the dry-run; see
-    [Section 11 of the manual](docs/manual.html#claude) for the complete account, toggle,
-    validation, and recovery workflow.
+    the setup run that completes the role's required accounts turns auto-switch on after the
+    dry-run; see [Section 11 of the manual](docs/manual.html#claude) for the complete account,
+    rotation, pause, and recovery workflow.
 
     Run `gh auth login` first: the installer clones the private `pabloimrik17/knowledge` repo to
     `~/WebstormProjects/knowledge` (never pulled; Obsidian Git owns sync). Then turn on the Obsidian

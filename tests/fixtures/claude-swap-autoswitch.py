@@ -1,9 +1,10 @@
-"""Exercise claude-swap's real autoswitch engine against the repository policy.
+"""Exercise claude-swap's real autoswitch engine against the repository policies.
 
-Settings come from the managed settings.json and tiers/lines from the setup
-template's ROTATION_POLICY. Accounts, usage and the clock are fakes; HOME is a
-temporary directory and network/subprocess calls are refused. The fake
-switcher is the one from the change's simulation harness: sequence-derived
+Settings come from the managed settings.json, and tiers and lines from the
+setup template's ROTATION_POLICY_PERSONAL and ROTATION_POLICY_WORK. Accounts,
+usage and the clock are fakes; HOME is a temporary directory and
+network/subprocess calls are refused. The fake switcher is copied from the
+simulation harness of change add-work2-rotation-policies: sequence-derived
 answers run real ClaudeAccountSwitcher code against an in-memory sequence.json.
 """
 
@@ -44,7 +45,7 @@ os.system = _deny
 from importlib.metadata import version
 
 from claude_swap import autoswitch, paths
-from claude_swap.autoswitch import AutoSwitchEngine, TickOutcome
+from claude_swap.autoswitch import AutoSwitchEngine
 from claude_swap.settings import load_settings
 from claude_swap.switcher import ClaudeAccountSwitcher
 from claude_swap.usage_store import UsageEntry
@@ -52,31 +53,40 @@ from claude_swap.usage_store import UsageEntry
 assert SANDBOX in paths.get_backup_root().resolve().parents, paths.get_backup_root()
 autoswitch.random.random = lambda: 0.5
 
-SLOTS = {"personal": "1", "work": "2", "personal2": "3"}
-NAMES = {number: name for name, number in SLOTS.items()}
 NOW = datetime(2026, 11, 4, 18, 0, tzinfo=timezone.utc).timestamp()
 HOUR = 3600.0
 DAY = 86400.0
-WEEKLY_RESET_DAYS = {"work": 1.0, "personal": 2.0, "personal2": 4.0}
+# Personal-Mac slot numbers are the real ones, because sequence order breaks
+# within-tier ties. The setup tests number slots their own way: they never rank
+# accounts. The work Mac enrolls work first.
+SLOTS = {
+    "personal": {"work": "1", "personal": "2", "personal2": "3", "work2": "4"},
+    "work": {"work": "1", "work2": "2"},
+}
+# Days to each weekly reset: work before work2, as on the real accounts.
+WEEKLY_RESET_DAYS = {"work": 1.0, "personal": 2.0, "work2": 3.0, "personal2": 4.0}
 
 
 def iso(timestamp: float) -> str:
     return datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def declared_policy() -> tuple[dict[str, int], dict[str, float]]:
-    match = re.search(r'^ROTATION_POLICY="([^"]*)"$', SETUP_TEMPLATE.read_text(), re.M)
-    assert match, "ROTATION_POLICY is missing from the setup template"
+def declared_policy(machine: str) -> dict[str, dict]:
+    name = f"ROTATION_POLICY_{machine.upper()}"
+    match = re.search(rf'^{name}="([^"]*)"$', SETUP_TEMPLATE.read_text(), re.M)
+    assert match, f"{name} is missing from the setup template"
     tiers: dict[str, int] = {}
     lines: dict[str, float] = {}
     for entry in match.group(1).split():
         alias, tier, line = entry.split(":")
         tiers[alias] = int(tier)
         lines[alias] = float(line)
-    return tiers, lines
+    return {"tiers": tiers, "lines": lines}
 
 
-TIERS, LINES = declared_policy()
+POLICY = {machine: declared_policy(machine) for machine in SLOTS}
+for machine, policy in POLICY.items():
+    assert set(policy["tiers"]) == set(SLOTS[machine]), (machine, policy)
 
 
 class Clock:
@@ -90,7 +100,7 @@ class Clock:
 class World:
     def __init__(
         self,
-        clock: Clock,
+        machine: str,
         active: str,
         usage: dict[str, tuple[float, float] | None],
         *,
@@ -98,14 +108,19 @@ class World:
         errors: dict[str, str] | None = None,
         stale: tuple[str, ...] = (),
         dead_logins: tuple[str, ...] = (),
+        reset_days: dict[str, float] | None = None,
     ) -> None:
-        self.clock = clock
-        self.active = SLOTS[active]
+        self.clock = Clock()
+        self.slots = SLOTS[machine]
+        self.names = {number: name for name, number in self.slots.items()}
+        self.policy = POLICY[machine]
+        self.active = self.slots[active]
         self.usage = usage
         self.disabled = set(disabled)
         self.errors = errors or {}
         self.stale = set(stale)
         self.dead_logins = set(dead_logins)
+        self.reset_days = {**WEEKLY_RESET_DAYS, **(reset_days or {})}
 
     def sequence(self) -> dict:
         accounts = {}
@@ -114,13 +129,14 @@ class World:
                 "email": f"{name}@example.invalid",
                 "organizationUuid": "",
                 "alias": name,
-                "priority": TIERS[name],
-                "threshold": LINES[name],
+                "priority": self.policy["tiers"][name],
+                "threshold": self.policy["lines"][name],
             }
             if name in self.disabled:
                 record["disabled"] = True
-            accounts[SLOTS[name]] = record
-        return {"sequence": [int(SLOTS[name]) for name in self.usage], "accounts": accounts}
+            accounts[self.slots[name]] = record
+        ordered = sorted(self.usage, key=lambda name: int(self.slots[name]))
+        return {"sequence": [int(self.slots[name]) for name in ordered], "accounts": accounts}
 
     def usage_payload(self, name: str) -> dict | None:
         windows = self.usage[name]
@@ -131,7 +147,7 @@ class World:
             "five_hour": {"pct": five, "resets_at": iso(self.clock() + 2 * HOUR)},
             "seven_day": {
                 "pct": seven,
-                "resets_at": iso(self.clock() + WEEKLY_RESET_DAYS[name] * DAY),
+                "resets_at": iso(self.clock() + self.reset_days[name] * DAY),
             },
         }
 
@@ -140,6 +156,7 @@ class FakeSwitcher:
     _disabled_from_data = staticmethod(ClaudeAccountSwitcher._disabled_from_data)
     _policy_from_data = staticmethod(ClaudeAccountSwitcher._policy_from_data)
     switchable_account_numbers = ClaudeAccountSwitcher.switchable_account_numbers
+    disabled_account_numbers = ClaudeAccountSwitcher.disabled_account_numbers
     account_policies = ClaudeAccountSwitcher.account_policies
 
     def __init__(self, backup_dir: Path, world: World) -> None:
@@ -163,7 +180,8 @@ class FakeSwitcher:
         return True
 
     def account_email(self, number: str | None) -> str:
-        return f"{NAMES[number]}@example.invalid" if number in NAMES else ""
+        name = self.world.names.get(number)
+        return f"{name}@example.invalid" if name else ""
 
     def account_kind_for(self, number: str) -> str:
         return "oauth"
@@ -172,7 +190,7 @@ class FakeSwitcher:
         return []
 
     def read_account_credentials(self, number: str, email: str) -> str:
-        if NAMES[number] in self.world.dead_logins:
+        if self.world.names[number] in self.world.dead_logins:
             return "{}"
         return json.dumps(
             {
@@ -195,7 +213,7 @@ class FakeSwitcher:
         entries = {}
         for name in self.world.usage:
             stale = name in self.world.stale
-            entries[SLOTS[name]] = UsageEntry(
+            entries[self.world.slots[name]] = UsageEntry(
                 last_good=self.world.usage_payload(name),
                 fetched_at=now - 600 if stale else now,
                 age_s=600.0 if stale else 0.0,
@@ -207,7 +225,7 @@ class FakeSwitcher:
             )
         return entries
 
-    def switch_to(self, number: str, json_output: bool = False) -> dict:
+    def switch_to(self, number: str, json_output: bool = False, force: bool = False) -> dict:
         self.switch_calls.append(number)
         previous = self.world.active
         self.world.active = number
@@ -242,6 +260,13 @@ class Scenario:
             clock=world.clock,
         )
 
+    def state(self) -> dict:
+        return json.loads((self.root / "autoswitch_state.json").read_text(encoding="utf-8"))
+
+    def manual_switch(self, name: str, *, after: float) -> None:
+        self.world.active = self.world.slots[name]
+        self.world.clock.now += after
+
     def tick(self) -> dict:
         start = len(self.events)
         outcome = self.engine.tick()
@@ -250,7 +275,7 @@ class Scenario:
         if switches:
             return {
                 "outcome": outcome.name,
-                "to": NAMES[str(switches[-1]["to"]["number"])],
+                "to": self.world.names[str(switches[-1]["to"]["number"])],
                 "trigger": switches[-1]["trigger"],
             }
         reasons = [
@@ -258,132 +283,205 @@ class Scenario:
             for event in events
             if event["event"] in ("no-switch", "all-exhausted", "account-quarantined", "error")
         ]
-        return {"outcome": outcome.name, "active": NAMES[self.world.active], "reasons": reasons}
+        return {
+            "outcome": outcome.name,
+            "active": self.world.names[self.world.active],
+            "reasons": reasons,
+        }
+
+    def ticks(self, count: int) -> list[dict]:
+        results = []
+        for _ in range(count):
+            results.append(self.tick())
+            self.world.clock.now += 60
+        return results
 
 
-def single_tick(name: str, active: str, usage: dict, **kwargs) -> dict:
-    seed_state = kwargs.pop("seed_state", None)
-    return Scenario(name, World(Clock(), active, usage, **kwargs), seed_state=seed_state).tick()
+class Machine:
+    def __init__(self, machine: str) -> None:
+        self.machine = machine
+
+    def scenario(self, name: str, active: str, usage: dict, **kwargs) -> Scenario:
+        seed_state = kwargs.pop("seed_state", None)
+        return Scenario(
+            f"{self.machine}-{name}",
+            World(self.machine, active, usage, **kwargs),
+            seed_state=seed_state,
+        )
+
+    def tick(self, name: str, active: str, usage: dict, **kwargs) -> dict:
+        return self.scenario(name, active, usage, **kwargs).tick()
 
 
-def main() -> None:
+def personal_scenarios() -> dict[str, object]:
+    machine = Machine("personal")
     results: dict[str, object] = {}
+    fresh = {"personal": (0, 30), "work": (20, 40), "work2": (20, 40), "personal2": (0, 10)}
+    work_full = {"work": (10, 72), "work2": (10, 75)}
 
-    results["higherTierUsable"] = single_tick(
-        "higher-tier", "work", {"personal": (0, 30), "work": (20, 40), "personal2": (0, 10)}
+    results["higherTierUsable"] = machine.tick("higher-tier", "work", fresh)
+    results["cooldown"] = machine.tick(
+        "cooldown", "work", fresh, seed_state={"schemaVersion": 1, "lastSwitchAt": NOW - 100}
     )
-    results["cooldown"] = single_tick(
-        "cooldown",
-        "work",
-        {"personal": (0, 30), "work": (20, 40), "personal2": (0, 10)},
-        seed_state={"schemaVersion": 1, "lastSwitchAt": NOW - 100},
+    results["lineDeparture"] = machine.tick(
+        "line-departure", "personal2", {**fresh, "personal2": (95, 50)}
     )
-    results["lineDeparture"] = single_tick(
-        "line-departure", "personal2", {"personal": (0, 30), "work": (20, 40), "personal2": (95, 50)}
+    results["weeklyLineDeparture"] = machine.tick(
+        "weekly-line-departure", "personal2", {**fresh, "personal2": (50, 95)}
     )
-    results["weeklyLineDeparture"] = single_tick(
-        "weekly-line-departure",
+    results["soonerResetFirst"] = machine.tick(
+        "sooner-reset-first",
         "personal2",
-        {"personal": (0, 30), "work": (20, 40), "personal2": (50, 95)},
+        {**fresh, "personal2": (95, 50)},
+        reset_days={"work": 3.0, "work2": 1.0},
     )
-    results["heldOutMovesOn"] = single_tick(
+    results["workAboveLineSkipped"] = machine.tick(
+        "work-above-line",
+        "personal2",
+        {**fresh, **work_full, "personal": (40, 40), "personal2": (95, 50)},
+    )
+    results["restartKeepsWork"] = machine.tick(
+        "restart-keeps-work",
+        "work",
+        {**fresh, "personal": (0, 0), "personal2": (96, 50)},
+        seed_state={"schemaVersion": 1, "lastSwitchAt": NOW - HOUR, "lastSwitchTo": "1"},
+    )
+    results["heldOut"] = machine.tick("held-out", "work", fresh, disabled=("personal2",))
+    results["heldOutMovesOn"] = machine.tick(
         "held-out-moves-on",
         "work",
-        {"personal": (0, 30), "work": (10, 62), "personal2": (0, 10)},
+        {**fresh, "work": (10, 72)},
         disabled=("personal2",),
     )
-    results["workAboveLineSkipped"] = single_tick(
-        "work-above-line", "personal2", {"personal": (40, 40), "work": (10, 62), "personal2": (95, 50)}
+    results["workHeldOut"] = machine.tick(
+        "work-held-out",
+        "personal2",
+        {**fresh, "work": (0, 0), "work2": (0, 0), "personal2": (95, 50)},
+        disabled=("work", "work2"),
     )
-    results["heldOut"] = single_tick(
-        "held-out",
+    results["workHeldOutStays"] = machine.tick(
+        "work-held-out-stays",
+        "personal",
+        {**fresh, "work": (0, 0), "work2": (0, 0), "personal2": (95, 50)},
+        disabled=("work", "work2"),
+    )
+    results["manualHeldOutWorkLeft"] = machine.tick(
+        "manual-held-out-work",
         "work",
-        {"personal": (0, 30), "work": (20, 40), "personal2": (0, 10)},
-        disabled=("personal2",),
+        {**fresh, "personal2": (95, 50)},
+        disabled=("work", "work2"),
     )
-    results["noneQualify"] = single_tick(
-        "none-qualify", "personal2", {"personal": (85, 40), "work": (10, 65), "personal2": (96, 50)}
+    results["noneQualify"] = machine.tick(
+        "none-qualify",
+        "personal2",
+        {"personal": (85, 40), "work": (10, 70), "work2": (70, 10), "personal2": (96, 50)},
     )
-    results["activeExhausted"] = single_tick(
-        "active-exhausted", "personal", {"personal": (100, 90), "work": (10, 65), "personal2": (100, 50)}
+    results["activeExhausted"] = machine.tick(
+        "active-exhausted",
+        "personal",
+        {**work_full, "personal": (100, 90), "personal2": (100, 50)},
     )
 
-    manual = Scenario(
-        "manual-revert",
-        World(Clock(), "personal2", {"personal": (0, 30), "work": (20, 40), "personal2": (10, 10)}),
-    )
+    manual = machine.scenario("manual-revert", "personal2", {**fresh, "personal2": (10, 10)})
     before = manual.tick()
-    manual.world.active = SLOTS["work"]
-    manual.world.clock.now += 400
+    manual.manual_switch("work", after=400)
     results["manualLowerTierReverted"] = [before, manual.tick()]
 
-    unhealthy = Scenario(
+    results["threeUnhealthyTicks"] = machine.scenario(
         "three-unhealthy",
-        World(
-            Clock(),
-            "personal2",
-            {"personal": (0, 30), "work": (20, 40), "personal2": None},
-            errors={"personal2": "http-500"},
-        ),
-    )
-    ticks = []
-    for _ in range(3):
-        ticks.append(unhealthy.tick())
-        unhealthy.world.clock.now += 60
-    results["threeUnhealthyTicks"] = ticks
-
-    unreadable = Scenario(
+        "personal2",
+        {**fresh, "personal2": None},
+        errors={"personal2": "http-500"},
+    ).ticks(3)
+    results["noReadableCandidate"] = machine.scenario(
         "no-readable-candidate",
-        World(
-            Clock(),
-            "personal2",
-            {"personal": None, "work": None, "personal2": None},
-            errors={"personal": "http-500", "work": "http-500", "personal2": "http-500"},
-        ),
-    )
-    ticks = []
-    for _ in range(3):
-        ticks.append(unreadable.tick())
-        unreadable.world.clock.now += 60
-    results["noReadableCandidate"] = ticks
-
-    results["unreadableCandidate"] = single_tick(
+        "personal2",
+        dict.fromkeys(fresh),
+        errors=dict.fromkeys(fresh, "http-500"),
+    ).ticks(3)
+    results["unreadableCandidate"] = machine.tick(
         "unreadable-candidate",
         "personal2",
-        {"personal": None, "work": None, "personal2": (95, 50)},
-        errors={"personal": "http-500", "work": "http-500"},
+        {"personal": None, "work": None, "work2": None, "personal2": (95, 50)},
+        errors=dict.fromkeys(("personal", "work", "work2"), "http-500"),
     )
 
-    quarantine = Scenario(
+    quarantine = machine.scenario(
         "authentication-quarantine",
-        World(
-            Clock(),
-            "personal2",
-            {"personal": (90, 40), "work": (20, 40), "personal2": (95, 50)},
-            dead_logins=("work",),
-        ),
+        "personal2",
+        {**fresh, "personal2": (95, 50)},
+        dead_logins=("work",),
     )
-    results["authenticationQuarantine"] = quarantine.tick()
-    state = json.loads((quarantine.root / "autoswitch_state.json").read_text(encoding="utf-8"))
-    assert SLOTS["work"] in state.get("quarantine", {}), state
-    assert quarantine.switcher.switch_calls == [], quarantine.switcher.switch_calls
+    results["authenticationQuarantine"] = {
+        **quarantine.tick(),
+        "quarantined": sorted(
+            quarantine.world.names[number] for number in quarantine.state().get("quarantine", {})
+        ),
+    }
+    assert quarantine.switcher.switch_calls == [SLOTS["personal"]["work2"]], (
+        quarantine.switcher.switch_calls
+    )
 
     results["stale429"] = {
-        **single_tick(
+        **machine.tick(
             "stale-429",
             "personal2",
-            {"personal": (0, 30), "work": (20, 40), "personal2": (50, 50)},
+            {**fresh, "personal2": (50, 50)},
             errors={"personal2": "http-429"},
             stale=("personal2",),
         ),
         "acceptedLimitation": "stale last-good usage can delay a line departure",
     }
+    return results
 
+
+def work_scenarios() -> dict[str, object]:
+    machine = Machine("work")
+    results: dict[str, object] = {}
+    fresh = {"work": (10, 40), "work2": (10, 40)}
+    work2_sooner = {"work": 3.0, "work2": 1.0}
+
+    results["soonerResetConsumedFirst"] = machine.tick(
+        "sooner-reset", "work", fresh, reset_days=work2_sooner
+    )
+    results["cooldown"] = machine.tick(
+        "cooldown",
+        "work",
+        fresh,
+        reset_days=work2_sooner,
+        seed_state={"schemaVersion": 1, "lastSwitchAt": NOW - 100},
+    )
+    results["soonerResetActiveStays"] = machine.tick("sooner-active", "work", fresh)
+    results["lineDeparture"] = machine.tick(
+        "line-departure", "work", {**fresh, "work": (95, 40)}
+    )
+    results["weeklyLineDeparture"] = machine.tick(
+        "weekly-line-departure", "work", {**fresh, "work": (40, 95)}
+    )
+    results["bothAboveLines"] = machine.tick(
+        "both-above", "work", {"work": (95, 50), "work2": (30, 95)}
+    )
+    results["activeExhausted"] = machine.tick(
+        "active-exhausted", "work", {"work": (100, 90), "work2": (96, 50)}
+    )
+
+    manual = machine.scenario("manual-revert", "work", fresh)
+    before = manual.tick()
+    manual.manual_switch("work2", after=400)
+    results["manualWithinTierReverted"] = [before, manual.tick()]
+
+    results["threeUnhealthyTicks"] = machine.scenario(
+        "three-unhealthy", "work", {**fresh, "work": None}, errors={"work": "http-500"}
+    ).ticks(3)
+    return results
+
+
+def main() -> None:
     json.dump(
         {
             "claudeSwap": version("claude-swap"),
-            "policy": {"tiers": TIERS, "lines": LINES},
-            "scenarios": results,
+            "policy": POLICY,
+            "scenarios": {"personal": personal_scenarios(), "work": work_scenarios()},
         },
         sys.stdout,
         sort_keys=True,

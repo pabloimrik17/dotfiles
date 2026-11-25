@@ -3764,18 +3764,22 @@
                     <p>
                         Chezmoi pins
                         <a href="https://github.com/realiti4/claude-swap">claude-swap</a>
-                        with its menu extra at <code>0.29.0</code>. The required no-default
+                        with its menu extra at <code>1.2.0</code>. The required no-default
                         <code>personal</code>/<code>work</code> choice made during
                         <code>chezmoi init</code> is machine-local and stable; an existing machine
                         without it must re-run init rather than assuming a role. Run
                         <code>~/.local/bin/claude-swap-setup</code> whenever enrollment, validation,
                         or service repair is needed. To recapture an existing alias in its original
                         slot, run
-                        <code>claude-swap-setup --reauth personal|work|personal2</code> first, then
-                        do <code>/login</code> at its prompt. Setup records the active account when
-                        it starts and switches back to it after the capture, unless the same run
-                        completes an incomplete setup: then it ends on <code>personal</code> on a
-                        personal machine and on <code>work</code> on a work machine.
+                        <code>claude-swap-setup --reauth personal|work|work2|personal2</code>
+                        first, then do <code>/login</code> at its prompt (<code>personal</code> and
+                        <code>personal2</code> are personal machines only). Setup records the active
+                        account when it starts and switches back to it after the capture, unless the
+                        same run completes an incomplete setup: then it ends on
+                        <code>personal</code> on a personal machine and on <code>work</code> on a
+                        work machine. Both machine types require <code>work</code> and
+                        <code>work2</code>; a Mac enrolled before <code>work2</code> existed reports
+                        the setup incomplete until it captures it.
                     </p>
                     <table>
                         <thead>
@@ -3799,13 +3803,15 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><code>cs-global personal|work|personal2</code></td>
+                                <td><code>cs-global personal|work|work2|personal2</code></td>
                                 <td>
-                                    <code>cswap switch personal|work|personal2</code> &mdash; change
-                                    Claude Code&rsquo;s global default identity; this is not an
-                                    isolated <code>cswap run</code> session. With Auto-switch on, a
-                                    lower-tier choice holds only until a higher tier is usable;
-                                    pause Auto-switch to keep it
+                                    <code>cswap switch personal|work|work2|personal2</code> &mdash;
+                                    change Claude Code&rsquo;s global default identity; this is not
+                                    an isolated <code>cswap run</code> session. A manual choice the
+                                    engine would not make holds only while Auto-switch is paused
+                                    (with it on, the engine returns to a usable higher tier, or to
+                                    the work account that resets sooner); pause it from the menu to
+                                    keep the choice
                                 </td>
                             </tr>
                             <tr>
@@ -3814,9 +3820,18 @@
                                     Re-runnable role-aware enrollment, validation, dry-run, and
                                     upstream menu-service setup; normal runs reconcile the service
                                     even when account setup is complete, while <code>--check</code>
-                                    only inspects the required aliases: on a personal machine
-                                    whichever account is active; on a work machine
-                                    <code>work</code> must be the only account and active
+                                    only inspects the required aliases (<code>personal</code>,
+                                    <code>work</code>, <code>work2</code> on a personal machine,
+                                    whichever account is active; exactly <code>work</code> and
+                                    <code>work2</code> on a work machine)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>claude-swap-setup --enroll work2</code></td>
+                                <td>
+                                    Both machine types &mdash; capture the current login as the
+                                    required <code>work2</code>, a second work seat that behaves
+                                    like <code>work</code>
                                 </td>
                             </tr>
                             <tr>
@@ -3831,8 +3846,8 @@
                                 <td>
                                     Apply only the rotation tiers and switch lines to the enrolled
                                     accounts; never prompts, captures, or switches.
-                                    <code>chezmoi apply</code> runs it on personal machines when the
-                                    declared values change
+                                    <code>chezmoi apply</code> runs it on both machine types when
+                                    the declared values change
                                 </td>
                             </tr>
                         </tbody>
@@ -3843,21 +3858,25 @@
                         Keep the current login &mdash; never run <code>/logout</code> before capture
                         &rarr; run <code>claude-swap-setup</code> &rarr; at each prompt for a
                         missing subscription, use <code>/login</code> and press Enter to capture
-                        native <code>personal</code> and <code>work</code> aliases &rarr; verify
-                        <code>personal</code> is active &rarr; setup applies the rotation tiers and
-                        lines &rarr; complete <code>cswap auto --once --dry-run</code> &rarr;
-                        install/check the menu service &rarr; enable
-                        <strong>Settings &rarr; Auto-switch accounts</strong>
-                        once in the menu
+                        native <code>personal</code>, <code>work</code> and
+                        <code>work2</code> aliases &rarr; verify <code>personal</code> is active
+                        &rarr; setup applies the rotation tiers and lines &rarr; every setup run
+                        runs <code>cswap auto --once --dry-run</code>; a failure stops only the run
+                        that turns Auto-switch on, and other runs warn &rarr; the run that completes
+                        the setup installs
+                        <code>cswap menubar --install-service --auto-switch</code>
                     </div>
 
                     <div class="flow-only">
                         <strong>Flow: Work-machine enrollment</strong><br />
-                        Capture only the native <code>work</code> alias &rarr; finish with
-                        <code>work</code> globally active &rarr; install/check the menu service
-                        &rarr; leave <strong>Auto-switch accounts</strong> disabled. If another
-                        account exists, setup exits non-zero without removing or disabling it;
-                        inspect with <code>cswap list</code> and use
+                        Capture the native <code>work</code> and <code>work2</code> aliases &rarr;
+                        finish with <code>work</code> globally active &rarr; every setup run runs
+                        <code>cswap auto --once --dry-run</code> &rarr; the run that completes the
+                        setup installs <code>cswap menubar --install-service --auto-switch</code>,
+                        so autoswitch rotates between the two work accounts. If the current Claude
+                        login is neither, setup reports itself incomplete and switches back to
+                        <code>work</code>. If any other account exists, setup exits non-zero without
+                        removing or disabling it; inspect with <code>cswap list</code> and use
                         <code>cswap remove &lt;number-or-alias&gt;</code> only after explicit
                         review.
                     </div>
@@ -3872,6 +3891,18 @@
                         <code>cswap disable personal2</code> (or the menu control); paid again
                         &rarr; <code>cswap enable personal2</code>. A lapsed or held-out
                         <code>personal2</code> never makes setup incomplete.
+                    </div>
+
+                    <div class="flow-only">
+                        <strong>Flow: Heavy work week</strong><br />
+                        The policy keeps the work Mac wall-free up to
+                        <strong>1.5&times;</strong> its measured weekday demand, or
+                        <strong>1&times;</strong> in a month with <code>personal2</code> held out.
+                        For a heavier week, on the personal Mac run
+                        <code>cswap disable work</code> and <code>cswap disable work2</code> from
+                        the weekend before &rarr; after the week, <code>cswap enable work</code> and
+                        <code>cswap enable work2</code>. Setup never re-enables them and never warns
+                        about them.
                     </div>
 
                     <h4>Managed policy and menu service</h4>
@@ -3893,6 +3924,7 @@
                             <tr>
                                 <td>Autoswitch</td>
                                 <td>
+                                    On for both machine types:
                                     <code>priority-consume-first</code> strategy,
                                     <code>85%</code> fallback line for an account without its own,
                                     no weekly threshold, <code>60s</code> checks,
@@ -3905,7 +3937,10 @@
                                 <td><code>cswap menubar --install-service</code></td>
                                 <td>
                                     Install or refresh upstream&rsquo;s login LaunchAgent; chezmoi
-                                    never owns <code>com.cswap.menubar.plist</code>
+                                    never owns <code>com.cswap.menubar.plist</code>. Only the setup
+                                    run that completes the required accounts, after the dry run,
+                                    adds <code>--auto-switch</code>; repair and
+                                    <code>--reauth</code> runs leave a paused menu paused
                                 </td>
                             </tr>
                             <tr>
@@ -3919,8 +3954,8 @@
                                 <td>
                                     Toggle <strong>Auto-switch accounts</strong> in the menu; pause
                                     it for a deliberate session on <code>work</code> (for example
-                                    Fable), or the engine returns to a higher tier within a minute.
-                                    No second dotfiles-managed watcher continues switching
+                                    Fable), or the engine returns to the account it prefers within a
+                                    minute. No second dotfiles-managed watcher continues switching
                                 </td>
                             </tr>
                             <tr>
@@ -3934,7 +3969,8 @@
                         </tbody>
                     </table>
 
-                    <h4>Trial rotation (personal machines)</h4>
+                    <h4>Trial rotation (per machine type)</h4>
+                    <p><strong>Personal machine</strong></p>
                     <table>
                         <thead>
                             <tr>
@@ -3951,10 +3987,11 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><code>work</code></td>
+                                <td><code>work</code>, <code>work2</code></td>
                                 <td>
-                                    <code>50</code> &middot; <code>60%</code> &mdash; shared with
-                                    the work Mac; the line keeps its reserve
+                                    <code>50</code> &middot; <code>70%</code> each &mdash; shared
+                                    with the work Mac; the line keeps its reserve. Within the tier
+                                    the account whose weekly window resets sooner goes first
                                 </td>
                             </tr>
                             <tr>
@@ -3966,27 +4003,54 @@
                             </tr>
                         </tbody>
                     </table>
+                    <p><strong>Work machine</strong></p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Account</th>
+                                <th>Tier &middot; switch line &mdash; role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>work</code>, <code>work2</code></td>
+                                <td>
+                                    <code>50</code> &middot; <code>95%</code> each &mdash; same
+                                    tier; the engine consumes the one whose weekly window resets
+                                    sooner and never lands above its line
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <p>
-                        These values are a <strong>trial</strong>, chosen from a simulation of the
-                        0.29.0 engine (<a href="https://claude.ai/artifact/6TgAbxVLuaYbFj3Psick5k"
-                            >simulation</a
-                        >, shared by link) and recorded in the design of the OpenSpec change
-                        <code>add-optional-claude-account</code>. Retuning goes through a new
-                        change, not a runtime edit. The engine uses the highest tier that is below
-                        its line on both the 5-hour and 7-day windows, and returns to a higher tier
-                        as soon as it is usable again (after the cooldown). Switch lines decide
-                        departure and landing; they are <strong>not usage caps</strong>. When no
-                        account is below its lines, the engine reports <code>BLOCKED</code>, visible
-                        with <code>cswap auto --once --dry-run</code> (exit <code>3</code>). The
-                        menu shows only the usage rows and sends no notification, and the active
-                        account keeps serving Claude Code until it is exhausted: slow down, or
-                        switch manually knowing that it spends a reserve. Tiers and lines live in
+                        These values are a <strong>trial</strong>, chosen from a two-Mac simulation
+                        of the 1.2.0 engine that is kept with the OpenSpec change
+                        <code>add-work2-rotation-policies</code> and recorded in its design.
+                        Retuning goes through a new change, not a runtime edit. The engine uses the
+                        highest tier that is below its line on both the 5-hour and 7-day windows,
+                        and returns to a higher tier as soon as it is usable again (after the
+                        cooldown). Switch lines decide departure and landing; they are
+                        <strong>not usage caps</strong>. When no account is below its lines, the
+                        engine reports <code>BLOCKED</code>, visible with
+                        <code>cswap auto --once --dry-run</code> (exit <code>3</code>). The menu
+                        shows only the usage rows and sends no notification, and the active account
+                        keeps serving Claude Code until it is exhausted: slow down, or switch
+                        manually knowing that it spends a reserve. Tiers and lines live in
                         upstream&rsquo;s runtime state. Every setup run except
-                        <code>--check</code> reapplies them; <code>chezmoi apply</code> only when
-                        the declared values, pin, or setup revision change, so after a lost tier run
+                        <code>--check</code> reapplies them, on both machine types;
+                        <code>chezmoi apply</code> only when the declared values, pin, or setup
+                        revision change, so after a lost tier run
                         <code>claude-swap-setup --apply-policy</code>. Restarts preserve the active
-                        identity. Work machines get no tiers or lines and keep automatic switching
-                        off.
+                        identity.
+                    </p>
+                    <p>
+                        The policy keeps the work Mac wall-free up to
+                        <strong>1.5&times;</strong> its measured weekday demand (about 16 points of
+                        a weekly quota per working day), not beyond, and up to
+                        <strong>1&times;</strong> in a month with <code>personal2</code> held out.
+                        For a heavier week, hold both work accounts out of the personal Mac&rsquo;s
+                        rotation from the weekend before and re-enable them afterwards (see the
+                        heavy-week flow above).
                     </p>
 
                     <h4>Ownership, recovery, and rollback</h4>
@@ -4015,10 +4079,15 @@
                                 <td>Authentication / alias repair</td>
                                 <td>
                                     Run
-                                    <code>claude-swap-setup --reauth personal|work|personal2</code>
+                                    <code
+                                        >claude-swap-setup --reauth
+                                        personal|work|work2|personal2</code
+                                    >
                                     with the intended alias, then at its prompt authenticate with
                                     <code>/login</code> (never <code>/logout</code> first) and press
-                                    Enter. It recaptures that alias in its existing slot and
+                                    Enter. Pause Auto-switch in the menu first, or the engine can
+                                    switch away from the new login before the capture; resume it
+                                    afterwards. It recaptures that alias in its existing slot and
                                     switches back to the previously active account; the base command
                                     continues to fill only missing required aliases.
                                 </td>
@@ -4029,6 +4098,19 @@
                                     Check <code>cswap menubar --service-status</code>, open the menu
                                     or run the upstream status flow from Terminal to grant access,
                                     then reauthenticate/re-run setup if required.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Setup complete, Auto-switch never turned on</td>
+                                <td>
+                                    Only the run that completes the setup turns Auto-switch on. If
+                                    that run fails after a capture, re-run
+                                    <code>claude-swap-setup</code>: it retries the activation until
+                                    one run succeeds. If <code>work2</code> was captured by hand,
+                                    setup cannot tell it from a pause and leaves it off; the
+                                    menu&rsquo;s health row reads <strong>Auto-switch off</strong>.
+                                    Run <code>cswap menubar --install-service --auto-switch</code>,
+                                    or turn on <strong>Auto-switch accounts</strong> in the menu.
                                 </td>
                             </tr>
                             <tr>
@@ -4056,13 +4138,19 @@
                                     Disable the menu toggle &rarr;
                                     <code>cswap menubar --uninstall-service</code> &rarr; select the
                                     desired global account &rarr; revert/apply the dotfiles change.
-                                    Clearing the trial with
+                                    Reverting restores the <code>0.29.0</code> pin and the previous
+                                    setup, which never turns autoswitch off, so on a work machine
+                                    the first step is what keeps it off (before the revert,
+                                    <code>cswap menubar --install-service --no-auto-switch</code>
+                                    does the same). Clearing the trial with
                                     <code>cswap priority &lt;alias&gt; --unset</code> and
-                                    <code>cswap threshold &lt;alias&gt; --unset</code> is optional
-                                    and must happen <em>before</em> the revert/apply step: 0.26.0
-                                    has neither command. Leaving them is harmless, since 0.26.0
-                                    ignores those fields. Do not delete Keychain accounts as part of
-                                    rollback.
+                                    <code>cswap threshold &lt;alias&gt; --unset</code> is optional;
+                                    leaving them is harmless. Keeping <code>work2</code> is harmless
+                                    on a personal machine. On a work machine the reverted setup
+                                    accepts only <code>work</code>, so every apply reports that
+                                    setup needs attention until you remove it with
+                                    <code>cswap remove work2</code>, or you accept that state. Do
+                                    not delete Keychain accounts as part of rollback.
                                 </td>
                             </tr>
                         </tbody>
