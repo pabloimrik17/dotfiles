@@ -2,7 +2,7 @@
 
 ### Requirement: Selected Matt Pocock skills are installed globally
 
-The installation configuration SHALL manage these skills from `mattpocock/skills`: `ask-matt`, `diagnosing-bugs`, `grill-with-docs`, `triage`, `improve-codebase-architecture`, `setup-matt-pocock-skills`, `tdd`, `to-spec`, `to-tickets`, `wayfinder`, `implement`, `prototype`, `research`, `domain-modeling`, `codebase-design`, `wizard`, `grill-me`, `grilling`, `handoff`, `teach`, `to-questionnaire`, `wait-what`, and `writing-for-agents`. It SHALL NOT select `resolving-merge-conflicts`, which upstream removed in v1.3.0.
+The installation configuration SHALL manage these skills from `mattpocock/skills`: `ask-matt`, `diagnosing-bugs`, `grill-with-docs`, `triage`, `improve-codebase-architecture`, `setup-matt-pocock-skills`, `tdd`, `to-spec`, `to-tickets`, `wayfinder`, `implement`, `prototype`, `research`, `domain-modeling`, `codebase-design`, `wizard`, `grill-me`, `grilling`, `handoff`, `teach`, `to-questionnaire`, `wait-what`, and `writing-for-agents`.
 
 #### Scenario: Selected skill is not yet installed
 
