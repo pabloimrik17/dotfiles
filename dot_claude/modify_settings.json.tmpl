@@ -118,9 +118,6 @@ MANAGED = json.loads(r'''
     "superpowers-developing-for-claude-code@superpowers-marketplace": true,
     "superpowers-lab@superpowers-marketplace": true,
     "superpowers@superpowers-marketplace": true,
-{{- if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }}
-    "superwhisper@superwhisper": true,
-{{- end }}
     "typesafe@typesafe-ai": true,
     "typescript-lsp@claude-plugins-official": true,
     "worktrunk@worktrunk": true
@@ -220,15 +217,6 @@ MANAGED = json.loads(r'''
         "source": "github"
       }
     },
-{{- if and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64") }}
-    "superwhisper": {
-      "autoUpdate": true,
-      "source": {
-        "repo": "superultrainc/superwhisper-claude-code",
-        "source": "github"
-      }
-    },
-{{- end }}
     "typesafe-ai": {
       "autoUpdate": true,
       "source": {
@@ -498,16 +486,11 @@ MERGE_CONTAINERS = {
 }
 
 # Paths deleted from the live file. `hooks.PreCompact` held only the duplicate
-# `bd prime` hook that the beads plugin already declares. The rest are the
-# host-conditional entries, emitted as removals on hosts where the condition is
-# false rather than merely omitted -- otherwise a key added on one host would
-# live forever in another host's file.
+# `bd prime` hook that the beads plugin already declares. A host-conditional
+# managed key also belongs here, under the negated condition: merely omitting it
+# where the condition is false would leave it in that host's file forever.
 REMOVE = [
     ("hooks", "PreCompact"),
-{{- if not (and (eq .chezmoi.os "darwin") (eq .chezmoi.arch "arm64")) }}
-    ("enabledPlugins", "superwhisper@superwhisper"),
-    ("extraKnownMarketplaces", "superwhisper"),
-{{- end }}
 ]
 
 

@@ -1,0 +1,156 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+# Removes the retired SuperWhisper plugins from Claude Code, Codex and OpenCode.
+# chezmoi records a run_once_ script only when it exits 0, so every failure must
+# exit non-zero for the next apply to retry it. That is also why nothing here
+# asks for confirmation: a declined or TTY-less prompt would record the run.
+# shellcheck disable=SC2016
+
+set -o pipefail
+
+PLUGIN="superwhisper@superwhisper"
+MARKETPLACE="superwhisper"
+FAILED=()
+
+info() {
+    echo "[dotfiles] $*"
+}
+
+error() {
+    echo "[dotfiles] ERROR: $*" >&2
+}
+
+# listed SHAPE MATCH COMMAND... returns 0 when MATCH holds for COMMAND's JSON,
+# 1 when it does not, and 2 when COMMAND fails or its output fails SHAPE.
+listed() {
+    local shape="$1" match="$2" output status
+    shift 2
+    output="$("$@" 2>/dev/null)" || return 2
+    jq -e "$shape" >/dev/null 2>&1 <<<"$output" || return 2
+    jq -e --arg plugin "$PLUGIN" --arg marketplace "$MARKETPLACE" "$match" >/dev/null 2>&1 <<<"$output"
+    status=$?
+    [ "$status" -le 1 ] || return 2
+    return "$status"
+}
+
+claude_plugin() {
+    listed 'type == "array"' 'any(.[]; .id == $plugin)' claude plugin list --json
+}
+
+claude_marketplace() {
+    listed 'type == "array"' 'any(.[]; .name == $marketplace)' claude plugin marketplace list --json
+}
+
+codex_plugin() {
+    listed '.installed | type == "array"' 'any(.installed[]; .pluginId == $plugin)' codex plugin list --json
+}
+
+codex_marketplace() {
+    listed '.marketplaces | type == "array"' 'any(.marketplaces[]; .name == $marketplace)' \
+        codex plugin marketplace list --json
+}
+
+# retire CHECK LABEL COMMAND... runs COMMAND when CHECK finds LABEL, then checks
+# again so a removal that exits 0 without effect still fails.
+retire() {
+    local check="$1" label="$2"
+    shift 2
+    "$check"
+    case $? in
+        1) return 0 ;;
+        2)
+            error "cannot read the listing for $label"
+            return 1
+            ;;
+    esac
+    info "Removing $label"
+    if ! "$@"; then
+        error "'$*' failed"
+        return 1
+    fi
+    "$check"
+    case $? in
+        1) return 0 ;;
+        0) error "$label is still listed after '$*'" ;;
+        *) error "cannot read the listing for $label after removing it" ;;
+    esac
+    return 1
+}
+
+claude_cleanup() {
+    local status=0
+    retire claude_plugin "Claude Code plugin $PLUGIN" claude plugin uninstall "$PLUGIN" || status=1
+    retire claude_marketplace "Claude Code marketplace $MARKETPLACE" \
+        claude plugin marketplace remove "$MARKETPLACE" || status=1
+    return "$status"
+}
+
+codex_cleanup() {
+    local status=0
+    retire codex_plugin "Codex plugin $PLUGIN" codex plugin remove "$PLUGIN" || status=1
+    retire codex_marketplace "Codex marketplace $MARKETPLACE" \
+        codex plugin marketplace remove "$MARKETPLACE" || status=1
+    return "$status"
+}
+
+# Prints each configured specifier of the package, versioned or not.
+# `opencode plugin list` needs the managed service and has reported no plugins
+# while the config listed several, so the global config files are read directly.
+opencode_specifiers() {
+    local dir="${XDG_CONFIG_HOME:-$HOME/.config}/opencode" file
+    for file in "$dir/opencode.json" "$dir/opencode.jsonc"; do
+        [ -e "$file" ] || continue
+        [ -r "$file" ] || return 1
+        grep -v '^[[:space:]]*//' "$file" | grep -oE '"@superwhisper/opencode(@[^"]*)?"' | tr -d '"'
+    done
+    return 0
+}
+
+# `opencode plugin remove` matches the configured specifier exactly and exits 0
+# when nothing matches, so the files are searched again afterwards.
+opencode_cleanup() {
+    local specifiers spec status=0
+    if ! specifiers="$(opencode_specifiers | sort -u)"; then
+        error "cannot read the OpenCode global config"
+        return 1
+    fi
+    [ -n "$specifiers" ] || return 0
+    while IFS= read -r spec; do
+        info "Removing OpenCode plugin $spec"
+        # </dev/null keeps the CLI from reading the rest of the loop's input.
+        if ! opencode plugin remove "$spec" </dev/null; then
+            error "'opencode plugin remove $spec' failed"
+            status=1
+        fi
+    done <<<"$specifiers"
+    if ! specifiers="$(opencode_specifiers)"; then
+        error "cannot read the OpenCode global config after removing the plugin"
+        return 1
+    fi
+    if [ -n "$specifiers" ]; then
+        error "the OpenCode global config still lists: $(printf '%s' "$specifiers" | tr '\n' ' ')"
+        return 1
+    fi
+    return "$status"
+}
+
+cleanup_agent() {
+    local name="$1" cli="$2" cleanup="$3"
+    if ! command -v "$cli" >/dev/null 2>&1; then
+        info "$name is not installed, nothing to remove"
+        return
+    fi
+    "$cleanup" || FAILED+=("$name")
+}
+
+cleanup_agent "Claude Code" claude claude_cleanup
+cleanup_agent "Codex" codex codex_cleanup
+cleanup_agent "OpenCode" opencode opencode_cleanup
+
+if [ "${#FAILED[@]}" -gt 0 ]; then
+    names="$(printf '%s, ' "${FAILED[@]}")"
+    error "SuperWhisper plugin cleanup failed for: ${names%, }"
+    exit 1
+fi
+info "No SuperWhisper agent plugin remains installed"
+{{ end -}}
