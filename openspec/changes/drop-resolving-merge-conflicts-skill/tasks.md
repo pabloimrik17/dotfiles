@@ -1,7 +1,7 @@
 ## 1. Drop the skill
 
 - [x] 1.1 Remove `resolving-merge-conflicts` from the `install_skill` list and the non-macOS fallback in `run_onchange_install-packages.sh.tmpl`; verify `grep resolving-merge-conflicts` finds nothing there and the fallback lists 23 `--skill` flags.
-- [x] 1.2 Update the OpenCode and Junie counts in `docs/manual.html` from 24 to 23; verify no other "24 skills" reference to the standalone set remains.
+- [x] 1.2 Update the standalone counts from 24 to 23 in `docs/manual.html` and `.agents/skills/sync-agent-config/parity.md`; verify no other 24-skill reference to the standalone set remains outside `openspec/changes/archive`.
 
 ## 2. Validate
 
