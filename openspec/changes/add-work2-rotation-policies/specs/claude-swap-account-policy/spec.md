@@ -47,7 +47,7 @@ The guided setup SHALL use native claude-swap account aliases. A personal machin
 
 ### Requirement: Manual choice and restart preserve the active identity
 
-Manual switches SHALL change the global default identity, not launch an isolated `cswap run` session. While autoswitch is on, a manual choice SHALL hold only until the engine prefers another account: a usable higher tier, or within a tier a usable account whose weekly window resets sooner. To keep the choice, the user SHALL pause Auto-switch in the menu. Restarting the menu or Mac, or re-running setup, SHALL preserve the current active identity and persisted anti-flap state rather than forcing the first-enrollment default. The one exception is an unmanaged login on a work machine, which setup replaces with `work`.
+Manual switches SHALL change the global default identity, not launch an isolated `cswap run` session. While autoswitch is on, a manual choice SHALL hold only until the engine prefers another account: a usable higher tier, or within a tier a usable account whose weekly window resets sooner. To keep the choice, the user SHALL pause Auto-switch in the menu. Restarting the menu or Mac, or re-running setup, SHALL preserve the current active identity and persisted anti-flap state rather than forcing the first-enrollment default. The exceptions are a run that completes an incomplete setup, which ends on the first-enrollment default, and an unmanaged login on a work machine, which setup replaces with `work`.
 
 #### Scenario: User switches globally to work
 
@@ -191,7 +191,7 @@ On a work machine, autoswitch SHALL be on and SHALL use `priority-consume-first`
 
 ### Requirement: Heavy work weeks hold the work accounts out on the personal machine
 
-The documented operating contract SHALL state that the policy keeps the work Mac wall-free up to 1.5 times its measured weekday demand, not beyond. For a heavier week, the user SHALL hold `work` and `work2` out of the personal machine's rotation with the upstream disable control from the weekend before, and re-enable them afterwards. The setup SHALL NOT re-enable or warn about held-out work accounts.
+The documented operating contract SHALL state that the policy keeps the work Mac wall-free up to 1.5 times its measured weekday demand while `personal2` is usable, and up to that demand in a month without it, not beyond. For a heavier week, the user SHALL hold `work` and `work2` out of the personal machine's rotation with the upstream disable control from the weekend before, and re-enable them afterwards. The setup SHALL NOT re-enable or warn about held-out work accounts.
 
 #### Scenario: Work accounts held out on the personal machine
 
@@ -207,7 +207,7 @@ The documented operating contract SHALL state that the policy keeps the work Mac
 #### Scenario: Reader learns the limit
 
 - **WHEN** a maintainer reads the manual's claude-swap subsection
-- **THEN** it states the 1.5× limit and the hold-out step for heavier weeks
+- **THEN** it states the 1.5× limit, the 1× limit without `personal2`, and the hold-out step for heavier weeks
 
 ### Requirement: Setup activates autoswitch through the upstream service
 

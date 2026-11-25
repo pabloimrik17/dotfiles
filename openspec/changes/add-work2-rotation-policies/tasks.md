@@ -7,7 +7,7 @@
 ## 2. Setup command: accounts
 
 - [x] 2.1 In `executable_claude-swap-setup.tmpl`, require `personal`, `work` and `work2` on personal machines, and exactly `work` and `work2` on work machines. The compliance message accepts both work accounts. The first work enrollment ends on `work`. Verify with tests for the new completeness, the incomplete existing Mac that lacks `work2`, and non-compliant extras (`personal2`, unaliased) on a work machine.
-- [x] 2.2 Allow `--enroll work2` and `--reauth work2` on both machine types, keep `personal2` personal-only, and update `USAGE`. Verify with tests for enroll and reauth on both types, rejections, the previous-account restore, and adopting an unaliased current login as `work2` in place.
+- [x] 2.2 Allow `--enroll work2` and `--reauth work2` on both machine types, keep `personal2` personal-only, and update `USAGE`. Verify with tests for enroll and reauth on both types, rejections, the previous-account restore, and adopting an unaliased current login as `work2` in place on a personal machine.
 - [x] 2.3 Remove the `--reauth` hold-out restore (`disable` after `add --slot`) and its comment. Verify the "keeps a held-out account out of rotation across --reauth" test passes with no `disable` in the command log and the fake reflecting upstream's #358 behaviour.
 
 ## 3. Setup command: rotation policies and activation
@@ -45,7 +45,7 @@
   - `work2` enrollment;
   - both trial policies with their values and the simulation reference;
   - autoswitch activation on both types, and the pause;
-  - the heavy-week hold-out and the ×1.5 limit;
+  - the heavy-week hold-out and the ×1.5 limit (×1 without `personal2`);
   - `--reauth work2`;
   - removal of the "work Mac keeps only `work`, autoswitch off" text.
 
@@ -73,3 +73,5 @@
 - [x] 8.3 A failed dry run stops only an activating run; other runs warn and refresh the service. Verify with a repair-run test on each machine type.
 - [x] 8.4 Report a work machine incomplete when its live login is neither work account, and switch it back to `work` without `--auto-switch`. Verify with a `--check` and setup test.
 - [x] 8.5 Tell the user to pause Auto-switch before a `--reauth` login, in the prompt and the manual. Limit the unaliased-adoption scenario to personal machines, and reword the manual's dry-run flows.
+- [x] 8.6 Probe the personal Mac without `personal2` (`twomac.py --no-p2`, `probes.sh`), and limit the wall-free claim to ×1 in such a month, with D8 applying from ×1. Verify the probe tables in the three summaries and that the existing runs in `results.json` are unchanged.
+- [x] 8.7 Make the simulation scripts fail on a failed shard and pass `--profile` to the report, record relative paths in `results.json`, require each command in the setup tests' ordering checks, run `--no-auto-switch` before the rollback's revert, and state that a reverted work Mac needs `work2` removed.

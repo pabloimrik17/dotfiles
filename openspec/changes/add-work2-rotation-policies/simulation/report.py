@@ -18,12 +18,13 @@ RULE_LINES = (60.0, 70.0, 80.0)
 DEMANDS = (1.0, 1.5, 2.0)
 
 
-def load(profile: str, pm: str = "ceiling") -> dict:
+def load(profile: str, pm: str = "ceiling", p2: str = "usable") -> dict:
     runs = json.loads((SIM / "results.json").read_text())["runs"]
     out = {}
     for r in runs.values():
         p = r["params"]
-        if p["profile"] != profile or p.get("personalMacDemand", "ceiling") != pm:
+        if (p["profile"] != profile or p.get("personalMacDemand", "ceiling") != pm
+                or p.get("personal2", "usable") != p2):
             continue
         out[(p["workStrategy"], p["workLine"], p["personalWorkLine"], p["demand"])] = r["metrics"]
     return out
@@ -144,6 +145,13 @@ def main() -> None:
             lines.append(f"  {SHORT[k[0]]:8} W{k[1]:g}: wall {wm['wallMin']} at-limit {wm['atLimitMin']} "
                          f"unserved {wm['unservedMin']:.0f} >=95 {wm['ge95Min']} switches {wm['switches']} "
                          f"unused w {un['work']} w2 {un['work2']}")
+    nop2 = load(profile, p2="absent")
+    if nop2:
+        lines.append("")
+        lines.append("Personal Mac without personal2 (held out)")
+        lines.append(HEADER)
+        for k in sorted(nop2, key=lambda k: (STRATEGIES.index(k[0]), k[1], k[2], k[3])):
+            lines.append(fmt_row(k, nop2[k]))
     text = "\n".join(lines)
     suffix = "" if profile == "peakTue" else f"-{profile}"
     (SIM / f"summary{suffix}.txt").write_text(text + "\n")

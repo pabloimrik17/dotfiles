@@ -3,7 +3,7 @@ real 1.2.0 engine, over the four shared accounts.
 
   run.sh twomac.py calibrate                       work-Mac demand check (busiest 5h per day)
   run.sh twomac.py run [--shard i/n] [--profile P] [--lines 50,60] [--demands 2]
-                       [--pm-idle] [--no-status-quo] [--only ID,ID]
+                       [--pm-idle] [--no-p2] [--no-status-quo] [--only ID,ID]
                                                    one JSON per run under results/runs/
   run.sh twomac.py merge                           fold results/runs/ into results.json
 """
@@ -84,16 +84,19 @@ def wm_rate7(t: float, mult: float, factors: tuple) -> float:
     return 0.0
 
 
-def run_id(s, wl, l, d, profile="peakTue", pm_on=True) -> str:
+def run_id(s, wl, l, d, profile="peakTue", pm_on=True, p2_on=True) -> str:
     base = f"{s}-W{wl:g}-L{l:g}-x{d:g}" if s != STATUS_QUO else f"statusquo-L{l:g}-x{d:g}"
     base = base if profile == "peakTue" else f"{base}-{profile}"
-    return base if pm_on else f"{base}-pmIdle"
+    base = base if pm_on else f"{base}-pmIdle"
+    return base if p2_on else f"{base}-noP2"
 
 
-def all_runs(profile: str, llines=LLINES, demands=DEMANDS, pm_on=True, status_quo=True) -> list[tuple]:
-    runs = [(s, wl, l, d, profile, pm_on) for s in STRATEGIES for wl in WLINES for l in llines for d in demands]
+def all_runs(profile: str, llines=LLINES, demands=DEMANDS, pm_on=True, status_quo=True,
+             p2_on=True) -> list[tuple]:
+    runs = [(s, wl, l, d, profile, pm_on, p2_on)
+            for s in STRATEGIES for wl in WLINES for l in llines for d in demands]
     if status_quo:
-        runs += [(STATUS_QUO, None, 60.0, d, profile, pm_on) for d in demands]
+        runs += [(STATUS_QUO, None, 60.0, d, profile, pm_on, p2_on) for d in demands]
     return runs
 
 
@@ -102,13 +105,13 @@ def gaps_of(stamps: list[float]) -> list[float]:
 
 
 def run(s: str, wl: float | None, l: float, mult: float, profile: str = "peakTue",
-        pm_on: bool = True) -> dict:
-    rid = run_id(s, wl, l, mult, profile, pm_on)
+        pm_on: bool = True, p2_on: bool = True) -> dict:
+    rid = run_id(s, wl, l, mult, profile, pm_on, p2_on)
     factors = PROFILES[profile]
     clock = h.Clock(T0)
     accts = {n: h.Acct(d7_reset=FIRST_RESET[n]) for n in h.NAMES}
-    pm = h.Mac("personal", slots=[W, P, P2, W2], active=P2, tiers=PM_TIERS,
-               lines={P2: 95.0, W: l, W2: l, P: 80.0})
+    pm = h.Mac("personal", slots=[W, P, P2, W2] if p2_on else [W, P, W2], active=P2 if p2_on else P,
+               tiers=PM_TIERS, lines={P2: 95.0, W: l, W2: l, P: 80.0})
     wm = h.Mac("work", slots=[W, W2], active=W, tiers=WM_TIERS,
                lines={W: wl, W2: wl} if wl is not None else {})
     root = h.SIM / "runs" / rid
@@ -287,7 +290,8 @@ def run(s: str, wl: float | None, l: float, mult: float, profile: str = "peakTue
             x.pop("t")
     return {"id": rid, "params": {"workStrategy": s, "workLine": wl, "personalWorkLine": l,
                                    "demand": mult, "profile": profile,
-                                   "personalMacDemand": "ceiling" if pm_on else "idle"},
+                                   "personalMacDemand": "ceiling" if pm_on else "idle",
+                                   **({} if p2_on else {"personal2": "absent"})},
             "metrics": metrics, "switches": switches, "samples": samples}
 
 
@@ -333,7 +337,7 @@ def main() -> None:
         return
     if cmd == "run":
         shard, nshards, profile, only = 0, 1, "peakTue", None
-        llines, demands, pm_on, status_quo = LLINES, DEMANDS, True, True
+        llines, demands, pm_on, status_quo, p2_on = LLINES, DEMANDS, True, True, True
         i = 1
         while i < len(args):
             if args[i] == "--shard":
@@ -351,6 +355,9 @@ def main() -> None:
             elif args[i] == "--pm-idle":
                 pm_on = False
                 i += 1
+            elif args[i] == "--no-p2":
+                p2_on = False
+                i += 1
             elif args[i] == "--no-status-quo":
                 status_quo = False
                 i += 1
@@ -360,7 +367,7 @@ def main() -> None:
             else:
                 sys.exit(f"unknown argument {args[i]}")
         outdir.mkdir(parents=True, exist_ok=True)
-        todo = [r for r in all_runs(profile, llines, demands, pm_on, status_quo)
+        todo = [r for r in all_runs(profile, llines, demands, pm_on, status_quo, p2_on)
                 if only is None or run_id(*r) in only]
         for k, spec in enumerate(todo):
             if k % nshards != shard:
@@ -380,7 +387,7 @@ def main() -> None:
             r.pop("samples")
             p = r["params"]
             main_run = (p["profile"] == "peakTue" and p.get("personalMacDemand") == "ceiling"
-                        and p["personalWorkLine"] in LLINES)
+                        and p.get("personal2", "usable") == "usable" and p["personalWorkLine"] in LLINES)
             sw = r.pop("switches")
             if main_run:
                 r["switches"] = {

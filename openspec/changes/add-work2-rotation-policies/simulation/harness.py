@@ -277,4 +277,5 @@ def event_kind(e) -> str:
 
 def meta() -> dict:
     return {"claudeSwap": version("claude-swap"), "python": sys.version.split()[0],
-            "home": str(HOME), "backupRoot": str(paths.get_backup_root())}
+            "home": str(HOME.relative_to(SIM)),
+            "backupRoot": str(paths.get_backup_root().relative_to(SIM))}

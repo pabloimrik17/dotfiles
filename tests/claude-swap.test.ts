@@ -221,6 +221,14 @@ function activeAlias(state: { activeAccountNumber: number | null; accounts: Fake
     return state.accounts.find((account) => account.number === state.activeAccountNumber)?.alias;
 }
 
+function expectInOrder(log: readonly string[], ...commands: string[]): void {
+    for (const command of commands) {
+        expect(log).toContain(command);
+    }
+    const indexes = commands.map((command) => log.indexOf(command));
+    expect(indexes).toEqual([...indexes].sort((a, b) => a - b));
+}
+
 async function prepareAutoswitchState(
     root: string,
     options: { dryRunExitCode?: number; autoswitchPending?: boolean },
@@ -1031,14 +1039,11 @@ describe("re-runnable claude-swap setup", () => {
         const result = await runSetupFixture({ role: "work", input: "\n\n" });
 
         expect(result.exitCode, result.stderr).toBe(0);
-        expect(result.log.indexOf("add --alias work")).toBeLessThan(
-            result.log.indexOf("add --alias work2"),
-        );
-        expect(result.log.indexOf("add --alias work2")).toBeLessThan(
-            result.log.indexOf("switch work"),
-        );
-        expect(result.log.indexOf("auto --once --dry-run")).toBeLessThan(
-            result.log.indexOf("menubar --install-service --auto-switch"),
+        expectInOrder(result.log, "add --alias work", "add --alias work2", "switch work");
+        expectInOrder(
+            result.log,
+            "auto --once --dry-run",
+            "menubar --install-service --auto-switch",
         );
         expect(result.log).not.toContain("menubar --install-service");
         expect(result.log).toContain("menubar --service-status");
@@ -1077,8 +1082,10 @@ describe("re-runnable claude-swap setup", () => {
                 "add --alias work2",
             ]);
             expect(result.log).toContain(`switch ${finalAlias}`);
-            expect(result.log.indexOf("auto --once --dry-run")).toBeLessThan(
-                result.log.indexOf("menubar --install-service --auto-switch"),
+            expectInOrder(
+                result.log,
+                "auto --once --dry-run",
+                "menubar --install-service --auto-switch",
             );
             expect(result.log).not.toContain("menubar --install-service");
             const unchanged = accounts.map(({ number, email, alias }) => [number, email, alias]);
@@ -1165,8 +1172,10 @@ describe("re-runnable claude-swap setup", () => {
 
             expect(result.exitCode, result.stderr).toBe(0);
             expect(result.log.some((command) => command.startsWith("add "))).toBe(false);
-            expect(result.log.indexOf("auto --once --dry-run")).toBeLessThan(
-                result.log.indexOf("menubar --install-service --auto-switch"),
+            expectInOrder(
+                result.log,
+                "auto --once --dry-run",
+                "menubar --install-service --auto-switch",
             );
             expect(result.autoswitchPending).toBe(false);
         },
@@ -1236,9 +1245,7 @@ describe("re-runnable claude-swap setup", () => {
         });
 
         expect(result.exitCode, result.stderr).toBe(0);
-        expect(result.log.indexOf("auto --once --dry-run")).toBeLessThan(
-            result.log.indexOf("menubar --install-service"),
-        );
+        expectInOrder(result.log, "auto --once --dry-run", "menubar --install-service");
         expect(result.log).not.toContain("menubar --install-service --auto-switch");
         expect(result.log).toContain("menubar --service-status");
         expect(result.log.some((command) => command.startsWith("switch "))).toBe(false);
@@ -1281,8 +1288,10 @@ describe("re-runnable claude-swap setup", () => {
             "add --alias work2",
         ]);
         expect(result.log).toContain("switch personal");
-        expect(result.log.indexOf("auto --once --dry-run")).toBeLessThan(
-            result.log.indexOf("menubar --install-service --auto-switch"),
+        expectInOrder(
+            result.log,
+            "auto --once --dry-run",
+            "menubar --install-service --auto-switch",
         );
         expect(result.log).not.toContain("menubar --install-service");
         expect(activeAlias(result.state)).toBe("personal");
@@ -1330,8 +1339,10 @@ describe("re-runnable claude-swap setup", () => {
                 "add --alias work2",
             ]);
             expect(result.log).toContain(`switch ${finalAlias}`);
-            expect(result.log.indexOf("auto --once --dry-run")).toBeLessThan(
-                result.log.indexOf("menubar --install-service --auto-switch"),
+            expectInOrder(
+                result.log,
+                "auto --once --dry-run",
+                "menubar --install-service --auto-switch",
             );
             expect(result.log).not.toContain("menubar --install-service");
             expect(
@@ -1444,6 +1455,27 @@ describe("re-runnable claude-swap setup", () => {
         },
     );
 
+    test("refuses --enroll work2 for an unaliased login on a work machine", async () => {
+        const result = await runSetupFixture({
+            role: "work",
+            accounts: [
+                ...workAccounts({ active: 3, work2: false }),
+                { number: 3, email: "hand@example.com", active: true },
+            ],
+            activeAccountNumber: 3,
+            args: ["--enroll", "work2"],
+            input: "\n",
+            loginAtPrompt: "unchanged",
+        });
+
+        expect(result.exitCode).not.toBe(0);
+        expect(result.stderr).toContain("other than the native 'work' and 'work2' aliases");
+        expect(result.log.some((command) => command.startsWith("add "))).toBe(false);
+        expect(
+            result.state.accounts.find((account) => account.number === 3)?.alias,
+        ).toBeUndefined();
+    });
+
     test("reauthenticates personal2 in its slot and ends on the previously active work", async () => {
         const result = await runSetupFixture({
             role: "personal",
@@ -1462,6 +1494,7 @@ describe("re-runnable claude-swap setup", () => {
         expect(personal2?.number).toBe(3);
         expect(personal2?.priority).toBe(100);
         expect(personal2?.threshold).toBe(95);
+        expect(result.log).toContain("add --slot 3");
         const addIndex = result.log.indexOf("add --slot 3");
         const policyIndexes = result.log
             .map((command, index) =>
@@ -2172,7 +2205,7 @@ describe("claude-swap documentation", () => {
             "cswap menubar --install-service --auto-switch",
             "priority-consume-first",
             "<strong>trial</strong>",
-            "openspec/changes/add-work2-rotation-policies/simulation/",
+            "<code>add-work2-rotation-policies</code>",
             "<strong>1.5&times;</strong>",
             "<strong>not usage caps</strong>",
             "Fable",

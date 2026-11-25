@@ -16,7 +16,7 @@ The trial P1·60 failed its primary criterion. In the week ending 2026-11-11, `w
   - **Work Mac (new)**: autoswitch on, `priority-consume-first`, `work` and `work2` at the same tier with line 95. **BREAKING**: replaces "work Mac keeps autoswitch off".
   - **Personal Mac**: `priority-consume-first`, `personal2` 100/95 and `personal` 10/80 do not change. `work` and `work2` share tier 50 and line 70 (was `work` 60).
   - Both machine types keep the same `settings.json`.
-- The policy guarantees a wall-free work Mac up to 1.5× its measured demand. For a heavier week, the manual tells the user to hold both work accounts out of the personal Mac's rotation.
+- The policy guarantees a wall-free work Mac up to 1.5× its measured demand while `personal2` is usable, and up to 1× in a month without it. For a heavier week, the manual tells the user to hold both work accounts out of the personal Mac's rotation.
 - The setup turns autoswitch on through `cswap menubar --install-service --auto-switch`, on both machine types. It does so only on the run that completes the setup, after the dry run. Repair runs leave a paused menu paused.
 - The reserve and the surplus are measured over both **work accounts**: the work Mac must never hit a wall, and the personal Mac spends what is left.
 - Extend `log-weekly-stats.py` to four accounts for the trial review.

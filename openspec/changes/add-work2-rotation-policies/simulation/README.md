@@ -9,7 +9,8 @@ uv venv .venv
 uv pip install --python .venv/bin/python 'claude-swap==1.2.0'
 ./run.sh twomac.py calibrate     # work-Mac demand check: busiest 5h window per day
 ./runall.sh                      # the 72 runs + 3 status-quo runs, merge, report -> summary.txt
-./probes.sh                      # L=50 floor, work Mac alone at x2, peakFri and flat day profiles
+./probes.sh                      # L=50 floor, work Mac alone at x2, peakFri and flat day profiles,
+                                 # personal Mac without personal2 at x1 and x1.5
 ./run.sh twomac.py merge         # fold every run in results/runs/ into results.json
 ./run.sh report.py peakFri       # -> summary-peakFri.txt (also: flat)
 ```
@@ -38,7 +39,7 @@ Accounts are account-wide and shared by both Macs, each with independent 5h and 
 
 Both engines: `threshold` 85 (only the ruler: every account has its own line), `weeklyThreshold` unset, so each per-account line governs both windows; `intervalSeconds` 60, `cooldownSeconds` 300, `hysteresisPct` 10, `unhealthyTicks` 3, no model limits, API-key accounts excluded. Each Mac has its own sequence, tiers, lines, state file and active account. Engines tick every 60 s around the clock (jitter pinned) and see exact, fresh usage of their own accounts.
 
-- **Personal Mac**: `priority-consume-first`; `personal2` 100/95, `work` 50/L, `work2` 50/L, `personal` 10/80, L in 60/70/80 (50 as a probe). Starts on `personal2`.
+- **Personal Mac**: `priority-consume-first`; `personal2` 100/95, `work` 50/L, `work2` 50/L, `personal` 10/80, L in 60/70/80 (50 as a probe). Starts on `personal2`; the `--no-p2` probe drops `personal2`, as a held-out month does, and starts on `personal`.
 - **Work Mac**: `work` and `work2` only, both at tier 50 and line W in 95/98; strategy S in `best`, `weekly-first`, `consume-first`, `priority-consume-first`. Starts on `work`. Status quo: no engine, stays on `work`, personal Mac at L 60.
 
 Rates, as calibrated in the archived README: Pro 5h about 1.1 %/min heavy, Max 5x 0.22 %/min, 7d about 1/6 of 5h.

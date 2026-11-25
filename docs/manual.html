@@ -3896,11 +3896,13 @@
                     <div class="flow-only">
                         <strong>Flow: Heavy work week</strong><br />
                         The policy keeps the work Mac wall-free up to
-                        <strong>1.5&times;</strong> its measured weekday demand. For a heavier week,
-                        on the personal Mac run <code>cswap disable work</code> and
-                        <code>cswap disable work2</code> from the weekend before &rarr; after the
-                        week, <code>cswap enable work</code> and <code>cswap enable work2</code>.
-                        Setup never re-enables them and never warns about them.
+                        <strong>1.5&times;</strong> its measured weekday demand, or
+                        <strong>1&times;</strong> in a month with <code>personal2</code> held out.
+                        For a heavier week, on the personal Mac run
+                        <code>cswap disable work</code> and <code>cswap disable work2</code> from
+                        the weekend before &rarr; after the week, <code>cswap enable work</code> and
+                        <code>cswap enable work2</code>. Setup never re-enables them and never warns
+                        about them.
                     </div>
 
                     <h4>Managed policy and menu service</h4>
@@ -4022,19 +4024,18 @@
                     </table>
                     <p>
                         These values are a <strong>trial</strong>, chosen from a two-Mac simulation
-                        of the 1.2.0 engine kept in
-                        <code>openspec/changes/add-work2-rotation-policies/simulation/</code> and
-                        recorded in the design of the OpenSpec change
-                        <code>add-work2-rotation-policies</code>. Retuning goes through a new
-                        change, not a runtime edit. The engine uses the highest tier that is below
-                        its line on both the 5-hour and 7-day windows, and returns to a higher tier
-                        as soon as it is usable again (after the cooldown). Switch lines decide
-                        departure and landing; they are <strong>not usage caps</strong>. When no
-                        account is below its lines, the engine reports <code>BLOCKED</code>, visible
-                        with <code>cswap auto --once --dry-run</code> (exit <code>3</code>). The
-                        menu shows only the usage rows and sends no notification, and the active
-                        account keeps serving Claude Code until it is exhausted: slow down, or
-                        switch manually knowing that it spends a reserve. Tiers and lines live in
+                        of the 1.2.0 engine that is kept with the OpenSpec change
+                        <code>add-work2-rotation-policies</code> and recorded in its design.
+                        Retuning goes through a new change, not a runtime edit. The engine uses the
+                        highest tier that is below its line on both the 5-hour and 7-day windows,
+                        and returns to a higher tier as soon as it is usable again (after the
+                        cooldown). Switch lines decide departure and landing; they are
+                        <strong>not usage caps</strong>. When no account is below its lines, the
+                        engine reports <code>BLOCKED</code>, visible with
+                        <code>cswap auto --once --dry-run</code> (exit <code>3</code>). The menu
+                        shows only the usage rows and sends no notification, and the active account
+                        keeps serving Claude Code until it is exhausted: slow down, or switch
+                        manually knowing that it spends a reserve. Tiers and lines live in
                         upstream&rsquo;s runtime state. Every setup run except
                         <code>--check</code> reapplies them, on both machine types;
                         <code>chezmoi apply</code> only when the declared values, pin, or setup
@@ -4045,9 +4046,11 @@
                     <p>
                         The policy keeps the work Mac wall-free up to
                         <strong>1.5&times;</strong> its measured weekday demand (about 16 points of
-                        a weekly quota per working day), not beyond. For a heavier week, hold both
-                        work accounts out of the personal Mac&rsquo;s rotation from the weekend
-                        before and re-enable them afterwards (see the heavy-week flow above).
+                        a weekly quota per working day), not beyond, and up to
+                        <strong>1&times;</strong> in a month with <code>personal2</code> held out.
+                        For a heavier week, hold both work accounts out of the personal Mac&rsquo;s
+                        rotation from the weekend before and re-enable them afterwards (see the
+                        heavy-week flow above).
                     </p>
 
                     <h4>Ownership, recovery, and rollback</h4>
@@ -4142,9 +4145,12 @@
                                     does the same). Clearing the trial with
                                     <code>cswap priority &lt;alias&gt; --unset</code> and
                                     <code>cswap threshold &lt;alias&gt; --unset</code> is optional;
-                                    leaving them is harmless. Remove <code>work2</code> only
-                                    explicitly if wanted. Do not delete Keychain accounts as part of
-                                    rollback.
+                                    leaving them is harmless. Keeping <code>work2</code> is harmless
+                                    on a personal machine. On a work machine the reverted setup
+                                    accepts only <code>work</code>, so every apply reports that
+                                    setup needs attention until you remove it with
+                                    <code>cswap remove work2</code>, or you accept that state. Do
+                                    not delete Keychain accounts as part of rollback.
                                 </td>
                             </tr>
                         </tbody>

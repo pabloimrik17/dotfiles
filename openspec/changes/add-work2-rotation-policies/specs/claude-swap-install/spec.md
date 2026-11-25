@@ -37,7 +37,7 @@ On macOS, the install workflow SHALL install `claude-swap[menubar]` at the exact
 
 ### Requirement: Account bootstrap is offered once and remains re-runnable
 
-The dotfiles SHALL install a dedicated guided claude-swap setup command. After a fresh or changed install, an interactive apply SHALL offer it when the required accounts are incomplete; a non-interactive apply SHALL print the command instead. The command SHALL stay safe to re-run, SHALL enroll `work2` or the optional `personal2` on request, and SHALL restore the previously active account after any capture outside a first enrollment.
+The dotfiles SHALL install a dedicated guided claude-swap setup command. After a fresh or changed install, an interactive apply SHALL offer it when the required accounts are incomplete; a non-interactive apply SHALL print the command instead. The command SHALL stay safe to re-run, SHALL enroll `work2` or the optional `personal2` on request, and SHALL restore the previously active account after any capture, except in a run that completes an incomplete setup, which ends on the first-enrollment default.
 
 #### Scenario: Interactive apply finds incomplete setup
 

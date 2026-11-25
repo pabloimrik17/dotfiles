@@ -2,8 +2,8 @@
  "meta": {
   "claudeSwap": "1.2.0",
   "python": "3.14.6",
-  "home": "/Users/etherless/WebstormProjects/dotfiles-worktrees/feat-agentic-task-v4sb-work2-rotation-policies/openspec/changes/add-work2-rotation-policies/simulation/home",
-  "backupRoot": "/Users/etherless/WebstormProjects/dotfiles-worktrees/feat-agentic-task-v4sb-work2-rotation-policies/openspec/changes/add-work2-rotation-policies/simulation/home/.claude-swap-backup",
+  "home": "home",
+  "backupRoot": "home/.claude-swap-backup",
   "t0": "Mon 11-02 00:00",
   "measureFrom": "Sun 11-08 00:00",
   "measureTo": "Sun 11-22 00:00"
@@ -3781,6 +3781,168 @@
     ]
    }
   },
+  "best-W95-L70-x1-flat-noP2": {
+   "id": "best-W95-L70-x1-flat-noP2",
+   "params": {
+    "workStrategy": "best",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 14.07,
+      "work2": 65.93
+     },
+     "switches": 1,
+     "triggers": {
+      "proactive": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": null,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20159
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 61.42,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 24.38
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 2358.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      5.0,
+      29.97
+     ],
+     "work2": [
+      13.59,
+      5.77
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.0,
+      "unusedPct": 5.0,
+      "byWorkMac": 70.8,
+      "byPersonalMac": 24.2,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 86.41,
+      "unusedPct": 13.59,
+      "byWorkMac": 51.87,
+      "byPersonalMac": 34.54,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 70.03,
+      "unusedPct": 29.97,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 70.03,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 94.23,
+      "unusedPct": 5.77,
+      "byWorkMac": 80.0,
+      "byPersonalMac": 14.23,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "best-W95-L70-x1-flat": {
    "id": "best-W95-L70-x1-flat",
    "params": {
@@ -3938,6 +4100,336 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "best-W95-L70-x1-noP2": {
+   "id": "best-W95-L70-x1-noP2",
+   "params": {
+    "workStrategy": "best",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 20.49,
+      "work2": 59.51
+     },
+     "switches": 1,
+     "triggers": {
+      "proactive": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": null,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20159
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 15.9,
+     "wallsPct": 0.34,
+     "overLineWhileAnotherBelowMin": 1,
+     "spendPtsPerWeek": {
+      "work": 59.88,
+      "personal": 7.62,
+      "personal2": 0.0,
+      "work2": 24.11
+     },
+     "workSurplusPtsPerWeek": 83.98,
+     "switches": 6,
+     "triggers": {
+      "proactive": 4,
+      "at-limit": 1,
+      "priority": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 99.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20096,
+      "cooldown": 24,
+      "no-qualifying-candidate": 34
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      5.0,
+      36.2
+     ],
+     "work2": [
+      23.77,
+      9.0
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.0,
+      "unusedPct": 5.0,
+      "byWorkMac": 67.65,
+      "byPersonalMac": 27.35,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 45.24,
+      "unusedPct": 54.76,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.24,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 76.23,
+      "unusedPct": 23.77,
+      "byWorkMac": 39.02,
+      "byPersonalMac": 37.22,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 63.8,
+      "unusedPct": 36.2,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 63.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 91.0,
+      "unusedPct": 9.0,
+      "byWorkMac": 80.0,
+      "byPersonalMac": 11.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "best-W95-L70-x1-peakFri-noP2": {
+   "id": "best-W95-L70-x1-peakFri-noP2",
+   "params": {
+    "workStrategy": "best",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 57.61,
+      "work2": 22.39
+     },
+     "switches": 2,
+     "triggers": {
+      "proactive": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 3274.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20158
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 15.9,
+     "wallsPct": 0.34,
+     "overLineWhileAnotherBelowMin": 1,
+     "spendPtsPerWeek": {
+      "work": 30.78,
+      "personal": 7.62,
+      "personal2": 0.0,
+      "work2": 53.2
+     },
+     "workSurplusPtsPerWeek": 83.98,
+     "switches": 6,
+     "triggers": {
+      "proactive": 4,
+      "at-limit": 1,
+      "priority": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 99.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20096,
+      "cooldown": 24,
+      "no-qualifying-candidate": 34
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      4.99,
+      18.23
+     ],
+     "work2": [
+      4.98,
+      43.83
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 77.27,
+      "byPersonalMac": 17.75,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 44.78,
+      "byPersonalMac": 50.23,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 81.77,
+      "unusedPct": 18.23,
+      "byWorkMac": 37.95,
+      "byPersonalMac": 43.82,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 45.24,
+      "unusedPct": 54.76,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.24,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 56.17,
+      "unusedPct": 43.83,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 56.17,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -4105,6 +4597,170 @@
     ]
    }
   },
+  "best-W95-L70-x1.5-flat-noP2": {
+   "id": "best-W95-L70-x1.5-flat-noP2",
+   "params": {
+    "workStrategy": "best",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 66.97,
+      "work2": 53.03
+     },
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 2941.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20156
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 232.6,
+     "wallsPct": 4.97,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 28.05,
+      "personal": 42.47,
+      "personal2": 0.0,
+      "work2": 44.99
+     },
+     "workSurplusPtsPerWeek": 73.04,
+     "switches": 15,
+     "triggers": {
+      "proactive": 8,
+      "priority": 7
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 28.0,
+     "pingPongUnder30Min": 1,
+     "landedOverLine": 0,
+     "nearLineLandings": 1,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19571,
+      "cooldown": 60,
+      "no-qualifying-candidate": 514
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 20,
+     "unservedPts": 2.86
+    },
+    "workUnusedAtReset": {
+     "work": [
+      4.99,
+      4.98
+     ],
+     "work2": [
+      4.99,
+      4.98
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 89.0,
+      "byPersonalMac": 6.01,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 41.18,
+      "unusedPct": 58.82,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 11.18,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 56.03,
+      "byPersonalMac": 38.98,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 63.97,
+      "byPersonalMac": 31.06,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 55.36,
+      "unusedPct": 44.64,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 26.79,
+      "byApp": 28.57
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 50.03,
+      "byPersonalMac": 44.99,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "best-W95-L70-x1.5-flat": {
    "id": "best-W95-L70-x1.5-flat",
    "params": {
@@ -4262,6 +4918,434 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "best-W95-L70-x1.5-noP2": {
+   "id": "best-W95-L70-x1.5-noP2",
+   "params": {
+    "workStrategy": "best",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 76,
+     "atLimitMin": 76,
+     "unservedMin": 78.0,
+     "ge95Min": 168,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [
+      {
+       "start": "Tue 11-17 13:10",
+       "minutes": 4,
+       "wallMinutes": 4,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        3.3,
+        100.0
+       ],
+       "work2": [
+        100.0,
+        51.9
+       ]
+      },
+      {
+       "start": "Tue 11-17 17:02",
+       "minutes": 72,
+       "wallMinutes": 72,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        3.3,
+        100.0
+       ],
+       "work2": [
+        100.0,
+        68.5
+       ]
+      }
+     ],
+     "servedPtsPerWeek": {
+      "work": 59.39,
+      "work2": 57.74
+     },
+     "switches": 7,
+     "triggers": {
+      "proactive": 6,
+      "at-limit": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 68.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 2,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 19985,
+      "no-qualifying-candidate": 73,
+      "cooldown": 5,
+      "all-exhausted": 10
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 126.9,
+     "wallsPct": 2.71,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 50.97,
+      "personal": 34.02,
+      "personal2": 0.0,
+      "work2": 25.7
+     },
+     "workSurplusPtsPerWeek": 76.67,
+     "switches": 17,
+     "triggers": {
+      "proactive": 11,
+      "priority": 6
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 20.0,
+     "pingPongUnder30Min": 2,
+     "landedOverLine": 0,
+     "nearLineLandings": 1,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19686,
+      "cooldown": 68,
+      "no-qualifying-candidate": 389
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      11.88,
+      0.0
+     ],
+     "work2": [
+      29.98,
+      4.99
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 88.12,
+      "unusedPct": 11.88,
+      "byWorkMac": 24.32,
+      "byPersonalMac": 63.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 48.7,
+      "unusedPct": 51.3,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 18.7,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 70.02,
+      "unusedPct": 29.98,
+      "byWorkMac": 55.68,
+      "byPersonalMac": 14.34,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 69.97,
+      "byPersonalMac": 30.03,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 79.34,
+      "unusedPct": 20.66,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 49.34,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 59.81,
+      "byPersonalMac": 35.2,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "best-W95-L70-x1.5-peakFri-noP2": {
+   "id": "best-W95-L70-x1.5-peakFri-noP2",
+   "params": {
+    "workStrategy": "best",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 151,
+     "atLimitMin": 151,
+     "unservedMin": 155.2,
+     "ge95Min": 336,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [
+      {
+       "start": "Fri 11-13 12:57",
+       "minutes": 3,
+       "wallMinutes": 3,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        47.3
+       ],
+       "work2": [
+        29.9,
+        100.0
+       ]
+      },
+      {
+       "start": "Fri 11-13 16:48",
+       "minutes": 72,
+       "wallMinutes": 72,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        63.9
+       ],
+       "work2": [
+        0.0,
+        100.0
+       ]
+      },
+      {
+       "start": "Fri 11-20 13:59",
+       "minutes": 4,
+       "wallMinutes": 4,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        38.7
+       ],
+       "work2": [
+        24.9,
+        100.0
+       ]
+      },
+      {
+       "start": "Fri 11-20 17:51",
+       "minutes": 72,
+       "wallMinutes": 72,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        55.3
+       ],
+       "work2": [
+        24.9,
+        100.0
+       ]
+      }
+     ],
+     "servedPtsPerWeek": {
+      "work": 54.97,
+      "work2": 59.34
+     },
+     "switches": 7,
+     "triggers": {
+      "proactive": 5,
+      "at-limit": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 68.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 4,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 19817,
+      "no-qualifying-candidate": 147,
+      "cooldown": 10,
+      "all-exhausted": 20
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 229.9,
+     "wallsPct": 4.91,
+     "overLineWhileAnotherBelowMin": 35,
+     "spendPtsPerWeek": {
+      "work": 27.54,
+      "personal": 45.48,
+      "personal2": 0.0,
+      "work2": 44.95
+     },
+     "workSurplusPtsPerWeek": 72.49,
+     "switches": 21,
+     "triggers": {
+      "proactive": 12,
+      "priority": 9
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 30.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 1,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19530,
+      "cooldown": 84,
+      "no-qualifying-candidate": 525
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 12,
+     "unservedPts": 1.71
+    },
+    "workUnusedAtReset": {
+     "work": [
+      30.0,
+      4.98
+     ],
+     "work2": [
+      0.0,
+      0.0
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 70.0,
+      "unusedPct": 30.0,
+      "byWorkMac": 57.28,
+      "byPersonalMac": 12.72,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 36.05,
+      "unusedPct": 63.95,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 6.05,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 63.59,
+      "byPersonalMac": 36.41,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 72.43,
+      "byPersonalMac": 22.59,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 81.96,
+      "unusedPct": 18.04,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 53.39,
+      "byApp": 28.57
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 55.08,
+      "byPersonalMac": 44.92,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -10993,6 +12077,169 @@
     ]
    }
   },
+  "best-W98-L70-x1-flat-noP2": {
+   "id": "best-W98-L70-x1-flat-noP2",
+   "params": {
+    "workStrategy": "best",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 135,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 15.57,
+      "work2": 64.43
+     },
+     "switches": 1,
+     "triggers": {
+      "proactive": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": null,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20159
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 61.42,
+      "personal": 0.46,
+      "personal2": 0.0,
+      "work2": 24.29
+     },
+     "workSurplusPtsPerWeek": 85.71,
+     "switches": 6,
+     "triggers": {
+      "proactive": 5,
+      "priority": 1
+     },
+     "gapsUnder10Min": 1,
+     "gapsUnder15Min": 1,
+     "minGapMin": 5.0,
+     "pingPongUnder30Min": 1,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 1,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20130,
+      "cooldown": 24
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      2.0,
+      29.97
+     ],
+     "work2": [
+      13.99,
+      8.56
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 98.0,
+      "unusedPct": 2.0,
+      "byWorkMac": 73.8,
+      "byPersonalMac": 24.2,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.92,
+      "unusedPct": 69.08,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.92,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 86.01,
+      "unusedPct": 13.99,
+      "byWorkMac": 48.87,
+      "byPersonalMac": 37.14,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 70.03,
+      "unusedPct": 29.97,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 70.03,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 91.44,
+      "unusedPct": 8.56,
+      "byWorkMac": 80.0,
+      "byPersonalMac": 11.44,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "best-W98-L70-x1-flat": {
    "id": "best-W98-L70-x1-flat",
    "params": {
@@ -11148,6 +12395,331 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "best-W98-L70-x1-noP2": {
+   "id": "best-W98-L70-x1-noP2",
+   "params": {
+    "workStrategy": "best",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 62,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 22.01,
+      "work2": 57.99
+     },
+     "switches": 1,
+     "triggers": {
+      "proactive": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": null,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20159
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 3.9,
+     "wallsPct": 0.08,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 59.88,
+      "personal": 7.89,
+      "personal2": 0.0,
+      "work2": 24.27
+     },
+     "workSurplusPtsPerWeek": 84.15,
+     "switches": 6,
+     "triggers": {
+      "proactive": 4,
+      "priority": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 90.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20108,
+      "cooldown": 24,
+      "no-qualifying-candidate": 22
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      1.97,
+      36.2
+     ],
+     "work2": [
+      26.47,
+      9.0
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 98.03,
+      "unusedPct": 1.97,
+      "byWorkMac": 70.68,
+      "byPersonalMac": 27.35,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 45.79,
+      "unusedPct": 54.21,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.79,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 73.53,
+      "unusedPct": 26.47,
+      "byWorkMac": 35.99,
+      "byPersonalMac": 37.55,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 63.8,
+      "unusedPct": 36.2,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 63.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 91.0,
+      "unusedPct": 9.0,
+      "byWorkMac": 80.0,
+      "byPersonalMac": 11.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "best-W98-L70-x1-peakFri-noP2": {
+   "id": "best-W98-L70-x1-peakFri-noP2",
+   "params": {
+    "workStrategy": "best",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 246,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 80.0,
+      "work2": 0.0
+     },
+     "switches": 0,
+     "triggers": {},
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": null,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20160
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 17.75,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 68.05
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 4,
+     "triggers": {
+      "proactive": 2,
+      "priority": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 1684.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      2.25,
+      2.25
+     ],
+     "work2": [
+      31.95,
+      31.95
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 97.75,
+      "unusedPct": 2.25,
+      "byWorkMac": 80.0,
+      "byPersonalMac": 17.75,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 68.05,
+      "unusedPct": 31.95,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 68.05,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 97.75,
+      "unusedPct": 2.25,
+      "byWorkMac": 80.0,
+      "byPersonalMac": 17.75,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 68.05,
+      "unusedPct": 31.95,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 68.05,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -11313,6 +12885,170 @@
     ]
    }
   },
+  "best-W98-L70-x1.5-flat-noP2": {
+   "id": "best-W98-L70-x1.5-flat-noP2",
+   "params": {
+    "workStrategy": "best",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 360,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 64.92,
+      "work2": 55.08
+     },
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 3002.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20156
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 96.9,
+     "wallsPct": 2.07,
+     "overLineWhileAnotherBelowMin": 117,
+     "spendPtsPerWeek": {
+      "work": 33.09,
+      "personal": 24.94,
+      "personal2": 0.0,
+      "work2": 45.94
+     },
+     "workSurplusPtsPerWeek": 79.03,
+     "switches": 19,
+     "triggers": {
+      "proactive": 10,
+      "priority": 9
+     },
+     "gapsUnder10Min": 3,
+     "gapsUnder15Min": 3,
+     "minGapMin": 7.0,
+     "pingPongUnder30Min": 4,
+     "landedOverLine": 0,
+     "nearLineLandings": 1,
+     "shortDwellUnder15Min": 3,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19950,
+      "cooldown": 76,
+      "no-qualifying-candidate": 115
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 10,
+     "unservedPts": 1.43
+    },
+    "workUnusedAtReset": {
+     "work": [
+      1.99,
+      1.98
+     ],
+     "work2": [
+      1.97,
+      1.99
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 98.01,
+      "unusedPct": 1.99,
+      "byWorkMac": 92.0,
+      "byPersonalMac": 6.01,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 32.93,
+      "unusedPct": 67.07,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 2.93,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 98.03,
+      "unusedPct": 1.97,
+      "byWorkMac": 58.1,
+      "byPersonalMac": 39.93,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 98.02,
+      "unusedPct": 1.98,
+      "byWorkMac": 61.9,
+      "byPersonalMac": 36.12,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 51.63,
+      "unusedPct": 48.37,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 21.63,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 98.01,
+      "unusedPct": 1.99,
+      "byWorkMac": 52.07,
+      "byPersonalMac": 45.94,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "best-W98-L70-x1.5-flat": {
    "id": "best-W98-L70-x1.5-flat",
    "params": {
@@ -11470,6 +13206,436 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "best-W98-L70-x1.5-noP2": {
+   "id": "best-W98-L70-x1.5-noP2",
+   "params": {
+    "workStrategy": "best",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 117,
+     "atLimitMin": 118,
+     "unservedMin": 120.0,
+     "ge95Min": 321,
+     "overLineWhileOtherBelowMin": 1,
+     "atLimitEpisodes": [
+      {
+       "start": "Tue 11-17 13:10",
+       "minutes": 46,
+       "wallMinutes": 45,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        4.1,
+        100.0
+       ],
+       "work2": [
+        100.0,
+        51.9
+       ]
+      },
+      {
+       "start": "Tue 11-17 17:44",
+       "minutes": 72,
+       "wallMinutes": 72,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        4.1,
+        100.0
+       ],
+       "work2": [
+        100.0,
+        68.5
+       ]
+      }
+     ],
+     "servedPtsPerWeek": {
+      "work": 56.03,
+      "work2": 59.57
+     },
+     "switches": 7,
+     "triggers": {
+      "proactive": 5,
+      "at-limit": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 73.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 1,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 19998,
+      "no-qualifying-candidate": 5,
+      "cooldown": 4,
+      "all-exhausted": 15
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 125.4,
+     "wallsPct": 2.68,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 52.12,
+      "personal": 34.61,
+      "personal2": 0.0,
+      "work2": 24.46
+     },
+     "workSurplusPtsPerWeek": 76.58,
+     "switches": 16,
+     "triggers": {
+      "proactive": 9,
+      "at-limit": 1,
+      "priority": 6
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 15.0,
+     "pingPongUnder30Min": 2,
+     "landedOverLine": 0,
+     "nearLineLandings": 1,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19676,
+      "cooldown": 64,
+      "no-qualifying-candidate": 404
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      12.91,
+      0.0
+     ],
+     "work2": [
+      29.98,
+      1.97
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 87.09,
+      "unusedPct": 12.91,
+      "byWorkMac": 23.29,
+      "byPersonalMac": 63.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 50.74,
+      "unusedPct": 49.26,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 20.74,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 70.02,
+      "unusedPct": 29.98,
+      "byWorkMac": 56.71,
+      "byPersonalMac": 13.31,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 69.97,
+      "byPersonalMac": 30.03,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 78.48,
+      "unusedPct": 21.52,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 48.48,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 98.03,
+      "unusedPct": 1.97,
+      "byWorkMac": 62.43,
+      "byPersonalMac": 35.6,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "best-W98-L70-x1.5-peakFri-noP2": {
+   "id": "best-W98-L70-x1.5-peakFri-noP2",
+   "params": {
+    "workStrategy": "best",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 197,
+     "atLimitMin": 199,
+     "unservedMin": 203.0,
+     "ge95Min": 781,
+     "overLineWhileOtherBelowMin": 2,
+     "atLimitEpisodes": [
+      {
+       "start": "Fri 11-13 12:16",
+       "minutes": 45,
+       "wallMinutes": 44,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        44.3
+       ],
+       "work2": [
+        11.9,
+        100.0
+       ]
+      },
+      {
+       "start": "Fri 11-13 16:49",
+       "minutes": 72,
+       "wallMinutes": 72,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        60.9
+       ],
+       "work2": [
+        0.0,
+        100.0
+       ]
+      },
+      {
+       "start": "Fri 11-20 14:50",
+       "minutes": 46,
+       "wallMinutes": 45,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        38.7
+       ],
+       "work2": [
+        11.8,
+        100.0
+       ]
+      },
+      {
+       "start": "Fri 11-20 19:24",
+       "minutes": 36,
+       "wallMinutes": 36,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        55.3
+       ],
+       "work2": [
+        0.0,
+        100.0
+       ]
+      }
+     ],
+     "servedPtsPerWeek": {
+      "work": 53.86,
+      "work2": 58.69
+     },
+     "switches": 7,
+     "triggers": {
+      "proactive": 3,
+      "at-limit": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 73.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 2,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 19843,
+      "no-qualifying-candidate": 10,
+      "cooldown": 8,
+      "all-exhausted": 30
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 192.6,
+     "wallsPct": 4.12,
+     "overLineWhileAnotherBelowMin": 1,
+     "spendPtsPerWeek": {
+      "work": 30.14,
+      "personal": 33.95,
+      "personal2": 0.0,
+      "work2": 45.34
+     },
+     "workSurplusPtsPerWeek": 75.48,
+     "switches": 16,
+     "triggers": {
+      "proactive": 9,
+      "priority": 6,
+      "at-limit": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 30.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19606,
+      "cooldown": 64,
+      "no-qualifying-candidate": 474
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 10,
+     "unservedPts": 1.43
+    },
+    "workUnusedAtReset": {
+     "work": [
+      30.0,
+      1.99
+     ],
+     "work2": [
+      0.0,
+      0.0
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 70.0,
+      "unusedPct": 30.0,
+      "byWorkMac": 58.31,
+      "byPersonalMac": 11.7,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 35.68,
+      "unusedPct": 64.32,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 5.68,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 63.59,
+      "byPersonalMac": 36.41,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 98.01,
+      "unusedPct": 1.99,
+      "byWorkMac": 74.39,
+      "byPersonalMac": 23.61,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 75.55,
+      "unusedPct": 24.45,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 46.98,
+      "byApp": 28.57
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 53.8,
+      "byPersonalMac": 46.2,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -18066,6 +20232,169 @@
     ]
    }
   },
+  "consume-first-W95-L70-x1-flat-noP2": {
+   "id": "consume-first-W95-L70-x1-flat-noP2",
+   "params": {
+    "workStrategy": "consume-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 37.33,
+      "work2": 42.67
+     },
+     "switches": 4,
+     "triggers": {
+      "consume-first": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4500.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-soonest": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 52.8,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 33.0
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4490.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      15.22,
+      9.87
+     ],
+     "work2": [
+      24.33,
+      24.33
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 84.78,
+      "unusedPct": 15.22,
+      "byWorkMac": 37.33,
+      "byPersonalMac": 47.45,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 75.67,
+      "unusedPct": 24.33,
+      "byWorkMac": 42.67,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 90.13,
+      "unusedPct": 9.87,
+      "byWorkMac": 37.33,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 75.67,
+      "unusedPct": 24.33,
+      "byWorkMac": 42.67,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "consume-first-W95-L70-x1-flat": {
    "id": "consume-first-W95-L70-x1-flat",
    "params": {
@@ -18224,6 +20553,335 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "consume-first-W95-L70-x1-noP2": {
+   "id": "consume-first-W95-L70-x1-noP2",
+   "params": {
+    "workStrategy": "consume-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 52.94,
+      "work2": 27.06
+     },
+     "switches": 4,
+     "triggers": {
+      "consume-first": 3,
+      "proactive": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4469.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-soonest": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 42.84,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 42.95
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 6,
+     "triggers": {
+      "proactive": 5,
+      "priority": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 61.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20130,
+      "cooldown": 24
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      11.47,
+      5.0
+     ],
+     "work2": [
+      29.99,
+      29.97
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 88.53,
+      "unusedPct": 11.47,
+      "byWorkMac": 53.33,
+      "byPersonalMac": 35.2,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 70.01,
+      "unusedPct": 29.99,
+      "byWorkMac": 26.67,
+      "byPersonalMac": 43.34,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.0,
+      "unusedPct": 5.0,
+      "byWorkMac": 52.54,
+      "byPersonalMac": 42.46,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 70.03,
+      "unusedPct": 29.97,
+      "byWorkMac": 27.46,
+      "byPersonalMac": 42.57,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "consume-first-W95-L70-x1-peakFri-noP2": {
+   "id": "consume-first-W95-L70-x1-peakFri-noP2",
+   "params": {
+    "workStrategy": "consume-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 27.73,
+      "work2": 52.27
+     },
+     "switches": 4,
+     "triggers": {
+      "consume-first": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4500.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-soonest": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 52.8,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 33.0
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 8,
+     "triggers": {
+      "proactive": 6,
+      "priority": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 61.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20120,
+      "cooldown": 32
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      19.47,
+      19.47
+     ],
+     "work2": [
+      14.73,
+      14.73
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 80.53,
+      "unusedPct": 19.47,
+      "byWorkMac": 27.73,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 85.27,
+      "unusedPct": 14.73,
+      "byWorkMac": 52.27,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 80.53,
+      "unusedPct": 19.47,
+      "byWorkMac": 27.73,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 85.27,
+      "unusedPct": 14.73,
+      "byWorkMac": 52.27,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -18392,6 +21050,170 @@
     ]
    }
   },
+  "consume-first-W95-L70-x1.5-flat-noP2": {
+   "id": "consume-first-W95-L70-x1.5-flat-noP2",
+   "params": {
+    "workStrategy": "consume-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 55.48,
+      "work2": 64.52
+     },
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 3403.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-soonest": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 1,
+     "spendPtsPerWeek": {
+      "work": 54.45,
+      "personal": 4.22,
+      "personal2": 0.0,
+      "work2": 30.51
+     },
+     "workSurplusPtsPerWeek": 84.96,
+     "switches": 14,
+     "triggers": {
+      "proactive": 9,
+      "priority": 5
+     },
+     "gapsUnder10Min": 1,
+     "gapsUnder15Min": 1,
+     "minGapMin": 7.0,
+     "pingPongUnder30Min": 3,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 1,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20090,
+      "cooldown": 56
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      4.98,
+      4.98
+     ],
+     "work2": [
+      4.98,
+      4.98
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 49.0,
+      "byPersonalMac": 46.02,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 65.43,
+      "byPersonalMac": 29.59,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 41.97,
+      "byPersonalMac": 53.06,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 37.15,
+      "unusedPct": 62.85,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 7.15,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 63.6,
+      "byPersonalMac": 31.42,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "consume-first-W95-L70-x1.5-flat": {
    "id": "consume-first-W95-L70-x1.5-flat",
    "params": {
@@ -18551,6 +21373,371 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "consume-first-W95-L70-x1.5-noP2": {
+   "id": "consume-first-W95-L70-x1.5-noP2",
+   "params": {
+    "workStrategy": "consume-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 76,
+     "atLimitMin": 76,
+     "unservedMin": 77.9,
+     "ge95Min": 168,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [
+      {
+       "start": "Tue 11-17 13:36",
+       "minutes": 4,
+       "wallMinutes": 4,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        14.8,
+        100.0
+       ],
+       "work2": [
+        100.0,
+        27.7
+       ]
+      },
+      {
+       "start": "Tue 11-17 17:28",
+       "minutes": 72,
+       "wallMinutes": 72,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        14.8,
+        100.0
+       ],
+       "work2": [
+        100.0,
+        44.3
+       ]
+      }
+     ],
+     "servedPtsPerWeek": {
+      "work": 40.4,
+      "work2": 76.75
+     },
+     "switches": 9,
+     "triggers": {
+      "consume-first": 2,
+      "proactive": 6,
+      "at-limit": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 68.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 2,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-soonest": 19955,
+      "cooldown": 33,
+      "no-qualifying-candidate": 73,
+      "all-exhausted": 10
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 65.32,
+      "personal": 11.09,
+      "personal2": 0.0,
+      "work2": 18.26
+     },
+     "workSurplusPtsPerWeek": 83.58,
+     "switches": 10,
+     "triggers": {
+      "proactive": 7,
+      "priority": 3
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 121.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20110,
+      "cooldown": 40
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      8.92,
+      0.0
+     ],
+     "work2": [
+      4.99,
+      5.0
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 91.08,
+      "unusedPct": 8.92,
+      "byWorkMac": 31.68,
+      "byPersonalMac": 59.4,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 79.72,
+      "byPersonalMac": 15.29,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 40.49,
+      "byPersonalMac": 59.51,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 52.18,
+      "unusedPct": 47.82,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 22.18,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 95.0,
+      "unusedPct": 5.0,
+      "byWorkMac": 73.77,
+      "byPersonalMac": 21.23,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "consume-first-W95-L70-x1.5-peakFri-noP2": {
+   "id": "consume-first-W95-L70-x1.5-peakFri-noP2",
+   "params": {
+    "workStrategy": "consume-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 63.13,
+      "work2": 56.87
+     },
+     "switches": 8,
+     "triggers": {
+      "proactive": 8
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 121.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-soonest": 20120,
+      "cooldown": 32
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 150.8,
+     "wallsPct": 3.22,
+     "overLineWhileAnotherBelowMin": 2,
+     "spendPtsPerWeek": {
+      "work": 41.84,
+      "personal": 15.24,
+      "personal2": 0.0,
+      "work2": 38.15
+     },
+     "workSurplusPtsPerWeek": 79.99,
+     "switches": 16,
+     "triggers": {
+      "proactive": 10,
+      "priority": 4,
+      "at-limit": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 21.0,
+     "pingPongUnder30Min": 1,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19893,
+      "cooldown": 64,
+      "no-qualifying-candidate": 187
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      4.98,
+      5.0
+     ],
+     "work2": [
+      4.99,
+      4.97
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 52.49,
+      "byPersonalMac": 42.53,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.92,
+      "unusedPct": 69.08,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.92,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 52.04,
+      "byPersonalMac": 42.97,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.0,
+      "unusedPct": 5.0,
+      "byWorkMac": 58.01,
+      "byPersonalMac": 37.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 45.24,
+      "unusedPct": 54.76,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.24,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 95.03,
+      "unusedPct": 4.97,
+      "byWorkMac": 61.7,
+      "byPersonalMac": 33.33,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -24999,6 +28186,169 @@
     ]
    }
   },
+  "consume-first-W98-L70-x1-flat-noP2": {
+   "id": "consume-first-W98-L70-x1-flat-noP2",
+   "params": {
+    "workStrategy": "consume-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 37.33,
+      "work2": 42.67
+     },
+     "switches": 4,
+     "triggers": {
+      "consume-first": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4500.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-soonest": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 52.8,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 33.0
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4490.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      15.22,
+      9.87
+     ],
+     "work2": [
+      24.33,
+      24.33
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 84.78,
+      "unusedPct": 15.22,
+      "byWorkMac": 37.33,
+      "byPersonalMac": 47.45,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 75.67,
+      "unusedPct": 24.33,
+      "byWorkMac": 42.67,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 90.13,
+      "unusedPct": 9.87,
+      "byWorkMac": 37.33,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 75.67,
+      "unusedPct": 24.33,
+      "byWorkMac": 42.67,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "consume-first-W98-L70-x1-flat": {
    "id": "consume-first-W98-L70-x1-flat",
    "params": {
@@ -25157,6 +28507,334 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "consume-first-W98-L70-x1-noP2": {
+   "id": "consume-first-W98-L70-x1-noP2",
+   "params": {
+    "workStrategy": "consume-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 89,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 53.33,
+      "work2": 26.67
+     },
+     "switches": 4,
+     "triggers": {
+      "consume-first": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4500.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-soonest": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 42.46,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 43.34
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 6,
+     "triggers": {
+      "proactive": 5,
+      "priority": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 61.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20130,
+      "cooldown": 24
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      11.47,
+      4.21
+     ],
+     "work2": [
+      29.99,
+      29.99
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 88.53,
+      "unusedPct": 11.47,
+      "byWorkMac": 53.33,
+      "byPersonalMac": 35.2,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 70.01,
+      "unusedPct": 29.99,
+      "byWorkMac": 26.67,
+      "byPersonalMac": 43.34,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.79,
+      "unusedPct": 4.21,
+      "byWorkMac": 53.33,
+      "byPersonalMac": 42.46,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 70.01,
+      "unusedPct": 29.99,
+      "byWorkMac": 26.67,
+      "byPersonalMac": 43.34,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "consume-first-W98-L70-x1-peakFri-noP2": {
+   "id": "consume-first-W98-L70-x1-peakFri-noP2",
+   "params": {
+    "workStrategy": "consume-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 27.73,
+      "work2": 52.27
+     },
+     "switches": 4,
+     "triggers": {
+      "consume-first": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4500.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-soonest": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 52.8,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 33.0
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 8,
+     "triggers": {
+      "proactive": 6,
+      "priority": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 61.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20120,
+      "cooldown": 32
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      19.47,
+      19.47
+     ],
+     "work2": [
+      14.73,
+      14.73
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 80.53,
+      "unusedPct": 19.47,
+      "byWorkMac": 27.73,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 85.27,
+      "unusedPct": 14.73,
+      "byWorkMac": 52.27,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 80.53,
+      "unusedPct": 19.47,
+      "byWorkMac": 27.73,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 85.27,
+      "unusedPct": 14.73,
+      "byWorkMac": 52.27,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -25325,6 +29003,170 @@
     ]
    }
   },
+  "consume-first-W98-L70-x1.5-flat-noP2": {
+   "id": "consume-first-W98-L70-x1.5-flat-noP2",
+   "params": {
+    "workStrategy": "consume-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 360,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 52.62,
+      "work2": 67.38
+     },
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 3464.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-soonest": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 1,
+     "spendPtsPerWeek": {
+      "work": 54.23,
+      "personal": 4.68,
+      "personal2": 0.0,
+      "work2": 30.64
+     },
+     "workSurplusPtsPerWeek": 84.86,
+     "switches": 12,
+     "triggers": {
+      "proactive": 8,
+      "priority": 4
+     },
+     "gapsUnder10Min": 1,
+     "gapsUnder15Min": 1,
+     "minGapMin": 7.0,
+     "pingPongUnder30Min": 2,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 1,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20100,
+      "cooldown": 48
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      1.98,
+      1.98
+     ],
+     "work2": [
+      1.99,
+      1.97
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 98.02,
+      "unusedPct": 1.98,
+      "byWorkMac": 52.0,
+      "byPersonalMac": 46.02,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 98.01,
+      "unusedPct": 1.99,
+      "byWorkMac": 67.47,
+      "byPersonalMac": 30.54,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 98.02,
+      "unusedPct": 1.98,
+      "byWorkMac": 44.97,
+      "byPersonalMac": 53.06,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 35.87,
+      "unusedPct": 64.13,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 5.87,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 98.03,
+      "unusedPct": 1.97,
+      "byWorkMac": 67.3,
+      "byPersonalMac": 30.73,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "consume-first-W98-L70-x1.5-flat": {
    "id": "consume-first-W98-L70-x1.5-flat",
    "params": {
@@ -25484,6 +29326,373 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "consume-first-W98-L70-x1.5-noP2": {
+   "id": "consume-first-W98-L70-x1.5-noP2",
+   "params": {
+    "workStrategy": "consume-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 100,
+     "atLimitMin": 101,
+     "unservedMin": 103.0,
+     "ge95Min": 657,
+     "overLineWhileOtherBelowMin": 1,
+     "atLimitEpisodes": [
+      {
+       "start": "Tue 11-17 14:31",
+       "minutes": 46,
+       "wallMinutes": 45,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        11.7,
+        100.0
+       ],
+       "work2": [
+        100.0,
+        27.7
+       ]
+      },
+      {
+       "start": "Tue 11-17 19:05",
+       "minutes": 55,
+       "wallMinutes": 55,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        0.0,
+        100.0
+       ],
+       "work2": [
+        100.0,
+        44.3
+       ]
+      }
+     ],
+     "servedPtsPerWeek": {
+      "work": 39.93,
+      "work2": 76.3
+     },
+     "switches": 9,
+     "triggers": {
+      "consume-first": 2,
+      "proactive": 5,
+      "at-limit": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 73.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 1,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-soonest": 19964,
+      "cooldown": 36,
+      "no-qualifying-candidate": 5,
+      "all-exhausted": 15
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 62.68,
+      "personal": 7.06,
+      "personal2": 0.0,
+      "work2": 21.71
+     },
+     "workSurplusPtsPerWeek": 84.39,
+     "switches": 8,
+     "triggers": {
+      "proactive": 7,
+      "priority": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 140.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20108,
+      "cooldown": 32,
+      "no-qualifying-candidate": 12
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      8.7,
+      0.0
+     ],
+     "work2": [
+      1.99,
+      2.0
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 91.3,
+      "unusedPct": 8.7,
+      "byWorkMac": 32.71,
+      "byPersonalMac": 58.59,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 98.01,
+      "unusedPct": 1.99,
+      "byWorkMac": 81.69,
+      "byPersonalMac": 16.32,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 41.52,
+      "byPersonalMac": 58.48,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 44.12,
+      "unusedPct": 55.88,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 14.12,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 98.0,
+      "unusedPct": 2.0,
+      "byWorkMac": 70.91,
+      "byPersonalMac": 27.1,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "consume-first-W98-L70-x1.5-peakFri-noP2": {
+   "id": "consume-first-W98-L70-x1.5-peakFri-noP2",
+   "params": {
+    "workStrategy": "consume-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 204,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 63.56,
+      "work2": 56.44
+     },
+     "switches": 8,
+     "triggers": {
+      "consume-first": 3,
+      "proactive": 5
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 77.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-soonest": 20120,
+      "cooldown": 32
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 129.8,
+     "wallsPct": 2.77,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 38.79,
+      "personal": 15.24,
+      "personal2": 0.0,
+      "work2": 41.58
+     },
+     "workSurplusPtsPerWeek": 80.37,
+     "switches": 12,
+     "triggers": {
+      "proactive": 8,
+      "priority": 2,
+      "at-limit": 2
+     },
+     "gapsUnder10Min": 1,
+     "gapsUnder15Min": 1,
+     "minGapMin": 5.0,
+     "pingPongUnder30Min": 2,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 1,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19934,
+      "cooldown": 48,
+      "no-qualifying-candidate": 166
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      4.39,
+      1.98
+     ],
+     "work2": [
+      1.98,
+      1.98
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.61,
+      "unusedPct": 4.39,
+      "byWorkMac": 52.89,
+      "byPersonalMac": 42.72,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 98.02,
+      "unusedPct": 1.98,
+      "byWorkMac": 54.93,
+      "byPersonalMac": 43.08,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 98.02,
+      "unusedPct": 1.98,
+      "byWorkMac": 60.73,
+      "byPersonalMac": 37.29,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 45.24,
+      "unusedPct": 54.76,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.24,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 98.02,
+      "unusedPct": 1.98,
+      "byWorkMac": 57.95,
+      "byPersonalMac": 40.08,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -31912,6 +36121,169 @@
     ]
    }
   },
+  "priority-consume-first-W95-L70-x1-flat-noP2": {
+   "id": "priority-consume-first-W95-L70-x1-flat-noP2",
+   "params": {
+    "workStrategy": "priority-consume-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 37.33,
+      "work2": 42.67
+     },
+     "switches": 4,
+     "triggers": {
+      "priority": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4380.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 52.8,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 33.0
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4490.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      15.22,
+      9.87
+     ],
+     "work2": [
+      24.33,
+      24.33
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 84.78,
+      "unusedPct": 15.22,
+      "byWorkMac": 37.33,
+      "byPersonalMac": 47.45,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 75.67,
+      "unusedPct": 24.33,
+      "byWorkMac": 42.67,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 90.13,
+      "unusedPct": 9.87,
+      "byWorkMac": 37.33,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 75.67,
+      "unusedPct": 24.33,
+      "byWorkMac": 42.67,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "priority-consume-first-W95-L70-x1-flat": {
    "id": "priority-consume-first-W95-L70-x1-flat",
    "params": {
@@ -32070,6 +36442,335 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "priority-consume-first-W95-L70-x1-noP2": {
+   "id": "priority-consume-first-W95-L70-x1-noP2",
+   "params": {
+    "workStrategy": "priority-consume-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 52.94,
+      "work2": 27.06
+     },
+     "switches": 4,
+     "triggers": {
+      "priority": 3,
+      "proactive": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4380.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 42.84,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 42.95
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 6,
+     "triggers": {
+      "proactive": 5,
+      "priority": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 61.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20130,
+      "cooldown": 24
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      11.47,
+      5.0
+     ],
+     "work2": [
+      29.99,
+      29.97
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 88.53,
+      "unusedPct": 11.47,
+      "byWorkMac": 53.33,
+      "byPersonalMac": 35.2,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 70.01,
+      "unusedPct": 29.99,
+      "byWorkMac": 26.67,
+      "byPersonalMac": 43.34,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.0,
+      "unusedPct": 5.0,
+      "byWorkMac": 52.54,
+      "byPersonalMac": 42.46,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 70.03,
+      "unusedPct": 29.97,
+      "byWorkMac": 27.46,
+      "byPersonalMac": 42.57,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "priority-consume-first-W95-L70-x1-peakFri-noP2": {
+   "id": "priority-consume-first-W95-L70-x1-peakFri-noP2",
+   "params": {
+    "workStrategy": "priority-consume-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 27.73,
+      "work2": 52.27
+     },
+     "switches": 4,
+     "triggers": {
+      "priority": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4380.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 52.8,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 33.0
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 8,
+     "triggers": {
+      "proactive": 6,
+      "priority": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 61.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20120,
+      "cooldown": 32
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      19.47,
+      19.47
+     ],
+     "work2": [
+      14.73,
+      14.73
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 80.53,
+      "unusedPct": 19.47,
+      "byWorkMac": 27.73,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 85.27,
+      "unusedPct": 14.73,
+      "byWorkMac": 52.27,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 80.53,
+      "unusedPct": 19.47,
+      "byWorkMac": 27.73,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 85.27,
+      "unusedPct": 14.73,
+      "byWorkMac": 52.27,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -32238,6 +36939,170 @@
     ]
    }
   },
+  "priority-consume-first-W95-L70-x1.5-flat-noP2": {
+   "id": "priority-consume-first-W95-L70-x1.5-flat-noP2",
+   "params": {
+    "workStrategy": "priority-consume-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 55.48,
+      "work2": 64.52
+     },
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 3403.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 1,
+     "spendPtsPerWeek": {
+      "work": 54.45,
+      "personal": 4.22,
+      "personal2": 0.0,
+      "work2": 30.51
+     },
+     "workSurplusPtsPerWeek": 84.96,
+     "switches": 14,
+     "triggers": {
+      "proactive": 9,
+      "priority": 5
+     },
+     "gapsUnder10Min": 1,
+     "gapsUnder15Min": 1,
+     "minGapMin": 7.0,
+     "pingPongUnder30Min": 3,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 1,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20090,
+      "cooldown": 56
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      4.98,
+      4.98
+     ],
+     "work2": [
+      4.98,
+      4.98
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 49.0,
+      "byPersonalMac": 46.02,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 65.43,
+      "byPersonalMac": 29.59,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 41.97,
+      "byPersonalMac": 53.06,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 37.15,
+      "unusedPct": 62.85,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 7.15,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 63.6,
+      "byPersonalMac": 31.42,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "priority-consume-first-W95-L70-x1.5-flat": {
    "id": "priority-consume-first-W95-L70-x1.5-flat",
    "params": {
@@ -32397,6 +37262,372 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "priority-consume-first-W95-L70-x1.5-noP2": {
+   "id": "priority-consume-first-W95-L70-x1.5-noP2",
+   "params": {
+    "workStrategy": "priority-consume-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 97,
+     "atLimitMin": 97,
+     "unservedMin": 98.5,
+     "ge95Min": 121,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [
+      {
+       "start": "Tue 11-17 14:35",
+       "minutes": 72,
+       "wallMinutes": 72,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        0.0,
+        95.1
+       ],
+       "work2": [
+        100.0,
+        27.7
+       ]
+      },
+      {
+       "start": "Tue 11-17 19:35",
+       "minutes": 25,
+       "wallMinutes": 25,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        0.0,
+        95.1
+       ],
+       "work2": [
+        100.0,
+        44.3
+       ]
+      }
+     ],
+     "servedPtsPerWeek": {
+      "work": 48.77,
+      "work2": 67.62
+     },
+     "switches": 6,
+     "triggers": {
+      "proactive": 5,
+      "priority": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 84.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19962,
+      "cooldown": 24,
+      "no-qualifying-candidate": 168
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 85.8,
+     "wallsPct": 1.83,
+     "overLineWhileAnotherBelowMin": 1,
+     "spendPtsPerWeek": {
+      "work": 53.79,
+      "personal": 15.24,
+      "personal2": 0.0,
+      "work2": 27.39
+     },
+     "workSurplusPtsPerWeek": 81.18,
+     "switches": 12,
+     "triggers": {
+      "proactive": 8,
+      "priority": 2,
+      "at-limit": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 47.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19978,
+      "cooldown": 48,
+      "no-qualifying-candidate": 122
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      4.94,
+      4.94
+     ],
+     "work2": [
+      4.99,
+      5.0
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.06,
+      "unusedPct": 4.94,
+      "byWorkMac": 46.66,
+      "byPersonalMac": 48.4,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 45.24,
+      "unusedPct": 54.76,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.24,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 67.33,
+      "byPersonalMac": 27.68,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.06,
+      "unusedPct": 4.94,
+      "byWorkMac": 42.26,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 45.24,
+      "unusedPct": 54.76,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.24,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 95.0,
+      "unusedPct": 5.0,
+      "byWorkMac": 67.91,
+      "byPersonalMac": 27.1,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "priority-consume-first-W95-L70-x1.5-peakFri-noP2": {
+   "id": "priority-consume-first-W95-L70-x1.5-peakFri-noP2",
+   "params": {
+    "workStrategy": "priority-consume-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 62.95,
+      "work2": 57.05
+     },
+     "switches": 8,
+     "triggers": {
+      "proactive": 6,
+      "priority": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 84.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20120,
+      "cooldown": 32
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 123.8,
+     "wallsPct": 2.64,
+     "overLineWhileAnotherBelowMin": 3,
+     "spendPtsPerWeek": {
+      "work": 42.51,
+      "personal": 15.24,
+      "personal2": 0.0,
+      "work2": 37.97
+     },
+     "workSurplusPtsPerWeek": 80.48,
+     "switches": 16,
+     "triggers": {
+      "proactive": 10,
+      "priority": 4,
+      "at-limit": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 15.0,
+     "pingPongUnder30Min": 3,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19920,
+      "cooldown": 64,
+      "no-qualifying-candidate": 160
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      4.98,
+      4.99
+     ],
+     "work2": [
+      4.99,
+      4.98
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 52.49,
+      "byPersonalMac": 42.53,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.92,
+      "unusedPct": 69.08,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.92,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 52.04,
+      "byPersonalMac": 42.97,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 57.5,
+      "byPersonalMac": 37.51,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 45.24,
+      "unusedPct": 54.76,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.24,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 62.06,
+      "byPersonalMac": 32.96,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -38825,6 +44056,169 @@
     ]
    }
   },
+  "priority-consume-first-W98-L70-x1-flat-noP2": {
+   "id": "priority-consume-first-W98-L70-x1-flat-noP2",
+   "params": {
+    "workStrategy": "priority-consume-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 37.33,
+      "work2": 42.67
+     },
+     "switches": 4,
+     "triggers": {
+      "priority": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4380.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 52.8,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 33.0
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4490.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      15.22,
+      9.87
+     ],
+     "work2": [
+      24.33,
+      24.33
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 84.78,
+      "unusedPct": 15.22,
+      "byWorkMac": 37.33,
+      "byPersonalMac": 47.45,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 75.67,
+      "unusedPct": 24.33,
+      "byWorkMac": 42.67,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 90.13,
+      "unusedPct": 9.87,
+      "byWorkMac": 37.33,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 75.67,
+      "unusedPct": 24.33,
+      "byWorkMac": 42.67,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "priority-consume-first-W98-L70-x1-flat": {
    "id": "priority-consume-first-W98-L70-x1-flat",
    "params": {
@@ -38983,6 +44377,334 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "priority-consume-first-W98-L70-x1-noP2": {
+   "id": "priority-consume-first-W98-L70-x1-noP2",
+   "params": {
+    "workStrategy": "priority-consume-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 89,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 53.33,
+      "work2": 26.67
+     },
+     "switches": 4,
+     "triggers": {
+      "priority": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4380.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 42.46,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 43.34
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 6,
+     "triggers": {
+      "proactive": 5,
+      "priority": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 61.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20130,
+      "cooldown": 24
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      11.47,
+      4.21
+     ],
+     "work2": [
+      29.99,
+      29.99
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 88.53,
+      "unusedPct": 11.47,
+      "byWorkMac": 53.33,
+      "byPersonalMac": 35.2,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 70.01,
+      "unusedPct": 29.99,
+      "byWorkMac": 26.67,
+      "byPersonalMac": 43.34,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.79,
+      "unusedPct": 4.21,
+      "byWorkMac": 53.33,
+      "byPersonalMac": 42.46,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 70.01,
+      "unusedPct": 29.99,
+      "byWorkMac": 26.67,
+      "byPersonalMac": 43.34,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "priority-consume-first-W98-L70-x1-peakFri-noP2": {
+   "id": "priority-consume-first-W98-L70-x1-peakFri-noP2",
+   "params": {
+    "workStrategy": "priority-consume-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 27.73,
+      "work2": 52.27
+     },
+     "switches": 4,
+     "triggers": {
+      "priority": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 4380.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 52.8,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 33.0
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 8,
+     "triggers": {
+      "proactive": 6,
+      "priority": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 61.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20120,
+      "cooldown": 32
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      19.47,
+      19.47
+     ],
+     "work2": [
+      14.73,
+      14.73
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 80.53,
+      "unusedPct": 19.47,
+      "byWorkMac": 27.73,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 85.27,
+      "unusedPct": 14.73,
+      "byWorkMac": 52.27,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 80.53,
+      "unusedPct": 19.47,
+      "byWorkMac": 27.73,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 85.27,
+      "unusedPct": 14.73,
+      "byWorkMac": 52.27,
+      "byPersonalMac": 33.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -39151,6 +44873,170 @@
     ]
    }
   },
+  "priority-consume-first-W98-L70-x1.5-flat-noP2": {
+   "id": "priority-consume-first-W98-L70-x1.5-flat-noP2",
+   "params": {
+    "workStrategy": "priority-consume-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 360,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 52.62,
+      "work2": 67.38
+     },
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 3464.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 1,
+     "spendPtsPerWeek": {
+      "work": 54.23,
+      "personal": 4.68,
+      "personal2": 0.0,
+      "work2": 30.64
+     },
+     "workSurplusPtsPerWeek": 84.86,
+     "switches": 12,
+     "triggers": {
+      "proactive": 8,
+      "priority": 4
+     },
+     "gapsUnder10Min": 1,
+     "gapsUnder15Min": 1,
+     "minGapMin": 7.0,
+     "pingPongUnder30Min": 2,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 1,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20100,
+      "cooldown": 48
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      1.98,
+      1.98
+     ],
+     "work2": [
+      1.99,
+      1.97
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 98.02,
+      "unusedPct": 1.98,
+      "byWorkMac": 52.0,
+      "byPersonalMac": 46.02,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 98.01,
+      "unusedPct": 1.99,
+      "byWorkMac": 67.47,
+      "byPersonalMac": 30.54,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 98.02,
+      "unusedPct": 1.98,
+      "byWorkMac": 44.97,
+      "byPersonalMac": 53.06,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 35.87,
+      "unusedPct": 64.13,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 5.87,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 98.03,
+      "unusedPct": 1.97,
+      "byWorkMac": 67.3,
+      "byPersonalMac": 30.73,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "priority-consume-first-W98-L70-x1.5-flat": {
    "id": "priority-consume-first-W98-L70-x1.5-flat",
    "params": {
@@ -39310,6 +45196,357 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "priority-consume-first-W98-L70-x1.5-noP2": {
+   "id": "priority-consume-first-W98-L70-x1.5-noP2",
+   "params": {
+    "workStrategy": "priority-consume-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 5,
+     "atLimitMin": 5,
+     "unservedMin": 5.7,
+     "ge95Min": 495,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [
+      {
+       "start": "Tue 11-17 16:38",
+       "minutes": 5,
+       "wallMinutes": 5,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        29.5,
+        98.1
+       ],
+       "work2": [
+        100.0,
+        27.7
+       ]
+      }
+     ],
+     "servedPtsPerWeek": {
+      "work": 49.7,
+      "work2": 70.09
+     },
+     "switches": 8,
+     "triggers": {
+      "proactive": 5,
+      "priority": 3
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 67.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20110,
+      "cooldown": 32,
+      "no-qualifying-candidate": 10
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 129.8,
+     "wallsPct": 2.77,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 52.91,
+      "personal": 15.24,
+      "personal2": 0.0,
+      "work2": 27.46
+     },
+     "workSurplusPtsPerWeek": 80.37,
+     "switches": 12,
+     "triggers": {
+      "proactive": 8,
+      "priority": 2,
+      "at-limit": 2
+     },
+     "gapsUnder10Min": 1,
+     "gapsUnder15Min": 1,
+     "minGapMin": 5.0,
+     "pingPongUnder30Min": 1,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 1,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19934,
+      "cooldown": 48,
+      "no-qualifying-candidate": 166
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      1.93,
+      1.93
+     ],
+     "work2": [
+      2.9,
+      1.99
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 98.07,
+      "unusedPct": 1.93,
+      "byWorkMac": 50.25,
+      "byPersonalMac": 47.81,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 45.24,
+      "unusedPct": 54.76,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.24,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 97.1,
+      "unusedPct": 2.9,
+      "byWorkMac": 69.75,
+      "byPersonalMac": 27.35,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 98.07,
+      "unusedPct": 1.93,
+      "byWorkMac": 45.27,
+      "byPersonalMac": 52.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 45.24,
+      "unusedPct": 54.76,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.24,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 98.01,
+      "unusedPct": 1.99,
+      "byWorkMac": 70.43,
+      "byPersonalMac": 27.57,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "priority-consume-first-W98-L70-x1.5-peakFri-noP2": {
+   "id": "priority-consume-first-W98-L70-x1.5-peakFri-noP2",
+   "params": {
+    "workStrategy": "priority-consume-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 204,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 63.56,
+      "work2": 56.44
+     },
+     "switches": 8,
+     "triggers": {
+      "priority": 3,
+      "proactive": 5
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 77.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20120,
+      "cooldown": 32
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 129.8,
+     "wallsPct": 2.77,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 38.79,
+      "personal": 15.24,
+      "personal2": 0.0,
+      "work2": 41.58
+     },
+     "workSurplusPtsPerWeek": 80.37,
+     "switches": 12,
+     "triggers": {
+      "proactive": 8,
+      "priority": 2,
+      "at-limit": 2
+     },
+     "gapsUnder10Min": 1,
+     "gapsUnder15Min": 1,
+     "minGapMin": 5.0,
+     "pingPongUnder30Min": 2,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 1,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19934,
+      "cooldown": 48,
+      "no-qualifying-candidate": 166
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      4.39,
+      1.98
+     ],
+     "work2": [
+      1.98,
+      1.98
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.61,
+      "unusedPct": 4.39,
+      "byWorkMac": 52.89,
+      "byPersonalMac": 42.72,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 98.02,
+      "unusedPct": 1.98,
+      "byWorkMac": 54.93,
+      "byPersonalMac": 43.08,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 98.02,
+      "unusedPct": 1.98,
+      "byWorkMac": 60.73,
+      "byPersonalMac": 37.29,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 45.24,
+      "unusedPct": 54.76,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.24,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 98.02,
+      "unusedPct": 1.98,
+      "byWorkMac": 57.95,
+      "byPersonalMac": 40.08,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -47988,6 +54225,168 @@
     ]
    }
   },
+  "weekly-first-W95-L70-x1-flat-noP2": {
+   "id": "weekly-first-W95-L70-x1-flat-noP2",
+   "params": {
+    "workStrategy": "weekly-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 14.07,
+      "work2": 65.93
+     },
+     "switches": 1,
+     "triggers": {
+      "proactive": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": null,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20159
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 61.42,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 24.38
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 2358.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      5.0,
+      29.97
+     ],
+     "work2": [
+      13.59,
+      5.77
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.0,
+      "unusedPct": 5.0,
+      "byWorkMac": 70.8,
+      "byPersonalMac": 24.2,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 86.41,
+      "unusedPct": 13.59,
+      "byWorkMac": 51.87,
+      "byPersonalMac": 34.54,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 70.03,
+      "unusedPct": 29.97,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 70.03,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 94.23,
+      "unusedPct": 5.77,
+      "byWorkMac": 80.0,
+      "byPersonalMac": 14.23,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "weekly-first-W95-L70-x1-flat": {
    "id": "weekly-first-W95-L70-x1-flat",
    "params": {
@@ -48145,6 +54544,336 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "weekly-first-W95-L70-x1-noP2": {
+   "id": "weekly-first-W95-L70-x1-noP2",
+   "params": {
+    "workStrategy": "weekly-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 20.49,
+      "work2": 59.51
+     },
+     "switches": 1,
+     "triggers": {
+      "proactive": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": null,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20159
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 15.9,
+     "wallsPct": 0.34,
+     "overLineWhileAnotherBelowMin": 1,
+     "spendPtsPerWeek": {
+      "work": 59.88,
+      "personal": 7.62,
+      "personal2": 0.0,
+      "work2": 24.11
+     },
+     "workSurplusPtsPerWeek": 83.98,
+     "switches": 6,
+     "triggers": {
+      "proactive": 4,
+      "at-limit": 1,
+      "priority": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 99.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20096,
+      "cooldown": 24,
+      "no-qualifying-candidate": 34
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      5.0,
+      36.2
+     ],
+     "work2": [
+      23.77,
+      9.0
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.0,
+      "unusedPct": 5.0,
+      "byWorkMac": 67.65,
+      "byPersonalMac": 27.35,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 45.24,
+      "unusedPct": 54.76,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.24,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 76.23,
+      "unusedPct": 23.77,
+      "byWorkMac": 39.02,
+      "byPersonalMac": 37.22,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 63.8,
+      "unusedPct": 36.2,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 63.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 91.0,
+      "unusedPct": 9.0,
+      "byWorkMac": 80.0,
+      "byPersonalMac": 11.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "weekly-first-W95-L70-x1-peakFri-noP2": {
+   "id": "weekly-first-W95-L70-x1-peakFri-noP2",
+   "params": {
+    "workStrategy": "weekly-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 57.61,
+      "work2": 22.39
+     },
+     "switches": 2,
+     "triggers": {
+      "proactive": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 3274.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20158
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 15.9,
+     "wallsPct": 0.34,
+     "overLineWhileAnotherBelowMin": 1,
+     "spendPtsPerWeek": {
+      "work": 30.78,
+      "personal": 7.62,
+      "personal2": 0.0,
+      "work2": 53.2
+     },
+     "workSurplusPtsPerWeek": 83.98,
+     "switches": 6,
+     "triggers": {
+      "proactive": 4,
+      "at-limit": 1,
+      "priority": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 99.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20096,
+      "cooldown": 24,
+      "no-qualifying-candidate": 34
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      4.99,
+      18.23
+     ],
+     "work2": [
+      4.98,
+      43.83
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 77.27,
+      "byPersonalMac": 17.75,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 44.78,
+      "byPersonalMac": 50.23,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 81.77,
+      "unusedPct": 18.23,
+      "byWorkMac": 37.95,
+      "byPersonalMac": 43.82,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 45.24,
+      "unusedPct": 54.76,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.24,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 56.17,
+      "unusedPct": 43.83,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 56.17,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -48312,6 +55041,170 @@
     ]
    }
   },
+  "weekly-first-W95-L70-x1.5-flat-noP2": {
+   "id": "weekly-first-W95-L70-x1.5-flat-noP2",
+   "params": {
+    "workStrategy": "weekly-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 0,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 66.97,
+      "work2": 53.03
+     },
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 2941.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20156
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 232.6,
+     "wallsPct": 4.97,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 28.05,
+      "personal": 42.47,
+      "personal2": 0.0,
+      "work2": 44.99
+     },
+     "workSurplusPtsPerWeek": 73.04,
+     "switches": 15,
+     "triggers": {
+      "proactive": 8,
+      "priority": 7
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 28.0,
+     "pingPongUnder30Min": 1,
+     "landedOverLine": 0,
+     "nearLineLandings": 1,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19571,
+      "cooldown": 60,
+      "no-qualifying-candidate": 514
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 20,
+     "unservedPts": 2.86
+    },
+    "workUnusedAtReset": {
+     "work": [
+      4.99,
+      4.98
+     ],
+     "work2": [
+      4.99,
+      4.98
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 89.0,
+      "byPersonalMac": 6.01,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 41.18,
+      "unusedPct": 58.82,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 11.18,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 56.03,
+      "byPersonalMac": 38.98,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 63.97,
+      "byPersonalMac": 31.06,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 55.36,
+      "unusedPct": 44.64,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 26.79,
+      "byApp": 28.57
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 50.03,
+      "byPersonalMac": 44.99,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "weekly-first-W95-L70-x1.5-flat": {
    "id": "weekly-first-W95-L70-x1.5-flat",
    "params": {
@@ -48469,6 +55362,434 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "weekly-first-W95-L70-x1.5-noP2": {
+   "id": "weekly-first-W95-L70-x1.5-noP2",
+   "params": {
+    "workStrategy": "weekly-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 76,
+     "atLimitMin": 76,
+     "unservedMin": 78.0,
+     "ge95Min": 168,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [
+      {
+       "start": "Tue 11-17 13:10",
+       "minutes": 4,
+       "wallMinutes": 4,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        3.3,
+        100.0
+       ],
+       "work2": [
+        100.0,
+        51.9
+       ]
+      },
+      {
+       "start": "Tue 11-17 17:02",
+       "minutes": 72,
+       "wallMinutes": 72,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        3.3,
+        100.0
+       ],
+       "work2": [
+        100.0,
+        68.5
+       ]
+      }
+     ],
+     "servedPtsPerWeek": {
+      "work": 59.39,
+      "work2": 57.74
+     },
+     "switches": 7,
+     "triggers": {
+      "proactive": 6,
+      "at-limit": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 68.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 2,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 19985,
+      "no-qualifying-candidate": 73,
+      "cooldown": 5,
+      "all-exhausted": 10
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 126.9,
+     "wallsPct": 2.71,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 50.97,
+      "personal": 34.02,
+      "personal2": 0.0,
+      "work2": 25.7
+     },
+     "workSurplusPtsPerWeek": 76.67,
+     "switches": 17,
+     "triggers": {
+      "proactive": 11,
+      "priority": 6
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 20.0,
+     "pingPongUnder30Min": 2,
+     "landedOverLine": 0,
+     "nearLineLandings": 1,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19686,
+      "cooldown": 68,
+      "no-qualifying-candidate": 389
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      11.88,
+      0.0
+     ],
+     "work2": [
+      29.98,
+      4.99
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 88.12,
+      "unusedPct": 11.88,
+      "byWorkMac": 24.32,
+      "byPersonalMac": 63.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 48.7,
+      "unusedPct": 51.3,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 18.7,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 70.02,
+      "unusedPct": 29.98,
+      "byWorkMac": 55.68,
+      "byPersonalMac": 14.34,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 69.97,
+      "byPersonalMac": 30.03,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 79.34,
+      "unusedPct": 20.66,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 49.34,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 95.01,
+      "unusedPct": 4.99,
+      "byWorkMac": 59.81,
+      "byPersonalMac": 35.2,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "weekly-first-W95-L70-x1.5-peakFri-noP2": {
+   "id": "weekly-first-W95-L70-x1.5-peakFri-noP2",
+   "params": {
+    "workStrategy": "weekly-first",
+    "workLine": 95.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 151,
+     "atLimitMin": 151,
+     "unservedMin": 155.2,
+     "ge95Min": 336,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [
+      {
+       "start": "Fri 11-13 12:57",
+       "minutes": 3,
+       "wallMinutes": 3,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        47.3
+       ],
+       "work2": [
+        29.9,
+        100.0
+       ]
+      },
+      {
+       "start": "Fri 11-13 16:48",
+       "minutes": 72,
+       "wallMinutes": 72,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        63.9
+       ],
+       "work2": [
+        0.0,
+        100.0
+       ]
+      },
+      {
+       "start": "Fri 11-20 13:59",
+       "minutes": 4,
+       "wallMinutes": 4,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        38.7
+       ],
+       "work2": [
+        24.9,
+        100.0
+       ]
+      },
+      {
+       "start": "Fri 11-20 17:51",
+       "minutes": 72,
+       "wallMinutes": 72,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        55.3
+       ],
+       "work2": [
+        24.9,
+        100.0
+       ]
+      }
+     ],
+     "servedPtsPerWeek": {
+      "work": 54.97,
+      "work2": 59.34
+     },
+     "switches": 7,
+     "triggers": {
+      "proactive": 5,
+      "at-limit": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 68.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 4,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 19817,
+      "no-qualifying-candidate": 147,
+      "cooldown": 10,
+      "all-exhausted": 20
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 229.9,
+     "wallsPct": 4.91,
+     "overLineWhileAnotherBelowMin": 35,
+     "spendPtsPerWeek": {
+      "work": 27.54,
+      "personal": 45.48,
+      "personal2": 0.0,
+      "work2": 44.95
+     },
+     "workSurplusPtsPerWeek": 72.49,
+     "switches": 21,
+     "triggers": {
+      "proactive": 12,
+      "priority": 9
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 30.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 1,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19530,
+      "cooldown": 84,
+      "no-qualifying-candidate": 525
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 12,
+     "unservedPts": 1.71
+    },
+    "workUnusedAtReset": {
+     "work": [
+      30.0,
+      4.98
+     ],
+     "work2": [
+      0.0,
+      0.0
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 70.0,
+      "unusedPct": 30.0,
+      "byWorkMac": 57.28,
+      "byPersonalMac": 12.72,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 36.05,
+      "unusedPct": 63.95,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 6.05,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 63.59,
+      "byPersonalMac": 36.41,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 95.02,
+      "unusedPct": 4.98,
+      "byWorkMac": 72.43,
+      "byPersonalMac": 22.59,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 81.96,
+      "unusedPct": 18.04,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 53.39,
+      "byApp": 28.57
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 55.08,
+      "byPersonalMac": 44.92,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -55200,6 +62521,169 @@
     ]
    }
   },
+  "weekly-first-W98-L70-x1-flat-noP2": {
+   "id": "weekly-first-W98-L70-x1-flat-noP2",
+   "params": {
+    "workStrategy": "weekly-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 135,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 15.57,
+      "work2": 64.43
+     },
+     "switches": 1,
+     "triggers": {
+      "proactive": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": null,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20159
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 61.42,
+      "personal": 0.46,
+      "personal2": 0.0,
+      "work2": 24.29
+     },
+     "workSurplusPtsPerWeek": 85.71,
+     "switches": 6,
+     "triggers": {
+      "proactive": 5,
+      "priority": 1
+     },
+     "gapsUnder10Min": 1,
+     "gapsUnder15Min": 1,
+     "minGapMin": 5.0,
+     "pingPongUnder30Min": 1,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 1,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20130,
+      "cooldown": 24
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      2.0,
+      29.97
+     ],
+     "work2": [
+      13.99,
+      8.56
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 98.0,
+      "unusedPct": 2.0,
+      "byWorkMac": 73.8,
+      "byPersonalMac": 24.2,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.92,
+      "unusedPct": 69.08,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.92,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 86.01,
+      "unusedPct": 13.99,
+      "byWorkMac": 48.87,
+      "byPersonalMac": 37.14,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 70.03,
+      "unusedPct": 29.97,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 70.03,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 91.44,
+      "unusedPct": 8.56,
+      "byWorkMac": 80.0,
+      "byPersonalMac": 11.44,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "weekly-first-W98-L70-x1-flat": {
    "id": "weekly-first-W98-L70-x1-flat",
    "params": {
@@ -55355,6 +62839,331 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "weekly-first-W98-L70-x1-noP2": {
+   "id": "weekly-first-W98-L70-x1-noP2",
+   "params": {
+    "workStrategy": "weekly-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 62,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 22.01,
+      "work2": 57.99
+     },
+     "switches": 1,
+     "triggers": {
+      "proactive": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": null,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20159
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 3.9,
+     "wallsPct": 0.08,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 59.88,
+      "personal": 7.89,
+      "personal2": 0.0,
+      "work2": 24.27
+     },
+     "workSurplusPtsPerWeek": 84.15,
+     "switches": 6,
+     "triggers": {
+      "proactive": 4,
+      "priority": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 90.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20108,
+      "cooldown": 24,
+      "no-qualifying-candidate": 22
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      1.97,
+      36.2
+     ],
+     "work2": [
+      26.47,
+      9.0
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 98.03,
+      "unusedPct": 1.97,
+      "byWorkMac": 70.68,
+      "byPersonalMac": 27.35,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 45.79,
+      "unusedPct": 54.21,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 15.79,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 73.53,
+      "unusedPct": 26.47,
+      "byWorkMac": 35.99,
+      "byPersonalMac": 37.55,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 63.8,
+      "unusedPct": 36.2,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 63.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 91.0,
+      "unusedPct": 9.0,
+      "byWorkMac": 80.0,
+      "byPersonalMac": 11.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "weekly-first-W98-L70-x1-peakFri-noP2": {
+   "id": "weekly-first-W98-L70-x1-peakFri-noP2",
+   "params": {
+    "workStrategy": "weekly-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.0,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 246,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 80.0,
+      "work2": 0.0
+     },
+     "switches": 0,
+     "triggers": {},
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": null,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20160
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 0.0,
+     "wallsPct": 0.0,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 17.75,
+      "personal": 0.0,
+      "personal2": 0.0,
+      "work2": 68.05
+     },
+     "workSurplusPtsPerWeek": 85.8,
+     "switches": 4,
+     "triggers": {
+      "proactive": 2,
+      "priority": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 1684.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 20140,
+      "cooldown": 16
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      2.25,
+      2.25
+     ],
+     "work2": [
+      31.95,
+      31.95
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 97.75,
+      "unusedPct": 2.25,
+      "byWorkMac": 80.0,
+      "byPersonalMac": 17.75,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 68.05,
+      "unusedPct": 31.95,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 68.05,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 97.75,
+      "unusedPct": 2.25,
+      "byWorkMac": 80.0,
+      "byPersonalMac": 17.75,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 30.0,
+      "unusedPct": 70.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 68.05,
+      "unusedPct": 31.95,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 68.05,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]
@@ -55520,6 +63329,170 @@
     ]
    }
   },
+  "weekly-first-W98-L70-x1.5-flat-noP2": {
+   "id": "weekly-first-W98-L70-x1.5-flat-noP2",
+   "params": {
+    "workStrategy": "weekly-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "flat",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 0,
+     "atLimitMin": 0,
+     "unservedMin": 0.0,
+     "ge95Min": 360,
+     "overLineWhileOtherBelowMin": 0,
+     "atLimitEpisodes": [],
+     "servedPtsPerWeek": {
+      "work": 64.92,
+      "work2": 55.08
+     },
+     "switches": 4,
+     "triggers": {
+      "proactive": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 3002.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 20156
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 96.9,
+     "wallsPct": 2.07,
+     "overLineWhileAnotherBelowMin": 117,
+     "spendPtsPerWeek": {
+      "work": 33.09,
+      "personal": 24.94,
+      "personal2": 0.0,
+      "work2": 45.94
+     },
+     "workSurplusPtsPerWeek": 79.03,
+     "switches": 19,
+     "triggers": {
+      "proactive": 10,
+      "priority": 9
+     },
+     "gapsUnder10Min": 3,
+     "gapsUnder15Min": 3,
+     "minGapMin": 7.0,
+     "pingPongUnder30Min": 4,
+     "landedOverLine": 0,
+     "nearLineLandings": 1,
+     "shortDwellUnder15Min": 3,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19950,
+      "cooldown": 76,
+      "no-qualifying-candidate": 115
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 10,
+     "unservedPts": 1.43
+    },
+    "workUnusedAtReset": {
+     "work": [
+      1.99,
+      1.98
+     ],
+     "work2": [
+      1.97,
+      1.99
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 98.01,
+      "unusedPct": 1.99,
+      "byWorkMac": 92.0,
+      "byPersonalMac": 6.01,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 32.93,
+      "unusedPct": 67.07,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 2.93,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 98.03,
+      "unusedPct": 1.97,
+      "byWorkMac": 58.1,
+      "byPersonalMac": 39.93,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 98.02,
+      "unusedPct": 1.98,
+      "byWorkMac": 61.9,
+      "byPersonalMac": 36.12,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 51.63,
+      "unusedPct": 48.37,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 21.63,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 98.01,
+      "unusedPct": 1.99,
+      "byWorkMac": 52.07,
+      "byPersonalMac": 45.94,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
   "weekly-first-W98-L70-x1.5-flat": {
    "id": "weekly-first-W98-L70-x1.5-flat",
    "params": {
@@ -55677,6 +63650,436 @@
       "unusedPct": 4.85,
       "byWorkMac": 0.0,
       "byPersonalMac": 95.15,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "weekly-first-W98-L70-x1.5-noP2": {
+   "id": "weekly-first-W98-L70-x1.5-noP2",
+   "params": {
+    "workStrategy": "weekly-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakTue",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 117,
+     "atLimitMin": 118,
+     "unservedMin": 120.0,
+     "ge95Min": 321,
+     "overLineWhileOtherBelowMin": 1,
+     "atLimitEpisodes": [
+      {
+       "start": "Tue 11-17 13:10",
+       "minutes": 46,
+       "wallMinutes": 45,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        4.1,
+        100.0
+       ],
+       "work2": [
+        100.0,
+        51.9
+       ]
+      },
+      {
+       "start": "Tue 11-17 17:44",
+       "minutes": 72,
+       "wallMinutes": 72,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        4.1,
+        100.0
+       ],
+       "work2": [
+        100.0,
+        68.5
+       ]
+      }
+     ],
+     "servedPtsPerWeek": {
+      "work": 56.03,
+      "work2": 59.57
+     },
+     "switches": 7,
+     "triggers": {
+      "proactive": 5,
+      "at-limit": 2
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 73.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 1,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 19998,
+      "no-qualifying-candidate": 5,
+      "cooldown": 4,
+      "all-exhausted": 15
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 125.4,
+     "wallsPct": 2.68,
+     "overLineWhileAnotherBelowMin": 0,
+     "spendPtsPerWeek": {
+      "work": 52.12,
+      "personal": 34.61,
+      "personal2": 0.0,
+      "work2": 24.46
+     },
+     "workSurplusPtsPerWeek": 76.58,
+     "switches": 16,
+     "triggers": {
+      "proactive": 9,
+      "at-limit": 1,
+      "priority": 6
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 15.0,
+     "pingPongUnder30Min": 2,
+     "landedOverLine": 0,
+     "nearLineLandings": 1,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19676,
+      "cooldown": 64,
+      "no-qualifying-candidate": 404
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 0,
+     "unservedPts": 0.0
+    },
+    "workUnusedAtReset": {
+     "work": [
+      12.91,
+      0.0
+     ],
+     "work2": [
+      29.98,
+      1.97
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 87.09,
+      "unusedPct": 12.91,
+      "byWorkMac": 23.29,
+      "byPersonalMac": 63.8,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 50.74,
+      "unusedPct": 49.26,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 20.74,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 70.02,
+      "unusedPct": 29.98,
+      "byWorkMac": 56.71,
+      "byPersonalMac": 13.31,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 69.97,
+      "byPersonalMac": 30.03,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 78.48,
+      "unusedPct": 21.52,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 48.48,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 98.03,
+      "unusedPct": 1.97,
+      "byWorkMac": 62.43,
+      "byPersonalMac": 35.6,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     }
+    ]
+   }
+  },
+  "weekly-first-W98-L70-x1.5-peakFri-noP2": {
+   "id": "weekly-first-W98-L70-x1.5-peakFri-noP2",
+   "params": {
+    "workStrategy": "weekly-first",
+    "workLine": 98.0,
+    "personalWorkLine": 70.0,
+    "demand": 1.5,
+    "profile": "peakFri",
+    "personalMacDemand": "ceiling",
+    "personal2": "absent"
+   },
+   "metrics": {
+    "workMac": {
+     "demandMin": 7200,
+     "wallMin": 197,
+     "atLimitMin": 199,
+     "unservedMin": 203.0,
+     "ge95Min": 781,
+     "overLineWhileOtherBelowMin": 2,
+     "atLimitEpisodes": [
+      {
+       "start": "Fri 11-13 12:16",
+       "minutes": 45,
+       "wallMinutes": 44,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        44.3
+       ],
+       "work2": [
+        11.9,
+        100.0
+       ]
+      },
+      {
+       "start": "Fri 11-13 16:49",
+       "minutes": 72,
+       "wallMinutes": 72,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        60.9
+       ],
+       "work2": [
+        0.0,
+        100.0
+       ]
+      },
+      {
+       "start": "Fri 11-20 14:50",
+       "minutes": 46,
+       "wallMinutes": 45,
+       "workMacActive": "work2",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        38.7
+       ],
+       "work2": [
+        11.8,
+        100.0
+       ]
+      },
+      {
+       "start": "Fri 11-20 19:24",
+       "minutes": 36,
+       "wallMinutes": 36,
+       "workMacActive": "work",
+       "personalMacActive": "personal",
+       "work": [
+        100.0,
+        55.3
+       ],
+       "work2": [
+        0.0,
+        100.0
+       ]
+      }
+     ],
+     "servedPtsPerWeek": {
+      "work": 53.86,
+      "work2": 58.69
+     },
+     "switches": 7,
+     "triggers": {
+      "proactive": 3,
+      "at-limit": 4
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 73.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 2,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "below-threshold": 19843,
+      "no-qualifying-candidate": 10,
+      "cooldown": 8,
+      "all-exhausted": 30
+     }
+    },
+    "personalMac": {
+     "demandMin": 4680,
+     "unservedMin": 192.6,
+     "wallsPct": 4.12,
+     "overLineWhileAnotherBelowMin": 1,
+     "spendPtsPerWeek": {
+      "work": 30.14,
+      "personal": 33.95,
+      "personal2": 0.0,
+      "work2": 45.34
+     },
+     "workSurplusPtsPerWeek": 75.48,
+     "switches": 16,
+     "triggers": {
+      "proactive": 9,
+      "priority": 6,
+      "at-limit": 1
+     },
+     "gapsUnder10Min": 0,
+     "gapsUnder15Min": 0,
+     "minGapMin": 30.0,
+     "pingPongUnder30Min": 0,
+     "landedOverLine": 0,
+     "nearLineLandings": 0,
+     "shortDwellUnder15Min": 0,
+     "noSwitchReasons": {
+      "already-consuming-priority": 19606,
+      "cooldown": 64,
+      "no-qualifying-candidate": 474
+     }
+    },
+    "personal2AtReset": [
+     0.0,
+     0.0
+    ],
+    "app": {
+     "demandMin": 420,
+     "shortfallMin": 10,
+     "unservedPts": 1.43
+    },
+    "workUnusedAtReset": {
+     "work": [
+      30.0,
+      1.99
+     ],
+     "work2": [
+      0.0,
+      0.0
+     ]
+    },
+    "resets": [
+     {
+      "account": "work",
+      "at": "Wed 11-11 12:00",
+      "d7BeforeReset": 70.0,
+      "unusedPct": 30.0,
+      "byWorkMac": 58.31,
+      "byPersonalMac": 11.7,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-13 08:00",
+      "d7BeforeReset": 35.68,
+      "unusedPct": 64.32,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 5.68,
+      "byApp": 30.0
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-14 13:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 63.59,
+      "byPersonalMac": 36.41,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-14 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
+      "byApp": 0.0
+     },
+     {
+      "account": "work",
+      "at": "Wed 11-18 12:00",
+      "d7BeforeReset": 98.01,
+      "unusedPct": 1.99,
+      "byWorkMac": 74.39,
+      "byPersonalMac": 23.61,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal",
+      "at": "Fri 11-20 08:00",
+      "d7BeforeReset": 75.55,
+      "unusedPct": 24.45,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 46.98,
+      "byApp": 28.57
+     },
+     {
+      "account": "work2",
+      "at": "Sat 11-21 13:00",
+      "d7BeforeReset": 100.0,
+      "unusedPct": 0.0,
+      "byWorkMac": 53.8,
+      "byPersonalMac": 46.2,
+      "byApp": 0.0
+     },
+     {
+      "account": "personal2",
+      "at": "Sat 11-21 22:00",
+      "d7BeforeReset": 0.0,
+      "unusedPct": 100.0,
+      "byWorkMac": 0.0,
+      "byPersonalMac": 0.0,
       "byApp": 0.0
      }
     ]

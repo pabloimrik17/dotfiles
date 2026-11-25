@@ -145,3 +145,22 @@ x2 trade-off: surplus/wk and x2 work-Mac walls per L, for (S, W) wall-free at x1
   consume W98: L50: x2 wall 0 (unserved 0), surplus 64.1/64.1/50.9; L60: x2 wall 0 (unserved 0), surplus 65.8/65.8/56.0; L70: x2 wall 0 (unserved 0), surplus 66.8/66.8/60.0; L80: x2 wall 0 (unserved 0), surplus 66.8/66.8/65.9
   pcf W95: L50: x2 wall 0 (unserved 0), surplus 64.1/64.1/50.3; L60: x2 wall 0 (unserved 0), surplus 65.8/65.8/55.8; L70: x2 wall 0 (unserved 0), surplus 66.8/66.8/56.6; L80: x2 wall 0 (unserved 0), surplus 66.8/66.8/61.4
   pcf W98: L50: x2 wall 0 (unserved 0), surplus 64.1/64.1/50.9; L60: x2 wall 0 (unserved 0), surplus 65.8/65.8/56.0; L70: x2 wall 0 (unserved 0), surplus 66.8/66.8/60.0; L80: x2 wall 0 (unserved 0), surplus 66.8/66.8/65.9
+
+Personal Mac without personal2 (held out)
+S        W   L   D     wall  @100 unserv  >=95   pmW%  surp/wk  p2@rst appS  sw wm/pm wm<10/<15 pm<10/<15 unused%@reset
+best      95  70 x1       0     0      0     0   0.00   85.8     0/0    0   1/4   0/0       0/0       w:5/30 w2:14/6
+best      95  70 x1.5     0     0      0     0   4.97   73.0     0/0   20   4/15  0/0       0/0       w:5/5 w2:5/5
+best      98  70 x1       0     0      0   135   0.00   85.7     0/0    0   1/6   0/0       1/1       w:2/30 w2:14/9
+best      98  70 x1.5     0     0      0   360   2.07   79.0     0/0   10   4/19  0/0       3/3       w:2/2 w2:2/2
+wkfirst   95  70 x1       0     0      0     0   0.00   85.8     0/0    0   1/4   0/0       0/0       w:5/30 w2:14/6
+wkfirst   95  70 x1.5     0     0      0     0   4.97   73.0     0/0   20   4/15  0/0       0/0       w:5/5 w2:5/5
+wkfirst   98  70 x1       0     0      0   135   0.00   85.7     0/0    0   1/6   0/0       1/1       w:2/30 w2:14/9
+wkfirst   98  70 x1.5     0     0      0   360   2.07   79.0     0/0   10   4/19  0/0       3/3       w:2/2 w2:2/2
+consume   95  70 x1       0     0      0     0   0.00   85.8     0/0    0   4/4   0/0       0/0       w:15/10 w2:24/24
+consume   95  70 x1.5     0     0      0     0   0.00   85.0     0/0    0   4/14  0/0       1/1       w:5/5 w2:5/5
+consume   98  70 x1       0     0      0     0   0.00   85.8     0/0    0   4/4   0/0       0/0       w:15/10 w2:24/24
+consume   98  70 x1.5     0     0      0   360   0.00   84.9     0/0    0   4/12  0/0       1/1       w:2/2 w2:2/2
+pcf       95  70 x1       0     0      0     0   0.00   85.8     0/0    0   4/4   0/0       0/0       w:15/10 w2:24/24
+pcf       95  70 x1.5     0     0      0     0   0.00   85.0     0/0    0   4/14  0/0       1/1       w:5/5 w2:5/5
+pcf       98  70 x1       0     0      0     0   0.00   85.8     0/0    0   4/4   0/0       0/0       w:15/10 w2:24/24
+pcf       98  70 x1.5     0     0      0   360   0.00   84.9     0/0    0   4/12  0/0       1/1       w:2/2 w2:2/2

@@ -26,7 +26,7 @@ The motivation is in proposal.md, Why. State on 2026-11-24:
 
 **Goals:**
 
-- The work Mac never hits a wall up to 1.5× its measured weekday demand.
+- The work Mac never hits a wall up to 1.5× its measured weekday demand while `personal2` is usable, and up to 1× in a month without it.
 - The personal Mac spends the work accounts' surplus, and `personal2` stays first.
 - One rotation policy per machine type, declared in the repository and applied through upstream commands.
 
@@ -65,7 +65,7 @@ The simulation lives in `simulation/` (README there). It runs two real `AutoSwit
 
 - **Work Mac demand.** Weekdays 08–20, at 16 points a day (×1), with a Tuesday peak of 2.2× a normal day.
 - **Personal Mac demand.** The P1·60 ceiling.
-- **Grid.** 72 runs, plus a status quo and 230 probes.
+- **Grid.** 72 runs, plus a status quo and 278 probes.
 
 Work-Mac wall minutes at ×1 / ×1.5 / ×2:
 
@@ -85,6 +85,8 @@ W is the work Mac's line on both work accounts. L is the personal Mac's line on 
 - **Personal Mac:** `personal2` 100/95, `work` 50/70, `work2` 50/70 and `personal` 10/80.
 
 At ×1 and ×1.5 this gives no wall on either Mac, `personal2` at 95 % at every reset, no app shortfall, and no switch gap under 10 min.
+
+Without `personal2` (an unpaid month), a probe at L 70 stays wall-free at ×1 on every profile and at ×1.5 on `peakFri` and `flat`. On `peakTue` the chosen policy walls 97 min at ×1.5, so in such a month D8 applies from ×1.
 
 **Why criterion 1 stops at ×1.5.** No configuration is wall-free at ×2, not even L 50, the engine's minimum line. Two facts explain it:
 
@@ -166,7 +168,7 @@ Tests still need the live `cswap` at the pin. Implementation installs 1.2.0 with
 
 ### D8. Heavy work weeks: a documented manual hold-out
 
-For a week expected above ×1.5, the user runs `cswap disable work` and `cswap disable work2` on the personal Mac from the weekend before, and `cswap enable` afterwards. The setup never enables a held-out account and never warns about one. The manual documents the rule and the ×1.5 limit.
+For a week expected above ×1.5, or above ×1 in a month without `personal2`, the user runs `cswap disable work` and `cswap disable work2` on the personal Mac from the weekend before, and `cswap enable` afterwards. The setup never enables a held-out account and never warns about one. The manual documents the rule and both limits.
 
 ### D9. Trial and review
 
@@ -186,7 +188,7 @@ Criteria, in order:
 
 ## Risks / Trade-offs
 
-- [A week above ×1.5 walls the work Mac] → D8 hold-out. Upstream's `BLOCKED` state and the menu's usage rows make it visible.
+- [A week above ×1.5, or above ×1 without `personal2`, walls the work Mac] → D8 hold-out. Upstream's `BLOCKED` state and the menu's usage rows make it visible.
 - [Both Macs drain the same work account first] → Accepted. It only matters above ×1.5; see Open Questions.
 - [The day profile is an assumption: the Tuesday peak is 2.2× a normal day] → `peakFri` and `flat` probes bracket it, and the trial review measures the real profile.
 - [`priority-consume-first` lands just under a line (92–94.8 against 95) and leaves 5–21 min later; 2 ping-pongs in 18 runs] → Accepted, since gaps stayed over 5 min. The trial checks criterion 5.
@@ -211,9 +213,10 @@ Criteria, in order:
 
 Rollback:
 
-1. Revert the change and apply it: the 0.29.0 pin and the old setup come back.
-2. On the work Mac, run `cswap menubar --install-service --no-auto-switch` (the old setup never turns autoswitch off) and remove `work2` explicitly if wanted.
-3. Optionally `cswap priority/threshold <alias> --unset` for the work-Mac accounts and `work2`.
+1. On the work Mac, before the revert, run `cswap menubar --install-service --no-auto-switch`: the old setup never turns autoswitch off, and 0.29.0 has no such flag.
+2. Revert the change and apply it: the 0.29.0 pin and the old setup come back.
+3. On the work Mac the old setup accepts only `work`: remove `work2` with `cswap remove work2`, or accept "needs attention" on each apply.
+4. Optionally `cswap priority/threshold <alias> --unset` for the work-Mac accounts and `work2`.
 
 ## Open Questions
 
