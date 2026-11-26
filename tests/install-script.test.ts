@@ -169,11 +169,14 @@ test("obsidian carries no brew pin or version freeze", () => {
 });
 
 test("the Claude Code plugin array carries the plugins expo/skills publishes", () => {
-    const plugins = renderedArray(render("darwin"), "CC_PLUGINS");
+    const rendered = render("darwin");
+    const plugins = renderedArray(rendered, "CC_PLUGINS");
+    const retired = renderedArray(rendered, "CC_PLUGINS_RETIRED");
     expect(plugins).toContain("expo@expo-plugins");
     expect(plugins).toContain("expo-experiments@expo-plugins");
     for (const stale of ["expo-app-design", "upgrading-expo", "expo-deployment"]) {
         expect(plugins).not.toContain(`${stale}@expo-plugins`);
+        expect(retired).toContain(`${stale}@expo-plugins:expo@expo-plugins`);
     }
 });
 

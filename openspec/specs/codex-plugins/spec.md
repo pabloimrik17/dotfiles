@@ -127,4 +127,4 @@ The Codex plugin list SHALL include `expo@openai-curated` from the built-in cura
 #### Scenario: Plugin missing
 
 - **WHEN** the installer runs, `expo@openai-curated` is not installed and the user confirms
-- **THEN** it runs `codex plugin add expo@openai-curated` and no `codex plugin marketplace add`
+- **THEN** it runs `codex plugin add expo@openai-curated` and runs no `codex plugin marketplace add` for `openai-curated`
