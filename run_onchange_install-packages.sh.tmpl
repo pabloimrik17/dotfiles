@@ -1760,9 +1760,8 @@ CC_PLUGINS=(
     "plugin-dev@claude-plugins-official"
     "skill-creator@claude-plugins-official"
     "claude-hud@claude-hud"
-    "expo-app-design@expo-plugins"
-    "upgrading-expo@expo-plugins"
-    "expo-deployment@expo-plugins"
+    "expo@expo-plugins"
+    "expo-experiments@expo-plugins"
     "expo-developer@monolab"
     "experiments@monolab"
     "prompt-presets@monolab"
@@ -1792,6 +1791,9 @@ CC_PLUGINS=(
 # its replacement is installed, so a declined or failed install keeps it working.
 CC_PLUGINS_RETIRED=(
     "mattpocock-skills@claude-plugins-official:mattpocock-skills@mattpocock"
+    "expo-app-design@expo-plugins:expo@expo-plugins"
+    "upgrading-expo@expo-plugins:expo@expo-plugins"
+    "expo-deployment@expo-plugins:expo@expo-plugins"
 )
 
 if command -v claude &>/dev/null; then
@@ -2242,6 +2244,7 @@ unset -f configure_codex_mcp_servers reconcile_codex_http_mcp codex_mcp_entry_ma
 CODEX_PLUGINS=(
     "superpowers@openai-curated"
     "obsidian@obsidian-skills"
+    "expo@openai-curated"
 )
 
 # name|source rows for marketplaces Codex does not ship. A plugin's marketplace

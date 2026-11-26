@@ -133,12 +133,14 @@ printf 'ERROR_COUNT=%s\\n' "$ERRORS"
 const marketplaceAdd = "plugin marketplace add obsidianmd/obsidian-skills";
 const obsidianAdd = "plugin add obsidian@obsidian-skills";
 const superpowersAdd = "plugin add superpowers@openai-curated";
+const expoAdd = "plugin add expo@openai-curated";
 
 test("a missing marketplace is registered before its plugin installs", async () => {
     const { output, calls } = await runGroup({});
     expect(calls).toContain(marketplaceAdd);
     expect(calls.indexOf(marketplaceAdd)).toBeLessThan(calls.indexOf(obsidianAdd));
     expect(calls).toContain(superpowersAdd);
+    expect(calls).toContain(expoAdd);
     expect(output).toContain("ERROR_COUNT=0");
 });
 
@@ -181,9 +183,13 @@ test("only built-in plugins pending runs no marketplace command", async () => {
 
 test("everything installed neither prompts nor runs any marketplace or add command", async () => {
     const { output, calls } = await runGroup({
-        installed: ["superpowers@openai-curated", "obsidian@obsidian-skills"],
+        installed: [
+            "superpowers@openai-curated",
+            "obsidian@obsidian-skills",
+            "expo@openai-curated",
+        ],
     });
     expect(calls).toEqual(["plugin list --json"]);
-    expect(output).toContain("Codex plugins: 2/2 installed");
+    expect(output).toContain("Codex plugins: 3/3 installed");
     expect(output).not.toContain("CONFIRM:");
 });
