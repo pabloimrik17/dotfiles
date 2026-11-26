@@ -546,5 +546,7 @@ test("the non-macOS instructions name pnpm's official installer", async () => {
     await writeFile(script, rendered.replace(redirect, ""));
     const result = run(["/bin/bash", script]);
     expect(result.exitCode, result.stderr).toBe(0);
-    expect(result.stdout).toContain("- pnpm: curl -fsSL https://get.pnpm.io/install.sh | sh -");
+    expect(result.stdout).toContain(
+        "- pnpm: curl -fsSL https://get.pnpm.io/install.sh | PNPM_HOME=~/Library/pnpm PNPM_NO_MODIFY_PATH=1 sh -",
+    );
 });

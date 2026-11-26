@@ -1842,11 +1842,13 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td><code>command -v pnpm</code></td>
+                                <td><code>type -a pnpm</code></td>
                                 <td>
-                                    Should print <code>~/Library/pnpm/bin/pnpm</code>. A
-                                    <code>~/.nvm/versions/node/&lt;v&gt;/bin/pnpm</code> path is a
-                                    corepack shim (below)
+                                    The first path should be <code>~/Library/pnpm/bin/pnpm</code>; a
+                                    shell function above it is the nvm plugin's lazy loader. A
+                                    <code>~/.nvm/versions/node/&lt;v&gt;/bin/pnpm</code> ahead of it
+                                    is a corepack shim (below) or an npm global install; remove the
+                                    latter with <code>npm uninstall -g pnpm</code> under that Node
                                 </td>
                             </tr>
                         </tbody>
@@ -1855,8 +1857,9 @@
                         Node 24 and earlier still ship corepack. A later
                         <code>corepack enable</code> brings back a <code>pnpm</code> shim that
                         shadows the standalone pnpm while that Node is active. Fix it with
-                        <code>corepack disable</code> or by deleting the link; the install script
-                        also removes corepack shims on its next run.
+                        <code>corepack disable</code> or by deleting the link. The install script
+                        also removes corepack shims, but it only runs again once its content
+                        changes.
                     </p>
 
                     <h3>npm (OMZ plugin)</h3>

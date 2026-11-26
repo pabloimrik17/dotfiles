@@ -2604,7 +2604,7 @@ info "    - CodeRabbit: curl -fsSL https://cli.coderabbit.ai/install.sh | sh  (o
 info "    - Codex: curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh  (official standalone installer; installs to ~/.local/bin)"
 info "      Authenticate on first use: codex"
 info "      Update: codex update  (or rerun the standalone installer)"
-info "    - pnpm: curl -fsSL https://get.pnpm.io/install.sh | sh -  (official standalone installer; needs no Node.js)"
+info "    - pnpm: curl -fsSL https://get.pnpm.io/install.sh | PNPM_HOME=~/Library/pnpm PNPM_NO_MODIFY_PATH=1 sh -  (official standalone installer; needs no Node.js; .zshrc already adds ~/Library/pnpm/bin to PATH)"
 print_linear_mcp_guidance
 print_linear_cli_guidance
 print_gws_guidance

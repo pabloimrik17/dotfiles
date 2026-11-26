@@ -12,7 +12,7 @@
     - a present install does not prompt;
     - a shim on `PATH` alone counts as pending;
     - a failed download or install logs an error and leaves no temp file.
-- [x] 2.2 Add pnpm with `curl -fsSL https://get.pnpm.io/install.sh | sh -` to the non-macOS official-installer instructions. Verify that the linux render's output contains that line.
+- [x] 2.2 Add pnpm with `curl -fsSL https://get.pnpm.io/install.sh | PNPM_HOME=~/Library/pnpm PNPM_NO_MODIFY_PATH=1 sh -` to the non-macOS official-installer instructions. Verify that the linux render's output contains that line.
 - [x] 2.3 In the pnpm block of `dot_zshrc.tmpl`, add `$PNPM_HOME/bin` before `$PNPM_HOME`, each guarded against duplicates. Verify with `chezmoi execute-template` plus zsh: source the block twice, then check that each entry appears once and that `$PNPM_HOME/bin` comes first.
 - [x] 2.4 Update the Node/pnpm docs with the `update-manual` and `update-readme` skills. Cover where pnpm comes from, running `pnpm self-update` outside a project, that yarn is gone, and that `corepack enable` brings a shim back. Verify that `docs/manual.html` and README mention no corepack-provided pnpm.
 

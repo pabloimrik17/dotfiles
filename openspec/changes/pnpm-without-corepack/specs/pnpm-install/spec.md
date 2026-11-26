@@ -66,7 +66,7 @@ The setup SHALL NOT override pnpm's `pmOnFail` setting, so pnpm keeps its defaul
 
 ### Requirement: Non-macOS guidance names the pnpm installer
 
-The non-macOS branch of the install script SHALL list pnpm under the official-installer instructions with `curl -fsSL https://get.pnpm.io/install.sh | sh -`.
+The non-macOS branch of the install script SHALL list pnpm under the official-installer instructions with `curl -fsSL https://get.pnpm.io/install.sh | PNPM_HOME=~/Library/pnpm PNPM_NO_MODIFY_PATH=1 sh -`. Without `PNPM_NO_MODIFY_PATH=1` the installer edits the chezmoi-managed `~/.zshrc`, and the zsh config expects pnpm in `~/Library/pnpm` on every OS.
 
 #### Scenario: pnpm listed in non-macOS instructions
 
