@@ -1777,6 +1777,16 @@
                     </table>
 
                     <h3>pnpm</h3>
+                    <p class="note">
+                        The install script's pnpm group runs the official standalone installer
+                        (<code>get.pnpm.io</code>) at its declared version (<code>12.23.0</code>)
+                        into <code>~/Library/pnpm</code>, without editing shell config.
+                        <code>.zshrc</code> adds <code>$PNPM_HOME/bin</code> and
+                        <code>$PNPM_HOME</code> to <code>PATH</code>. pnpm does not depend on the
+                        active Node version. Each project's <code>packageManager</code> still picks
+                        its pnpm version, downloaded once on first use. The NVM group installs only
+                        NVM + Node: corepack is not enabled and yarn is not provided.
+                    </p>
                     <table>
                         <thead>
                             <tr>
@@ -1815,6 +1825,39 @@
                             </tr>
                         </tbody>
                     </table>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Command</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>pnpm self-update</code></td>
+                                <td>
+                                    Update the global pnpm. Run it outside any project; inside one
+                                    it only bumps that project's <code>packageManager</code> pin.
+                                    The declared version applies to fresh installs only
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><code>command -v pnpm</code></td>
+                                <td>
+                                    Should print <code>~/Library/pnpm/bin/pnpm</code>. A
+                                    <code>~/.nvm/versions/node/&lt;v&gt;/bin/pnpm</code> path is a
+                                    corepack shim (below)
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="note">
+                        Node 24 and earlier still ship corepack. A later
+                        <code>corepack enable</code> brings back a <code>pnpm</code> shim that
+                        shadows the standalone pnpm while that Node is active. Fix it with
+                        <code>corepack disable</code> or by deleting the link; the install script
+                        also removes corepack shims on its next run.
+                    </p>
 
                     <h3>npm (OMZ plugin)</h3>
                     <table>
