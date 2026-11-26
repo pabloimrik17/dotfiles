@@ -121,7 +121,7 @@ The cleanup SHALL exit non-zero, naming each agent, when a removal command fails
 
 #### Scenario: A listing cannot be read
 
-- **WHEN** `codex plugin list --json` exits non-zero or returns output without an `installed` array
+- **WHEN** `codex plugin list --json` exits non-zero, returns output without an `installed` array, or returns an `installed` entry without `pluginId`
 - **THEN** the cleanup names Codex as failed and exits non-zero rather than reporting nothing to remove
 
 #### Scenario: Retry after a failed run

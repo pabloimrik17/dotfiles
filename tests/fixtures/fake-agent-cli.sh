@@ -1,11 +1,13 @@
 #!/bin/bash
 # Stand-in for the claude, codex and opencode plugin CLIs, chosen by the name it
 # is invoked as. Claude and Codex keep one plugin id or marketplace name per line
-# in $FAKE_STATE/<agent>.plugins and <agent>.marketplaces. OpenCode edits the
-# config files under $HOME/.config/opencode. A file $FAKE_STATE/<agent>.<flag>
-# turns on a failure mode: list-fails, list-garbage, remove-fails or
-# remove-sticky (exits 0 and changes nothing, as `opencode plugin remove` does
-# for a specifier it does not know).
+# in $FAKE_STATE/<agent>.plugins and <agent>.marketplaces. OpenCode edits
+# $HOME/.config/opencode/opencode.json, or opencode.jsonc when there is no
+# opencode.json, as the real CLI does. A file $FAKE_STATE/<agent>.<flag> turns on
+# a failure mode: list-fails, list-garbage, list-renamed (entries carry a key
+# other than the one asked for), remove-fails or remove-sticky (exits 0 and
+# changes nothing, as `opencode plugin remove` does for a specifier it does not
+# know).
 
 agent="${0##*/}"
 state="$FAKE_STATE/$agent"
@@ -25,7 +27,9 @@ objects() {
 listing() {
     has list-fails && exit 1
     has list-garbage && { echo '{"available":[]}'; exit 0; }
-    printf '%s%s%s\n' "$1" "$(objects "$3" "$4")" "$2"
+    local key="$3"
+    has list-renamed && key="renamed"
+    printf '%s%s%s\n' "$1" "$(objects "$key" "$4")" "$2"
     exit 0
 }
 
@@ -45,16 +49,14 @@ drop() {
 
 opencode_remove() {
     removal
-    local file found=0
-    for file in "$HOME/.config/opencode/opencode.json" "$HOME/.config/opencode/opencode.jsonc"; do
-        if [ ! -f "$file" ] || ! grep -qF "\"$1\"" "$file"; then
-            continue
-        fi
+    local file="$HOME/.config/opencode/opencode.json"
+    [ -f "$file" ] || file="$HOME/.config/opencode/opencode.jsonc"
+    if [ -f "$file" ] && grep -qF "\"$1\"" "$file"; then
         grep -vF "\"$1\"" "$file" >"$file.tmp"
         mv "$file.tmp" "$file"
-        found=1
-    done
-    [ "$found" = 1 ] || echo "Plugin \"$1\" is not configured"
+    else
+        echo "Plugin \"$1\" is not configured"
+    fi
     exit 0
 }
 

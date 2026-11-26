@@ -15,7 +15,7 @@ Each agent CLI was tested in a throwaway config dir: Claude Code 2.1.332 (`CLAUD
 | --- | --- | --- | --- |
 | Claude Code | `marketplace add` writes `extraKnownMarketplaces.superwhisper` to settings. `install` writes `enabledPlugins`. | `uninstall` drops the `enabledPlugins` key. `marketplace remove` drops the settings key and the `known_marketplaces.json` entry. | `plugins/cache/superwhisper` |
 | Codex | `[marketplaces.superwhisper]` and `[plugins."superwhisper@superwhisper"]` in `config.toml` | `plugin remove` and `marketplace remove` delete both tables. A repeated `remove` exits 0. | `plugins/cache/superwhisper` |
-| OpenCode 2 | Package name added to `opencode.jsonc` if that file exists, otherwise to `opencode.json` | `plugin remove` edits the same file | package cache |
+| OpenCode 2 | Package name added to `opencode.jsonc` if that file exists, otherwise to `opencode.json` | `plugin remove` edits `opencode.json` if that file exists, otherwise `opencode.jsonc` | package cache |
 
 `opencode plugin list` needs the managed service. It also printed "No plugins found" while `opencode.jsonc` listed three plugins. It cannot be used for detection.
 
@@ -54,11 +54,11 @@ Detection, before any removal:
 
 - Claude Code: `claude plugin list --json` for `id == "superwhisper@superwhisper"`, and `claude plugin marketplace list --json` for `name == "superwhisper"`.
 - Codex: the `installed` array of `codex plugin list --json` for `pluginId`, and `codex plugin marketplace list --json` `.marketplaces[].name`.
-- OpenCode: search `~/.config/opencode/opencode.json` and `opencode.jsonc` for `@superwhisper/opencode`, then run `opencode plugin remove @superwhisper/opencode`.
+- OpenCode: search `~/.config/opencode/opencode.json` and `opencode.jsonc` for `@superwhisper/opencode`, then run `opencode plugin remove` with each exact specifier found. A file that still lists it afterwards is named in the error, since with both files present the CLI edits only `opencode.json`.
 
 The plugin and the marketplace are checked separately, so a marketplace left over from a half-finished install is still removed. After removing, the script queries again and fails if anything is still listed, per `managed-step-failure-visibility`.
 
-`jq` parses the JSON. If `jq` is missing the listings cannot be read, so the run fails and retries. On a fresh machine the install script has already installed `jq` by this point.
+`jq` parses the JSON. An entry without the key being matched makes the listing unreadable, so a renamed field cannot read as "not installed". macOS 15 and later ship `/usr/bin/jq`; the install script does not install it. Without `jq` the run names Claude Code and Codex as failed, with a hint, and retries.
 
 ### 3. Drop the superwhisper entries from the settings merge's `REMOVE`
 

@@ -23,6 +23,7 @@ const temporaryDirectories: string[] = [];
 const PLUGIN = "superwhisper@superwhisper";
 const MARKETPLACE = "superwhisper";
 const OPENCODE_PACKAGE = "@superwhisper/opencode";
+const SYSTEM_TOOLS = ["grep", "mv", "sort", "tr"];
 
 afterEach(async () => {
     await Promise.all(
@@ -55,7 +56,7 @@ function render(os: string): string {
 }
 
 type Agent = "claude" | "codex" | "opencode";
-type Flag = "list-fails" | "list-garbage" | "remove-fails" | "remove-sticky";
+type Flag = "list-fails" | "list-garbage" | "list-renamed" | "remove-fails" | "remove-sticky";
 
 interface Listed {
     plugins?: string[];
@@ -70,7 +71,7 @@ interface Scenario {
         files?: Partial<Record<"opencode.json" | "opencode.jsonc", string>>;
         flags?: Flag[];
     };
-    missing?: Agent[];
+    missing?: (Agent | "jq")[];
 }
 
 interface Sandbox {
@@ -100,12 +101,17 @@ async function createSandbox(): Promise<Sandbox> {
     await mkdir(sandbox.state);
     await mkdir(sandbox.opencodeConfig, { recursive: true });
 
-    const jq = Bun.which("jq");
-    expect(jq, "jq must be installed to run the cleanup").toBeTruthy();
-    await symlink(jq!, path.join(sandbox.bin, "jq"));
+    for (const tool of SYSTEM_TOOLS) {
+        await linkTool(sandbox, tool, Bun.which(tool, { PATH: "/usr/bin:/bin" }));
+    }
     await copyFile(fakeAgent, sandbox.fake);
     await chmod(sandbox.fake, 0o755);
     return sandbox;
+}
+
+async function linkTool(sandbox: Sandbox, name: string, target: string | null) {
+    expect(target, `${name} must be installed to run the cleanup`).toBeTruthy();
+    await symlink(target!, path.join(sandbox.bin, name));
 }
 
 async function installAgent(sandbox: Sandbox, agent: Agent, scenario: Scenario) {
@@ -133,6 +139,9 @@ async function readLines(file: string) {
 
 async function runCleanup(scenario: Scenario = {}) {
     const sandbox = await createSandbox();
+    if (!scenario.missing?.includes("jq")) {
+        await linkTool(sandbox, "jq", Bun.which("jq"));
+    }
     for (const agent of ["claude", "codex", "opencode"] as const) {
         await installAgent(sandbox, agent, scenario);
     }
@@ -147,7 +156,7 @@ async function runCleanup(scenario: Scenario = {}) {
     const result = Bun.spawnSync(["/bin/bash", script], {
         cwd: sandbox.root,
         env: {
-            PATH: `${sandbox.bin}:/usr/bin:/bin`,
+            PATH: sandbox.bin,
             HOME: sandbox.home,
             FAKE_STATE: sandbox.state,
             FAKE_LOG: sandbox.log,
@@ -167,6 +176,8 @@ async function runCleanup(scenario: Scenario = {}) {
         opencodeFile: (name: string) => readFile(path.join(sandbox.opencodeConfig, name), "utf8"),
     };
 }
+
+const agentNames = { claude: "Claude Code", codex: "Codex", opencode: "OpenCode" };
 
 const removals = (calls: string[]) => calls.filter((call) => /\b(uninstall|remove)\b/.test(call));
 
@@ -283,34 +294,60 @@ test("a failed removal still cleans the other agents, then fails naming the agen
     expect(run.stderr).toMatch(/failed for: Claude Code$/m);
 });
 
-test.each(["list-fails", "list-garbage"] as const)(
-    "codex: an unreadable listing (%s) fails instead of reading as empty",
-    async (flag) => {
+test.each([
+    ["claude", "list-fails"],
+    ["claude", "list-garbage"],
+    ["claude", "list-renamed"],
+    ["codex", "list-fails"],
+    ["codex", "list-garbage"],
+    ["codex", "list-renamed"],
+] as const)(
+    "%s: an unreadable listing (%s) fails instead of reading as empty",
+    async (agent, flag) => {
         const run = await runCleanup({
-            codex: { plugins: [PLUGIN], marketplaces: [MARKETPLACE], flags: [flag] },
+            [agent]: { plugins: [PLUGIN], marketplaces: [MARKETPLACE], flags: [flag] },
         });
         expect(run.exitCode).not.toBe(0);
         expect(removals(run.calls)).toEqual([]);
-        expect(run.stderr).toMatch(/failed for: Codex$/m);
+        expect(run.stderr).toMatch(new RegExp(`failed for: ${agentNames[agent]}$`, "m"));
     },
 );
 
+test("without jq, Claude Code and Codex fail with a hint and OpenCode is still cleaned", async () => {
+    const run = await runCleanup({
+        missing: ["jq"],
+        claude: { plugins: [PLUGIN] },
+        opencode: { files: { "opencode.json": opencodeWithPlugin } },
+    });
+    expect(run.exitCode).not.toBe(0);
+    expect(removals(run.calls)).toEqual([`opencode plugin remove ${OPENCODE_PACKAGE}`]);
+    expect(run.stderr).toContain("brew install jq");
+    expect(run.stderr).toMatch(/failed for: Claude Code, Codex$/m);
+});
+
+test("opencode: with both config files, a plugin left in opencode.jsonc fails naming it", async () => {
+    const run = await runCleanup({
+        opencode: {
+            files: { "opencode.json": '{ "plugins": [] }\n', "opencode.jsonc": opencodeWithPlugin },
+        },
+    });
+    expect(run.exitCode).not.toBe(0);
+    expect(run.stderr).toContain(`opencode.jsonc still lists ${OPENCODE_PACKAGE}`);
+    expect(run.stderr).toMatch(/failed for: OpenCode$/m);
+});
+
 test.each([
-    ["claude", "Claude Code", { claude: { plugins: [PLUGIN], flags: ["remove-sticky"] } }],
-    ["codex", "Codex", { codex: { plugins: [PLUGIN], flags: ["remove-sticky"] } }],
+    ["claude", { claude: { plugins: [PLUGIN], flags: ["remove-sticky"] } }],
+    ["codex", { codex: { plugins: [PLUGIN], flags: ["remove-sticky"] } }],
     [
         "opencode",
-        "OpenCode",
         { opencode: { files: { "opencode.json": opencodeWithPlugin }, flags: ["remove-sticky"] } },
     ],
-] as const)(
-    "%s: a plugin still listed after removal fails the run",
-    async (_agent, name, scenario) => {
-        const run = await runCleanup(scenario as Scenario);
-        expect(run.exitCode).not.toBe(0);
-        expect(run.stderr).toMatch(new RegExp(`failed for: ${name}$`, "m"));
-    },
-);
+] as const)("%s: a plugin still listed after removal fails the run", async (agent, scenario) => {
+    const run = await runCleanup(scenario as Scenario);
+    expect(run.exitCode).not.toBe(0);
+    expect(run.stderr).toMatch(new RegExp(`failed for: ${agentNames[agent]}$`, "m"));
+});
 
 test("the Linux render is empty", () => {
     expect(render("linux").trim()).toBe("");
