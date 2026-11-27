@@ -2,9 +2,9 @@
 
 ## 1. Managed key and its tests
 
-- [ ] 1.1 Add `tests/claude-code-mode.test.ts`: render the template for `personal` and `work` (`chezmoi execute-template --override-data`, as in `tests/knowledge-base-settings.test.ts`), merge onto `{}` and onto live files, and assert every scenario in `specs/claude-user-preferences/spec.md` and the machine-type scenario in `specs/claude-settings-merge/spec.md`. Verify the new tests fail before 1.2.
-- [ ] 1.2 In `dot_claude/modify_settings.json.tmpl`, declare `"CLAUDE_CODE_EXPERIMENTAL_CODE_MODE": "1"` in MANAGED `env` behind `eq (get . "machineType" | default "") "personal"`, with the comma inside the conditional (D3). Under the negated condition, add `("env", "CLAUDE_CODE_EXPERIMENTAL_CODE_MODE")` to `REMOVE` (D2). Verify that `bun test tests/claude-code-mode.test.ts` passes.
-- [ ] 1.3 Verify that `bun test` (the whole suite, including `claude-settings-hooks`, `knowledge-base-settings` and `ibkr-mcp`) passes, and that `openspec validate enable-claude-code-mode-personal --strict` passes.
+- [x] 1.1 Add `tests/claude-code-mode.test.ts`: render the template for `personal` and `work` (`chezmoi execute-template --override-data`, as in `tests/knowledge-base-settings.test.ts`), merge onto `{}` and onto live files, and assert every scenario in `specs/claude-user-preferences/spec.md` and the machine-type scenario in `specs/claude-settings-merge/spec.md`. Verify the new tests fail before 1.2.
+- [x] 1.2 In `dot_claude/modify_settings.json.tmpl`, declare `"CLAUDE_CODE_EXPERIMENTAL_CODE_MODE": "1"` in MANAGED `env` behind `eq (get . "machineType" | default "") "personal"`, with the comma inside the conditional (D3). Under the negated condition, add `("env", "CLAUDE_CODE_EXPERIMENTAL_CODE_MODE")` to `REMOVE` (D2). Verify that `bun test tests/claude-code-mode.test.ts` passes.
+- [x] 1.3 Verify that `bun test` (the whole suite, including `claude-settings-hooks`, `knowledge-base-settings` and `ibkr-mcp`) passes, and that `openspec validate enable-claude-code-mode-personal --strict` passes.
 
 ## 2. Docs
 
