@@ -12,9 +12,9 @@
 
 ## 3. Integration checks
 
-- [ ] 3.1 On the personal machine, verify that `chezmoi diff ~/.claude/settings.json` from the branch's source shows no Code Mode line (the key is already live), and that the rendered `env` holds both keys.
-- [ ] 3.2 With `machineType=work` rendered locally (`--override-data`), merge a copy of the personal live file and verify that the Code Mode key is gone and that every other key matches.
-- [ ] 3.3 Write the D5 blocker audit and the `claude -p` fallback into the PR body.
+- [x] 3.1 On the personal machine, verify that `chezmoi diff ~/.claude/settings.json` from the branch's source shows no Code Mode line (the key is already live), and that the rendered `env` holds both keys.
+- [x] 3.2 With `machineType=work` rendered locally (`--override-data`), merge a copy of the personal live file and verify that the Code Mode key is gone and that every other key matches.
+- [x] 3.3 Write the D5 blocker audit and the `claude -p` fallback into the PR body.
 
 ## Workflow follow-up
 
