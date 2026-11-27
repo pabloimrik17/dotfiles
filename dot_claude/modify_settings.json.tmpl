@@ -124,7 +124,8 @@ MANAGED = json.loads(r'''
     "worktrunk@worktrunk": true
   },
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"{{ if eq (get . "machineType" | default "") "personal" }},
+    "CLAUDE_CODE_EXPERIMENTAL_CODE_MODE": "1"{{ end }}
   },
   "extraKnownMarketplaces": {
     "beads-marketplace": {
@@ -492,6 +493,9 @@ MERGE_CONTAINERS = {
 # where the condition is false would leave it in that host's file forever.
 REMOVE = [
     ("hooks", "PreCompact"),
+{{- if ne (get . "machineType" | default "") "personal" }}
+    ("env", "CLAUDE_CODE_EXPERIMENTAL_CODE_MODE"),
+{{- end }}
 ]
 
 
