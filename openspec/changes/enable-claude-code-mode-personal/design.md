@@ -59,6 +59,8 @@ Checked against the managed config (template, zsh config, the install script) an
 | Mods or plugins that hook tool calls | The managed `PreToolUse`/`PostToolUse` entries are AoE settings hooks, not mods. Live evidence: the managed plugin set runs in Code Mode (Context). |
 | Model | Opus/Sonnet/Haiku 5.5 or Fable 5.2. AoE passes `--model opus`, and the observed session runs with Code Mode on. |
 | Installation | Native build. Code Mode needs it. |
+| `PreToolUse` hooks | Not a blocker. The managed hook sets no `onFailure`, so a hook that does not finish (timeout) gets the call refused. The hook exits 0 on every path, so the risk is low. |
+| Agent teams in split panes | Not a blocker. Teammates in split panes start without Code Mode; in-process teammates keep it. |
 
 Surfaces without Code Mode (`claude -p`, Agent SDK, VS Code, Desktop, cloud) fall back to normal tools. Observed for `claude -p`, which the autonomous plugin's helpers use. The docs do not say this for `-p` or the SDK.
 
