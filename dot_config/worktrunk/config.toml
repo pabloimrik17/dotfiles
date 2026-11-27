@@ -141,19 +141,23 @@ echo '[install-deps] done'
 """
 
 [step.copy-ignored]
-# Skip regenerable directories: [post-start].install-deps reinstalls packages, rebuilds regenerate
+# Skip regenerable paths: [post-start].install-deps reinstalls packages, rebuilds regenerate
 # framework/bundler/test caches, and venvs bake in absolute paths that break after copy.
 # Keep `.idea/` (JetBrains project state) and `ios/Pods/` (CocoaPods is slow to reinstall).
 exclude = [
     "node_modules/",
     ".next/",
     ".nx/",
+    ".nx/cache/",
+    ".nx/workspace-data/",
     ".turbo/",
     ".expo/",
     ".cache/",
     ".parcel-cache/",
     ".vite/",
     ".swc/",
+    "*.tsbuildinfo",
+    ".eslintcache",
     "dist/",
     "build/",
     "out/",
