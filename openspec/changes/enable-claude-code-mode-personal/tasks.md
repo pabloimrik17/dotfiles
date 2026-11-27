@@ -8,7 +8,7 @@
 
 ## 2. Docs
 
-- [ ] 2.1 Add a "Code Mode" entry to `docs/manual.html` next to "Fullscreen TUI": personal machines only, removed on work by apply, it turns off Chrome, computer use and Remote Control (use Playwright or chrome-devtools MCP), the one-time opt-in prompt, `/status` for the reason when it is off, and `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=0 claude` to skip it for one launch. Use the `update-manual` skill. Verify that `bun run lint:oxfmt` passes.
+- [x] 2.1 Add a "Code Mode" entry to `docs/manual.html` next to "Fullscreen TUI": personal machines only, removed on work by apply, it turns off Chrome, computer use and Remote Control (use Playwright or chrome-devtools MCP), the one-time opt-in prompt, `/status` for the reason when it is off, and `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=0 claude` to skip it for one launch. Use the `update-manual` skill. Verify that `bun run lint:oxfmt` passes.
 
 ## 3. Integration checks
 
