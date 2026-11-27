@@ -48,6 +48,7 @@ chezmoi-managed dotfiles for macOS (primary) with Linux support. Built around Gh
 | **CLI Tools**  | [mole](https://github.com/tw93/mole)                                            | Deep clean and optimize your Mac — caches, logs, app remnants, `node_modules` (macOS only)                 |
 | **CLI Tools**  | [glow](https://github.com/charmbracelet/glow)                                   | Terminal Markdown viewer — TUI browse + CLI render                                                         |
 | **CLI Tools**  | [mdfried](https://github.com/benjajaja/mdfried)                                 | Markdown viewer with inline images, mermaid diagrams, and Big Headers (graphics terminal)                  |
+| **CLI Tools**  | [pnpm](https://pnpm.io/)                                                        | Standalone install, independent of the active Node; `packageManager` still picks each project's pnpm       |
 | **CLI Tools**  | [fallow](https://fallow.tools/)                                                 | Codebase intelligence for TS/JS — dead code, duplication, complexity (CLI + MCP + skill)                   |
 | **CLI Tools**  | [llmfit](https://github.com/AlexsJones/llmfit)                                  | Right-sizes LLM models to the machine's RAM, CPU, and GPU before you pull the weights                      |
 | **CLI Tools**  | [linear](https://github.com/schpet/linear-cli)                                  | Linear issues from the terminal — used by the autonomous label triage; frozen at the verified version      |
@@ -265,6 +266,7 @@ update-extra          # the rest: gh extensions, omz plugins, skills, plannotato
 
 Brew packages are upgraded **per package**, not in bulk: a changelog can carry a behaviour change, a removed flag, or a new key that lands in a chezmoi-managed file — see the `classify-tool-updates` skill. The install script freezes every declared formula, CLI cask and font cask at a pinned version and warns when a host differs from its `BREW_VERSIONS` row. If brew refuses because a pinned dependency is outdated (`aoe` needs `tmux`), upgrade that dependency first with `brew-upgrade-pinned`. A version that is wrong for this repo can also be held with a reason and exit condition; an installed held package is pinned, a missing one is not installed, and `brew-upgrade-pinned` refuses any hold the install script has recorded. The freeze and holds are declared in `run_onchange_install-packages.sh.tmpl`, so they apply on both machines when its rendered content changes.
 
-Self-updating tools (Claude Code, Codex, OpenCode, CodeRabbit) use their own update paths.
-Repo-pinned tools such as claude-swap update through a reviewed pin change followed by
-`chezmoi apply`, never through `update-extra`.
+Self-updating tools (Claude Code, Codex, OpenCode, CodeRabbit, pnpm) use their own update paths.
+Run `pnpm self-update` outside any project: inside one it only bumps that project's
+`packageManager` pin. Repo-pinned tools such as claude-swap update through a reviewed pin change
+followed by `chezmoi apply`, never through `update-extra`.

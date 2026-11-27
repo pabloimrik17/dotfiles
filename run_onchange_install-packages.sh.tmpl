@@ -1582,21 +1582,19 @@ else
 fi
 
 # ------------------------------------------------------------------
-# Group 6: NVM + Node LTS + Corepack
+# Group 6: NVM + Node LTS
 # ------------------------------------------------------------------
-# Pre-scan: check if NVM, Node, and corepack are all present
 NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-# Source nvm so node/corepack are visible for the pre-scan
+# Source nvm so node is visible for the pre-scan
 # shellcheck disable=SC1091
 [ -s "$NVM_DIR/nvm.sh" ] && export NVM_DIR && . "$NVM_DIR/nvm.sh"
 NVM_PENDING=0
 [ -d "$NVM_DIR" ] || NVM_PENDING=$((NVM_PENDING + 1))
 command -v node &>/dev/null || NVM_PENDING=$((NVM_PENDING + 1))
-command -v corepack &>/dev/null || NVM_PENDING=$((NVM_PENDING + 1))
 
 if [ "$NVM_PENDING" -eq 0 ]; then
-    info "NVM/Node/corepack: 3/3 installed"
-elif confirm "Install NVM, Node LTS, and enable corepack ($NVM_PENDING/3 pending)?"; then
+    info "NVM/Node: 2/2 installed"
+elif confirm "Install NVM and Node LTS ($NVM_PENDING/2 pending)?"; then
     NVM_OK=false
 
     if [ -d "$NVM_DIR" ]; then
@@ -1608,7 +1606,7 @@ elif confirm "Install NVM, Node LTS, and enable corepack ($NVM_PENDING/3 pending
         if PROFILE=/dev/null bash -c 'curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash'; then
             NVM_OK=true
         else
-            error "Failed to install NVM — skipping Node and corepack"
+            error "Failed to install NVM — skipping Node"
         fi
     fi
 
@@ -1633,19 +1631,72 @@ elif confirm "Install NVM, Node LTS, and enable corepack ($NVM_PENDING/3 pending
         if type nvm &>/dev/null; then
             nvm alias default 'lts/*' 2>/dev/null || true
         fi
-
-        if command -v node &>/dev/null; then
-            info "  Enabling corepack..."
-            if ! corepack enable; then
-                error "Failed to enable corepack"
-            fi
-        else
-            warn "Node is not available — skipping corepack"
-        fi
     fi
 else
-    info "Skipping NVM/Node/corepack."
+    info "Skipping NVM/Node."
 fi
+
+# ------------------------------------------------------------------
+# Group 6.25: pnpm (official standalone installer, no Node.js needed)
+# ------------------------------------------------------------------
+# Set, not inherited: chezmoi runs this script without the zshrc.
+PNPM_HOME="$HOME/Library/pnpm"
+
+install_pnpm() {
+    # Fresh installs only: an installed pnpm is never upgraded here.
+    local version="12.23.0" tmp
+    # Not command -v: a corepack shim on PATH would match.
+    if [ -x "$PNPM_HOME/bin/pnpm" ]; then
+        info "pnpm — already installed ($("$PNPM_HOME/bin/pnpm" --version 2>/dev/null)), skipping"
+        return
+    fi
+    if ! confirm "Install pnpm $version via its official standalone installer?"; then
+        info "Skipping pnpm."
+        return
+    fi
+    if ! tmp="$(mktemp)"; then
+        error "Could not create temporary pnpm installer"
+        return
+    fi
+    if ! curl -fsSL https://get.pnpm.io/install.sh -o "$tmp"; then
+        error "Failed to download https://get.pnpm.io/install.sh"
+    elif ! PNPM_VERSION="$version" PNPM_HOME="$PNPM_HOME" PNPM_NO_MODIFY_PATH=1 sh "$tmp"; then
+        error "Failed to run the pnpm installer"
+    elif [ -x "$PNPM_HOME/bin/pnpm" ]; then
+        info "pnpm — ready ($("$PNPM_HOME/bin/pnpm" --version 2>/dev/null))"
+    else
+        error "pnpm installer completed but $PNPM_HOME/bin/pnpm is missing"
+    fi
+    rm -f "$tmp"
+}
+
+install_pnpm
+unset -f install_pnpm
+
+# ------------------------------------------------------------------
+# Group 6.3: corepack shim retirement (never prompted)
+# ------------------------------------------------------------------
+# nvm use puts the active Node's bin first on PATH, where a corepack shim
+# would shadow the standalone pnpm.
+retire_corepack_shims() {
+    local shim
+    [ -x "$PNPM_HOME/bin/pnpm" ] || return 0
+    for shim in "$NVM_DIR"/versions/node/*/bin/{pnpm,pnpx,yarn,yarnpkg}; do
+        [ -L "$shim" ] || continue
+        case "$(readlink "$shim")" in
+            *corepack/dist/*) ;;
+            *) continue ;;
+        esac
+        if rm -f "$shim"; then
+            info "Retired corepack shim $shim"
+        else
+            error "Failed to remove corepack shim $shim"
+        fi
+    done
+}
+
+retire_corepack_shims
+unset -f retire_corepack_shims
 
 # ------------------------------------------------------------------
 # Group 6.5: fallow (global npm install: fallow, fallow-lsp, fallow-mcp)
@@ -2536,6 +2587,7 @@ info "    - CodeRabbit: curl -fsSL https://cli.coderabbit.ai/install.sh | sh  (o
 info "    - Codex: curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh  (official standalone installer; installs to ~/.local/bin)"
 info "      Authenticate on first use: codex"
 info "      Update: codex update  (or rerun the standalone installer)"
+info "    - pnpm: curl -fsSL https://get.pnpm.io/install.sh | PNPM_HOME=~/Library/pnpm PNPM_NO_MODIFY_PATH=1 sh -  (official standalone installer; needs no Node.js; .zshrc already adds ~/Library/pnpm/bin to PATH)"
 print_linear_mcp_guidance
 print_linear_cli_guidance
 print_gws_guidance
